@@ -1,10 +1,13 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
 from apps.stores import views
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Admin path is configurable (PEPTIDENET_ADMIN_PATH) to avoid the default
+    # /admin/ scanner target in production. Defaults to "admin/" for dev.
+    path(settings.ADMIN_PATH, admin.site.urls),
     # One super-admin control panel for orders + inventory across every site.
     path("manage/", include("apps.manage.urls")),
     # Twilio SMS/voice webhooks (configure each number to point here).

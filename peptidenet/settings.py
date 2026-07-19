@@ -180,3 +180,8 @@ SESSION_COOKIE_NAME = "peptidenet_sessionid"
 CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in env("PEPTIDENET_CSRF_ORIGINS", "").split(",") if o.strip()
 ]
+
+# Admin lives at a non-default path in prod (set PEPTIDENET_ADMIN_PATH) so the
+# default /admin/ scanner target isn't exposed. Always has a trailing slash and
+# no leading slash. Defaults to "admin/" for local dev.
+ADMIN_PATH = (env("PEPTIDENET_ADMIN_PATH", "admin/") or "admin/").strip("/") + "/"

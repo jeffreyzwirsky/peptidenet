@@ -16,6 +16,8 @@ DB_NAME=peptidenet
 DB_USER=peptidenet
 DB_PASS="$(openssl rand -hex 16)"
 SECRET="$(openssl rand -hex 32)"
+# Non-default admin path so /admin/ isn't a standing scanner target.
+ADMIN_PATH="ops-$(openssl rand -hex 4)/"
 
 echo "==> Swap (1GB droplet needs headroom for pip builds + Postgres)"
 if [ ! -f /swapfile ]; then
@@ -56,6 +58,7 @@ PEPTIDENET_DB_PORT=5432
 PEPTIDENET_DB_SSLMODE=disable
 PEPTIDENET_TRUSTED_PROXIES=1
 PEPTIDENET_SSL_REDIRECT=1
+PEPTIDENET_ADMIN_PATH=$ADMIN_PATH
 EOF
 set -a; source "$APP/.env"; set +a
 
@@ -69,6 +72,11 @@ echo "==> Migrate + seed"
 HOSTS="$(./venv/bin/python manage.py emit_hosts)"
 CSRF="$(echo "$HOSTS" | tr ',' '\n' | sed 's#^#https://#' | paste -sd, -)"
 { echo "PEPTIDENET_HOSTS=$HOSTS"; echo "PEPTIDENET_CSRF_ORIGINS=$CSRF"; } >> "$APP/.env"
+
+echo "==> Security self-check (Django deploy checklist)"
+set -a; source "$APP/.env"; set +a
+./venv/bin/python manage.py check --deploy || \
+  echo "!! 'check --deploy' reported items above — review before/after go-live."
 
 echo "==> gunicorn service"
 cp "$APP/deploy/gunicorn.service" /etc/systemd/system/peptidenet.service
@@ -88,6 +96,29 @@ ufw allow OpenSSH || true
 ufw allow 'Nginx Full' || true
 yes | ufw enable || true
 
+echo "==> fail2ban (SSH brute-force protection)"
+apt-get install -y fail2ban || true
+cat > /etc/fail2ban/jail.local <<'EOF'
+[sshd]
+enabled  = true
+maxretry = 5
+findtime = 10m
+bantime  = 1h
+EOF
+systemctl enable --now fail2ban || true
+systemctl restart fail2ban || true
+
+echo "==> Daily Postgres backup (14-day retention)"
+mkdir -p /var/backups/peptidenet
+cat > /etc/cron.daily/peptidenet-backup <<EOF
+#!/usr/bin/env bash
+set -e
+TS="\$(date +%F)"
+sudo -u postgres pg_dump ${DB_NAME} | gzip > "/var/backups/peptidenet/${DB_NAME}-\$TS.sql.gz"
+find /var/backups/peptidenet -name '*.sql.gz' -mtime +14 -delete
+EOF
+chmod +x /etc/cron.daily/peptidenet-backup
+
 echo "==> TLS certs (Let's Encrypt) for every domain"
 DOMAIN_ARGS="$(echo "$HOSTS" | tr ',' '\n' | sed 's#^#-d #' | paste -sd' ' -)"
 if [ -n "$CERT_EMAIL" ]; then
@@ -98,5 +129,8 @@ else
   echo "!! No email passed — skipping certbot. Run: certbot --nginx $DOMAIN_ARGS -m you@email.com --agree-tos"
 fi
 
-echo "==> DONE. App: gunicorn(127.0.0.1:8001) behind nginx. Admin: /admin (create a superuser:)"
-echo "    cd $APP && ./venv/bin/python manage.py createsuperuser"
+echo "==> DONE. App: gunicorn(127.0.0.1:8001) behind nginx."
+echo "    ADMIN URL (custom path — save this): https://<yourdomain>/${ADMIN_PATH}"
+echo "    Control panel: https://<yourdomain>/manage/"
+echo "    Create your login:  cd $APP && ./venv/bin/python manage.py createsuperuser"
+echo "    fail2ban: active (sshd) · DB backups: /var/backups/peptidenet (daily, 14d)"

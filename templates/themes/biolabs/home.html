@@ -1,0 +1,30 @@
+{% extends "themes/base.html" %}
+
+{% block hero %}
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Research Compounds</p>
+      <h1>Purity you can <span class="grad">prove.</span></h1>
+      <p class="lead">High-purity research compounds for serious scientific inquiry. Every batch
+        is independently third-party tested, with a COA available for every product.</p>
+      <div class="hero-cta">
+        <a href="#catalogue" class="btn btn-primary">Shop research compounds →</a>
+        <a href="#quality" class="btn btn-ghost">Our standards</a>
+      </div>
+    </div>
+    <div class="hero-figure">
+      {% include "partials/_hero_vial.html" %}
+      <div class="purity-card hero-card-float">
+        <p class="pc-label">Purity Guarantee</p>
+        <div class="pc-big">≥99%</div>
+        <p class="pc-sub">HPLC-verified on every batch</p>
+        <div class="pc-row">
+          <div><div class="pc-num">3rd</div><div class="pc-cap">Party tested</div></div>
+          <div><div class="pc-num">COA</div><div class="pc-cap">Published certs</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

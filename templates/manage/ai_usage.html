@@ -1,0 +1,27 @@
+{% extends "manage/base.html" %}
+{% block title %}AI Assistant{% endblock %}
+{% block heading %}AI Assistant{% endblock %}
+{% block head_right %}<span class="pill {% if not live %}warn{% endif %}">{% if live %}AI LIVE{% else %}Grounded stub mode{% endif %}</span>{% endblock %}
+{% block body %}
+<p class="note">The storefront support assistant answers buyer questions (products, purity/COAs, shipping, ordering) with a research-use-only framing. In stub mode it uses catalogue-grounded answers; set <code>PEPTIDENET_AI_LIVE=1</code> + an Anthropic/OpenAI key to use the LLM. Every call is ledgered below.</p>
+<div class="kpis">
+  <div class="kpi"><div class="kpi-label">AI calls</div><div class="kpi-num">{{ total }}</div></div>
+  <div class="kpi"><div class="kpi-label">Total cost</div><div class="kpi-num">${{ total_cost|floatformat:4 }}</div></div>
+</div>
+<div class="cols">
+  <section class="card">
+    <div class="card-head"><h2>By purpose</h2></div>
+    <table class="tbl"><thead><tr><th>Purpose</th><th class="r">Calls</th><th class="r">Cost</th></tr></thead>
+      <tbody>{% for r in by_purpose %}<tr><td>{{ r.purpose }}</td><td class="r">{{ r.n }}</td><td class="r">${{ r.cost|floatformat:4 }}</td></tr>
+      {% empty %}<tr><td colspan="3" class="empty">No AI calls yet.</td></tr>{% endfor %}</tbody></table>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>Recent calls</h2></div>
+    <table class="tbl"><thead><tr><th>When</th><th>Purpose</th><th>Provider</th><th class="r">Tokens</th><th class="r">Cost</th></tr></thead>
+      <tbody>{% for r in runs %}<tr><td class="sub">{{ r.created_at|date:"M j H:i" }}</td><td>{{ r.purpose }}</td>
+        <td><span class="tag">{{ r.provider }}</span></td><td class="r sub">{{ r.input_tokens }}/{{ r.output_tokens }}</td>
+        <td class="r">${{ r.cost_usd|floatformat:4 }}</td></tr>
+      {% empty %}<tr><td colspan="5" class="empty">No calls logged.</td></tr>{% endfor %}</tbody></table>
+  </section>
+</div>
+{% endblock %}

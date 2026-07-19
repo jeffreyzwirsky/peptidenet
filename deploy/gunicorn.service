@@ -1,0 +1,18 @@
+# /etc/systemd/system/peptidenet.service
+# Mirrors the lead-system gunicorn unit. gunicorn binds 127.0.0.1:8001; nginx
+# proxies every domain to it (see the generated nginx.conf).
+[Unit]
+Description=peptidenet gunicorn
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/peptidenet
+EnvironmentFile=/var/www/peptidenet/.env
+ExecStart=/var/www/peptidenet/venv/bin/gunicorn peptidenet.wsgi:application \
+    --bind 127.0.0.1:8001 --workers 3 --timeout 60
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

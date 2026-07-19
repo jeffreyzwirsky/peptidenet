@@ -1,0 +1,38 @@
+{% extends "manage/base.html" %}
+{% block title %}Phone Numbers{% endblock %}
+{% block heading %}Phone Numbers{% endblock %}
+{% block head_right %}<span class="pill {% if not live %}warn{% endif %}">{% if live %}Comms LIVE{% else %}Stub mode (not sending){% endif %}</span>{% endblock %}
+{% block body %}
+{% if not live %}<p class="note">Providers are stubbed — nothing sends or charges. Set <code>PEPTIDENET_COMMS_LIVE=1</code> plus Twilio/OpenAI/ElevenLabs keys to go live, and point each number's Twilio SMS webhook at <code>/webhooks/twilio/sms/</code> and voice webhook at <code>/webhooks/twilio/voice/?number=&lt;e164&gt;</code>.</p>{% endif %}
+<section class="card">
+  <table class="tbl">
+    <thead><tr><th>Number</th><th>Label</th><th>Site</th><th>Region</th><th>SMS</th><th>Voice</th><th>IVR</th><th>Active</th></tr></thead>
+    <tbody>
+      {% for n in numbers %}
+      <tr>
+        <td class="mono">{{ n.display_phone }}</td>
+        <td>{{ n.label|default:"—" }}</td>
+        <td class="sub">{{ n.site.domain|default:"shared (all sites)" }}</td>
+        <td>{{ n.region|default:"—" }}</td>
+        <td>{% if n.sms_enabled %}✓{% else %}—{% endif %}</td>
+        <td>{% if n.voice_enabled %}✓{% else %}—{% endif %}</td>
+        <td>{% if n.ivr_enabled %}on{% else %}voicemail{% endif %}</td>
+        <td>{% if n.is_active %}<span class="badge in">active</span>{% else %}<span class="badge out">off</span>{% endif %}</td>
+      </tr>
+      {% empty %}<tr><td colspan="8" class="empty">No numbers yet. Add them in Django admin → Phone numbers (or via provisioning once Twilio is wired).</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Opt-out list (STOP)</h2></div>
+  <table class="tbl">
+    <thead><tr><th>When</th><th>Number</th><th>Keyword</th><th>Site</th></tr></thead>
+    <tbody>
+      {% for o in optouts %}
+      <tr><td class="sub">{{ o.created_at|date:"M j, H:i" }}</td><td class="mono">{{ o.e164 }}</td><td>{{ o.keyword|default:"—" }}</td><td class="sub">{{ o.site.domain|default:"—" }}</td></tr>
+      {% empty %}<tr><td colspan="4" class="empty">No opt-outs.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

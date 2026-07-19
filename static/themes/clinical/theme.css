@@ -1,0 +1,154 @@
+/* Theme: clinical — light pharma/lab aesthetic. Paper-white + cobalt + slate ink,
+   Fraunces serif display over an Inter sans body (the SmashFat BioLabs light look). */
+.theme-clinical{
+  --bg:#ffffff; --fg:#10203a; --muted:#68758c; --accent:#2b5cd9; --accent-ink:#ffffff;
+  --card:#ffffff; --line:#e2e7ef; --radius:14px;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+}
+.theme-clinical{
+  --paper-2:#f7f8fa; --line-2:#d3dae6; --accent-dk:#1f47b3; --accent-soft:#eaf0fe;
+  --good:#0f9d63; --warn:#b45309; --ink-2:#3b475c;
+  --shadow-sm:0 1px 2px rgba(16,32,58,.04),0 2px 8px rgba(16,32,58,.05);
+  --shadow-md:0 4px 14px rgba(16,32,58,.07),0 10px 34px rgba(16,32,58,.06);
+}
+
+/* Typography */
+.theme-clinical{background:var(--bg)}
+.theme-clinical h1,.theme-clinical h2,.theme-clinical h3,.theme-clinical h4{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;letter-spacing:-.01em;color:var(--fg)}
+.theme-clinical .eyebrow{color:var(--accent);font-weight:600;letter-spacing:.16em}
+
+/* Buttons — flatter, squarer, light */
+.theme-clinical .btn{border-radius:10px;font-weight:600}
+.theme-clinical .btn-primary{background:var(--accent);color:#fff;box-shadow:none}
+.theme-clinical .btn-primary:hover{background:var(--accent-dk);filter:none;transform:translateY(-1px)}
+.theme-clinical .btn-ghost{background:#fff;color:var(--fg);border-color:var(--line-2)}
+.theme-clinical .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Header */
+.theme-clinical .site-header{background:rgba(255,255,255,.86);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
+.theme-clinical .brand{display:flex;align-items:center;gap:11px}
+.theme-clinical .brand-mark{width:32px;height:32px;flex:0 0 32px;display:inline-flex}
+.theme-clinical .brand-name{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:21px;letter-spacing:-.02em;color:var(--fg)}
+.theme-clinical .nav-links a{color:var(--ink-2);font-weight:500}
+.theme-clinical .nav-links a:hover{color:var(--accent)}
+.theme-clinical .cart-btn{color:var(--fg)}
+.theme-clinical .cart-count{background:var(--accent);color:#fff}
+
+/* Announcement bar */
+.theme-clinical .announcement{background:var(--fg);color:#eef2fb;border-bottom:0}
+.theme-clinical .ann-track b{color:#8fb0ff}
+
+/* Hero */
+.theme-clinical .hero{position:relative;overflow:hidden;padding:76px 0 84px;
+  background:radial-gradient(900px 500px at 88% -10%,var(--accent-soft) 0%,transparent 60%),
+             linear-gradient(180deg,#fff 0%,var(--paper-2) 100%)}
+.theme-clinical .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.theme-clinical .hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:100px;padding:7px 15px 7px 9px;font-size:13px;font-weight:600;color:var(--ink-2);box-shadow:var(--shadow-sm);margin-bottom:20px}
+.theme-clinical .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(15,157,99,.15)}
+.theme-clinical .hero h1{font-size:clamp(38px,5.4vw,66px);font-weight:600;letter-spacing:-.025em;color:var(--fg)}
+.theme-clinical .hero .lead{font-size:18px;color:var(--ink-2);max-width:520px;margin:22px 0 30px}
+.theme-clinical .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.theme-clinical .hero-stats{display:flex;gap:34px;margin-top:42px;flex-wrap:wrap}
+.theme-clinical .hero-stats .s b{font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:600;display:block;letter-spacing:-.02em;color:var(--fg)}
+.theme-clinical .hero-stats .s span{font-size:13px;color:var(--muted)}
+
+/* Hero product illustration + floating assay/COA card */
+.theme-clinical .hero-visual{position:relative}
+.theme-clinical .hero-figure{position:relative;min-height:520px;display:flex;align-items:center;justify-content:flex-start}
+/* soften the shared vial drop-shadow for the light hero */
+.theme-clinical .hero-figure .hero-vial{max-width:300px;margin:0;filter:drop-shadow(0 22px 42px rgba(16,32,58,.16))}
+
+/* Assay / COA hero card */
+.theme-clinical .assay-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-md);padding:26px 26px 20px;position:relative;overflow:hidden}
+/* float the COA card over the lower-right of the vial */
+.theme-clinical .assay-card.hero-card-float{position:absolute;right:0;bottom:20px;width:246px;padding:20px 20px 16px;box-shadow:0 10px 24px rgba(16,32,58,.12),0 26px 60px rgba(16,32,58,.18)}
+.theme-clinical .assay-card.hero-card-float .big{font-size:34px}
+.theme-clinical .assay-card .molecule{position:absolute;right:-30px;top:-30px;opacity:.5}
+.theme-clinical .assay-card h4{font-family:'Inter';font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+.theme-clinical .assay-card .big{font-family:'Fraunces',Georgia,serif;font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--fg);margin-bottom:8px}
+.theme-clinical .chip-pass{color:var(--good);font-weight:600;font-size:13px;display:inline-flex;gap:5px;align-items:center}
+.theme-clinical .assay-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:14px}
+.theme-clinical .assay-row:first-of-type{margin-top:14px}
+.theme-clinical .assay-row .k{color:var(--muted)}
+.theme-clinical .assay-row .v{font-weight:600;color:var(--fg)}
+.theme-clinical .trace{margin-top:6px}
+
+/* Sections */
+.theme-clinical section{padding:78px 0}
+.theme-clinical .section-head h2{font-size:clamp(28px,3.6vw,42px)}
+.theme-clinical .section-head .sec-sub{color:var(--ink-2);font-size:16px;margin-top:14px;max-width:640px;margin-left:auto;margin-right:auto}
+
+/* Category filter chips */
+.theme-clinical .cat-chip{border:1px solid var(--line-2);background:#fff;color:var(--ink-2);font-weight:600}
+.theme-clinical .cat-chip.is-active,.theme-clinical .cat-chip:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Product cards — light */
+.theme-clinical .pcard{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.theme-clinical .pcard:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:var(--shadow-md)}
+.theme-clinical .pcard-media{background:linear-gradient(180deg,#fbfcfe 0%,#f2f5fb 100%);border-bottom:1px solid var(--line)}
+.theme-clinical .pcard-new{background:var(--accent);color:#fff}
+.theme-clinical .pcard-cat{color:var(--muted)}
+.theme-clinical .pcard-name{font-family:'Fraunces',Georgia,serif;font-weight:600;color:var(--fg)}
+.theme-clinical .pcard-desc{color:var(--muted)}
+.theme-clinical .pcard-price{font-family:'Fraunces',Georgia,serif;font-weight:600;color:var(--fg)}
+.theme-clinical .pcard-price span{color:var(--muted)}
+.theme-clinical .chip{background:var(--paper-2);border:1px solid var(--line);color:var(--ink-2)}
+.theme-clinical .chip.pur{color:var(--accent);border-color:#cfdcfb;background:var(--accent-soft)}
+.theme-clinical .pcard-stock.in{color:var(--good)}
+.theme-clinical .pcard-stock.low{color:var(--warn)}
+
+/* Quality band */
+.theme-clinical .quality{background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.theme-clinical .quality .section-head{text-align:center;max-width:640px;margin:0 auto 40px}
+.theme-clinical .q-item{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow-sm)}
+.theme-clinical .q-item h4{font-family:'Fraunces',Georgia,serif;font-size:19px;color:var(--fg);margin-bottom:8px}
+.theme-clinical .q-item p{color:var(--muted)}
+
+/* COA verification band */
+.theme-clinical .coa-section{padding-top:0}
+.theme-clinical .coa{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;background:var(--fg);color:#e8edf7;border-radius:20px;padding:46px;overflow:hidden;position:relative}
+.theme-clinical .coa h2{color:#fff;font-size:clamp(26px,3.2vw,36px)}
+.theme-clinical .coa p{color:#b9c4d8;margin:16px 0 0;font-size:15.5px}
+.theme-clinical .coa .eyebrow{color:#8fb0ff}
+.theme-clinical .coa ul{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:12px}
+.theme-clinical .coa li{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;color:#dbe3f2}
+.theme-clinical .coa li svg{flex:0 0 20px;color:#5b8dff;margin-top:2px}
+.theme-clinical .coa-doc{background:#0b1220;border:1px solid #26324a;border-radius:14px;padding:24px}
+.theme-clinical .coa-doc .top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #26324a;padding-bottom:14px;margin-bottom:14px}
+.theme-clinical .coa-doc .top b{font-family:'Fraunces',Georgia,serif;color:#fff;font-size:17px}
+.theme-clinical .coa-doc .doc-pass{color:var(--good);font-weight:700;font-size:13px;letter-spacing:.08em}
+.theme-clinical .coa-doc .rowd{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;color:#aab6cd}
+.theme-clinical .coa-doc .rowd b{color:#fff;font-weight:600}
+.theme-clinical .coa-doc .peak{height:70px;margin-top:12px;border-top:1px solid #26324a;padding-top:12px}
+
+/* Reviews */
+.theme-clinical .review{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.theme-clinical .review .stars{color:#eab308}
+.theme-clinical .review blockquote{color:var(--ink-2)}
+.theme-clinical .review figcaption{color:var(--muted)}
+
+/* Contact */
+.theme-clinical .contact-form input,.theme-clinical .contact-form textarea{background:#fff;border:1px solid var(--line-2);color:var(--fg)}
+.theme-clinical .contact-form input::placeholder,.theme-clinical .contact-form textarea::placeholder{color:var(--muted)}
+
+/* Footer */
+.theme-clinical .site-footer{background:var(--paper-2);border-top:1px solid var(--line)}
+.theme-clinical .site-footer .brand-name{font-family:'Fraunces',Georgia,serif;font-weight:600;color:var(--fg)}
+.theme-clinical .footer-grid p,.theme-clinical .foot-fruo{color:var(--muted)}
+.theme-clinical .foot-contact{color:var(--accent)}
+.theme-clinical .foot-bottom{color:var(--muted);border-top:1px solid var(--line)}
+
+/* Cart drawer / age gate / cookie — light surfaces */
+.theme-clinical .cart-drawer{background:#fff;border-left:1px solid var(--line)}
+.theme-clinical .age-box,.theme-clinical .cookie{background:#fff;border:1px solid var(--line-2);box-shadow:var(--shadow-md)}
+.theme-clinical .toast{background:var(--fg);border-color:var(--fg);color:#fff}
+
+@media(max-width:960px){
+  .theme-clinical .hero-grid{grid-template-columns:1fr;gap:38px}
+  .theme-clinical .hero-visual{max-width:440px}
+  .theme-clinical .hero-figure{min-height:0;flex-direction:column;justify-content:center}
+  .theme-clinical .hero-figure .hero-vial{max-width:250px;margin:0 auto}
+  .theme-clinical .assay-card.hero-card-float{position:static;width:100%;margin-top:18px}
+  .theme-clinical .coa{grid-template-columns:1fr;padding:34px}
+}

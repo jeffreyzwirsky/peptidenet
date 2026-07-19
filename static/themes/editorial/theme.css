@@ -1,0 +1,112 @@
+/* Theme: editorial — dark charcoal magazine, magenta→violet gradient, issue-numbered sections */
+.theme-editorial{
+  --bg:#141216; --fg:#f5f4f6; --muted:#a1a1aa; --accent:#e0409a; --accent-ink:#141216;
+  --card:#1c1a20; --line:rgba(255,255,255,.09); --radius:16px;
+  --font:'Space Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mag:#e0409a; --vio:#8b5cf6;
+  --grad:linear-gradient(115deg,#e0409a 0%,#8b5cf6 100%);
+  --line-2:rgba(255,255,255,.16); --bg-3:#26242b;
+}
+
+/* gradient + accent helpers */
+.theme-editorial .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.theme-editorial ::selection{background:var(--mag);color:#fff}
+.theme-editorial .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 34px -12px rgba(224,64,154,.6)}
+.theme-editorial .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 42px -12px rgba(139,92,246,.7)}
+.theme-editorial .btn-ghost{border-color:var(--line-2);color:var(--fg)}
+.theme-editorial .btn-ghost:hover{border-color:var(--fg);background:var(--card)}
+.theme-editorial .eyebrow{color:var(--mag)}
+.theme-editorial .chip.pur{color:var(--mag);border-color:rgba(224,64,154,.35)}
+.theme-editorial .cart-count{background:var(--grad);color:#fff}
+.theme-editorial .cat-chip.is-active,.theme-editorial .cat-chip:hover{background:#fff;color:#141216;border-color:#fff}
+
+/* header brand — loud grotesk */
+.theme-editorial .brand .brand-name{letter-spacing:-.03em;font-weight:700}
+
+/* ===== Hero — big editorial ===== */
+.theme-editorial .hero{position:relative;overflow:hidden;padding:78px 0 84px;border-bottom:1px solid var(--line)}
+.theme-editorial .hero-glow{position:absolute;width:760px;height:760px;border-radius:50%;pointer-events:none;filter:blur(30px);
+  background:radial-gradient(circle,rgba(139,92,246,.32),transparent 62%);top:-260px;right:-160px}
+.theme-editorial .hero-glow.two{background:radial-gradient(circle,rgba(224,64,154,.26),transparent 62%);left:-260px;top:180px;right:auto}
+.theme-editorial .hero-inner{position:relative;z-index:2;max-width:900px}
+.theme-editorial .hero-kicker{display:inline-flex;align-items:center;gap:12px;font-size:12px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:26px;font-weight:500}
+.theme-editorial .hero-kicker .ln{width:44px;height:1px;background:var(--line-2)}
+.theme-editorial .hero h1{font-size:clamp(52px,9vw,116px);line-height:.9;font-weight:700;letter-spacing:-.045em;margin-bottom:26px}
+.theme-editorial .hero h1 .it{font-style:italic;font-weight:400}
+.theme-editorial .hero .lead{font-size:18px;color:var(--muted);max-width:520px;margin-bottom:34px;line-height:1.6}
+.theme-editorial .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.theme-editorial .hero-stats{display:flex;gap:40px;margin-top:52px;flex-wrap:wrap}
+.theme-editorial .hero-stats .n{font-size:30px;font-weight:700;letter-spacing:-.03em}
+.theme-editorial .hero-stats .l{font-size:11.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+
+/* ===== Hero product illustration — asymmetric magazine plate ===== */
+.theme-editorial .hero-shell{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+  gap:56px;align-items:center;max-width:1200px}
+.theme-editorial .hero-inner{max-width:640px}
+.theme-editorial .hero-figure-ed{position:relative;justify-content:flex-end}
+.theme-editorial .hero-figure-ed .hero-vial{max-width:440px;transform:rotate(4deg);
+  filter:drop-shadow(0 40px 70px rgba(139,92,246,.4)) drop-shadow(0 8px 20px rgba(224,64,154,.3))}
+/* editorial "plate" tag, top-left of figure */
+.theme-editorial .hero-plate{position:absolute;top:0;left:2%;z-index:3;font-size:12px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--mag);font-weight:600;border:1px solid rgba(224,64,154,.4);
+  border-radius:999px;padding:6px 14px;background:color-mix(in srgb,var(--card) 80%,transparent);backdrop-filter:blur(6px)}
+/* purity badge floated over the vial, bottom-left for asymmetry */
+.theme-editorial .hero-figure-ed .purity-float{right:auto;left:0;bottom:8%;
+  box-shadow:0 24px 50px -20px rgba(139,92,246,.6)}
+.theme-editorial .hero-figure-ed .purity-float .pf-big{background:var(--grad);-webkit-background-clip:text;
+  background-clip:text;color:transparent}
+
+/* ===== Issue-numbered section heads ===== */
+.theme-editorial .sec-num{display:block;font-size:13px;letter-spacing:.3em;color:var(--mag);font-weight:600;margin-bottom:14px}
+.theme-editorial .catalogue .section-head.ed-head{text-align:left;max-width:none;margin:0 0 32px}
+.theme-editorial .ed-head h2{font-size:clamp(30px,4.4vw,52px);letter-spacing:-.035em;font-weight:600}
+.theme-editorial .ed-head .eyebrow{color:var(--muted);letter-spacing:normal;text-transform:none;font-weight:400;font-size:15px;margin-top:16px;max-width:520px}
+.theme-editorial .cat-filter{justify-content:flex-start}
+
+/* ===== Product cards — gallery / asymmetric feel ===== */
+.theme-editorial .pcard{background:linear-gradient(170deg,#1f1d24,#161419);border:1px solid var(--line);
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .28s,box-shadow .28s}
+.theme-editorial .pcard:hover{transform:translateY(-6px);border-color:var(--line-2);box-shadow:0 30px 60px -30px rgba(139,92,246,.55)}
+.theme-editorial .pcard-media{background:
+  radial-gradient(circle at 50% 30%,rgba(139,92,246,.16),transparent 60%),
+  repeating-linear-gradient(45deg,rgba(255,255,255,.015) 0 12px,transparent 12px 24px),#18161c;
+  border-bottom:1px solid var(--line)}
+.theme-editorial .pcard-media .vial{transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.theme-editorial .pcard:hover .pcard-media .vial{transform:translateY(-6px) rotate(-3deg) scale(1.04)}
+.theme-editorial .pcard-new{background:var(--grad);color:#fff}
+.theme-editorial .pcard-name{font-size:18px;letter-spacing:-.02em}
+.theme-editorial .pcard-price{letter-spacing:-.02em}
+.theme-editorial .chip{background:var(--bg-3)}
+.theme-editorial .pcard-actions .btn-ghost:hover{background:var(--grad);border-color:transparent;color:#fff}
+
+/* ===== Editorial split banner (block 02) ===== */
+.theme-editorial .editorial{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:0}
+.theme-editorial .editorial .wrap{padding:0;max-width:none}
+.theme-editorial .editorial-inner{display:grid;grid-template-columns:1fr 1fr;min-height:360px}
+.theme-editorial .ed-l{padding:64px 56px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--line)}
+.theme-editorial .ed-l .big-num{font-size:96px;font-weight:700;line-height:.8;letter-spacing:-.05em;margin-bottom:22px}
+.theme-editorial .ed-l h3{font-size:30px;letter-spacing:-.03em;font-weight:600;margin-bottom:16px;max-width:400px}
+.theme-editorial .ed-l p{color:var(--muted);font-size:15px;line-height:1.65;max-width:440px}
+.theme-editorial .ed-l p b{color:var(--mag);letter-spacing:.06em;border:1px dashed rgba(224,64,154,.5);padding:2px 8px;border-radius:6px}
+.theme-editorial .ed-r{position:relative;display:grid;place-items:center;padding:48px;background:
+  radial-gradient(circle at 70% 40%,rgba(224,64,154,.22),transparent 55%),
+  radial-gradient(circle at 30% 70%,rgba(139,92,246,.22),transparent 55%),#161419}
+.theme-editorial .ed-r .quote{font-size:26px;font-weight:500;letter-spacing:-.02em;line-height:1.35;max-width:440px;text-align:center}
+
+/* ===== Quality / reviews accents ===== */
+.theme-editorial .q-item{background:var(--card);transition:border-color .25s,transform .25s}
+.theme-editorial .q-item:hover{border-color:var(--line-2);transform:translateY(-4px)}
+.theme-editorial .review .stars{color:var(--mag)}
+
+@media(max-width:860px){
+  .theme-editorial .editorial-inner{grid-template-columns:1fr}
+  .theme-editorial .ed-l{border-right:none;border-bottom:1px solid var(--line);padding:48px 32px}
+  .theme-editorial .hero-stats{gap:28px}
+  .theme-editorial .hero-shell{grid-template-columns:1fr;gap:40px}
+  .theme-editorial .hero-inner{max-width:640px}
+  .theme-editorial .hero-figure-ed{justify-content:center;margin-top:8px}
+  .theme-editorial .hero-figure-ed .hero-vial{max-width:300px;transform:rotate(3deg)}
+  .theme-editorial .hero-plate{left:auto;right:2%}
+  .theme-editorial .hero-figure-ed .purity-float{left:auto;right:0}
+}

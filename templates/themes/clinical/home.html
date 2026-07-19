@@ -1,0 +1,119 @@
+{% extends "themes/base.html" %}
+{% load static %}
+
+{% block title %}{{ site.brand_name }} — Certified-Purity Research Compounds{% endblock %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block brandmark %}
+<span class="brand-mark" aria-hidden="true">
+  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="1" width="38" height="38" rx="10" fill="#eaf0fe" stroke="#2b5cd9" stroke-width="1.5"/>
+    <path d="M16 9h8v5.5l-4 6.5-4-6.5V9z" stroke="#2b5cd9" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M16 9h8M15 30h10" stroke="#2b5cd9" stroke-width="1.7" stroke-linecap="round"/>
+    <circle cx="20" cy="24.5" r="2.6" fill="#2b5cd9"/>
+  </svg>
+</span>
+<span class="brand-name">{{ site.brand_name }}</span>
+{% endblock %}
+
+{% block navcta %}<a href="#catalogue" class="btn btn-primary">Browse catalogue</a>{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="hero-badge"><span class="dot"></span> Batch-tested to ≥99% purity · COA on every lot</span>
+      <p class="eyebrow">Research Compounds</p>
+      <h1>{{ site.tagline }}</h1>
+      <p class="lead">{{ site.brand_name }} supplies analytically certified peptides and research
+        molecules — each lot independently verified by HPLC and mass spectrometry, documented,
+        and shipped from {{ site.ships_from }}.</p>
+      <div class="hero-cta">
+        <a href="#catalogue" class="btn btn-primary">Browse the catalogue</a>
+        <a href="#coa" class="btn btn-ghost">View a sample COA</a>
+      </div>
+      <div class="hero-stats">
+        <div class="s"><b>≥99%</b><span>Release purity</span></div>
+        <div class="s"><b>HPLC/MS</b><span>Verified identity</span></div>
+        <div class="s"><b>100%</b><span>Lots third-party tested</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-figure">
+      {% include "partials/_hero_vial.html" %}
+      <div class="assay-card hero-card-float">
+        <svg class="molecule" width="180" height="180" viewBox="0 0 180 180" fill="none" stroke="#2b5cd9" stroke-width="1.2" aria-hidden="true">
+          <circle cx="60" cy="50" r="5"/><circle cx="110" cy="40" r="5"/><circle cx="140" cy="80" r="5"/><circle cx="100" cy="95" r="5"/><circle cx="70" cy="110" r="5"/><circle cx="130" cy="130" r="5"/>
+          <path d="M65 52l40-9M113 44l24 32M137 84l-33 9M96 97l-24 11M74 112l52 16M104 92l24 34"/>
+        </svg>
+        <h4>Certificate of Analysis</h4>
+        <div class="big">99.4%</div>
+        <span class="chip-pass"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Meets release specification</span>
+        <div class="assay-row"><span class="k">Method</span><span class="v">RP-HPLC / UV 214nm</span></div>
+        <div class="assay-row"><span class="k">Identity</span><span class="v">ESI-MS confirmed</span></div>
+        <div class="assay-row"><span class="k">Appearance</span><span class="v">White lyophilate</span></div>
+        <div class="trace">
+          <svg width="100%" height="56" viewBox="0 0 320 56" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="52" x2="320" y2="52" stroke="#e2e7ef"/>
+            <path d="M0 50 L70 50 L86 48 L120 50 L150 50 L160 8 L172 50 L230 50 L246 40 L262 50 L320 50" fill="none" stroke="#2b5cd9" stroke-width="1.8"/>
+          </svg>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block catalogue_head %}
+<div class="section-head">
+  <p class="eyebrow">The Catalogue</p>
+  <h2>Research compounds, fully documented.</h2>
+  <p class="sec-sub">Every vial is lyophilized, sealed, and released against a batch-specific
+    certificate of analysis. Filter by research category below.</p>
+</div>
+{% endblock %}
+
+{% block after_catalogue %}
+<section id="coa" class="coa-section">
+  <div class="wrap">
+    <div class="coa">
+      <div class="coa-copy">
+        <span class="eyebrow">Certificate of Analysis</span>
+        <h2>Verify every lot before you open the vial.</h2>
+        <p>Transparency is the product. Each {{ site.brand_name }} lot is released with analytical
+          documentation you can cross-reference against the sealed vial in your hand.</p>
+        <ul>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> RP-HPLC purity chromatogram with integration report</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> ESI-MS identity confirmation and expected mass</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Lot number, fill weight, and appearance record</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Recommended storage and handling parameters</li>
+        </ul>
+      </div>
+      <div class="coa-doc">
+        <div class="top">
+          <b>COA · Lot SFB-2607</b>
+          <span class="doc-pass">PASS</span>
+        </div>
+        <div class="rowd"><span>Compound</span><b>BPC-157 (10mg)</b></div>
+        <div class="rowd"><span>Purity (HPLC)</span><b>99.42%</b></div>
+        <div class="rowd"><span>Identity (MS)</span><b>Confirmed</b></div>
+        <div class="rowd"><span>Water content</span><b>3.1%</b></div>
+        <div class="rowd"><span>Endotoxin</span><b>&lt; 0.5 EU/mg</b></div>
+        <div class="rowd"><span>Released</span><b>2026-06-11</b></div>
+        <div class="peak">
+          <svg width="100%" height="100%" viewBox="0 0 320 60" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="54" x2="320" y2="54" stroke="#26324a"/>
+            <path d="M0 52 L90 52 L104 46 L150 52 L188 52 L200 6 L214 52 L260 52 L276 42 L292 52 L320 52" fill="none" stroke="#5b8dff" stroke-width="1.8"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

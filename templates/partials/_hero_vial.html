@@ -1,0 +1,59 @@
+{% comment %}Themeable hero illustration: a research vial over a peptide/molecular
+backdrop. Colours (liquid, cap ring, molecule, glow) inherit the theme accent via
+CSS classes styled in base.css. Swap for a real product photo later by replacing
+this include with an <img> in the theme's hero.{% endcomment %}
+<svg class="hero-vial" viewBox="0 0 420 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Research compound vial">
+  <defs>
+    <linearGradient id="hvGlass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
+      <stop offset=".5" stop-color="#e7edf6"/>
+      <stop offset="1" stop-color="#c4d0e2"/>
+    </linearGradient>
+    <linearGradient id="hvCap" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f6fa"/><stop offset=".5" stop-color="#aeb8c8"/>
+      <stop offset="1" stop-color="#7d8899"/>
+    </linearGradient>
+    <linearGradient id="hvLiquid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" class="hv-liq-top"/><stop offset="1" class="hv-liq-bot"/>
+    </linearGradient>
+    <radialGradient id="hvGlow" cx=".5" cy=".45" r=".6">
+      <stop offset="0" class="hv-glow-in"/><stop offset="1" class="hv-glow-out"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="210" cy="215" r="200" fill="url(#hvGlow)"/>
+
+  <!-- molecular / peptide-chain backdrop -->
+  <g class="hv-mol" fill="none" stroke-width="2.5">
+    <polygon points="300,90 340,112 340,158 300,180 260,158 260,112"/>
+    <circle cx="300" cy="90" r="6" class="hv-node"/><circle cx="340" cy="158" r="6" class="hv-node"/>
+    <path d="M300 180 L296 232 L338 260"/>
+    <circle cx="296" cy="232" r="6" class="hv-node"/><circle cx="338" cy="260" r="6" class="hv-node"/>
+    <path d="M110 300 L150 322 L150 366 L110 388 L70 366 L70 322 Z"/>
+    <circle cx="110" cy="300" r="6" class="hv-node"/><circle cx="70" cy="366" r="6" class="hv-node"/>
+    <path d="M110 388 L118 424"/>
+    <circle cx="118" cy="424" r="6" class="hv-node"/>
+  </g>
+
+  <!-- shadow -->
+  <ellipse cx="210" cy="452" rx="96" ry="16" fill="#000" opacity=".22"/>
+
+  <!-- vial -->
+  <g>
+    <rect x="168" y="40" width="84" height="34" rx="7" fill="url(#hvCap)"/>
+    <rect x="168" y="52" width="84" height="7" class="hv-ring"/>
+    <rect x="176" y="74" width="68" height="16" rx="4" fill="#9aa6b8"/>
+    <path d="M172 92 h76 a10 10 0 0 1 10 10 v300 a26 26 0 0 1 -26 26 h-44 a26 26 0 0 1 -26 -26 v-300 a10 10 0 0 1 10 -10 z" fill="url(#hvGlass)" stroke="#b9c4d6" stroke-width="2"/>
+    <!-- liquid fill (lower ~55%) -->
+    <path d="M162 250 v152 a26 26 0 0 0 26 26 h44 a26 26 0 0 0 26 -26 v-152 z" class="hv-liquid" fill="url(#hvLiquid)"/>
+    <path d="M162 250 h96" class="hv-liquid-line"/>
+    <!-- label -->
+    <rect x="170" y="286" width="80" height="96" rx="8" fill="#0f1728" opacity=".92"/>
+    <rect x="180" y="300" width="60" height="6" rx="3" class="hv-ring"/>
+    <rect x="180" y="316" width="44" height="5" rx="2.5" fill="#ffffff" opacity=".5"/>
+    <rect x="180" y="330" width="52" height="5" rx="2.5" fill="#ffffff" opacity=".3"/>
+    <text x="210" y="366" text-anchor="middle" class="hv-purity" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="800">≥99%</text>
+    <!-- glass highlight -->
+    <rect x="184" y="104" width="14" height="150" rx="7" fill="#fff" opacity=".55"/>
+  </g>
+</svg>

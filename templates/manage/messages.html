@@ -1,0 +1,41 @@
+{% extends "manage/base.html" %}
+{% block title %}Messages{% endblock %}
+{% block heading %}Messages{% endblock %}
+{% block head_right %}<span class="pill">{{ contacts|length }} threads</span>{% endblock %}
+{% block body %}
+<div class="inbox">
+  <aside class="thread-list">
+    {% for c in contacts %}
+    <a href="?contact={{ c.pk }}" class="thread-row {% if selected and selected.pk == c.pk %}on{% endif %}">
+      <div class="tr-name">{{ c.name|default:c.display_phone }}</div>
+      <div class="tr-last">{% if c.last %}{{ c.last.body|truncatechars:42 }}{% endif %}</div>
+      <div class="tr-meta">{{ c.display_phone }}{% if c.marketing_opted_out %} · <span class="opt">opted out</span>{% endif %}</div>
+    </a>
+    {% empty %}<p class="empty">No conversations yet.</p>{% endfor %}
+  </aside>
+
+  <section class="thread-pane">
+    {% if selected %}
+      <div class="tp-head"><b>{{ selected.name|default:selected.display_phone }}</b><span class="sub">{{ selected.display_phone }}</span></div>
+      <div class="bubbles">
+        {% for m in thread %}
+        <div class="bubble {{ m.direction }}">
+          <div class="b-body">{{ m.body }}</div>
+          <div class="b-meta">{{ m.get_status_display }} · {{ m.category }}{% if m.ai_generated %} · AI{% endif %} · {{ m.created_at|date:"M j H:i" }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <form method="post" class="composer">{% csrf_token %}
+        <textarea name="body" placeholder="Type a reply…">{{ draft }}</textarea>
+        <div class="composer-row">
+          <select name="category"><option value="transactional">Transactional</option><option value="marketing">Marketing</option></select>
+          <button class="btn ghost" name="action" value="draft">✨ AI draft</button>
+          <button class="btn" name="action" value="send">Send</button>
+        </div>
+      </form>
+    {% else %}
+      <div class="tp-empty">Pick a conversation to view and reply.</div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

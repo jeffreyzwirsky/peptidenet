@@ -1,0 +1,13 @@
+Django>=5.0,<5.3
+gunicorn>=21.2
+# Postgres in production (same managed Postgres pattern as the lead system).
+# Not needed for local SQLite dev.
+psycopg[binary]>=3.1
+
+# --- Comms / telephony providers (OPTIONAL) ---
+# Imports are lazy + guarded, so the app runs and all tests pass WITHOUT these.
+# Install + set the matching keys only when you flip PEPTIDENET_COMMS_LIVE=1.
+# twilio>=9.0          # SMS + voice + signature validation
+# openai>=1.0          # Whisper call/voicemail transcription
+# anthropic>=0.40      # AI-drafted SMS replies (Claude Haiku)
+# requests>=2.31       # fetch recordings for transcription

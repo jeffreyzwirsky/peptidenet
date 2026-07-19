@@ -1,0 +1,11 @@
+<div class="cat-filter" data-cat-filter>
+  <button class="cat-chip is-active" data-filter="all">All</button>
+  {% for c in categories %}
+    <button class="cat-chip" data-filter="{{ c.slug }}">{{ c.name }}</button>
+  {% endfor %}
+</div>
+<div class="product-grid" data-grid>
+  {% for product in products %}
+    {% include "partials/_product_card.html" %}
+  {% endfor %}
+</div>

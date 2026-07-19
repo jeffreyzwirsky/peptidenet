@@ -1,0 +1,64 @@
+{% extends "manage/base.html" %}
+{% block title %}Overview{% endblock %}
+{% block heading %}Overview{% endblock %}
+{% block head_right %}<span class="pill">{{ kpi.sites }} live sites</span>{% endblock %}
+{% block body %}
+<div class="kpis">
+  <div class="kpi"><div class="kpi-label">Revenue (realized)</div><div class="kpi-num">${{ kpi.revenue|floatformat:2 }}</div></div>
+  <div class="kpi good"><div class="kpi-label">Gross profit</div><div class="kpi-num">${{ kpi.gross_profit|floatformat:2 }}<span class="kpi-sub">{{ kpi.margin_pct }}% margin</span></div></div>
+  <div class="kpi"><div class="kpi-label">COGS</div><div class="kpi-num">${{ kpi.cogs|floatformat:2 }}</div></div>
+  <div class="kpi"><div class="kpi-label">In pipeline (pending)</div><div class="kpi-num">${{ kpi.pipeline|floatformat:2 }}</div></div>
+  <div class="kpi"><div class="kpi-label">Orders</div><div class="kpi-num">{{ kpi.orders }}<span class="kpi-sub">{{ kpi.pending }} pending</span></div></div>
+  <div class="kpi"><div class="kpi-label">Inventory @ cost</div><div class="kpi-num">${{ kpi.inv_cost|floatformat:2 }}<span class="kpi-sub">${{ kpi.inv_retail|floatformat:2 }} retail</span></div></div>
+  <div class="kpi {% if kpi.low_stock %}warn{% endif %}"><div class="kpi-label">Low / out of stock</div><div class="kpi-num">{{ kpi.low_stock }}</div></div>
+  <div class="kpi"><div class="kpi-label">Leads</div><div class="kpi-num">{{ kpi.leads }}</div></div>
+</div>
+
+<div class="cols">
+  <section class="card">
+    <div class="card-head"><h2>By site</h2></div>
+    <table class="tbl">
+      <thead><tr><th>Site</th><th>Theme</th><th class="r">Orders</th><th class="r">Gross</th></tr></thead>
+      <tbody>
+        {% for s in per_site %}
+        <tr><td>{{ s.brand_name }}<div class="sub">{{ s.domain }}</div></td>
+          <td><span class="tag">{{ s.theme }}</span></td>
+          <td class="r">{{ s.n_orders }}</td><td class="r">${{ s.gross|floatformat:2 }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Low stock</h2><a href="{% url 'manage:inventory' %}">Manage →</a></div>
+    {% if low_stock %}
+    <table class="tbl">
+      <thead><tr><th>Product</th><th class="r">On hand</th><th></th></tr></thead>
+      <tbody>
+        {% for p in low_stock %}
+        <tr><td>{{ p.name }}<div class="sub">{{ p.category.name }}</div></td>
+          <td class="r">{{ p.stock_qty }}</td>
+          <td class="r"><span class="badge {{ p.stock_state }}">{{ p.stock_state_label }}</span></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="empty">Everything's well stocked.</p>{% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <div class="card-head"><h2>Recent orders</h2><a href="{% url 'manage:orders' %}">All orders →</a></div>
+  <table class="tbl">
+    <thead><tr><th>Order</th><th>Site</th><th>Customer</th><th class="r">Total</th><th>Status</th><th>When</th></tr></thead>
+    <tbody>
+      {% for o in recent_orders %}
+      <tr onclick="location='{% url 'manage:order_detail' o.pk %}'" class="clickable">
+        <td class="mono">{{ o.number }}</td><td>{{ o.site.domain }}</td>
+        <td>{{ o.email|default:"—" }}</td><td class="r">${{ o.total|floatformat:2 }}</td>
+        <td><span class="badge s-{{ o.status }}">{{ o.get_status_display }}</span></td>
+        <td class="sub">{{ o.created_at|date:"M j, H:i" }}</td></tr>
+      {% empty %}<tr><td colspan="6" class="empty">No orders yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

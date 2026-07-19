@@ -1,0 +1,10 @@
+<div class="announcement">
+  <div class="ann-track">
+    {% for i in "12" %}
+    <span>🇨🇦 Ships from {{ site.ships_from }}</span>
+    <span>Free express over $200</span>
+    <span>Free priority over $500</span>
+    {% if site.promo_code %}<span>Use code <b>{{ site.promo_code }}</b> for 10% off</span>{% endif %}
+    {% endfor %}
+  </div>
+</div>

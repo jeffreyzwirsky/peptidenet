@@ -1,0 +1,66 @@
+{% extends "themes/base.html" %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:ital,wght@0,400;0,600;0,700;0,900;1,900&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="hero-diag"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="kicker"><span class="pulse"></span> {{ site.tagline }}</div>
+      <h1 class="hero-title">{{ site.brand_name }}<span class="hero-slash">.</span></h1>
+      <p class="hero-sub">High-purity <b>metabolic research compounds</b> — third-party HPLC/MS
+        verified, <b>&ge;99% release purity</b>, shipped discreetly from {{ site.ships_from }}.</p>
+      <div class="hero-cta">
+        <a href="#catalogue" class="btn btn-primary">Shop the bench &rarr;</a>
+        <a href="#quality" class="btn btn-ghost">See the COAs</a>
+      </div>
+    </div>
+    <div class="hero-figure hero-figure-neon">
+      {% include "partials/_hero_vial.html" %}
+      <div class="hero-stat hero-stat-float">
+        <div class="hero-stat-slash"></div>
+        <div class="hero-big">99<small>%</small></div>
+        <div class="hero-cap">Minimum release purity — every lot, every vial</div>
+        <div class="hero-chiprow">
+          <span class="hchip"><span class="d"></span> HPLC + MS Tested</span>
+          <span class="hchip"><span class="d"></span> COA On File</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block before_catalogue %}
+<div class="strip">
+  <div class="strip-track">
+    {% for i in "12" %}
+    <span>&ge;99% PURITY <b class="star">&#10022;</b></span>
+    <span>HPLC + MS VERIFIED <b class="star">&#10022;</b></span>
+    <span>COA ON FILE <b class="star">&#10022;</b></span>
+    <span>SHIPS FROM {{ site.ships_from|upper }} <b class="star">&#10022;</b></span>
+    <span>BATCH-TESTED <b class="star">&#10022;</b></span>
+    <span>DISCREET DELIVERY <b class="star">&#10022;</b></span>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block after_catalogue %}
+<div class="band">
+  <div class="wrap band-inner">
+    <h2>Fuel the research. Save on the bench.</h2>
+    <div class="band-side">
+      {% if site.promo_code %}
+      <div class="band-code">Use code <span class="code">{{ site.promo_code }}</span> for 10% off</div>
+      {% endif %}
+      <a href="#catalogue" class="btn band-btn">Start your order &rarr;</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

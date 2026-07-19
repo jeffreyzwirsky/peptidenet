@@ -1,0 +1,39 @@
+{% extends "manage/base.html" %}
+{% block title %}Calls &amp; Voicemail{% endblock %}
+{% block heading %}Calls &amp; Voicemail{% endblock %}
+{% block head_right %}<span class="pill {% if open_vm %}warn{% endif %}">{{ open_vm }} new voicemails</span>{% endblock %}
+{% block body %}
+<section class="card">
+  <table class="tbl">
+    <thead><tr><th>When</th><th>Type</th><th>From</th><th>Site</th><th>Duration</th><th>Transcript</th><th></th></tr></thead>
+    <tbody>
+      {% for row in feed %}
+        {% if row.kind == "call" %}
+        <tr>
+          <td class="sub">{{ row.obj.created_at|date:"M j, H:i" }}</td>
+          <td><span class="tag">{{ row.obj.get_direction_display }} call</span></td>
+          <td class="mono">{{ row.obj.from_number }}</td>
+          <td class="sub">{{ row.obj.site.domain|default:"—" }}</td>
+          <td class="sub">{{ row.obj.duration_sec }}s</td>
+          <td class="msg-cell">{{ row.obj.transcript|default:"—"|truncatechars:70 }}</td>
+          <td class="r">{% if row.obj.recording_url %}<a class="btn sm ghost" href="{{ row.obj.recording_url }}" target="_blank">▶ Play</a>{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr class="{% if not row.obj.listened %}unread{% endif %}">
+          <td class="sub">{{ row.obj.created_at|date:"M j, H:i" }}</td>
+          <td><span class="badge low">voicemail{% if not row.obj.listened %} • new{% endif %}</span></td>
+          <td class="mono">{{ row.obj.from_number }}</td>
+          <td class="sub">{{ row.obj.site.domain|default:"—" }}</td>
+          <td class="sub">{{ row.obj.duration_sec }}s</td>
+          <td class="msg-cell">{{ row.obj.transcript|default:"(no transcript)"|truncatechars:70 }}</td>
+          <td class="r nowrap">
+            {% if row.obj.recording_url %}<a class="btn sm ghost" href="{{ row.obj.recording_url }}" target="_blank">▶</a>{% endif %}
+            {% if not row.obj.listened %}<form method="post" style="display:inline">{% csrf_token %}<button class="btn sm" name="mark_listened" value="{{ row.obj.pk }}">Mark read</button></form>{% endif %}
+          </td>
+        </tr>
+        {% endif %}
+      {% empty %}<tr><td colspan="7" class="empty">No calls or voicemails yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "themes/base.html" %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow two"></div>
+  <div class="wrap hero-shell">
+    <div class="hero-inner">
+      <span class="hero-kicker"><span class="ln"></span>Issue 01 · {{ site.brand_name }}</span>
+      <h1>Peptides,<br>with a <span class="it grad">loud</span><br>signature.</h1>
+      <p class="lead">{{ site.tagline }}</p>
+      <div class="hero-cta">
+        <a href="#catalogue" class="btn btn-primary">Browse the catalogue →</a>
+        <a href="#quality" class="btn btn-ghost">Our testing standard</a>
+      </div>
+      <div class="hero-stats">
+        <div class="st"><div class="n grad">≥99%</div><div class="l">Release purity</div></div>
+        <div class="st"><div class="n">HPLC / MS</div><div class="l">Verified batches</div></div>
+        <div class="st"><div class="n">{{ site.ships_from }}</div><div class="l">Cold-chain shipped</div></div>
+      </div>
+    </div>
+    <div class="hero-figure hero-figure-ed">
+      <span class="hero-plate">Fig. 01</span>
+      {% include "partials/_hero_vial.html" %}
+      <div class="purity-float">
+        <div class="pf-big">≥99%</div>
+        <div class="pf-sub">HPLC / MS release</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block catalogue_head %}
+<div class="section-head ed-head">
+  <span class="sec-num">01 — The Catalogue</span>
+  <h2>The full library.</h2>
+  <p class="eyebrow">Every compound lyophilized, batch-numbered and released only above threshold purity.</p>
+</div>
+{% endblock %}
+
+{% block after_catalogue %}
+<section class="editorial">
+  <div class="wrap">
+    <div class="editorial-inner">
+      <div class="ed-l">
+        <div class="big-num grad">02</div>
+        <h3>Documented from vial to spectrum.</h3>
+        <p>Every batch that leaves our facility in {{ site.ships_from }} carries a full certificate of
+          analysis — identity, purity and mass confirmation. No mystery powders, no unverifiable claims.
+          Just numbers you can put in a lab notebook. First order gets code <b>{{ site.promo_code }}</b>.</p>
+      </div>
+      <div class="ed-r">
+        <div class="quote">"The paperwork is the product. Purity means nothing without a spectrum to back it."</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

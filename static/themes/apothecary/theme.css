@@ -1,0 +1,263 @@
+/* Theme: apothecary — warm cream + forest/olive, Cormorant Garamond over Jost.
+   A calm, botanical, compounding-pharmacy aesthetic. LIGHT theme: overrides the
+   dark base classes to a muted, whitespace-rich, premium apothecary look. */
+.theme-apothecary{
+  --bg:#f5f1e8;            /* cream */
+  --fg:#39392f;            /* ink */
+  --muted:#7a7a6c;
+  --accent:#33472e;        /* forest */
+  --accent-ink:#f5f1e8;    /* cream text on forest */
+  --card:#faf7f0;          /* paper */
+  --line:#d8d0bd;
+  --radius:4px;
+  --font:'Jost',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+
+  /* apothecary extras */
+  --cream-2:#efe9db;
+  --paper:#faf7f0;
+  --forest-2:#2f3d2a;
+  --olive:#5a6b4e;
+  --brass:#a9853f;
+  --brass-soft:#c2a670;
+  --line-2:#c9c0aa;
+  --danger:#8a5a2b;
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --shadow:0 24px 60px -30px rgba(47,61,42,.45);
+
+  background:var(--bg);
+  font-weight:300;
+  letter-spacing:.01em;
+}
+
+/* ---- Typography ---- */
+.theme-apothecary h1,
+.theme-apothecary h2,
+.theme-apothecary h3,
+.theme-apothecary h4{font-family:var(--serif);font-weight:500;color:var(--accent);letter-spacing:.01em}
+.theme-apothecary .eyebrow{
+  color:var(--muted);font-weight:400;font-size:11px;letter-spacing:.26em;
+}
+.theme-apothecary .section-head{text-align:center;max-width:640px;margin:0 auto 48px}
+.theme-apothecary .section-head h2{font-size:clamp(34px,4.4vw,50px);margin-bottom:12px}
+.theme-apothecary .section-head .eyebrow{display:inline-flex;align-items:center;gap:12px;margin-bottom:16px}
+.theme-apothecary .section-head .eyebrow:before,
+.theme-apothecary .section-head .eyebrow:after{content:"";width:26px;height:1px;background:var(--brass-soft)}
+.theme-apothecary .sec-sub{color:var(--muted);font-size:15.5px;margin-top:4px}
+
+/* ---- Buttons: squared, uppercase, quiet ---- */
+.theme-apothecary .btn{
+  border-radius:2px;text-transform:uppercase;letter-spacing:.18em;font-size:12px;font-weight:400;
+  padding:15px 30px;border:1px solid var(--accent);
+}
+.theme-apothecary .btn-primary{background:var(--accent);color:var(--accent-ink);box-shadow:none}
+.theme-apothecary .btn-primary:hover{background:var(--forest-2);box-shadow:var(--shadow);filter:none;transform:none}
+.theme-apothecary .btn-ghost{background:transparent;color:var(--accent);border-color:var(--line-2)}
+.theme-apothecary .btn-ghost:hover{border-color:var(--brass);color:var(--brass)}
+
+/* ---- Announcement bar ---- */
+.theme-apothecary .announcement{
+  background:var(--accent);color:#e9e4d4;border-bottom:none;font-size:11.5px;letter-spacing:.14em;
+}
+.theme-apothecary .ann-track span{border-right:1px solid rgba(233,228,212,.22)}
+.theme-apothecary .ann-track b{color:var(--brass-soft)}
+
+/* ---- Header ---- */
+.theme-apothecary .site-header{
+  background:rgba(245,241,232,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+}
+.theme-apothecary .nav{height:74px}
+.theme-apothecary .brand-name{
+  font-family:var(--serif);font-size:25px;font-weight:600;color:var(--accent);letter-spacing:.02em;line-height:1;
+}
+.theme-apothecary .brand-sub{
+  display:block;font-family:var(--font);font-size:8.5px;letter-spacing:.34em;color:var(--brass);
+  text-transform:uppercase;font-weight:400;margin-top:3px;
+}
+.theme-apothecary .nav-links a{
+  font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg);font-weight:400;
+}
+.theme-apothecary .nav-links a:hover{color:var(--brass)}
+.theme-apothecary .cart-btn{color:var(--accent)}
+.theme-apothecary .cart-count{background:var(--brass);color:#fff}
+
+/* ---- Hero ---- */
+.theme-apothecary .hero{
+  position:relative;overflow:hidden;
+  background:radial-gradient(120% 90% at 82% -10%,rgba(169,133,63,.10),transparent 55%),var(--bg);
+}
+.theme-apothecary .hero-inner{
+  display:grid;grid-template-columns:1.15fr .85fr;gap:50px;align-items:center;padding:74px 0 80px;
+}
+.theme-apothecary .hero-eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.theme-apothecary .hero-eyebrow .ln{width:44px;height:1px;background:var(--brass-soft)}
+.theme-apothecary .hero-eyebrow .eyebrow{margin:0}
+.theme-apothecary .hero h1{
+  font-family:var(--serif);font-size:clamp(48px,6.4vw,84px);font-weight:500;line-height:1.08;
+  letter-spacing:.005em;margin-bottom:22px;color:var(--accent);
+}
+.theme-apothecary .hero h1 em{font-style:italic;color:var(--olive)}
+.theme-apothecary .hero .lede{font-size:17px;color:var(--fg);max-width:46ch;margin-bottom:32px;font-weight:300}
+.theme-apothecary .hero-cta{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.theme-apothecary .hero-meta{display:flex;gap:34px;margin-top:44px;flex-wrap:wrap}
+.theme-apothecary .hero-meta div{display:flex;flex-direction:column;gap:4px}
+.theme-apothecary .hero-meta .n{font-family:var(--serif);font-size:30px;color:var(--accent);font-weight:600;line-height:1}
+.theme-apothecary .hero-meta .eyebrow{margin:0}
+
+.theme-apothecary .hero-art{display:flex;justify-content:center;align-items:center}
+
+/* ---- Hero figure: themeable vial illustration composed with COA card ---- */
+.theme-apothecary .hero-figure{position:relative;width:100%;max-width:400px;padding:6px 0 18px}
+/* Light theme: soften the vial's default heavy dark drop-shadow to a muted
+   forest cast so it sits calmly on cream; the SVG auto-tints via --accent. */
+.theme-apothecary .hero-vial{max-width:300px;filter:drop-shadow(0 22px 40px rgba(47,61,42,.16))}
+
+.theme-apothecary .hero-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:34px 30px;
+  box-shadow:var(--shadow);width:100%;max-width:360px;position:relative;
+}
+.theme-apothecary .hero-card:before{content:"";position:absolute;inset:8px;border:1px solid var(--line);border-radius:2px;pointer-events:none}
+/* COA card floated against the vial base — a lab document tucked at the plinth. */
+.theme-apothecary .hero-card-float{
+  position:absolute;left:-6%;bottom:6%;width:236px;max-width:66%;
+  padding:20px 22px 18px;
+  background:color-mix(in srgb,var(--paper) 90%,transparent);
+  backdrop-filter:blur(9px);
+  box-shadow:0 26px 56px -34px rgba(47,61,42,.5);
+}
+.theme-apothecary .hero-card-cap{text-align:center;margin-top:0}
+.theme-apothecary .hero-card-cap .eyebrow{margin-bottom:6px}
+.theme-apothecary .hero-card-cap h3{font-size:23px;color:var(--accent)}
+.theme-apothecary .hero-card-cap p{font-size:12px;color:var(--muted);margin-top:4px}
+.theme-apothecary .assay{display:flex;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.theme-apothecary .assay div{text-align:center;flex:1}
+.theme-apothecary .assay .v{font-family:var(--serif);font-size:19px;color:var(--accent);font-weight:600}
+.theme-apothecary .assay .k{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+@media(max-width:860px){
+  .theme-apothecary .hero-inner{grid-template-columns:1fr;gap:44px}
+  .theme-apothecary .hero-art{order:-1}
+  /* Stack the card beneath the vial on mobile — no overlap, keep whitespace. */
+  .theme-apothecary .hero-figure{display:flex;flex-direction:column;align-items:center;gap:26px;max-width:340px;margin:0 auto}
+  .theme-apothecary .hero-vial{max-width:230px}
+  .theme-apothecary .hero-card-float{position:static;left:auto;bottom:auto;width:100%;max-width:320px}
+}
+
+/* ---- Category filter ---- */
+.theme-apothecary .cat-chip{
+  border-radius:50px;text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:400;
+  color:var(--olive);border:1px solid var(--line-2);background:transparent;padding:9px 17px;
+}
+.theme-apothecary .cat-chip:hover{background:transparent;color:var(--brass);border-color:var(--brass)}
+.theme-apothecary .cat-chip.is-active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* ---- Product cards ---- */
+.theme-apothecary .pcard{
+  background:var(--paper);border:1px solid var(--line);border-radius:4px;
+}
+.theme-apothecary .pcard:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:var(--shadow)}
+.theme-apothecary .pcard-media{
+  aspect-ratio:auto;padding:30px 20px 22px;background:linear-gradient(180deg,var(--cream-2),var(--paper));
+  border-bottom:1px solid var(--line);
+}
+.theme-apothecary .pcard-media .vial{height:auto;width:78px}
+.theme-apothecary .pcard-new{background:var(--brass);color:#fff;border-radius:2px;letter-spacing:.14em;font-weight:500;text-transform:uppercase}
+.theme-apothecary .pcard-body{padding:22px 22px 24px}
+.theme-apothecary .pcard-cat{color:var(--brass);letter-spacing:.2em;font-weight:400}
+.theme-apothecary .pcard-stock{border-color:var(--line);letter-spacing:.1em;text-transform:uppercase;font-size:10px;font-weight:400}
+.theme-apothecary .pcard-stock.in{color:var(--olive)}
+.theme-apothecary .pcard-stock.low{color:var(--brass)}
+.theme-apothecary .pcard-stock.out{color:var(--danger)}
+.theme-apothecary .pcard-price{font-family:var(--serif);font-size:27px;color:var(--accent);font-weight:600;order:3}
+.theme-apothecary .pcard-price span{color:var(--muted);font-weight:300;text-transform:uppercase;letter-spacing:.1em;font-size:10px}
+.theme-apothecary .pcard-name{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--accent);margin:4px 0 8px}
+.theme-apothecary .pcard-desc{color:var(--muted);font-size:12.8px}
+.theme-apothecary .chip{
+  background:var(--bg);border:1px solid var(--line);color:var(--olive);border-radius:2px;
+  text-transform:uppercase;letter-spacing:.08em;font-size:10px;font-weight:400;
+}
+.theme-apothecary .chip.pur{color:var(--accent);border-color:var(--brass-soft);background:#f6efdf}
+.theme-apothecary .pcard-actions{border-top:1px solid var(--line);padding-top:16px}
+.theme-apothecary .pcard-actions .btn{padding:11px 14px}
+
+/* ---- Quality: inverted forest section ---- */
+.theme-apothecary .quality{
+  background:var(--accent);color:#e9e4d4;position:relative;overflow:hidden;
+}
+.theme-apothecary .quality:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(90% 70% at 15% 0%,rgba(169,133,63,.14),transparent 60%);
+}
+.theme-apothecary .quality .section-head{position:relative}
+.theme-apothecary .quality .section-head h2{color:#f2eede}
+.theme-apothecary .quality .eyebrow{color:#9aa887}
+.theme-apothecary .quality .section-head .eyebrow:before,
+.theme-apothecary .quality .section-head .eyebrow:after{background:var(--brass)}
+.theme-apothecary .quality-grid{position:relative}
+.theme-apothecary .q-item{
+  background:rgba(255,255,255,.02);border:1px solid rgba(194,166,112,.28);border-radius:3px;padding:30px 24px;
+}
+.theme-apothecary .q-item h4{color:#f2eede;font-size:22px;font-family:var(--serif);margin-bottom:8px}
+.theme-apothecary .q-item p{color:#bcc2ab;font-size:13px}
+
+/* ---- Reviews ---- */
+.theme-apothecary .review{
+  background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:30px 28px;
+}
+.theme-apothecary .review .stars{color:var(--brass);letter-spacing:3px}
+.theme-apothecary .review blockquote{font-family:var(--serif);font-size:19px;font-style:italic;color:var(--fg);line-height:1.45}
+.theme-apothecary .review figcaption{color:var(--muted);margin-top:16px;padding-top:14px;border-top:1px solid var(--line);letter-spacing:.04em}
+
+/* ---- Contact ---- */
+.theme-apothecary .contact{background:var(--cream-2)}
+.theme-apothecary .contact-form input,
+.theme-apothecary .contact-form textarea{
+  background:var(--bg);border:1px solid var(--line-2);border-radius:2px;color:var(--fg);font-weight:300;
+}
+.theme-apothecary .contact-form input:focus,
+.theme-apothecary .contact-form textarea:focus{outline:none;border-color:var(--brass)}
+
+/* ---- Footer: forest ---- */
+.theme-apothecary .site-footer{
+  background:var(--accent);color:#c8cdb9;border-top:none;padding:60px 0 30px;
+}
+.theme-apothecary .site-footer .brand-name{font-family:var(--serif);font-size:26px;color:#f2eede;font-weight:600}
+.theme-apothecary .footer-grid p{color:#a9b099}
+.theme-apothecary .foot-fruo{color:#a9b099}
+.theme-apothecary .foot-fruo strong{color:#f2eede;font-weight:500}
+.theme-apothecary .foot-contact{color:var(--brass-soft)}
+.theme-apothecary .foot-bottom{color:#8c9379;border-top:1px solid rgba(194,166,112,.22)}
+
+/* ---- Cart drawer ---- */
+.theme-apothecary .cart-drawer{background:var(--bg);border-left:1px solid var(--line)}
+.theme-apothecary .cart-head{border-bottom:1px solid var(--line)}
+.theme-apothecary .cart-head h3{font-family:var(--serif);font-size:24px;color:var(--accent);font-weight:600}
+.theme-apothecary .cart-close{color:var(--muted)}
+.theme-apothecary .cart-close:hover{color:var(--accent)}
+.theme-apothecary .ci-name{font-family:var(--serif);font-size:18px;color:var(--accent);font-weight:600}
+.theme-apothecary .ci-qty button{background:var(--paper);border:1px solid var(--line-2);color:var(--accent);border-radius:2px}
+.theme-apothecary .cart-foot{border-top:1px solid var(--line);background:var(--paper)}
+.theme-apothecary .cart-subtotal{font-family:var(--serif);color:var(--accent)}
+.theme-apothecary .cart-foot input{background:var(--bg);border:1px solid var(--line-2);border-radius:2px;color:var(--fg)}
+
+/* ---- Age gate ---- */
+.theme-apothecary .age-gate{background:color-mix(in srgb,var(--accent) 92%,#000)}
+.theme-apothecary .age-box{
+  background:var(--bg);border:1px solid var(--brass-soft);border-radius:5px;padding:44px;position:relative;box-shadow:var(--shadow);
+}
+.theme-apothecary .age-box:before{content:"";position:absolute;inset:9px;border:1px solid var(--line);border-radius:3px;pointer-events:none}
+.theme-apothecary .age-box h2{font-size:34px;color:var(--accent)}
+.theme-apothecary .age-copy{color:var(--muted)}
+.theme-apothecary .age-check{color:var(--muted)}
+.theme-apothecary .age-check input{accent-color:var(--accent)}
+.theme-apothecary .age-exit{color:var(--muted)}
+
+/* ---- Cookie ---- */
+.theme-apothecary .cookie{
+  background:var(--paper);border:1px solid var(--line-2);border-radius:4px;box-shadow:var(--shadow);
+}
+.theme-apothecary .cookie p{color:var(--muted)}
+
+/* ---- Toast ---- */
+.theme-apothecary .toast{
+  background:var(--accent);color:var(--accent-ink);border:1px solid var(--brass);border-radius:3px;
+  text-transform:uppercase;letter-spacing:.06em;font-size:12.5px;font-weight:400;
+}

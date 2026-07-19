@@ -1,0 +1,46 @@
+{% extends "manage/base.html" %}
+{% block title %}Blog{% endblock %}
+{% block heading %}Blog &amp; content{% endblock %}
+{% block head_right %}<span class="pill {% if flagged %}warn{% endif %}">{{ flagged }} flagged · {{ review }} to review · {{ published }} live</span>{% endblock %}
+{% block body %}
+<p class="note">AI drafts are <b>never auto-published</b>. Every post is scanned by the compliance guardrails (no medical/dosing/efficacy/false claims) and held for your review. Fix flagged items, re-scan, then publish. Schedule <code>generate_daily_posts</code> for daily drafts.</p>
+
+<section class="card" style="padding:16px">
+  <form method="post" class="filters" style="margin:0">{% csrf_token %}
+    <input type="hidden" name="action" value="generate">
+    <select name="site">{% for s in sites %}<option value="{{ s.domain }}">{{ s.domain }}</option>{% endfor %}</select>
+    <input name="keyword" placeholder="Target keyword (optional — rotates by default)">
+    <button class="btn">✨ Generate draft</button>
+  </form>
+</section>
+
+<section class="card">
+  <table class="tbl">
+    <thead><tr><th>Post</th><th>Site</th><th>Keyword</th><th>Status</th><th>Compliance</th><th></th></tr></thead>
+    <tbody>
+      {% for p in posts %}
+      <tr>
+        <td class="pname">{{ p.title|truncatechars:52 }}<div class="sub">{{ p.created_at|date:"M j" }}{% if p.ai_generated %} · AI{% endif %}</div></td>
+        <td class="sub">{{ p.site.domain }}</td>
+        <td class="sub">{{ p.keyword }}</td>
+        <td><span class="badge {% if p.status == 'published' %}in{% elif p.status == 'archived' %}out{% else %}low{% endif %}">{{ p.get_status_display }}</span></td>
+        <td>
+          {% if p.compliance_status == 'flagged' %}<span class="badge out">flagged</span>{% else %}<span class="badge in">pass</span>{% endif %}
+          {% if p.compliance_notes %}<div class="sub compliance-notes">{{ p.compliance_notes|linebreaksbr }}</div>{% endif %}
+        </td>
+        <td class="r nowrap">
+          <form method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="post_id" value="{{ p.pk }}">
+            {% if p.status == 'published' %}
+              <button class="btn sm ghost" name="action" value="unpublish">Unpublish</button>
+            {% else %}
+              <button class="btn sm ghost" name="action" value="rescan">Re-scan</button>
+              <button class="btn sm" name="action" value="publish" {% if not p.can_publish %}disabled title="Fix flagged issues first"{% endif %}>Publish</button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="empty">No posts yet. Generate one above, or run generate_daily_posts.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

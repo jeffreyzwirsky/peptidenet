@@ -1,0 +1,154 @@
+/* Theme: neon — near-black, electric lime + hot-orange, heavy condensed display (the SMASH FAT. look) */
+.theme-neon{
+  --bg:#0a0a0a; --fg:#f4f4f0; --muted:#9a9a92; --accent:#c6ff2f; --accent-ink:#0a0a0a;
+  --card:#121212; --line:#262626; --radius:14px;
+  --font:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --orange:#ff5a1f; --bg-3:#181818;
+}
+
+/* ---- Display type: heavy condensed uppercase headings everywhere ---- */
+.theme-neon h1,.theme-neon h2,.theme-neon h3,.theme-neon h4{
+  font-family:'Anton','Archivo',sans-serif;font-weight:400;letter-spacing:.5px;
+  line-height:.95;text-transform:uppercase;
+}
+.theme-neon .eyebrow{color:var(--orange);font-weight:900;letter-spacing:.2em;font-size:13px}
+.theme-neon .section-head h2{font-size:clamp(38px,6vw,66px)}
+
+/* ---- Buttons: fat pills, uppercase ---- */
+.theme-neon .btn{text-transform:uppercase;font-weight:900;letter-spacing:.06em;padding:14px 26px;border-radius:999px;font-size:14px}
+.theme-neon .btn-primary{background:var(--accent);color:var(--accent-ink)}
+.theme-neon .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(198,255,47,.3)}
+.theme-neon .btn-ghost{border:2px solid var(--line);color:var(--fg)}
+.theme-neon .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---- Header ---- */
+.theme-neon .site-header{background:rgba(10,10,10,.86)}
+.theme-neon .brand .brand-name{font-family:'Anton',sans-serif;font-weight:400;font-size:26px;letter-spacing:1px}
+.theme-neon .nav-links a{text-transform:uppercase;font-weight:700;letter-spacing:.04em;font-size:14px}
+.theme-neon .nav-links a:hover{color:var(--accent)}
+.theme-neon .cart-count{background:var(--orange);color:#fff;border:2px solid #0a0a0a}
+
+/* ---- Announcement bar: solid lime strip ---- */
+.theme-neon .announcement{background:var(--accent);color:#0a0a0a;font-weight:900;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #0a0a0a}
+.theme-neon .ann-track span{border-right-color:rgba(0,0,0,.28)}
+.theme-neon .ann-track b{color:var(--orange)}
+
+/* ================= HERO ================= */
+.theme-neon .hero{position:relative;overflow:hidden;padding:70px 0 44px;border-bottom:1px solid var(--line)}
+.theme-neon .hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(650px 420px at 82% 8%, rgba(255,90,31,.20), transparent 60%),
+    radial-gradient(720px 520px at 8% 92%, rgba(198,255,47,.14), transparent 60%);
+}
+.theme-neon .hero-diag{position:absolute;right:-160px;top:-120px;width:720px;height:720px;
+  background:linear-gradient(135deg,var(--accent),transparent 55%);opacity:.06;transform:rotate(18deg);pointer-events:none}
+.theme-neon .hero-grid{position:relative;display:grid;grid-template-columns:1.35fr .9fr;gap:30px;align-items:center}
+.theme-neon .kicker{display:inline-flex;align-items:center;gap:8px;background:var(--bg-3);border:1px solid var(--line);
+  color:var(--accent);font-weight:900;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:7px 13px;border-radius:999px;margin-bottom:20px}
+.theme-neon .pulse{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:neonpulse 1.8s infinite}
+@keyframes neonpulse{0%{box-shadow:0 0 0 0 rgba(255,90,31,.6)}70%{box-shadow:0 0 0 10px rgba(255,90,31,0)}100%{box-shadow:0 0 0 0 rgba(255,90,31,0)}}
+.theme-neon .hero-title{font-size:clamp(64px,12.5vw,168px);letter-spacing:-1px;color:var(--fg)}
+.theme-neon .hero-slash{color:var(--accent)}
+.theme-neon .hero-slash::after{content:"";display:inline-block;width:.42em;height:.42em;background:var(--orange);margin-left:.06em;clip-path:polygon(0 0,100% 0,100% 100%)}
+.theme-neon .hero-sub{max-width:520px;margin:22px 0 28px;color:#cfcfc7;font-size:18px}
+.theme-neon .hero-sub b{color:var(--fg)}
+.theme-neon .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+
+.theme-neon .hero-stat{position:relative;background:#121212;border:1px solid var(--line);border-radius:20px;padding:26px;overflow:hidden}
+.theme-neon .hero-stat-slash{position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:var(--orange);opacity:.09;transform:rotate(20deg)}
+.theme-neon .hero-big{font-family:'Anton',sans-serif;font-size:118px;line-height:.82;color:var(--accent)}
+.theme-neon .hero-big small{font-size:44px;vertical-align:super;color:var(--fg)}
+.theme-neon .hero-cap{font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:var(--muted);margin-top:6px}
+.theme-neon .hero-chiprow{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.theme-neon .hchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.03em;
+  text-transform:uppercase;background:var(--bg-3);border:1px solid var(--line);padding:7px 11px;border-radius:999px;color:#d8d8d2}
+.theme-neon .hchip .d{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+
+/* ---- Hero product illustration (vial) composed with floating stat card ---- */
+.theme-neon .hero-figure-neon{position:relative;min-height:480px;justify-content:flex-end}
+.theme-neon .hero-figure-neon .hero-vial{
+  max-width:400px;width:100%;
+  filter:drop-shadow(0 24px 60px rgba(0,0,0,.55)) drop-shadow(0 0 40px rgba(198,255,47,.22));
+}
+.theme-neon .hero-stat-float{
+  position:absolute;left:-6%;bottom:8%;z-index:2;max-width:260px;padding:20px;
+  background:rgba(18,18,18,.86);backdrop-filter:blur(10px);
+  border:2px solid var(--accent);border-radius:18px;
+  box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 0 4px rgba(198,255,47,.08);
+  transform:rotate(-3deg);
+}
+.theme-neon .hero-stat-float .hero-big{font-size:84px}
+.theme-neon .hero-stat-float .hero-big small{font-size:32px}
+.theme-neon .hero-stat-float .hero-chiprow{margin-top:14px}
+
+@media(max-width:900px){
+  .theme-neon .hero-grid{grid-template-columns:1fr}
+  .theme-neon .hero-figure-neon{min-height:0;justify-content:center;margin-top:14px}
+  .theme-neon .hero-figure-neon .hero-vial{max-width:300px}
+  .theme-neon .hero-stat-float{left:auto;right:2%;bottom:2%;max-width:220px;padding:16px}
+  .theme-neon .hero-stat-float .hero-big{font-size:64px}
+}
+
+/* ================= TICKER STRIP ================= */
+.theme-neon .strip{background:var(--orange);color:#0a0a0a;border-top:2px solid #0a0a0a;border-bottom:2px solid #0a0a0a;overflow:hidden;white-space:nowrap}
+.theme-neon .strip-track{display:inline-block;padding:12px 0;animation:neonmarq 30s linear infinite;font-family:'Anton',sans-serif;font-size:20px;letter-spacing:1px}
+.theme-neon .strip-track span{margin:0 22px}
+.theme-neon .strip-track .star{color:#0a0a0a}
+@keyframes neonmarq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ================= CATALOGUE / FILTERS ================= */
+.theme-neon .cat-chip{text-transform:uppercase;font-weight:800;letter-spacing:.04em;background:var(--card)}
+.theme-neon .cat-chip.is-active,.theme-neon .cat-chip:hover{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* ================= PRODUCT CARD ================= */
+.theme-neon .pcard{background:var(--card)}
+.theme-neon .pcard:hover{border-color:var(--accent);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.theme-neon .pcard-media{aspect-ratio:1/.78;background:radial-gradient(150px 150px at 50% 42%,rgba(198,255,47,.12),transparent 70%);border-bottom:1px solid var(--line)}
+.theme-neon .pcard-new{background:var(--orange);color:#0a0a0a;text-transform:uppercase;font-weight:900;transform:rotate(-3deg)}
+.theme-neon .pcard-cat{color:var(--orange)}
+.theme-neon .pcard-name{font-family:'Anton',sans-serif;font-weight:400;font-size:23px;letter-spacing:.3px;margin:4px 0 8px}
+.theme-neon .pcard-price{font-family:'Anton',sans-serif;font-weight:400;font-size:30px}
+.theme-neon .pcard-price span{font-family:var(--font);font-weight:700}
+.theme-neon .chip{text-transform:uppercase;font-weight:800;letter-spacing:.03em;font-size:11px;background:var(--bg-3)}
+.theme-neon .chip.pur{color:var(--accent);border-color:rgba(198,255,47,.3)}
+.theme-neon .pcard-actions .btn{border-radius:9px;padding:11px 14px}
+
+/* ================= QUALITY ================= */
+.theme-neon .quality{background:#0e0e0e;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.theme-neon .q-item{background:#0a0a0a}
+.theme-neon .q-item h4{font-size:19px;letter-spacing:.3px}
+
+/* ================= REVIEWS ================= */
+.theme-neon .review{background:var(--card)}
+.theme-neon .review .stars{color:var(--accent);letter-spacing:2px}
+.theme-neon .review figcaption{text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+
+/* ================= CTA BAND ================= */
+.theme-neon .band{position:relative;background:var(--accent);color:#0a0a0a;overflow:hidden}
+.theme-neon .band::before{content:"";position:absolute;top:-60px;right:-60px;width:280px;height:280px;background:var(--orange);opacity:.2;transform:rotate(20deg)}
+.theme-neon .band-inner{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:52px 22px;flex-wrap:wrap}
+.theme-neon .band h2{font-size:clamp(34px,6vw,60px);max-width:640px;color:#0a0a0a}
+.theme-neon .band-side{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.theme-neon .band-code{font-weight:900;text-transform:uppercase;letter-spacing:.05em;font-size:14px}
+.theme-neon .band-code .code{background:#0a0a0a;color:var(--accent);font-family:'Anton',sans-serif;padding:6px 12px;border-radius:8px}
+.theme-neon .band-btn{background:var(--orange);color:#0a0a0a;border:2px solid #0a0a0a}
+.theme-neon .band-btn:hover{transform:translateY(-2px)}
+
+/* ================= CONTACT ================= */
+.theme-neon .contact-form input,.theme-neon .contact-form textarea{background:var(--bg-3)}
+
+/* ================= FOOTER ================= */
+.theme-neon .site-footer{background:#060606}
+.theme-neon .site-footer .brand-name{font-family:'Anton',sans-serif;font-weight:400;letter-spacing:1px;font-size:22px}
+.theme-neon .foot-fruo strong{color:var(--orange);font-family:'Anton',sans-serif;letter-spacing:.5px}
+.theme-neon .foot-contact{color:var(--accent)}
+
+/* ================= CART / GATE / COOKIE / TOAST ================= */
+.theme-neon .cart-drawer{background:var(--card)}
+.theme-neon .cart-head h3,.theme-neon .cart-subtotal{font-family:'Anton',sans-serif;font-weight:400;letter-spacing:.5px}
+.theme-neon .cart-subtotal{color:var(--accent)}
+.theme-neon .btn-checkout{background:var(--orange);color:#0a0a0a}
+.theme-neon .age-box h2,.theme-neon .cart-head h3{text-transform:uppercase}
+.theme-neon .cookie .btn-primary,.theme-neon .toast{font-weight:900;text-transform:uppercase}
+.theme-neon .toast{background:var(--accent);color:#0a0a0a;border-color:#0a0a0a;letter-spacing:.04em}

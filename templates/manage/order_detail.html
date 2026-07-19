@@ -1,0 +1,45 @@
+{% extends "manage/base.html" %}
+{% block title %}{{ order.number }}{% endblock %}
+{% block heading %}Order {{ order.number }}{% endblock %}
+{% block head_right %}<a href="{% url 'manage:orders' %}" class="btn ghost">← All orders</a>{% endblock %}
+{% block body %}
+<div class="cols">
+  <section class="card">
+    <div class="card-head"><h2>Items</h2></div>
+    <table class="tbl">
+      <thead><tr><th>Product</th><th class="r">Cost</th><th class="r">Price</th><th class="r">Qty</th><th class="r">Line</th><th class="r">Profit</th></tr></thead>
+      <tbody>
+        {% for i in items %}
+        <tr><td>{{ i.product_name }}</td><td class="r sub">${{ i.unit_cost|floatformat:2 }}</td>
+          <td class="r">${{ i.unit_price|floatformat:2 }}</td>
+          <td class="r">{{ i.qty }}</td><td class="r">${{ i.line_total|floatformat:2 }}</td>
+          <td class="r margin">${{ i.line_profit|floatformat:2 }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><td colspan="4" class="r">Revenue</td><td class="r"><b>${{ order.total|floatformat:2 }}</b></td><td></td></tr>
+        <tr><td colspan="4" class="r sub">COGS</td><td class="r sub">−${{ order.cost_total|floatformat:2 }}</td><td></td></tr>
+        <tr><td colspan="4" class="r"><b>Profit</b></td><td class="r margin"><b>${{ order.profit|floatformat:2 }}</b></td><td class="r sub">{{ order.margin_pct }}%</td></tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Details</h2></div>
+    <dl class="kv">
+      <dt>Site</dt><dd>{{ order.site.brand_name }} ({{ order.site.domain }})</dd>
+      <dt>Customer</dt><dd>{{ order.name|default:"—" }}</dd>
+      <dt>Email</dt><dd>{{ order.email|default:"—" }}</dd>
+      <dt>Placed</dt><dd>{{ order.created_at|date:"M j, Y H:i" }}</dd>
+      <dt>Status</dt><dd><span class="badge s-{{ order.status }}">{{ order.get_status_display }}</span></dd>
+    </dl>
+    <form method="post" class="status-form">{% csrf_token %}
+      <label>Update status</label>
+      <select name="status">
+        {% for val, label in statuses %}<option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+      <button class="btn">Save</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

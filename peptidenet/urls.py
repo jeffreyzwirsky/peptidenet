@@ -1,0 +1,32 @@
+from django.contrib import admin
+from django.urls import include, path
+
+from apps.stores import views
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    # One super-admin control panel for orders + inventory across every site.
+    path("manage/", include("apps.manage.urls")),
+    # Twilio SMS/voice webhooks (configure each number to point here).
+    path("webhooks/twilio/", include("apps.comms.urls")),
+    # AI support assistant.
+    path("ai/", include("apps.ai.urls")),
+    # Per-site blog (host-routed).
+    path("blog/", include("apps.blog.urls")),
+    # SEO / discovery (per-site, host-aware).
+    path("robots.txt", views.robots_txt, name="robots_txt"),
+    path("sitemap.xml", views.sitemap_xml, name="sitemap_xml"),
+    path("llms.txt", views.llms_txt, name="llms_txt"),
+    # Storefront (host-routed to the right theme by SiteMiddleware)
+    path("", views.home, name="home"),
+    path("category/<slug:slug>/", views.home, name="category"),
+    path("product/<slug:slug>/", views.product_detail, name="product_detail"),
+    # Cart + checkout (shared backend for every site)
+    path("cart/", views.cart_state, name="cart_state"),
+    path("cart/add/", views.cart_add, name="cart_add"),
+    path("cart/update/", views.cart_update, name="cart_update"),
+    path("checkout/", views.checkout, name="checkout"),
+    path("contact/", views.contact, name="contact"),
+    path("coa/<slug:slug>/", views.coa, name="coa"),
+    path("healthz/", views.healthz, name="healthz"),
+]

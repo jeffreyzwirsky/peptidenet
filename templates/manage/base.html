@@ -1,0 +1,37 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Control{% endblock %} · Peptidenet</title>
+<link rel="stylesheet" href="{% static 'manage/manage.css' %}">
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="logo">Peptide<span>net</span><small>Control</small></div>
+    <nav>
+      <a href="{% url 'manage:dashboard' %}" class="{% if nav == 'dashboard' %}on{% endif %}">Overview</a>
+      <a href="{% url 'manage:orders' %}" class="{% if nav == 'orders' %}on{% endif %}">Orders</a>
+      <a href="{% url 'manage:inventory' %}" class="{% if nav == 'inventory' %}on{% endif %}">Inventory</a>
+      <a href="{% url 'manage:leads' %}" class="{% if nav == 'leads' %}on{% endif %}">Leads</a>
+      <div class="nav-group">Comms</div>
+      <a href="{% url 'manage:messages' %}" class="{% if nav == 'messages' %}on{% endif %}">Messages</a>
+      <a href="{% url 'manage:calls' %}" class="{% if nav == 'calls' %}on{% endif %}">Calls &amp; Voicemail</a>
+      <a href="{% url 'manage:numbers' %}" class="{% if nav == 'numbers' %}on{% endif %}">Phone Numbers</a>
+      <div class="nav-group">Content &amp; System</div>
+      <a href="{% url 'manage:blog' %}" class="{% if nav == 'blog' %}on{% endif %}">Blog</a>
+      <a href="{% url 'manage:ai_usage' %}" class="{% if nav == 'ai' %}on{% endif %}">AI Assistant</a>
+      <a href="{% url 'manage:security' %}" class="{% if nav == 'security' %}on{% endif %}">Security</a>
+      <a href="/admin/" class="ext">Django admin ↗</a>
+    </nav>
+    <div class="side-foot">Signed in as {{ request.user.get_username }}<br><a href="/admin/logout/">Sign out</a></div>
+  </aside>
+  <main class="content">
+    {% if messages %}<div class="flash">{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+    <header class="page-head"><h1>{% block heading %}{% endblock %}</h1><div class="head-right">{% block head_right %}{% endblock %}</div></header>
+    {% block body %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

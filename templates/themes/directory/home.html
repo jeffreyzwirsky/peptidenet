@@ -1,0 +1,168 @@
+{% extends "themes/base.html" %}
+
+{% block title %}{{ site.brand_name }} — The definitive answer{% endblock %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block brandmark %}
+<span class="brand-mark">
+  <span class="brand-name">{{ site.brand_name }}</span>
+  <small class="brand-tag">The definitive source</small>
+</span>
+{% endblock %}
+
+{% block navlinks %}
+<a href="#compare">Compare</a>
+<a href="#catalogue">Catalogue</a>
+<a href="#faq">FAQ</a>
+<a href="#reviews">Reviews</a>
+<a href="#contact">Contact</a>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow hero-eyebrow">● Verified {{ site.ships_from }} research supplier</span>
+      <p class="hero-q">You searched: "where do I get peptides?"</p>
+      <h1>The answer <span>is here.</span></h1>
+      <p class="lead">{{ site.tagline }}</p>
+      <div class="hero-cta">
+        <a href="#catalogue" class="btn btn-primary">Browse the catalogue →</a>
+        <a href="#compare" class="btn btn-ghost">Why source from us</a>
+      </div>
+      <div class="hero-stats">
+        <div><b>≥99%</b><span>Release purity</span></div>
+        <div><b>100%</b><span>Batches with COA</span></div>
+        <div><b>3rd</b><span>Party tested</span></div>
+      </div>
+    </div>
+    <div class="hero-figure">
+      {% include "partials/_hero_vial.html" %}
+      <aside class="hero-card">
+        <h4>The buyer's checklist</h4>
+        <p class="hero-card-sub">What a legitimate source must give you — we check every box.</p>
+        <div class="checkline">✓ Third-party HPLC &amp; mass-spec verified</div>
+        <div class="checkline">✓ Certificate of Analysis on every batch</div>
+        <div class="checkline">✓ Discreet, tracked shipping</div>
+        <div class="checkline">✓ Dispatched from within {{ site.ships_from }}</div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block catalogue_head %}
+<div class="section-head">
+  <p class="eyebrow">The full catalogue</p>
+  <h2>Every compound, fully documented.</h2>
+  <p class="head-sub">Filter by research category. Each listing shows purity, sizes and live stock status.</p>
+</div>
+{% endblock %}
+
+{% block after_catalogue %}
+<section id="compare" class="compare-section alt">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">The directory verdict</p>
+      <h2>Us vs. the mystery vendor.</h2>
+      <p class="head-sub">We built this like a buyer's guide because that's what the question deserves.
+        Here's how a legitimate source stacks up against the typical grey-market listing.</p>
+    </div>
+    <div class="compare">
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th>Criteria</th>
+            <th class="us col-us">{{ site.brand_name }}</th>
+            <th>Typical online vendor</th>
+            <th>Overseas grey market</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feat">Verified ≥99% purity</td>
+            <td class="col-us"><span class="yes">✓ Guaranteed</span></td>
+            <td><span class="maybe">Claimed only</span></td>
+            <td><span class="no">✕ Unknown</span></td>
+          </tr>
+          <tr>
+            <td class="feat">Batch-matched COA</td>
+            <td class="col-us"><span class="yes">✓ Every order</span></td>
+            <td><span class="maybe">On request</span></td>
+            <td><span class="no">✕ None</span></td>
+          </tr>
+          <tr>
+            <td class="feat">Independent third-party testing</td>
+            <td class="col-us"><span class="yes">✓ HPLC + MS</span></td>
+            <td><span class="no">✕ In-house</span></td>
+            <td><span class="no">✕ None</span></td>
+          </tr>
+          <tr>
+            <td class="feat">Ships from {{ site.ships_from }}</td>
+            <td class="col-us"><span class="yes">✓ Domestic</span></td>
+            <td><span class="maybe">Sometimes</span></td>
+            <td><span class="no">✕ Customs risk</span></td>
+          </tr>
+          <tr>
+            <td class="feat">Discreet, tracked packaging</td>
+            <td class="col-us"><span class="yes">✓ Standard</span></td>
+            <td><span class="maybe">Varies</span></td>
+            <td><span class="no">✕ Unreliable</span></td>
+          </tr>
+          <tr>
+            <td class="feat">Responsive support</td>
+            <td class="col-us"><span class="yes">✓ Real humans</span></td>
+            <td><span class="maybe">Ticket queue</span></td>
+            <td><span class="no">✕ None</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="faq-section">
+  <div class="wrap">
+    <div class="section-head faq-head">
+      <p class="eyebrow">Buyer's guide</p>
+      <h2>Straight answers to the real questions.</h2>
+    </div>
+    <div class="faq">
+      <details class="acc">
+        <summary>Where do I actually get legitimate research peptides?<span class="plus">+</span></summary>
+        <p>Right here. A legitimate source is defined by documentation: independent third-party HPLC
+          and mass-spec testing, a batch-matched Certificate of Analysis, and a verifiable ≥99% purity
+          release standard. Every compound in our catalogue meets all three.</p>
+      </details>
+      <details class="acc">
+        <summary>Do you provide a Certificate of Analysis?<span class="plus">+</span></summary>
+        <p>Yes. A COA matched to your specific batch ships with every order, and we're happy to send the
+          current batch's COA on request before you purchase. It documents identity, purity by HPLC, and
+          mass confirmation.</p>
+      </details>
+      <details class="acc">
+        <summary>Are your products safe for human use?<span class="plus">+</span></summary>
+        <p>No. All compounds are supplied strictly for in-vitro laboratory research and development. They
+          are not drugs or supplements and must not be administered to humans or animals. By ordering, you
+          confirm you are a qualified researcher aged 21 or older.</p>
+      </details>
+      <details class="acc">
+        <summary>How is my order shipped?<span class="plus">+</span></summary>
+        <p>Orders dispatch same-day from within {{ site.ships_from }} in plain, unbranded packaging with
+          tracked delivery. Lyophilized compounds are stable for transit; we recommend refrigeration on
+          arrival.</p>
+      </details>
+      <details class="acc">
+        <summary>What does the {{ site.promo_code }} code do?<span class="plus">+</span></summary>
+        <p>{{ site.promo_code }} takes a discount off your order — our welcome to first-time researchers.
+          Enter it at checkout. Questions? Reach us at {{ site.contact_email_or_default }}.</p>
+      </details>
+    </div>
+  </div>
+</section>
+{% endblock %}

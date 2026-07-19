@@ -1,0 +1,45 @@
+{% extends "manage/base.html" %}
+{% block title %}Inventory{% endblock %}
+{% block heading %}Inventory{% endblock %}
+{% block head_right %}<span class="pill {% if low_count %}warn{% endif %}">{{ low_count }} low/out</span>{% endblock %}
+{% block body %}
+<p class="note">One shared stock pool feeds every site — edit a product here and it changes everywhere.</p>
+<form class="filters" method="get">
+  <select name="cat" onchange="this.form.submit()">
+    <option value="">All categories</option>
+    {% for c in categories %}<option value="{{ c.slug }}" {% if cat == c.slug %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+  </select>
+</form>
+
+<div class="inv-totals">
+  <div><span>Inventory value @ cost</span><b>${{ total_cost|floatformat:2 }}</b></div>
+  <div><span>@ retail</span><b>${{ total_retail|floatformat:2 }}</b></div>
+</div>
+<section class="card">
+  <table class="tbl inv">
+    <thead><tr><th>Product</th><th class="r">Cost</th><th class="r">Price</th><th class="r">Margin</th><th class="r">On hand</th><th class="r">Stock value</th><th>Status</th><th class="r">Sold</th><th>Active</th><th></th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <form method="post">{% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ p.id }}">
+        <td class="pname">{{ p.name }}<div class="sub">{{ p.category.name }}</div></td>
+        <td class="r"><span class="pfx">$</span><input class="in-num" name="unit_cost" value="{{ p.unit_cost }}"></td>
+        <td class="r"><span class="pfx">$</span><input class="in-num" name="price" value="{{ p.price }}"></td>
+        <td class="r"><span class="margin {% if p.margin_pct < 0 %}neg{% endif %}">${{ p.margin|floatformat:2 }}<small>{{ p.margin_pct }}%</small></span></td>
+        <td class="r"><input class="in-num" name="stock_qty" value="{{ p.stock_qty }}"> <span class="lowat">low@<input class="in-num xs" name="low_stock_threshold" value="{{ p.low_stock_threshold }}"></span></td>
+        <td class="r mono">${{ p.stock_value_cost|floatformat:2 }}</td>
+        <td><span class="badge {{ p.stock_state }}">{{ p.stock_state_label }}</span></td>
+        <td class="r sub">{{ p.units_sold }}</td>
+        <td><input type="checkbox" name="is_active" {% if p.is_active %}checked{% endif %}></td>
+        <td class="r nowrap">
+          <button class="btn sm" name="action" value="save">Save</button>
+          <button class="btn sm ghost" name="action" value="restock">+<input class="in-num xs" name="amount" value="10" onclick="event.stopPropagation()"></button>
+        </td>
+        </form>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{
+  "note": "Shared research-compound catalogue for all SmashFat-family peptide sites. Prices in CAD per vial. purity is the release threshold. Descriptions are research-framed. 'new' and stock ('in'|'low') are display flags.",
+  "products": [
+    {"n":"KLOW","cat":"Metabolic","price":125,"pur":"≥99%","sizes":["80mg"],"stock":"low","new":false,"d":"A novel metabolic research compound under active investigation for lipid and energy regulation."},
+    {"n":"GLOW","cat":"Metabolic","price":120,"pur":"≥99%","sizes":["70mg"],"stock":"in","new":true,"d":"A novel metabolic research compound under investigation for energy regulation and cellular vitality."},
+    {"n":"Retatrutide","cat":"Metabolic","price":84,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":true,"d":"A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research."},
+    {"n":"MOTS-C","cat":"Mitochondrial","price":60,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":true,"d":"A mitochondrial-derived research compound encoded in the 12S rRNA gene with metabolic and cytoprotective properties."},
+    {"n":"BPC-157","cat":"Repair & Recovery","price":60,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":false,"d":"Body Protection Compound-157. A 15-amino-acid partial sequence of human gastric juice protein."},
+    {"n":"GHK-Cu","cat":"Growth Factors","price":50,"pur":"≥99%","sizes":["50mg","100mg"],"stock":"in","new":false,"d":"Copper research compound tripeptide-1. A naturally occurring plasma tripeptide with copper-binding properties."},
+    {"n":"TB-500","cat":"Repair & Recovery","price":65,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":false,"d":"Thymosin Beta-4. A 43-amino-acid research compound involved in actin sequestration and tissue repair."},
+    {"n":"Ipamorelin","cat":"Growth Factors","price":40,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":false,"d":"A selective growth-hormone secretagogue and ghrelin receptor agonist."},
+    {"n":"Selank","cat":"Neuropeptides","price":50,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":false,"d":"A synthetic analogue of the endogenous tetrapeptide tuftsin with anxiolytic properties."},
+    {"n":"Semax","cat":"Neuropeptides","price":53,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":false,"d":"An ACTH(4-7) analogue with nootropic and neuroprotective properties."},
+    {"n":"Tesamorelin","cat":"Growth Factors","price":90,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":false,"d":"A stabilized GHRH analogue with potent growth-hormone-releasing activity for metabolic and body-composition research."},
+    {"n":"SS-31","cat":"Mitochondrial","price":70,"pur":"≥99%","sizes":["10mg"],"stock":"low","new":false,"d":"A mitochondria-targeted tetrapeptide with potent antioxidant and cardioprotective properties."},
+    {"n":"NAD+","cat":"Mitochondrial","price":60,"pur":"≥99%","sizes":["500mg"],"stock":"low","new":false,"d":"Nicotinamide adenine dinucleotide — a critical coenzyme in cellular energy metabolism and DNA repair."},
+    {"n":"BPC-157 + TB-500","cat":"Repair & Recovery","price":90,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":true,"d":"A synergistic blend of BPC-157 and TB-500 for advanced tissue-repair and recovery research."},
+    {"n":"Epithalon","cat":"Repair & Recovery","price":55,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":true,"d":"A synthetic tetrapeptide analogue of epithalamin studied for telomere elongation, anti-aging, and circadian-rhythm regulation."},
+    {"n":"KPV","cat":"Repair & Recovery","price":50,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":true,"d":"A C-terminal tripeptide of α-MSH with potent anti-inflammatory and gut-protective properties."},
+    {"n":"Melanotan 2","cat":"Melanocortin","price":55,"pur":"≥99%","sizes":["10mg"],"stock":"in","new":true,"d":"A synthetic analogue of α-MSH acting as a non-selective melanocortin receptor agonist, studied for pigmentation and energy-regulation research."},
+    {"n":"Bacteriostatic Water","cat":"Supplies","price":25,"pur":"USP Grade","sizes":["30ml"],"stock":"in","new":false,"d":"USP-grade bacteriostatic water for reconstituting lyophilized research compounds."}
+  ]
+}

@@ -1,0 +1,33 @@
+{% extends "themes/base.html" %}
+{% load blog_extras %}
+{% block title %}{{ post.seo_title }} — {{ site.brand_name }}{% endblock %}
+{% block head_extra %}
+<meta name="description" content="{{ post.meta_description }}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ post.seo_title }}">
+<meta property="og:description" content="{{ post.meta_description }}">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article",
+"headline":"{{ post.seo_title|escapejs }}",
+"description":"{{ post.meta_description|escapejs }}",
+"datePublished":"{{ post.published_at|date:'c' }}",
+"author":{"@type":"Organization","name":"{{ site.brand_name }}"},
+"publisher":{"@type":"Organization","name":"{{ site.brand_name }}"},
+"keywords":"{{ post.keyword|escapejs }}"}
+</script>
+{% endblock %}
+{% block main %}
+<article class="sec blog-post">
+  <div class="blog-hero">{{ post.hero_svg|safe }}</div>
+  <div class="wrap blog-narrow">
+    <a href="/blog/" class="blog-back">← All research notes</a>
+    <div class="blog-content">{{ post.body|markdown }}</div>
+    {% if more %}
+    <div class="blog-more">
+      <h3>More notes</h3>
+      {% for m in more %}<a href="/blog/{{ m.slug }}/">{{ m.title }}</a>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}

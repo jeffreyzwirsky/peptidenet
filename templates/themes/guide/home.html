@@ -1,0 +1,145 @@
+{% extends "themes/base.html" %}
+
+{% block title %}{{ site.brand_name }} — Where do I get peptides? A friendly guide &amp; store{% endblock %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block brandmark %}
+<span class="brand-logo" aria-hidden="true">
+  <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="12" fill="#0fb9a6"/><path d="M18 13h12v5l-4 5v9a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3v-9l-4-5z" stroke="#fff" stroke-width="2.2" fill="none" stroke-linejoin="round"/><circle cx="24" cy="30" r="2.4" fill="#fff"/></svg>
+</span>
+<span class="brand-name">{{ site.brand_name }}</span>
+{% endblock %}
+
+{% block navlinks %}
+  <a href="#how">How to choose</a>
+  <a href="#catalogue">Shop</a>
+  <a href="#quality">Quality</a>
+  <a href="#reviews">Reviews</a>
+  <a href="#faq">FAQ</a>
+{% endblock %}
+
+{% block navcta %}<a href="#catalogue" class="btn btn-primary">Browse the shop</a>{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">🧪 Guide &amp; store · Ships from {{ site.ships_from }}</p>
+      <h1>{{ site.tagline }}</h1>
+      <p class="lead">Straight answers and lab-grade research compounds in one friendly place. We walk
+        you through how to choose a trustworthy source — then let you shop it, purity chip and COA included.</p>
+      <div class="hero-cta">
+        <a href="#catalogue" class="btn btn-primary">Browse the catalogue</a>
+        <a href="#how" class="btn btn-ghost">Learn how to choose →</a>
+      </div>
+      <div class="hero-trust">
+        <div><span class="tick">✓</span> ≥99% purity</div>
+        <div><span class="tick">✓</span> COA on every batch</div>
+        <div><span class="tick">✓</span> Third-party HPLC/MS</div>
+      </div>
+    </div>
+    <div class="hero-figure">
+      {% include "partials/_hero_vial.html" %}
+      <div class="hero-card">
+        <span class="qtag">Plain-language guide</span>
+        <h3>The 4 things a good source shows you</h3>
+        <p class="hero-card-sub">No jargon — just what actually matters when you're buying.</p>
+        <ul class="hero-checklist">
+          <li><span class="tick">✓</span> A batch-specific Certificate of Analysis</li>
+          <li><span class="tick">✓</span> Third-party HPLC + mass-spec results</li>
+          <li><span class="tick">✓</span> A stated purity threshold (ours: ≥99%)</li>
+          <li><span class="tick">✓</span> Clear, cold-packed shipping from {{ site.ships_from }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block before_catalogue %}
+<section id="how" class="steps-sec">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Start here</p>
+      <h2>New to research peptides? Here's the short version.</h2>
+      <p class="lede">Four quick steps take you from "where do I even start" to a confident, well-documented order.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3>Know what a peptide is</h3><p>Short chains of amino acids used in lab research. Each has a specific sequence — and a good supplier proves what's actually in the vial.</p></div>
+      <div class="step"><div class="num">2</div><h3>Check the paperwork</h3><p>Look for a batch-matched Certificate of Analysis plus independent HPLC and mass-spec data. No COA, no confidence.</p></div>
+      <div class="step"><div class="num">3</div><h3>Compare purity honestly</h3><p>A stated threshold like ≥99% means every released batch is tested against it — not a marketing number pulled from thin air.</p></div>
+      <div class="step"><div class="num">4</div><h3>Order &amp; store correctly</h3><p>Choose cold-packed, tracked shipping and reconstitute with bacteriostatic water. We stock that too, so nothing's missing.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="choose" class="choose">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Buyer education</p>
+      <h2>How to choose a research-peptide source</h2>
+      <p class="lede">Bookmark this checklist and use it on any supplier — including us. If a source can't tick these boxes, keep looking.</p>
+    </div>
+    <div class="choose-grid">
+      <div class="check-card">
+        <div class="check-item"><div class="ic">📄</div><div><h4>Batch-specific COA</h4><p>A Certificate of Analysis tied to the exact lot number on your vial — not a generic PDF reused for everything.</p></div></div>
+        <div class="check-item"><div class="ic">📈</div><div><h4>Independent HPLC &amp; MS</h4><p>Third-party high-performance liquid chromatography and mass spectrometry confirm identity and measure purity objectively.</p></div></div>
+        <div class="check-item"><div class="ic">✅</div><div><h4>A stated purity threshold</h4><p>Look for a clear release spec (we use ≥99%). Vague claims like "high purity" with no number are a red flag.</p></div></div>
+        <div class="check-item"><div class="ic">🧊</div><div><h4>Cold-chain, tracked shipping</h4><p>Lyophilized compounds travel best cold-packed with tracking. Bonus points for discreet, domestic dispatch from {{ site.ships_from }}.</p></div></div>
+        <div class="check-item"><div class="ic">💬</div><div><h4>Responsive, honest support</h4><p>A real contact address and quick answers about sourcing, storage and documentation — no dodging, no vanishing.</p></div></div>
+      </div>
+      <div class="explain-note">
+        <h3>What "purity" actually means</h3>
+        <p>When we say <b>≥99%</b>, we mean each released batch is tested and must show 99% or more of the target compound by HPLC area — with mass spec confirming it's the right molecule. Impurities are the leftover 1% or less.</p>
+        <p>It's the single most useful number on a COA. A supplier that shares it — with the raw chromatogram behind it — is a supplier taking the science seriously.</p>
+        <div class="mini">
+          <div><strong>Lyophilized</strong><span>Freeze-dried to a stable powder. Reconstitute with bacteriostatic water before research use.</span></div>
+          <div><strong>COA</strong><span>Certificate of Analysis — the lab report proving identity, purity and batch details.</span></div>
+          <div><strong>HPLC / MS</strong><span>The two workhorse tests: one measures purity, the other confirms the molecule's mass.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block catalogue_head %}
+<div class="section-head">
+  <p class="eyebrow">The store</p>
+  <h2>Browse the full catalogue</h2>
+  <p class="lede">Every vial ships with its COA. Filter by category, check the purity and size chips, and add to your cart.</p>
+</div>
+{% endblock %}
+
+{% block after_catalogue %}
+<section id="faq" class="faq">
+  <div class="wrap">
+    <div class="section-head faq-head">
+      <p class="eyebrow">Good questions</p>
+      <h2>Frequently asked questions</h2>
+      <p class="lede">The things people ask us most — answered plainly.</p>
+    </div>
+    <div class="faq-wrap">
+      <details class="faq-item"><summary>So — where do I actually get peptides?<span class="pm">+</span></summary><p>Right here. Everything in our catalogue is stocked, tested to a ≥99% release threshold, and shipped from {{ site.ships_from }} with a batch-matched COA. Read the checklist above, then add what you need to your cart.</p></details>
+      <details class="faq-item"><summary>What does "for research use only" mean?<span class="pm">+</span></summary><p>It means these compounds are sold strictly for laboratory and in-vitro research by qualified professionals. They are not drugs, supplements, or food, and are not intended for human or veterinary use.</p></details>
+      <details class="faq-item"><summary>What is a COA and will I get one?<span class="pm">+</span></summary><p>A Certificate of Analysis is the lab report proving a batch's identity and purity. Yes — a COA matched to your vial's lot number is available for every product, on request or included in your shipment.</p></details>
+      <details class="faq-item"><summary>How do you verify purity?<span class="pm">+</span></summary><p>Every release batch is tested by independent labs using HPLC (which measures purity) and mass spectrometry (which confirms the molecule). We only list batches that meet or exceed our ≥99% threshold.</p></details>
+      <details class="faq-item"><summary>How should I store and reconstitute compounds?<span class="pm">+</span></summary><p>Lyophilized (freeze-dried) compounds are best kept cold and dark. Reconstitute with bacteriostatic water — which we stock — and follow your own lab's protocols. Reach out any time with storage questions.</p></details>
+      <details class="faq-item"><summary>How does shipping work, and is it discreet?<span class="pm">+</span></summary><p>We ship discreetly from {{ site.ships_from }} in plain, unbranded packaging with cold-pack protection and tracking.{% if site.promo_code %} New customers save with code <b>{{ site.promo_code }}</b>.{% endif %}</p></details>
+      <details class="faq-item"><summary>Do you ship internationally?<span class="pm">+</span></summary><p>Currently we dispatch domestically only, so we can guarantee cold-chain timing and tracking. Get in touch to hear when that changes.</p></details>
+    </div>
+    {% if site.promo_code %}
+    <div class="cta-band">
+      <h2>First order? Save with code {{ site.promo_code }}</h2>
+      <p>Restock alerts, new-compound drops and our plain-language sourcing checklist — plus a discount on your first COA-backed order.</p>
+      <a href="#catalogue" class="btn btn-hero">Start shopping →</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

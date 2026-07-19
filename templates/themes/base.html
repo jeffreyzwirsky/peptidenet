@@ -1,0 +1,125 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ site.brand_name }} — Research Compounds{% endblock %}</title>
+<meta name="description" content="{{ site.meta_description }}">
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ site.brand_name }}">
+<meta property="og:title" content="{{ site.brand_name }} — Research Compounds">
+<meta property="og:description" content="{{ site.meta_description }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index,follow">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Store","name":"{{ site.brand_name }}",
+"url":"{{ request.scheme }}://{{ request.get_host }}/",
+"description":"{{ site.meta_description }}",
+"areaServed":"CA","brand":"{{ site.brand_name }}"}
+</script>
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'themes/'|add:theme|add:'/theme.css' %}">
+{% block head_extra %}{% endblock %}
+</head>
+<body class="theme-{{ theme }}" data-checkout-url="{% url 'checkout' %}" data-contact-url="{% url 'contact' %}" data-cart-add-url="{% url 'cart_add' %}" data-cart-update-url="{% url 'cart_update' %}">
+{% csrf_token %}
+{% include "partials/_age_gate.html" %}
+{% include "partials/_announcement.html" %}
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a href="/" class="brand">{% block brandmark %}<span class="brand-name">{{ site.brand_name }}</span>{% endblock %}</a>
+    <nav class="nav-links">{% block navlinks %}
+      <a href="/#catalogue">Compounds</a>
+      <a href="/#quality">Quality</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#contact">Contact</a>
+    {% endblock %}</nav>
+    <div class="nav-actions">
+      {% block navcta %}<a href="#catalogue" class="btn btn-primary">Shop</a>{% endblock %}
+      <button class="cart-btn" data-cart-open aria-label="Cart">
+        <span class="cart-ic">🛒</span><span class="cart-count" data-cart-count>{{ cart_count }}</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  {% block main %}
+  {% block hero %}{% endblock %}
+  {% block before_catalogue %}{% endblock %}
+
+  <section id="catalogue" class="catalogue">
+    <div class="wrap">
+      {% block catalogue_head %}
+      <div class="section-head">
+        <p class="eyebrow">Research Compounds</p>
+        <h2>The full catalogue</h2>
+      </div>
+      {% endblock %}
+      {% include "partials/_product_grid.html" %}
+    </div>
+  </section>
+
+  {% block after_catalogue %}{% endblock %}
+
+  {% block quality %}
+  <section id="quality" class="quality">
+    <div class="wrap">
+      <div class="section-head"><p class="eyebrow">Quality Standards</p><h2>What "research-grade" means here</h2></div>
+      <div class="quality-grid">
+        <div class="q-item"><h4>≥99% purity</h4><p>Every lot released above a documented purity threshold.</p></div>
+        <div class="q-item"><h4>Third-party tested</h4><p>Independent HPLC &amp; mass-spec verification before release.</p></div>
+        <div class="q-item"><h4>COA available</h4><p>A batch-specific certificate for every product on request.</p></div>
+        <div class="q-item"><h4>Discreet, from {{ site.ships_from }}</h4><p>Plain, tracked packaging shipped from {{ site.ships_from }}.</p></div>
+      </div>
+    </div>
+  </section>
+  {% endblock %}
+
+  {% block reviews %}{% include "partials/_reviews.html" %}{% endblock %}
+
+  {% block contact %}
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <div class="section-head"><p class="eyebrow">Get in touch</p><h2>Questions? Ask our team.</h2></div>
+      <form class="contact-form" data-contact-form>
+        <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="ai-hp" aria-hidden="true">
+        <input name="name" placeholder="Name" required>
+        <input name="email" type="email" placeholder="Email" required>
+        <textarea name="message" placeholder="How can we help?" required></textarea>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+    </div>
+  </section>
+  {% endblock %}
+  {% endblock main %}
+</main>
+
+{% block footer %}
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <div class="brand-name">{{ site.brand_name }}</div>
+      <p>{{ site.meta_description }}</p>
+    </div>
+    <div class="foot-fruo">
+      <strong>For Research Use Only.</strong> Not for human or veterinary use. All products
+      are intended for laboratory and in-vitro research.
+      <div class="foot-contact">{{ site.contact_email_or_default }}</div>
+    </div>
+  </div>
+  <div class="wrap foot-bottom">© 2026 {{ site.brand_name }}. Ships from {{ site.ships_from }}. Age 21+.</div>
+</footer>
+{% endblock %}
+
+{% include "partials/_cart_drawer.html" %}
+{% include "partials/_cookie.html" %}
+{% include "partials/_ai_widget.html" %}
+<div class="toast" data-toast></div>
+<script src="{% static 'js/store.js' %}"></script>
+<script src="{% static 'js/ai.js' %}"></script>
+{% block body_extra %}{% endblock %}
+</body>
+</html>

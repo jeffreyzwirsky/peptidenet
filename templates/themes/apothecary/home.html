@@ -1,0 +1,64 @@
+{% extends "themes/base.html" %}
+
+{% block title %}{{ site.brand_name }} — Research Apothecary{% endblock %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block brandmark %}
+<span class="brand-name">{{ site.brand_name }}<span class="brand-sub">Research Apothecary</span></span>
+{% endblock %}
+
+{% block navcta %}<a href="#catalogue" class="btn btn-primary">Browse Catalogue</a>{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <span class="ln"></span>
+        <span class="eyebrow">Compounded for Research · Ships from {{ site.ships_from }}</span>
+      </div>
+      <h1>Quiet purity,<br><em>documented</em> to the lot.</h1>
+      <p class="lede">{{ site.tagline }}</p>
+      <div class="hero-cta">
+        <a href="#catalogue" class="btn btn-primary">Browse the Catalogue</a>
+        <a href="#quality" class="btn btn-ghost">Our Standards</a>
+      </div>
+      <div class="hero-meta">
+        <div><span class="n">≥99%</span><span class="eyebrow">Release purity</span></div>
+        <div><span class="n">100%</span><span class="eyebrow">COA coverage</span></div>
+        <div><span class="n">Est.</span><span class="eyebrow">{{ site.ships_from }}</span></div>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="hero-figure">
+        {% include "partials/_hero_vial.html" %}
+        <div class="hero-card hero-card-float">
+          <div class="hero-card-cap">
+            <div class="eyebrow">Documentation Standard</div>
+            <h3>Certificate of Analysis</h3>
+            <p>Lot-specific · issued with every vial</p>
+          </div>
+          <div class="assay">
+            <div><div class="v">99.2%</div><div class="k">HPLC</div></div>
+            <div><div class="v">Pass</div><div class="k">MS ID</div></div>
+            <div><div class="v">&lt;0.5</div><div class="k">EU/mg</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block catalogue_head %}
+<div class="section-head">
+  <p class="eyebrow">The Formulary</p>
+  <h2>Research Compound Catalogue</h2>
+  <p class="sec-sub">Every vial is lyophilized, sealed, and released against its own certificate of analysis. Select a category to refine.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "manage/base.html" %}
+{% block title %}Security{% endblock %}
+{% block heading %}Security{% endblock %}
+{% block head_right %}<span class="pill {% if total %}warn{% endif %}">{{ total }} events</span>{% endblock %}
+{% block body %}
+<p class="note">Hardening in place: security headers + CSP, per-IP rate limits on public endpoints, form honeypots, a bot-trap for scanner paths, spoof-resistant client-IP, and signature-verified webhooks. Suspicious activity is logged here (and can feed fail2ban).</p>
+<div class="kpis">
+  {% for k in by_kind %}<div class="kpi"><div class="kpi-label">{{ k.kind }}</div><div class="kpi-num">{{ k.n }}</div></div>{% endfor %}
+  {% if not by_kind %}<div class="kpi"><div class="kpi-label">Events</div><div class="kpi-num">0</div></div>{% endif %}
+</div>
+<section class="card">
+  <div class="card-head"><h2>Recent events</h2></div>
+  <table class="tbl">
+    <thead><tr><th>When</th><th>Kind</th><th>IP</th><th>Path</th><th>Detail</th></tr></thead>
+    <tbody>
+      {% for e in events %}
+      <tr><td class="sub">{{ e.created_at|date:"M j, H:i:s" }}</td>
+        <td><span class="badge {% if e.kind == 'honeypot' or e.kind == 'bot_trap' or e.kind == 'bad_signature' %}out{% else %}low{% endif %}">{{ e.get_kind_display }}</span></td>
+        <td class="mono">{{ e.ip|default:"—" }}</td><td class="sub">{{ e.path }}</td><td class="msg-cell">{{ e.detail }}</td></tr>
+      {% empty %}<tr><td colspan="5" class="empty">No security events — all quiet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

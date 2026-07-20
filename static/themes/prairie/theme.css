@@ -120,7 +120,7 @@
 .theme-prairie .quality{background:var(--mist);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .theme-prairie .q-item{background:#fff;border:1px solid var(--line);padding:26px 22px}
 .theme-prairie .q-item:hover{box-shadow:var(--shadow-sm);border-color:#cfe0ef}
-.theme-prairie .q-item h4{color:var(--blue-900)}
+.theme-prairie .q-item h3{color:var(--blue-900)}
 .theme-prairie .q-item p{color:var(--muted)}
 
 /* ===== Reviews (light) ===== */

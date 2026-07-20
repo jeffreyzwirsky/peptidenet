@@ -102,7 +102,7 @@
 .theme-clinical .quality{background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .theme-clinical .quality .section-head{text-align:center;max-width:640px;margin:0 auto 40px}
 .theme-clinical .q-item{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow-sm)}
-.theme-clinical .q-item h4{font-family:'Fraunces',Georgia,serif;font-size:19px;color:var(--fg);margin-bottom:8px}
+.theme-clinical .q-item h3{font-family:'Fraunces',Georgia,serif;font-size:19px;color:var(--fg);margin-bottom:8px}
 .theme-clinical .q-item p{color:var(--muted)}
 
 /* COA verification band */

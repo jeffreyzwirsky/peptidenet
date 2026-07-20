@@ -195,7 +195,7 @@
 .theme-apothecary .q-item{
   background:rgba(255,255,255,.02);border:1px solid rgba(194,166,112,.28);border-radius:3px;padding:30px 24px;
 }
-.theme-apothecary .q-item h4{color:#f2eede;font-size:22px;font-family:var(--serif);margin-bottom:8px}
+.theme-apothecary .q-item h3{color:#f2eede;font-size:22px;font-family:var(--serif);margin-bottom:8px}
 .theme-apothecary .q-item p{color:#bcc2ab;font-size:13px}
 
 /* ---- Reviews ---- */

@@ -77,7 +77,7 @@ section{padding:72px 0}
 .quality-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 @media(max-width:900px){.quality-grid{grid-template-columns:1fr 1fr}}
 .q-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
-.q-item h4{font-size:16px;margin-bottom:6px}
+.q-item h3{font-size:16px;margin-bottom:6px}
 .q-item p{font-size:13px;color:var(--muted)}
 
 /* reviews */

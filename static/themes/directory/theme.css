@@ -117,7 +117,7 @@
 .theme-directory .acc p{margin:0;padding:0 22px 20px;color:var(--muted);font-size:14.5px}
 
 /* ---------- Quality / reviews / footer accents ---------- */
-.theme-directory .q-item h4{font-family:'Space Grotesk',sans-serif}
+.theme-directory .q-item h3{font-family:'Space Grotesk',sans-serif}
 .theme-directory .q-item:hover{border-color:rgba(255,179,0,.4)}
 .theme-directory .review .stars{color:var(--accent)}
 .theme-directory .site-footer{background:#0f1520}

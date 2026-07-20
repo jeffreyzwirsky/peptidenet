@@ -146,7 +146,7 @@
 .theme-guide .quality{background:#fff}
 .theme-guide .q-item{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:24px 22px;transition:.18s}
 .theme-guide .q-item:hover{box-shadow:var(--shadow);transform:translateY(-3px);border-color:#c8ebe5}
-.theme-guide .q-item h4{color:var(--fg);font-size:17px}
+.theme-guide .q-item h3{color:var(--fg);font-size:17px}
 .theme-guide .q-item p{color:var(--muted)}
 
 /* ---------- Reviews (light) ---------- */

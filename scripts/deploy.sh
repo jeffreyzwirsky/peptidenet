@@ -32,6 +32,12 @@ apt-get update -y
 apt-get install -y python3-venv python3-pip python3-dev build-essential \
     nginx postgresql postgresql-contrib libpq-dev certbot python3-certbot-nginx git curl
 
+echo "==> OS security updates + automatic security patching (unattended-upgrades)"
+apt-get install -y unattended-upgrades || true
+# Apply any pending security updates now, then keep them coming automatically.
+unattended-upgrade -d >/dev/null 2>&1 || true
+systemctl enable --now unattended-upgrades || true
+
 echo "==> Postgres database"
 sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" | grep -q 1 || \
   sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';"
@@ -89,6 +95,11 @@ echo "==> nginx"
 ./venv/bin/python manage.py emit_nginx > /etc/nginx/sites-available/peptidenet
 ln -sf /etc/nginx/sites-available/peptidenet /etc/nginx/sites-enabled/peptidenet
 rm -f /etc/nginx/sites-enabled/default
+# Default-deny catch-all: the bare IP or any unknown Host gets nginx 444 (silent
+# close) — the server reveals nothing. Standalone file so regenerating the
+# per-site config can never create a duplicate default_server.
+apt-get install -y ssl-cert >/dev/null 2>&1 || true
+printf 'server{listen 80 default_server;listen [::]:80 default_server;server_name _;return 444;}\nserver{listen 443 ssl default_server;listen [::]:443 ssl default_server;server_name _;ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;return 444;}\n' > /etc/nginx/conf.d/00-default-deny.conf
 nginx -t && systemctl reload nginx
 
 echo "==> firewall"

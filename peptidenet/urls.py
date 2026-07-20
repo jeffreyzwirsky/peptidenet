@@ -24,6 +24,8 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("category/<slug:slug>/", views.home, name="category"),
     path("product/<slug:slug>/", views.product_detail, name="product_detail"),
+    path("calculator/", views.calculator, name="calculator"),
+    path("rewards/", views.rewards, name="rewards"),
     # Cart + checkout (shared backend for every site)
     path("cart/", views.cart_state, name="cart_state"),
     path("cart/add/", views.cart_add, name="cart_add"),

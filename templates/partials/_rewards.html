@@ -1,0 +1,57 @@
+{% load static %}
+{% comment %}Rewards / referral / bulk overview — shared by every theme's rewards.html.
+Only describes mechanisms that actually exist (automatic bulk tiers, first-order code,
+referral, wholesale enquiry) — no fictional points-balance system.{% endcomment %}
+<section class="rewards-page">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Save More</p>
+      <h1>Rewards &amp; bulk pricing</h1>
+      <p class="sec-sub">Straightforward ways to pay less at {{ site.brand_name }} — no points to
+        chase, no account required.</p>
+    </div>
+
+    <div class="rw-grid">
+      <div class="rw-card">
+        <div class="rw-ic">%</div>
+        <h3>Automatic bulk pricing</h3>
+        <p>Buy more of any vial and the discount applies in your cart automatically — no code needed.</p>
+        <table class="pdp-bulk">
+          <thead><tr><th>Quantity</th><th>You save</th></tr></thead>
+          <tbody>
+            <tr><td>3+ vials</td><td>−5%</td></tr>
+            <tr><td>5+ vials</td><td>−10%</td></tr>
+            <tr><td>10+ vials</td><td>−15%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="rw-card">
+        <div class="rw-ic">★</div>
+        <h3>First-order discount</h3>
+        <p>New to {{ site.brand_name }}? Use code <span class="rw-code">SMASH10</span> at checkout
+          for 10% off your first order.</p>
+        <p class="rw-sub">Stacks on top of free express shipping over $200.</p>
+      </div>
+
+      <div class="rw-card">
+        <div class="rw-ic">↗</div>
+        <h3>Refer a researcher</h3>
+        <p>Share {{ site.brand_name }} with a colleague. When they order, they save on their first
+          purchase and you get a credit toward your next one.</p>
+        <p class="rw-sub"><a href="/#contact">Contact us to get your referral code →</a></p>
+      </div>
+
+      <div class="rw-card">
+        <div class="rw-ic">▣</div>
+        <h3>Wholesale &amp; lab accounts</h3>
+        <p>Ordering at volume for a research group or reselling? We offer tiered wholesale pricing
+          and standing-order terms for qualified labs.</p>
+        <p class="rw-sub"><a href="/#contact">Enquire about wholesale pricing →</a></p>
+      </div>
+    </div>
+
+    <p class="pdp-ruo"><strong>For research use only.</strong> All products are supplied as
+      laboratory reference materials, not for human or veterinary use.</p>
+  </div>
+</section>

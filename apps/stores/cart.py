@@ -1,8 +1,17 @@
 from decimal import Decimal
 
-from apps.catalog.models import Product
+from apps.catalog.models import BULK_DISCOUNT_TIERS, Product
 
 CART_SESSION_KEY = "cart"
+
+
+def bulk_pct_for_qty(qty):
+    """Highest bulk-discount % a given line quantity qualifies for."""
+    pct = 0
+    for min_qty, tier_pct in BULK_DISCOUNT_TIERS:
+        if qty >= min_qty:
+            pct = tier_pct
+    return pct
 
 
 class Cart:
@@ -46,13 +55,21 @@ class Cart:
             p = products.get(int(pid))
             if not p:
                 continue
+            pct = bulk_pct_for_qty(qty)
+            gross = p.price * qty
+            unit = (p.price * (Decimal(100 - pct) / Decimal(100))).quantize(Decimal("0.01"))
+            line_total = (unit * qty).quantize(Decimal("0.01"))
             out.append({
                 "id": p.id,
                 "name": p.name,
                 "slug": p.slug,
                 "price": p.price,
+                "unit_price": unit,
                 "qty": qty,
-                "line_total": p.price * qty,
+                "bulk_pct": pct,
+                "line_gross": gross,
+                "line_total": line_total,
+                "line_saved": (gross - line_total).quantize(Decimal("0.01")),
                 "category": p.category.name,
                 "color": p.category.color,
             })
@@ -60,6 +77,13 @@ class Cart:
 
     def count(self):
         return sum(self.cart.values())
+
+    def subtotal(self):
+        """Gross subtotal before bulk discounts."""
+        return sum((i["line_gross"] for i in self.items()), Decimal("0"))
+
+    def savings(self):
+        return sum((i["line_saved"] for i in self.items()), Decimal("0"))
 
     def total(self):
         return sum((i["line_total"] for i in self.items()), Decimal("0"))

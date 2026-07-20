@@ -1,0 +1,107 @@
+{% load static %}
+{% comment %}Reconstitution + dosage calculator — shared by every theme's calculator.html.
+Self-contained (its own inline script); themes itself via base.css variables (.calc-*).
+No competitor in the niche ships one, so it doubles as an SEO lead-magnet.{% endcomment %}
+<section class="calc-page">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Research Tools</p>
+      <h1>Peptide Reconstitution &amp; Dosage Calculator</h1>
+      <p class="sec-sub">Work out concentration, volume to draw, and doses per vial for any
+        lyophilized research peptide. For laboratory research calculations only.</p>
+    </div>
+
+    <div class="calc-grid" data-calc>
+      <div class="calc-inputs">
+        <label class="calc-field">
+          <span>Peptide in vial <em>(mg)</em></span>
+          <input type="number" data-c="mg" value="10" min="0" step="0.5" inputmode="decimal">
+        </label>
+        <label class="calc-field">
+          <span>Bacteriostatic water added <em>(mL)</em></span>
+          <input type="number" data-c="water" value="2" min="0.1" step="0.1" inputmode="decimal">
+        </label>
+        <label class="calc-field">
+          <span>Target amount per draw <em>(mcg)</em></span>
+          <input type="number" data-c="dose" value="250" min="0" step="10" inputmode="decimal">
+        </label>
+        <label class="calc-field">
+          <span>Syringe type</span>
+          <select data-c="syringe">
+            <option value="100">U-100 insulin (1&nbsp;mL = 100 units)</option>
+            <option value="50">U-50 insulin (0.5&nbsp;mL = 50 units)</option>
+            <option value="30">U-30 insulin (0.3&nbsp;mL = 30 units)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="calc-results">
+        <div class="calc-result">
+          <span class="calc-k">Concentration</span>
+          <span class="calc-v" data-r="conc">—</span>
+        </div>
+        <div class="calc-result big">
+          <span class="calc-k">Draw to this line on the syringe</span>
+          <span class="calc-v" data-r="units">—</span>
+        </div>
+        <div class="calc-result">
+          <span class="calc-k">Volume to draw</span>
+          <span class="calc-v" data-r="vol">—</span>
+        </div>
+        <div class="calc-result">
+          <span class="calc-k">Doses of this size per vial</span>
+          <span class="calc-v" data-r="doses">—</span>
+        </div>
+        <p class="calc-warn" data-r="warn"></p>
+      </div>
+    </div>
+
+    <div class="calc-note">
+      <p><strong>How it works.</strong> Concentration = peptide (mg) ÷ water (mL). Volume to
+        draw = target (mcg) ÷ concentration. On a U-100 insulin syringe, 1&nbsp;mL is 100 units,
+        so the "units" figure is the mark to fill to.</p>
+      <p class="pdp-ruo"><strong>For research use only.</strong> These are laboratory reconstitution
+        calculations for in-vitro research — not medical, dosing, or human-use guidance. Always
+        follow your lab's handling protocols and the compound's documentation.</p>
+      <p class="calc-link"><a href="/blog/">New to reconstitution? Read our lab guide →</a> ·
+        <a href="/#catalogue">Browse the catalogue →</a></p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var root = document.querySelector("[data-calc]");
+  if (!root) return;
+  var $ = function (s) { return root.querySelector(s); };
+  function val(sel){ return parseFloat(($('[data-c="'+sel+'"]')||{}).value); }
+  function fmt(n, d){ return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)); }
+  function calc() {
+    var mg = val("mg"), water = val("water"), dose = val("dose");
+    var syr = parseFloat($('[data-c="syringe"]').value) || 100;
+    var warn = $('[data-r="warn"]');
+    if (!(mg > 0) || !(water > 0)) { warn.textContent = "Enter vial mg and water mL to calculate."; return; }
+    var concMgMl = mg / water;                 // mg per mL
+    var concMcgMl = concMgMl * 1000;           // mcg per mL
+    $('[data-r="conc"]').textContent = fmt(concMgMl,2) + " mg/mL  (" + fmt(concMcgMl,0) + " mcg/mL)";
+    if (!(dose > 0)) { $('[data-r="units"]').textContent="—"; $('[data-r="vol"]').textContent="—"; $('[data-r="doses"]').textContent="—"; warn.textContent=""; return; }
+    var volMl = dose / concMcgMl;              // mL to draw for target mcg
+    var units = volMl * 100;                    // marks on a U-100 syringe (1mL=100u)
+    var maxUnits = syr;                          // syringe capacity in units
+    var dosesPerVial = (mg*1000) / dose;        // total mcg / dose
+    $('[data-r="vol"]').textContent = fmt(volMl,3) + " mL";
+    $('[data-r="units"]').textContent = fmt(units,1) + " units";
+    $('[data-r="doses"]').textContent = fmt(dosesPerVial,1) + " doses";
+    warn.textContent = units > maxUnits
+      ? "Note: " + fmt(units,1) + " units exceeds this syringe's " + maxUnits + "-unit capacity — use more water or a larger syringe."
+      : "";
+  }
+  root.addEventListener("input", calc);
+  // Prefill mg from ?mg= (deep-link from a product page)
+  try {
+    var q = new URLSearchParams(location.search).get("mg");
+    if (q && parseFloat(q) > 0) $('[data-c="mg"]').value = parseFloat(q);
+  } catch (e) {}
+  calc();
+})();
+</script>

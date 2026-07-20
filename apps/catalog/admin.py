@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product
+from .models import Category, Product, Review
 
 
 @admin.register(Category)
@@ -16,3 +16,11 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ("unit_cost", "price", "stock_qty", "is_active")
     search_fields = ("name", "description")
     prepopulated_fields = {"slug": ("name",)}
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("author", "product", "rating", "location", "is_verified", "is_published", "created_at")
+    list_filter = ("rating", "is_verified", "is_published")
+    list_editable = ("is_published",)
+    search_fields = ("author", "body")

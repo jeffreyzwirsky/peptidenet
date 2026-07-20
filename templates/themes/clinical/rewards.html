@@ -1,0 +1,17 @@
+{% extends "themes/base.html" %}
+{% load static %}
+
+{% block title %}Rewards & Bulk Pricing — {{ site.brand_name }}{% endblock %}
+{% block head_extra %}
+<meta name="description" content="Automatic bulk pricing, first-order discount, referral and wholesale options at {{ site.brand_name }}. For research use only.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block navcta %}<a href="/#catalogue" class="btn btn-primary">Browse catalogue</a>{% endblock %}
+
+{% block main %}
+{% include "partials/_rewards.html" %}
+{% endblock %}

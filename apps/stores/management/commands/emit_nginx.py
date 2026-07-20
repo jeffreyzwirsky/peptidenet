@@ -54,6 +54,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         admin = settings.ADMIN_PATH  # e.g. "admin/" or "ops-ab12cd/"
+        # NOTE: the default-deny catch-all (bare IP / unknown hosts -> nginx 444)
+        # lives in a standalone /etc/nginx/conf.d/00-default-deny.conf written by
+        # deploy.sh / update.sh — NOT here — so regenerating this per-site config
+        # can never collide with a second `default_server` on the same port.
         out = [HEADER, UPSTREAM]
         for s in Site.objects.filter(is_active=True):
             out.append(BLOCK.format(

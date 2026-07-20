@@ -1,5 +1,8 @@
-Django>=5.0,<5.3
-gunicorn>=21.2
+# Django 5.2 is the current LTS — security-supported into 2028. This range keeps
+# us on the latest 5.2.x security patch (5.2.16+ as of Jul 2026) and off the
+# short-lived 6.x feature releases that EOL every ~8 months.
+Django>=5.2,<5.3
+gunicorn>=23.0
 # Postgres in production (same managed Postgres pattern as the lead system).
 # Not needed for local SQLite dev.
 psycopg[binary]>=3.1

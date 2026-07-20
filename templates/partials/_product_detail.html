@@ -1,0 +1,183 @@
+{% load static %}
+{% comment %}Shared product-detail page body, rendered by every theme's product.html.
+Styling comes from base.css (.pdp-*) which reads each theme's CSS variables, so one
+partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{% endcomment %}
+<article class="pdp">
+  <div class="wrap">
+
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a><span>/</span>
+      <a href="/category/{{ product.category.slug }}/">{{ product.category.name }}</a><span>/</span>
+      <span class="crumb-cur">{{ product.name }}</span>
+    </nav>
+
+    <div class="pdp-top">
+      <div class="pdp-media" style="--cap:{{ product.category.color }}">
+        {% if product.is_new %}<span class="pdp-flag">New</span>{% endif %}
+        <img class="pdp-photo" src="/static/hero/hero-vials.jpg"
+             alt="{{ product.name }} — clear-liquid research-compound vials" loading="eager">
+        <div class="pdp-media-badge">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Third-party tested · {{ product.purity }}
+        </div>
+      </div>
+
+      <div class="pdp-buy" data-buybox>
+        <div class="pdp-cat" style="color:{{ product.category.color }}">{{ product.category.name }}</div>
+        <h1 class="pdp-name">{{ product.name }}</h1>
+        {% if product.synonyms %}<p class="pdp-syn">Also known as: {{ product.synonyms|join:", " }}</p>{% endif %}
+        {% if product.research_area %}<p class="pdp-lead">{{ product.research_area }}</p>{% endif %}
+
+        <div class="pdp-pricerow">
+          <div class="pdp-price">${{ product.price }} <span>CAD / vial</span></div>
+          <div class="pdp-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
+        </div>
+
+        <div class="pdp-attrs">
+          <span class="chip pur">{{ product.purity }} purity</span>
+          {% for s in product.sizes %}<span class="chip">{{ s }}</span>{% endfor %}
+          {% if product.cas_number %}<span class="chip">CAS {{ product.cas_number }}</span>{% endif %}
+        </div>
+
+        {% if product.stock_state == "out" %}
+          <button class="btn btn-ghost pdp-add" disabled>Currently sold out</button>
+        {% else %}
+          <div class="pdp-qty">
+            <span class="pdp-qty-label">Quantity</span>
+            <div class="qty-stepper">
+              <button type="button" data-qty-step="-1" aria-label="Decrease">−</button>
+              <input data-qty-input type="number" value="1" min="1" inputmode="numeric" aria-label="Quantity">
+              <button type="button" data-qty-step="1" aria-label="Increase">+</button>
+            </div>
+            <span class="pdp-tier-hint" data-tier-hint>Buy 3+ to unlock bulk pricing</span>
+          </div>
+          <button class="btn btn-primary pdp-add" data-add="{{ product.id }}" data-name="{{ product.name }}">
+            Add to cart
+          </button>
+        {% endif %}
+
+        <table class="pdp-bulk">
+          <caption>Buy more, save more — applied automatically at checkout</caption>
+          <thead><tr><th>Quantity</th><th>Discount</th><th>Per vial</th></tr></thead>
+          <tbody>
+            <tr><td>1–2</td><td>—</td><td>${{ product.price }}</td></tr>
+            {% for t in product.bulk_tiers %}
+            <tr><td>{{ t.min_qty }}+</td><td>−{{ t.pct }}%</td><td>${{ t.unit_price }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <ul class="pdp-trust">
+          <li><b>COA</b> issued by {{ product.lab_name }}</li>
+          <li><b>HPLC + MS</b> verified identity</li>
+          <li><b>Ships</b> discreetly from {{ site.ships_from }}</li>
+          <li><b>Interac</b> &amp; crypto accepted</li>
+        </ul>
+        <p class="pdp-calc-link"><a href="/calculator/">🧪 Reconstitution &amp; dosage calculator →</a></p>
+      </div>
+    </div>
+
+    <div class="pdp-detail">
+      <div class="pdp-main">
+
+        {% if product.has_specs %}
+        <section class="pdp-block" id="specs">
+          <h2>Specifications</h2>
+          <table class="spec-table">
+            <tbody>
+              {% if product.cas_number %}<tr><th>CAS number</th><td>{{ product.cas_number }}</td></tr>{% endif %}
+              {% if product.molecular_formula %}<tr><th>Molecular formula</th><td>{{ product.molecular_formula }}</td></tr>{% endif %}
+              {% if product.molecular_weight %}<tr><th>Molecular weight</th><td>{{ product.molecular_weight }} g/mol</td></tr>{% endif %}
+              {% if product.sequence %}<tr><th>Sequence / structure</th><td class="mono">{{ product.sequence }}</td></tr>{% endif %}
+              {% if product.purity %}<tr><th>Purity</th><td>{{ product.purity }} (HPLC)</td></tr>{% endif %}
+              {% if product.half_life %}<tr><th>Reported half-life</th><td>{{ product.half_life }}</td></tr>{% endif %}
+              {% if product.appearance %}<tr><th>Appearance</th><td>{{ product.appearance }}</td></tr>{% endif %}
+              {% if product.solubility %}<tr><th>Solubility</th><td>{{ product.solubility }}</td></tr>{% endif %}
+              {% if product.storage %}<tr><th>Storage</th><td>{{ product.storage }}</td></tr>{% endif %}
+              {% for s in product.sizes %}{% if forloop.first %}<tr><th>Available sizes</th><td>{{ product.sizes|join:", " }}</td></tr>{% endif %}{% endfor %}
+            </tbody>
+          </table>
+          <p class="pdp-fineprint">Reference data compiled from public chemical databases and the
+            peer-reviewed literature. Provided for laboratory research use only.</p>
+        </section>
+        {% endif %}
+
+        {% if product.research_area or product.description %}
+        <section class="pdp-block" id="research">
+          <h2>Research context</h2>
+          {% if product.research_area %}<p>{{ product.research_area }}</p>{% endif %}
+          {% if product.description %}<p>{{ product.description }}</p>{% endif %}
+          <p class="pdp-ruo"><strong>For research use only.</strong> Not for human or veterinary
+            use. Sold as a laboratory reference material for in-vitro research.</p>
+        </section>
+        {% endif %}
+
+        <section class="pdp-block" id="coa">
+          <h2>Certificate of Analysis</h2>
+          {% if product.coa_url %}
+            <p>Every lot is released against a batch-specific certificate of analysis from an
+              independent laboratory ({{ product.lab_name }}).</p>
+            <a class="btn btn-ghost" href="{{ product.coa_url }}" target="_blank" rel="noopener">
+              View the batch COA (PDF) →</a>
+          {% else %}
+            <p>Each lot of {{ product.name }} is independently tested by {{ product.lab_name }} by
+              HPLC (purity) and mass spectrometry (identity), and released against a batch-specific
+              certificate of analysis. Request the COA for your lot number and we'll send the
+              matching certificate so you can verify vial-to-lot before any assay work.</p>
+            <a class="btn btn-ghost" href="/#contact">Request this batch's COA →</a>
+          {% endif %}
+          <p class="pdp-fineprint"><a href="/blog/">New to COAs? Read our guide on how to read a peptide certificate of analysis.</a></p>
+        </section>
+
+        {% if faqs %}
+        <section class="pdp-block" id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="faq-list">
+            {% for f in faqs %}
+            <details class="faq-item">
+              <summary>{{ f.q }}</summary>
+              <div class="faq-a"><p>{{ f.a }}</p></div>
+            </details>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+
+        <section class="pdp-block" id="reviews">
+          <h2>Researcher reviews</h2>
+          {% if reviews %}
+            <div class="pdp-rating">
+              <span class="stars" aria-hidden="true">★★★★★</span>
+              <b>{{ product.rating_avg }}</b> · {{ product.rating_count }} review{{ product.rating_count|pluralize }}
+            </div>
+            <div class="review-grid">
+              {% for r in reviews %}
+              <figure class="review">
+                <div class="stars">{% for _ in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+                <blockquote>{{ r.body }}</blockquote>
+                <figcaption>{{ r.author }}{% if r.location %} · {{ r.location }}{% endif %}{% if r.is_verified %} · <span class="verified">Verified</span>{% endif %}</figcaption>
+              </figure>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="pdp-noreviews">No researcher reviews yet for {{ product.name }}. Verified reviews
+              from researchers appear here after a completed order.</p>
+          {% endif %}
+        </section>
+
+      </div>
+    </div>
+
+    {% if related %}
+    <section class="pdp-related">
+      <div class="section-head"><p class="eyebrow">Related compounds</p><h2>Researchers also viewed</h2></div>
+      <div class="product-grid">
+        {% for product in related %}{% include "partials/_product_card.html" %}{% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
+</article>
+
+<script type="application/ld+json">{{ jsonld|safe }}</script>

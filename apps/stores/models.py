@@ -23,6 +23,16 @@ class Site(models.Model):
     tagline = models.CharField(max_length=200, blank=True)
     promo_code = models.CharField(max_length=30, blank=True)
     contact_email = models.EmailField(blank=True)
+    phone = models.CharField(
+        max_length=40, blank=True,
+        help_text='Display phone shown in header/hero/footer, e.g. "1-839-BIOLABS".',
+    )
+    phone_tel = models.CharField(
+        max_length=40, blank=True,
+        help_text='Dialable form for tel: links, e.g. "+18392465227".',
+    )
+    phone_alt = models.CharField(max_length=40, blank=True, help_text="Secondary display phone.")
+    phone_alt_tel = models.CharField(max_length=40, blank=True)
     ships_from = models.CharField(max_length=80, default="Canada")
     meta_description = models.CharField(max_length=300, blank=True)
     # Optional per-site theme variable overrides (e.g. {"accent": "#c6ff00"}).
@@ -43,6 +53,25 @@ class Site(models.Model):
     @property
     def contact_email_or_default(self):
         return self.contact_email or f"info@{self.domain}"
+
+    @property
+    def phone_tel_or_derived(self):
+        """Dialable number: explicit phone_tel, else digits stripped from `phone`."""
+        if self.phone_tel:
+            return self.phone_tel
+        if self.phone:
+            digits = "".join(c for c in self.phone if c.isdigit())
+            return ("+" + digits) if digits else ""
+        return ""
+
+    @property
+    def phone_alt_tel_or_derived(self):
+        if self.phone_alt_tel:
+            return self.phone_alt_tel
+        if self.phone_alt:
+            digits = "".join(c for c in self.phone_alt if c.isdigit())
+            return ("+" + digits) if digits else ""
+        return ""
 
     def __str__(self):
         return f"{self.brand_name} ({self.domain})"

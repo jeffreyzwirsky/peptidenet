@@ -34,12 +34,23 @@ SITES = [
 ]
 
 
+# Network phone numbers (owned Twilio vanity lines). Applied to every site
+# unless a site overrides them above. BIOLABS = 246-5227 on the keypad.
+PHONE_DEFAULTS = {
+    "phone": "1-839-BIOLABS",
+    "phone_tel": "+18392465227",
+    "phone_alt": "1-325-BIOLABS",
+    "phone_alt_tel": "+13252465227",
+}
+
+
 class Command(BaseCommand):
     help = "Seed/refresh the 8 launch storefront Site rows."
 
     def handle(self, *args, **opts):
         created = updated = 0
         for s in SITES:
+            s = {**PHONE_DEFAULTS, **s}  # site-specific values win over phone defaults
             _, was_created = Site.objects.update_or_create(domain=s["domain"], defaults=s)
             created += was_created
             updated += not was_created

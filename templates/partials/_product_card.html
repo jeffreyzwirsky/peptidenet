@@ -1,5 +1,5 @@
 <article class="pcard" data-cat="{{ product.category.slug }}">
-  <div class="pcard-media" style="--cap:{{ product.category.color }}">
+  <a class="pcard-media" href="/product/{{ product.slug }}/" style="--cap:{{ product.category.color }}" aria-label="{{ product.name }}">
     {% if product.is_new %}<span class="pcard-new">New</span>{% endif %}
     <svg class="vial" viewBox="0 0 96 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <rect x="30" y="6" width="36" height="14" rx="3" fill="{{ product.category.color }}"/>
@@ -10,12 +10,12 @@
       <text x="48" y="78" text-anchor="middle" fill="{{ product.category.color }}" font-family="Arial" font-size="7" font-weight="700">{{ product.name|slice:":9" }}</text>
       <rect x="34" y="30" width="9" height="52" rx="5" fill="#fff" opacity=".5"/>
     </svg>
-  </div>
+  </a>
   <div class="pcard-body">
     <div class="pcard-cat">{{ product.category.name }}</div>
     <div class="pcard-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
     <div class="pcard-price">${{ product.price }} <span>/ vial</span></div>
-    <h3 class="pcard-name">{{ product.name }}</h3>
+    <h3 class="pcard-name"><a href="/product/{{ product.slug }}/">{{ product.name }}</a></h3>
     <p class="pcard-desc">{{ product.description }}</p>
     <div class="pcard-chips">
       <span class="chip pur">{{ product.purity }}</span>

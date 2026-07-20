@@ -1,0 +1,13 @@
+{% extends "themes/base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} — {{ site.brand_name }} · Research Compound{% endblock %}
+{% block head_extra %}
+<meta name="description" content="{{ product.name }}, {{ product.purity }} purity, third-party tested. {{ product.research_area }} For research use only. Ships from {{ site.ships_from }}.">
+{% endblock %}
+
+{% block navcta %}<a href="/#catalogue" class="btn btn-primary">Browse catalogue</a>{% endblock %}
+
+{% block main %}
+{% include "partials/_product_detail.html" %}
+{% endblock %}

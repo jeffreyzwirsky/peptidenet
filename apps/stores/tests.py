@@ -49,3 +49,61 @@ class StorefrontTests(TestCase):
         with self.settings(DEBUG=False):
             r = self.client.get("/", HTTP_HOST="not-a-store.example")
             self.assertEqual(r.status_code, 404)
+
+
+class ProductPageTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+        call_command("apply_specs")
+
+    def test_product_page_renders_with_specs_and_schema(self):
+        r = self.client.get("/product/bpc-157/", HTTP_HOST="smashfatbiolabs.ca", secure=True)
+        self.assertEqual(r.status_code, 200)
+        body = r.content.decode()
+        self.assertIn("Molecular formula", body)
+        self.assertIn("C62H98N16O22", body)
+        self.assertIn('"@type": "Product"', body)
+        self.assertIn("FAQPage", body)
+        self.assertIn("BreadcrumbList", body)
+
+    def test_product_page_all_themes(self):
+        from apps.stores.models import Site
+        for s in Site.objects.all():
+            r = self.client.get("/product/retatrutide/", HTTP_HOST=s.domain, secure=True)
+            self.assertEqual(r.status_code, 200, s.theme)
+
+    def test_calculator_and_rewards_pages(self):
+        for path, needle in (("/calculator/", "data-calc"), ("/rewards/", "SMASH10")):
+            r = self.client.get(path, HTTP_HOST="smashfat.ca", secure=True)
+            self.assertEqual(r.status_code, 200, path)
+            self.assertIn(needle, r.content.decode())
+
+
+class BulkPricingTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_bulk_tiers(self):
+        from apps.stores.cart import bulk_pct_for_qty
+        self.assertEqual(bulk_pct_for_qty(1), 0)
+        self.assertEqual(bulk_pct_for_qty(2), 0)
+        self.assertEqual(bulk_pct_for_qty(3), 5)
+        self.assertEqual(bulk_pct_for_qty(5), 10)
+        self.assertEqual(bulk_pct_for_qty(10), 15)
+        self.assertEqual(bulk_pct_for_qty(25), 15)
+
+    def test_bulk_discount_applied_in_cart(self):
+        self.client.get("/", HTTP_HOST="smashfat.ca")
+        r = self.client.post(
+            "/cart/add/", {"product_id": 1, "qty": 5},
+            content_type="application/json", HTTP_HOST="smashfat.ca",
+        )
+        data = r.json()
+        # 10% off at qty 5 -> savings > 0 and total < subtotal
+        self.assertGreaterEqual(float(data["savings"]), 0.01)
+        self.assertLess(float(data["total"]), float(data["subtotal"]))
+        self.assertEqual(data["items"][0]["bulk_pct"], 10)

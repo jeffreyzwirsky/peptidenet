@@ -32,11 +32,13 @@
     <a href="/" class="brand">{% block brandmark %}<span class="brand-name">{{ site.brand_name }}</span>{% endblock %}</a>
     <nav class="nav-links">{% block navlinks %}
       <a href="/#catalogue">Compounds</a>
+      <a href="/calculator/">Calculator</a>
       <a href="/#quality">Quality</a>
       <a href="/blog/">Blog</a>
       <a href="/#contact">Contact</a>
     {% endblock %}</nav>
     <div class="nav-actions">
+      {% if site.phone %}<a class="nav-phone" href="tel:{{ site.phone_tel_or_derived }}" aria-label="Call {{ site.phone }}"><span class="nav-phone-ic" aria-hidden="true">📞</span><span class="nav-phone-num">{{ site.phone }}</span></a>{% endif %}
       {% block navcta %}<a href="#catalogue" class="btn btn-primary">Shop</a>{% endblock %}
       <button class="cart-btn" data-cart-open aria-label="Cart">
         <span class="cart-ic">🛒</span><span class="cart-count" data-cart-count>{{ cart_count }}</span>
@@ -83,7 +85,9 @@
   {% block contact %}
   <section id="contact" class="contact">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Get in touch</p><h2>Questions? Ask our team.</h2></div>
+      <div class="section-head"><p class="eyebrow">Get in touch</p><h2>Questions? Ask our team.</h2>
+        {% if site.phone %}<p class="contact-phone">Call us: <a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% if site.phone_alt %} · <a href="tel:{{ site.phone_alt_tel_or_derived }}">{{ site.phone_alt }}</a>{% endif %}</p>{% endif %}
+      </div>
       <form class="contact-form" data-contact-form>
         <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="ai-hp" aria-hidden="true">
         <input name="name" placeholder="Name" required>
@@ -108,6 +112,7 @@
       <strong>For Research Use Only.</strong> Not for human or veterinary use. All products
       are intended for laboratory and in-vitro research.
       <div class="foot-contact">{{ site.contact_email_or_default }}</div>
+      {% if site.phone %}<div class="foot-contact"><a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% if site.phone_alt %} · <a href="tel:{{ site.phone_alt_tel_or_derived }}">{{ site.phone_alt }}</a>{% endif %}</div>{% endif %}
     </div>
   </div>
   <div class="wrap foot-bottom">© 2026 {{ site.brand_name }}. Ships from {{ site.ships_from }}. Age 21+.</div>

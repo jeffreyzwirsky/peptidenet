@@ -31,15 +31,110 @@ def home(request, slug=None):
 def product_detail(request, slug):
     _require_site(request)
     product = get_object_or_404(Product, slug=slug, is_active=True)
-    return render(request, _theme_template(request, "product.html"), {"product": product})
+    related = list(
+        Product.objects.filter(category=product.category, is_active=True)
+        .exclude(id=product.id)[:4]
+    )
+    if len(related) < 4:
+        extra = Product.objects.filter(is_active=True).exclude(
+            id__in=[product.id, *[r.id for r in related]]
+        )[: 4 - len(related)]
+        related += list(extra)
+
+    faqs = product.auto_faqs()
+    base = _base_url(request)
+    url = f"{base}/product/{product.slug}/"
+    avail = {
+        "in": "https://schema.org/InStock",
+        "low": "https://schema.org/LimitedAvailability",
+        "out": "https://schema.org/OutOfStock",
+    }.get(product.stock_state, "https://schema.org/InStock")
+
+    product_ld = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": product.name,
+        "category": product.category.name,
+        "brand": {"@type": "Brand", "name": request.site.brand_name},
+        "description": (product.research_area or product.description or "")[:300],
+        "offers": {
+            "@type": "Offer",
+            "price": str(product.price),
+            "priceCurrency": "CAD",
+            "availability": avail,
+            "url": url,
+        },
+    }
+    if product.cas_number:
+        product_ld["additionalProperty"] = [
+            {"@type": "PropertyValue", "name": "CAS Number", "value": product.cas_number}
+        ]
+    if product.rating_count:
+        product_ld["aggregateRating"] = {
+            "@type": "AggregateRating",
+            "ratingValue": str(product.rating_avg),
+            "reviewCount": str(product.rating_count),
+        }
+    breadcrumb_ld = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": base + "/"},
+            {"@type": "ListItem", "position": 2, "name": product.category.name,
+             "item": f"{base}/category/{product.category.slug}/"},
+            {"@type": "ListItem", "position": 3, "name": product.name, "item": url},
+        ],
+    }
+    ld = [product_ld, breadcrumb_ld]
+    if faqs:
+        ld.append({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {"@type": "Question", "name": f["q"],
+                 "acceptedAnswer": {"@type": "Answer", "text": f["a"]}}
+                for f in faqs
+            ],
+        })
+
+    return render(
+        request,
+        _theme_template(request, "product.html"),
+        {
+            "product": product,
+            "related": related,
+            "reviews": product.review_qs[:6],
+            "faqs": faqs,
+            "jsonld": json.dumps(ld),
+        },
+    )
+
+
+def calculator(request):
+    _require_site(request)
+    return render(request, _theme_template(request, "calculator.html"), {})
+
+
+def rewards(request):
+    _require_site(request)
+    return render(request, _theme_template(request, "rewards.html"), {})
 
 
 def _cart_payload(cart):
     return {
         "count": cart.count(),
         "total": str(cart.total()),
+        "subtotal": str(cart.subtotal()),
+        "savings": str(cart.savings()),
         "items": [
-            {**i, "price": str(i["price"]), "line_total": str(i["line_total"])}
+            {
+                **i,
+                "price": str(i["price"]),
+                "unit_price": str(i["unit_price"]),
+                "line_total": str(i["line_total"]),
+                "line_gross": str(i["line_gross"]),
+                "line_saved": str(i["line_saved"]),
+            }
             for i in cart.items()
         ],
     }
@@ -165,7 +260,9 @@ def robots_txt(request):
 def sitemap_xml(request):
     base = _base_url(request)
     from apps.blog.models import BlogPost
-    urls = [(base + "/", "daily", "1.0"), (base + "/blog/", "daily", "0.7")]
+    urls = [(base + "/", "daily", "1.0"), (base + "/blog/", "daily", "0.7"),
+            (base + "/calculator/", "monthly", "0.6"),
+            (base + "/rewards/", "monthly", "0.5")]
     for c in Category.objects.all():
         urls.append((f"{base}/category/{c.slug}/", "weekly", "0.7"))
     for p in Product.objects.filter(is_active=True):

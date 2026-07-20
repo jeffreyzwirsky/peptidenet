@@ -1,0 +1,13 @@
+{% extends "themes/base.html" %}
+{% load static %}
+
+{% block title %}Peptide Reconstitution & Dosage Calculator — {{ site.brand_name }}{% endblock %}
+{% block head_extra %}
+<meta name="description" content="Free peptide reconstitution and dosage calculator — concentration, volume to draw, units, and doses per vial. For research use only.">
+{% endblock %}
+
+{% block navcta %}<a href="/#catalogue" class="btn btn-primary">Browse catalogue</a>{% endblock %}
+
+{% block main %}
+{% include "partials/_calculator.html" %}
+{% endblock %}

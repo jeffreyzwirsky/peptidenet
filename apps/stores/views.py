@@ -213,6 +213,26 @@ def contact(request):
         rating=data.get("rating") or None,
         kind=data.get("kind", "contact"),
     )
+    try:  # SMS dual opt-in capture → immutable consent audit (real client IP)
+        raw_phone = (data.get("phone") or "").strip()
+        if raw_phone:
+            from apps.comms import consent as _consent
+            from apps.comms import phone as _cphone
+            from apps.comms import sms as _csms
+            e164 = _cphone.normalize(raw_phone)
+            if e164:
+                _csms.resolve_contact(e164, site=request.site,
+                                      name=data.get("name", ""), email=data.get("email", ""))
+                if data.get("sms_optin_transactional"):
+                    _consent.log_consent(e164, "opt_in", category="transactional",
+                                         source="contact_form", request=request,
+                                         site=request.site, note="Contact form opt-in")
+                if data.get("sms_optin_marketing"):
+                    _consent.log_consent(e164, "opt_in", category="marketing",
+                                         source="contact_form", request=request,
+                                         site=request.site, note="Contact form opt-in")
+    except Exception:
+        pass
     try:
         from apps.mailer import mailer
         mailer.lead_alert(lead)

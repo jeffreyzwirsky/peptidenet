@@ -123,6 +123,10 @@
         <input name="name" placeholder="Name" aria-label="Your name" autocomplete="name" required>
         <input name="email" type="email" placeholder="Email" aria-label="Your email" autocomplete="email" required>
         <textarea name="message" placeholder="How can we help?" aria-label="Your message" required></textarea>
+        <input name="phone" type="tel" placeholder="Phone (optional — for SMS updates)" aria-label="Your phone" autocomplete="tel">
+        <label class="sms-optin"><input type="checkbox" name="sms_optin_transactional" value="1"> Text me order &amp; COA updates (transactional).</label>
+        <label class="sms-optin"><input type="checkbox" name="sms_optin_marketing" value="1"> Text me offers &amp; restock alerts (marketing).</label>
+        <p class="sms-disclosure">If you check a box, you agree to receive recurring SMS from {{ site.brand_name }}. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of purchase.</p>
         <button type="submit" class="btn btn-primary">Send</button>
       </form>
     </div>

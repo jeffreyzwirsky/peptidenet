@@ -146,3 +146,13 @@ class ComplianceTests(TestCase):
         )
         triage.classify_voicemail(vm)
         self.assertEqual(vm.urgency, "urgent")
+
+    def test_contact_form_logs_sms_consent(self):
+        from .models import SmsConsent
+        self.client.post("/contact/", {
+            "name": "L", "email": "l@x.ca", "message": "hi",
+            "phone": "587-555-6543", "sms_optin_marketing": "1",
+        }, content_type="application/json", HTTP_HOST="smashfat.ca")
+        self.assertTrue(SmsConsent.objects.filter(
+            e164="+15875556543", event_type="opt_in", category="marketing",
+            source="contact_form").exists())

@@ -54,6 +54,32 @@ class ControlPanelTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertIn("/manage/login", r.url)
 
+    def test_team_page_is_owner_only(self):
+        from django.contrib.auth.models import Group
+
+        from apps.manage.access import PORTAL_GROUP
+        g, _ = Group.objects.get_or_create(name=PORTAL_GROUP)
+        clerk = get_user_model().objects.create_user("clerk2", password="x", is_staff=False)
+        clerk.groups.add(g)
+        # Owner sees Team.
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get("/manage/team/").status_code, 200)
+        # Walled staff can't (redirected off it).
+        self.client.force_login(clerk)
+        self.assertEqual(self.client.get("/portal/team/").status_code, 302)
+
+    def test_owner_can_invite_walled_staff(self):
+        self.client.force_login(self.staff)
+        self.client.post("/manage/team/", {
+            "action": "invite", "username": "newclerk", "email": "n@ex.com",
+        })
+        u = get_user_model().objects.get(username="newclerk")
+        self.assertFalse(u.is_staff)
+        self.assertFalse(u.is_superuser)
+        self.assertFalse(u.has_usable_password())
+        from apps.manage.access import PORTAL_GROUP
+        self.assertTrue(u.groups.filter(name=PORTAL_GROUP).exists())
+
     def test_checkout_decrements_shared_inventory(self):
         p = Product.objects.get(slug="bpc-157")
         start = p.stock_qty

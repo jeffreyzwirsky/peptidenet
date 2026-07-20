@@ -267,6 +267,72 @@ def emails(request):
 
 
 @console_required
+def team(request):
+    """Owner-only staff management: invite, resend set-password link, and
+    activate/deactivate walled portal users — no console needed."""
+    from django.contrib.auth import get_user_model
+    from django.contrib.auth.models import Group
+    from django.contrib.auth.tokens import default_token_generator
+    from django.urls import reverse
+    from django.utils.encoding import force_bytes
+    from django.utils.http import urlsafe_base64_encode
+
+    from apps.manage.access import PORTAL_GROUP
+    from apps.mailer import mailer
+
+    if not request.user.is_superuser:
+        messages.error(request, "Only the owner can manage staff.")
+        return redirect(f"{request.resolver_match.namespace}:dashboard")
+
+    User = get_user_model()
+    group, _ = Group.objects.get_or_create(name=PORTAL_GROUP)
+
+    def _link(u):
+        uid = urlsafe_base64_encode(force_bytes(u.pk))
+        token = default_token_generator.make_token(u)
+        return request.build_absolute_uri(reverse("password_reset_confirm", args=[uid, token]))
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "invite":
+            username = (request.POST.get("username") or "").strip()
+            email = (request.POST.get("email") or "").strip()
+            if not username or not email:
+                messages.error(request, "Username and email are both required.")
+            else:
+                u, made = User.objects.get_or_create(username=username, defaults={"email": email})
+                u.is_staff = False
+                u.is_superuser = False
+                u.email = email or u.email
+                if made:
+                    u.set_unusable_password()
+                u.save()
+                u.groups.add(group)
+                mailer.send_invite(u, _link(u), invited_by=request.user.get_username())
+                messages.success(request, f"Invited {username}. Set-password link: {_link(u)}")
+            return redirect(request.path)
+        u = get_object_or_404(User, pk=request.POST.get("user_id"))
+        if action == "reset":
+            mailer.send_invite(u, _link(u), invited_by=request.user.get_username())
+            messages.success(request, f"Set-password link for {u.get_username()}: {_link(u)}")
+        elif action == "deactivate":
+            u.is_active = False
+            u.save(update_fields=["is_active"])
+            messages.success(request, f"{u.get_username()} deactivated.")
+        elif action == "activate":
+            u.is_active = True
+            u.save(update_fields=["is_active"])
+            messages.success(request, f"{u.get_username()} reactivated.")
+        elif action == "remove":
+            u.groups.remove(group)
+            messages.success(request, f"{u.get_username()} removed from the portal.")
+        return redirect(request.path)
+
+    staff = list(group.user_set.all().order_by("username"))
+    return render(request, "manage/team.html", {"nav": "team", "staff": staff})
+
+
+@console_required
 def ai_usage(request):
     from django.conf import settings as _settings
 

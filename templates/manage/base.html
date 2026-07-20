@@ -28,13 +28,15 @@
       <a href="{% url cns|add:':blog' %}" class="{% if nav == 'blog' %}on{% endif %}">Blog</a>
       <a href="{% url cns|add:':ai_usage' %}" class="{% if nav == 'ai' %}on{% endif %}">AI Assistant</a>
       <a href="{% url cns|add:':security' %}" class="{% if nav == 'security' %}on{% endif %}">Security</a>
-      {% if is_admin_console %}
+      {% if request.user.is_superuser %}
         <div class="nav-group">Owner</div>
-        <a href="{% url 'admin:index' %}" class="ext">Django admin ↗</a>
-        <a href="/portal/" class="ext">Staff portal ↗</a>
-      {% elif request.user.is_superuser %}
-        <div class="nav-group">Owner</div>
-        <a href="/manage/" class="ext">Admin panel ↗</a>
+        <a href="{% url cns|add:':team' %}" class="{% if nav == 'team' %}on{% endif %}">Team</a>
+        {% if is_admin_console %}
+          <a href="{% url 'admin:index' %}" class="ext">Django admin ↗</a>
+          <a href="/portal/" class="ext">Staff portal ↗</a>
+        {% else %}
+          <a href="/manage/" class="ext">Admin panel ↗</a>
+        {% endif %}
       {% endif %}
     </nav>
     <div class="side-foot">

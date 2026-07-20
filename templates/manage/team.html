@@ -1,0 +1,43 @@
+{% extends "manage/base.html" %}
+{% block title %}Team{% endblock %}
+{% block heading %}Team{% endblock %}
+{% block body %}
+<section class="card" style="margin-bottom:18px">
+  <div class="card-head"><h2>Invite a staff member</h2></div>
+  <form method="post" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+    {% csrf_token %}
+    <div><label class="sub">Username</label><br>
+      <input name="username" required style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg)"></div>
+    <div><label class="sub">Email</label><br>
+      <input name="email" type="email" required style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg)"></div>
+    <button class="btn" name="action" value="invite">Send invite</button>
+  </form>
+  <p class="sub" style="margin-top:10px">They get a single-use set-password link and land in the walled staff portal (no Django admin, no server access). Until email is live, the link is shown in the confirmation here so you can copy it.</p>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Staff ({{ staff|length }})</h2></div>
+  <table class="tbl">
+    <thead><tr><th>Username</th><th>Email</th><th>Status</th><th>Password</th><th>Last login</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for u in staff %}
+      <tr>
+        <td><b>{{ u.get_username }}</b></td>
+        <td>{{ u.email|default:"—" }}</td>
+        <td>{% if u.is_active %}<span class="badge sent">Active</span>{% else %}<span class="badge failed">Disabled</span>{% endif %}</td>
+        <td>{% if u.has_usable_password %}<span class="sub">set</span>{% else %}<span class="badge stub">not set</span>{% endif %}</td>
+        <td class="sub">{{ u.last_login|date:"M j, Y"|default:"never" }}</td>
+        <td>
+          <form method="post" style="display:inline">{% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ u.pk }}">
+            <button class="btn ghost" name="action" value="reset">Send link</button>
+            {% if u.is_active %}<button class="btn ghost" name="action" value="deactivate">Disable</button>
+            {% else %}<button class="btn ghost" name="action" value="activate">Enable</button>{% endif %}
+          </form>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="empty">No staff yet — invite someone above.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

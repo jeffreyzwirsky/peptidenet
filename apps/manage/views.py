@@ -453,12 +453,20 @@ def blog(request):
                 messages.success(request, "Moved back to review.")
             elif action == "archive":
                 post.status = "archived"; post.save()
+            elif action == "set_image":
+                from apps.blog.models import BLOG_HERO_POOL
+                img = request.POST.get("hero_image", "")
+                if img in BLOG_HERO_POOL or img == "":
+                    post.hero_image = img
+                    post.save(update_fields=["hero_image"])
+                    messages.success(request, "Hero image updated." if img else "Reverted to SVG banner.")
         return redirect(request.path)
 
+    from apps.blog.models import BLOG_HERO_POOL
     from apps.blog.models import BlogPost as BP
     posts = BP.objects.select_related("site").all()[:200]
     return render(request, "manage/blog.html", {
-        "nav": "blog", "posts": posts,
+        "nav": "blog", "posts": posts, "hero_pool": BLOG_HERO_POOL,
         "sites": Site.objects.filter(is_active=True),
         "flagged": BP.objects.filter(compliance_status="flagged").count(),
         "review": BP.objects.filter(status="needs_review").count(),

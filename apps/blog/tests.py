@@ -45,6 +45,22 @@ class GeneratorTests(TestCase):
         self.assertTrue(post.hero_svg.startswith("<svg"))
         self.assertIn("metabolic research peptides", post.keyword)
 
+    def test_generated_post_gets_real_hero_image(self):
+        from .models import BLOG_HERO_POOL
+        site = Site.objects.get(domain="smashfat.ca")
+        post = generator.generate(site, "retatrutide research")
+        self.assertIn(post.hero_image, BLOG_HERO_POOL)
+
+    def test_assign_blog_images_backfills(self):
+        from .models import BLOG_HERO_POOL
+        site = Site.objects.get(domain="smashfat.ca")
+        p = BlogPost.objects.create(site=site, title="no img", slug="no-img",
+                                    body="research use only")
+        self.assertEqual(p.hero_image, "")
+        call_command("assign_blog_images")
+        p.refresh_from_db()
+        self.assertIn(p.hero_image, BLOG_HERO_POOL)
+
     def test_flagged_post_cannot_publish(self):
         site = Site.objects.get(domain="smashfat.ca")
         p = BlogPost.objects.create(site=site, title="x", body="we cure cancer, FDA approved",

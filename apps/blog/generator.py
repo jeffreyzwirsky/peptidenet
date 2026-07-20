@@ -1,12 +1,14 @@
 """AI blog-post generator with compliance baked into the prompt AND enforced by
 the guardrail scanner afterward. Produces a DRAFT (needs_review) — never publishes."""
+import zlib
+
 from django.utils.text import slugify
 
 from apps.ai import llm
 from apps.catalog.models import Product
 
 from . import guardrails
-from .models import BlogPost
+from .models import BLOG_HERO_POOL, BlogPost
 
 SYSTEM = (
     "You write SEO blog posts for a Canadian RESEARCH-COMPOUND (peptide) store. "
@@ -76,6 +78,7 @@ def generate(site, keyword):
         keyword=keyword, excerpt=excerpt, body=review["text"],
         meta_description=excerpt[:300], seo_title=title[:200],
         hero_svg=banner_svg(site, title),
+        hero_image=BLOG_HERO_POOL[zlib.crc32(keyword.encode()) % len(BLOG_HERO_POOL)],
         status="needs_review",                         # NEVER auto-published
         compliance_status=review["status"],
         compliance_notes=review["notes"],

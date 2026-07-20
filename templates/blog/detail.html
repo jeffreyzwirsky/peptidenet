@@ -6,6 +6,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="{{ post.seo_title }}">
 <meta property="og:description" content="{{ post.meta_description }}">
+{% if post.hero_image %}<meta property="og:image" content="{{ post.hero_image }}">{% endif %}
 <script type="application/ld+json" nonce="{{ request.csp_nonce }}">
 {"@context":"https://schema.org","@type":"Article",
 "headline":"{{ post.seo_title|escapejs }}",
@@ -18,7 +19,7 @@
 {% endblock %}
 {% block main %}
 <article class="sec blog-post">
-  <div class="blog-hero">{{ post.hero_svg|safe }}</div>
+  <div class="blog-hero">{% if post.hero_image %}<img class="blog-hero-img" src="{{ post.hero_image }}" width="1200" height="480" alt="{{ post.title }}">{% else %}{{ post.hero_svg|safe }}{% endif %}</div>
   <div class="wrap blog-narrow">
     <a href="/blog/" class="blog-back">← All research notes</a>
     <div class="blog-content">{{ post.body|markdown }}</div>

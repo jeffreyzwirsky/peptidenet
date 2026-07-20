@@ -1,6 +1,14 @@
 from django.db import models
 from django.utils.text import slugify
 
+# Real lab hero images (curled onto the box from Canva → static/blog/).
+BLOG_HERO_POOL = [
+    "/static/blog/blog-1.jpg",  # cinematic clear vials + molecular bokeh
+    "/static/blog/blog-2.jpg",  # macro clear research vials
+    "/static/blog/blog-3.jpg",  # glowing neon vials
+    "/static/blog/blog-4.jpg",  # amber vials on slate
+]
+
 
 class BlogPost(models.Model):
     """A per-site SEO blog post. Never auto-published — created as needs_review,
@@ -21,7 +29,11 @@ class BlogPost(models.Model):
     body = models.TextField(help_text="Markdown.")
     seo_title = models.CharField(max_length=200, blank=True)
     meta_description = models.CharField(max_length=320, blank=True)
-    hero_svg = models.TextField(blank=True, help_text="Inline SVG banner (self-contained).")
+    hero_svg = models.TextField(blank=True, help_text="Inline SVG banner (fallback).")
+    hero_image = models.CharField(
+        max_length=300, blank=True,
+        help_text="URL/path to a real hero image (e.g. /static/blog/blog-1.jpg). "
+                  "Takes precedence over the SVG banner.")
 
     status = models.CharField(max_length=14, choices=STATUS, default="needs_review")
     compliance_status = models.CharField(max_length=8, choices=COMPLIANCE, default="pass")

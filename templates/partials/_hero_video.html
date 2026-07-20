@@ -23,7 +23,8 @@ mobile keeps the static poster and the image stays the LCP element.
   if(img){v.poster=img.getAttribute('src');}
   var s=document.createElement('source');s.src=src;s.type='video/mp4';v.appendChild(s);
   v.addEventListener('playing',function(){hero.classList.add('hero-video-on');});
-  if(img){img.insertAdjacentElement('afterend',v);}else{hero.insertBefore(v,hero.firstChild);}
+  var anchor=(img&&img.closest('picture'))||img;
+  if(anchor){anchor.insertAdjacentElement('afterend',v);}else{hero.insertBefore(v,hero.firstChild);}
   var pr=v.play();if(pr&&pr.catch){pr.catch(function(){});}
 })();
 </script>

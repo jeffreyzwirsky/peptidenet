@@ -2,8 +2,11 @@
 
 {% block hero %}
 <section class="hero hero-photo" data-hero-video="/static/hero/hero-lab.mp4">
-  <img class="hero-bg" src="/static/hero/hero-vials.jpg" width="2000" height="1125"
-       alt="Clear-liquid research-compound vials on a dark laboratory bench" fetchpriority="high">
+  <picture>
+    <source srcset="/static/hero/hero-vials.webp" type="image/webp">
+    <img class="hero-bg" src="/static/hero/hero-vials.jpg" width="2000" height="1125"
+         alt="Clear-liquid research-compound vials on a dark laboratory bench" fetchpriority="high">
+  </picture>
   <div class="hero-scrim"></div>
   <div class="wrap hero-inner">
     <div class="hero-copy">

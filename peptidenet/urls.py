@@ -20,6 +20,7 @@ urlpatterns = [
     path("robots.txt", views.robots_txt, name="robots_txt"),
     path("sitemap.xml", views.sitemap_xml, name="sitemap_xml"),
     path("llms.txt", views.llms_txt, name="llms_txt"),
+    path("llms-full.txt", views.llms_full_txt, name="llms_full_txt"),
     # Storefront (host-routed to the right theme by SiteMiddleware)
     path("", views.home, name="home"),
     path("category/<slug:slug>/", views.home, name="category"),

@@ -25,7 +25,8 @@ def _require_site(request):
 @ensure_csrf_cookie
 def home(request, slug=None):
     _require_site(request)
-    return render(request, _theme_template(request, "home.html"), {"active_category": slug})
+    return render(request, _theme_template(request, "home.html"),
+                  {"active_category": slug, "preload_hero": True})
 
 
 def product_detail(request, slug):
@@ -106,6 +107,7 @@ def product_detail(request, slug):
             "reviews": product.review_qs[:6],
             "faqs": faqs,
             "jsonld": json.dumps(ld),
+            "preload_hero": True,
         },
     )
 
@@ -252,6 +254,7 @@ def robots_txt(request):
         "",
         f"Sitemap: {base}/sitemap.xml",
         f"# LLM guide: {base}/llms.txt",
+        f"# LLM full map: {base}/llms-full.txt",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
@@ -296,7 +299,11 @@ def llms_txt(request):
         "",
         "## Key pages",
         f"- [Home]({base}/): storefront and full catalogue",
+        f"- [Reconstitution & dosage calculator]({base}/calculator/): concentration, "
+        "volume-to-draw, units, doses per vial",
+        f"- [Rewards & bulk pricing]({base}/rewards/): automatic bulk tiers, first-order code",
         f"- [Blog]({base}/blog/): research notes and educational articles",
+        f"- [Full LLM map]({base}/llms-full.txt): complete catalogue with specs + FAQs",
         f"- [Sitemap]({base}/sitemap.xml): all indexable URLs",
         "",
         "## Products",
@@ -308,6 +315,77 @@ def llms_txt(request):
             f"- Ships from {getattr(site, 'ships_from', 'Canada') if site else 'Canada'}; "
             "free express over $200, free priority over $500.",
             "- For research use only. Age 21+."]
+    return HttpResponse("\n".join(out), content_type="text/plain; charset=utf-8")
+
+
+@require_GET
+def llms_full_txt(request):
+    """The llms-full.txt convention — a complete, single-file content map with
+    full product specs, research context, and FAQs for LLM ingestion."""
+    from apps.blog.models import BlogPost
+
+    site = getattr(request, "site", None)
+    base = _base_url(request)
+    brand = site.brand_name if site else "Research Compounds"
+    ships = getattr(site, "ships_from", "Canada") if site else "Canada"
+    out = [
+        f"# {brand} — Full Content Map",
+        "",
+        "> Complete, machine-readable reference for this Canadian research-compound "
+        "(peptide) store. FOR RESEARCH USE ONLY — not for human or veterinary use. "
+        "All figures are laboratory reference data.",
+        "",
+        f"Ships from {ships}. Every batch is independently HPLC/MS tested; a batch-specific "
+        "certificate of analysis (COA) is available on request. Age 21+.",
+        "",
+        "## Catalogue",
+    ]
+    for p in Product.objects.filter(is_active=True).select_related("category"):
+        out += [
+            "",
+            f"### {p.name}",
+            f"- URL: {base}/product/{p.slug}/",
+            f"- Category: {p.category.name}",
+            f"- Price: ${p.price} CAD per vial ({p.purity} purity, HPLC)",
+            f"- Sizes: {', '.join(p.sizes) if p.sizes else 'n/a'}",
+            f"- Stock: {p.stock_state_label}",
+        ]
+        if p.cas_number:
+            out.append(f"- CAS number: {p.cas_number}")
+        if p.molecular_formula:
+            out.append(f"- Molecular formula: {p.molecular_formula}")
+        if p.molecular_weight:
+            out.append(f"- Molecular weight: {p.molecular_weight} g/mol")
+        if p.sequence:
+            out.append(f"- Sequence / structure: {p.sequence}")
+        if p.half_life:
+            out.append(f"- Reported half-life: {p.half_life}")
+        if p.storage:
+            out.append(f"- Storage: {p.storage}")
+        if p.solubility:
+            out.append(f"- Solubility: {p.solubility}")
+        if p.research_area:
+            out.append(f"- Research context: {p.research_area}")
+        for f in p.auto_faqs():
+            out.append(f"- FAQ: {f['q']} — {f['a']}")
+
+    out += ["", "## Research library"]
+    if site:
+        posts = BlogPost.objects.filter(site=site, status="published")
+        if posts:
+            for post in posts:
+                out.append(f"- [{post.title}]({base}/blog/{post.slug}/): {post.excerpt}")
+        else:
+            out.append("- (Articles are being prepared.)")
+    out += [
+        "",
+        "## Bulk pricing",
+        "- 3+ vials: 5% off. 5+ vials: 10% off. 10+ vials: 15% off. Applied automatically in cart.",
+        "",
+        "## Compliance",
+        "- Research use only. Not for human or veterinary use. Age 21+.",
+        "- Reference data compiled from public chemical databases and the peer-reviewed literature.",
+    ]
     return HttpResponse("\n".join(out), content_type="text/plain; charset=utf-8")
 
 

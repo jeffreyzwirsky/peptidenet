@@ -6,18 +6,28 @@
 <title>{% block title %}{{ site.brand_name }} — Research Compounds{% endblock %}</title>
 <meta name="description" content="{{ site.meta_description }}">
 <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+<meta name="theme-color" content="{{ site.theme_color|default:'#0a0f1c' }}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{{ site.brand_name }}">
-<meta property="og:title" content="{{ site.brand_name }} — Research Compounds">
+<meta property="og:title" content="{% block og_title %}{{ site.brand_name }} — Research Compounds{% endblock %}">
 <meta property="og:description" content="{{ site.meta_description }}">
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ site.brand_name }} — clear-liquid research-compound vials in a laboratory">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="robots" content="index,follow">
-<script type="application/ld+json">
+<meta name="twitter:title" content="{{ site.brand_name }} — Research Compounds">
+<meta name="twitter:description" content="{{ site.meta_description }}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-share.jpg">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<script type="application/ld+json" nonce="{{ request.csp_nonce }}">
 {"@context":"https://schema.org","@type":"Store","name":"{{ site.brand_name }}",
 "url":"{{ request.scheme }}://{{ request.get_host }}/",
 "description":"{{ site.meta_description }}",
 "areaServed":"CA","brand":"{{ site.brand_name }}"}
 </script>
+{% if preload_hero %}<link rel="preload" as="image" href="/static/hero/hero-vials.jpg" fetchpriority="high">{% endif %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
 <link rel="stylesheet" href="{% static 'themes/'|add:theme|add:'/theme.css' %}">
 {% if site.is_smash_brand %}
@@ -88,6 +98,20 @@
 
   {% block reviews %}{% include "partials/_reviews.html" %}{% endblock %}
 
+  {% block lab_band %}
+  <section class="lab-band">
+    <img class="lab-band-img" src="/static/brand/lab-backdrop.jpg" width="1600" height="900"
+         alt="Clear-liquid research-compound vials on a laboratory bench with molecular structures" loading="lazy">
+    <div class="lab-band-scrim"></div>
+    <div class="wrap lab-band-inner">
+      <p class="eyebrow">Analytically verified</p>
+      <h2>Purity, documented to the lot.</h2>
+      <p>Every batch is independently tested by HPLC and mass spectrometry and released against a
+        certificate of analysis — shipped discreetly from {{ site.ships_from }}.</p>
+    </div>
+  </section>
+  {% endblock %}
+
   {% block contact %}
   <section id="contact" class="contact">
     <div class="wrap">
@@ -96,9 +120,9 @@
       </div>
       <form class="contact-form" data-contact-form>
         <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="ai-hp" aria-hidden="true">
-        <input name="name" placeholder="Name" required>
-        <input name="email" type="email" placeholder="Email" required>
-        <textarea name="message" placeholder="How can we help?" required></textarea>
+        <input name="name" placeholder="Name" aria-label="Your name" autocomplete="name" required>
+        <input name="email" type="email" placeholder="Email" aria-label="Your email" autocomplete="email" required>
+        <textarea name="message" placeholder="How can we help?" aria-label="Your message" required></textarea>
         <button type="submit" class="btn btn-primary">Send</button>
       </form>
     </div>
@@ -129,8 +153,8 @@
 {% include "partials/_cookie.html" %}
 {% include "partials/_ai_widget.html" %}
 <div class="toast" data-toast></div>
-<script src="{% static 'js/store.js' %}"></script>
-<script src="{% static 'js/ai.js' %}"></script>
+<script src="{% static 'js/store.js' %}" nonce="{{ request.csp_nonce }}" defer></script>
+<script src="{% static 'js/ai.js' %}" nonce="{{ request.csp_nonce }}" defer></script>
 {% block body_extra %}{% endblock %}
 </body>
 </html>

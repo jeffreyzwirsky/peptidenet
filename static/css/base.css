@@ -387,3 +387,17 @@ section{padding:72px 0}
   .molecule-bg{animation:mol-drift 30s ease-in-out infinite alternate}
   @keyframes mol-drift{from{transform:translateX(0)}to{transform:translateX(-3%)}}
 }
+
+/* ============ Lab band — full-width dark photographic section ============
+   Self-contained dark band with the cinematic lab image; sits well on both
+   light and dark themes. Text is fixed light for legibility over the photo. */
+.lab-band{position:relative;min-height:340px;display:flex;align-items:center;overflow:hidden;padding:0}
+.lab-band-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;z-index:0}
+.lab-band-scrim{position:absolute;inset:0;z-index:1;background:
+  linear-gradient(90deg,rgba(4,7,14,.94) 0%,rgba(4,7,14,.82) 40%,rgba(4,7,14,.5) 72%,rgba(4,7,14,.28) 100%),
+  linear-gradient(0deg,rgba(4,7,14,.6),transparent 60%)}
+.lab-band-inner{position:relative;z-index:2;padding:56px 0}
+.lab-band .eyebrow{color:var(--accent)}
+.lab-band h2{color:#f4f8ff;font-size:clamp(26px,3.4vw,40px);margin:6px 0 12px;max-width:16ch}
+.lab-band p{color:#c7d2e6;font-size:16px;line-height:1.6;max-width:56ch}
+@media(max-width:640px){.lab-band-scrim{background:linear-gradient(0deg,rgba(4,7,14,.92) 20%,rgba(4,7,14,.66) 100%)}}

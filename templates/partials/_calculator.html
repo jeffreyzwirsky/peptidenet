@@ -69,7 +69,7 @@ No competitor in the niche ships one, so it doubles as an SEO lead-magnet.{% end
   </div>
 </section>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 (function () {
   var root = document.querySelector("[data-calc]");
   if (!root) return;

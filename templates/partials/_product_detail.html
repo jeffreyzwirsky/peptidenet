@@ -180,4 +180,4 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
   </div>
 </article>
 
-<script type="application/ld+json">{{ jsonld|safe }}</script>
+<script type="application/ld+json" nonce="{{ request.csp_nonce }}">{{ jsonld|safe }}</script>

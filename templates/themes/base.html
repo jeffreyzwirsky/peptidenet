@@ -34,7 +34,7 @@
 
 <header class="site-header">
   <div class="wrap nav">
-    <a href="/" class="brand">{% if site.is_smash_brand %}<img class="brand-logo" src="{% static 'brand/smash-logo-nav.png' %}" alt="SMASH" width="59" height="48"><span class="brand-name">{{ site.brand_name }}</span>{% else %}{% block brandmark %}<span class="brand-name">{{ site.brand_name }}</span>{% endblock %}{% endif %}</a>
+    <a href="/" class="brand">{% if site.is_smash_brand %}<img class="brand-logo" src="{% if theme == 'neon' %}{% static 'brand/smash-logo-nav.png' %}{% else %}{% static 'brand/smash-logo-mono-nav.png' %}{% endif %}" alt="SMASH" width="59" height="48"><span class="brand-name">{{ site.brand_name }}</span>{% else %}{% block brandmark %}<span class="brand-name">{{ site.brand_name }}</span>{% endblock %}{% endif %}</a>
     <nav class="nav-links">{% block navlinks %}
       <a href="/#catalogue">Compounds</a>
       <a href="/calculator/">Calculator</a>
@@ -73,6 +73,7 @@
 
   {% block quality %}
   <section id="quality" class="quality">
+    {% include "partials/_molecule_bg.html" %}
     <div class="wrap">
       <div class="section-head"><p class="eyebrow">Quality Standards</p><h2>What "research-grade" means here</h2></div>
       <div class="quality-grid">

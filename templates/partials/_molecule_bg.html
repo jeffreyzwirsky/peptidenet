@@ -1,0 +1,22 @@
+{% comment %}Decorative animated molecular network — a subtle "scientific motion"
+backdrop shared by every theme (sits behind the Quality section). Themed via
+var(--accent); motion is gated behind prefers-reduced-motion in base.css.{% endcomment %}
+<div class="molecule-bg" aria-hidden="true">
+  <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g class="mol-net" stroke="var(--accent)" stroke-width="1" fill="none" opacity="0.5">
+      <line x1="120" y1="90" x2="240" y2="150"/><line x1="240" y1="150" x2="200" y2="280"/>
+      <line x1="240" y1="150" x2="380" y2="120"/><line x1="380" y1="120" x2="480" y2="210"/>
+      <line x1="480" y1="210" x2="600" y2="160"/><line x1="480" y1="210" x2="440" y2="330"/>
+      <line x1="600" y1="160" x2="700" y2="250"/><line x1="380" y1="120" x2="330" y2="40"/>
+      <line x1="200" y1="280" x2="330" y2="330"/><line x1="600" y1="160" x2="650" y2="70"/>
+    </g>
+    <g class="mol-atoms" fill="var(--accent)">
+      <circle cx="120" cy="90" r="5" class="a1"/><circle cx="240" cy="150" r="7" class="a2"/>
+      <circle cx="200" cy="280" r="5" class="a3"/><circle cx="380" cy="120" r="8" class="a1"/>
+      <circle cx="480" cy="210" r="6" class="a2"/><circle cx="600" cy="160" r="7" class="a3"/>
+      <circle cx="700" cy="250" r="5" class="a1"/><circle cx="330" cy="40" r="4" class="a2"/>
+      <circle cx="330" cy="330" r="5" class="a3"/><circle cx="650" cy="70" r="4" class="a1"/>
+      <circle cx="440" cy="330" r="6" class="a2"/>
+    </g>
+  </svg>
+</div>

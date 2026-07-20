@@ -411,9 +411,10 @@ section{padding:72px 0}
 /* --- Hero background video (shared; injected by partials/_hero_video.html) ---
    Desktop-only, fades in over the poster image, then a slow cinematic push.
    The push uses transform (GPU-composited) so it doesn't cost paint/layout. */
-.hero-photo .hero-video{opacity:0;transition:opacity 1.1s ease-in-out;
-  will-change:opacity,transform;transform:scale(1.03);
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+  opacity:0;transition:opacity 1.1s ease-in-out;will-change:opacity,transform;transform:scale(1.03);
   animation:heroKenBurns 26s ease-in-out 1.1s infinite alternate}
-.hero-photo.hero-video-on .hero-video{opacity:1}
+.hero-video-on .hero-video{opacity:1}
+.hero-photo .hero-video{object-position:74% 62%}
 @keyframes heroKenBurns{from{transform:scale(1.03)}to{transform:scale(1.11)}}
-@media(prefers-reduced-motion:reduce){.hero-photo .hero-video{display:none}}
+@media(prefers-reduced-motion:reduce){.hero-video{display:none}}

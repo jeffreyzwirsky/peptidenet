@@ -2,10 +2,10 @@
 Progressive hero background video. Any element with data-hero-video="/static/..."
 that contains an <img> poster gets a muted/looping <video.hero-video> injected
 over that poster. Desktop only (>=861px); skipped for prefers-reduced-motion +
-data-saver, so mobile/those users keep the static poster (the LCP element).
-The video is revealed as soon as a frame is available (loadeddata/canplay) — NOT
-only on 'playing' — to avoid an opacity:0 <-> deferred-autoplay deadlock.
-Append ?vdebug=1 to the URL to show a live state readout for troubleshooting.
+data-saver (mobile/those users keep the static poster = the LCP element).
+Revealed on loadeddata/canplay (not just 'playing'). Some browsers (Brave,
+strict autoplay) block muted autoplay until interaction, so we also kick off
+playback on the first user gesture. ?vdebug=1 shows a live state readout.
 {% endcomment %}
 <script nonce="{{ request.csp_nonce }}">
 (function(){
@@ -16,31 +16,33 @@ Append ?vdebug=1 to the URL to show a live state readout for troubleshooting.
   if(dbg){box=document.createElement('div');box.style.cssText='position:fixed;z-index:99999;top:6px;left:6px;background:#000;color:#0f0;font:12px/1.4 monospace;padding:6px 9px;white-space:pre;max-width:92vw;border:1px solid #0f0';document.body.appendChild(box);}
   function log(m){if(box)box.textContent=String(m);}
   if(!big||reduce||save){log('SKIP big='+big+' reduce='+reduce+' save='+!!save);return;}
+  var vids=[];
   var heroes=document.querySelectorAll('[data-hero-video]');
-  if(dbg)log('heroes='+heroes.length);
   Array.prototype.forEach.call(heroes,function(hero){
     var src=hero.getAttribute('data-hero-video');
     if(!src) return;
     var img=hero.querySelector('img');
     var v=document.createElement('video');
     v.className='hero-video';
-    v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.preload='auto';
-    v.setAttribute('muted','');v.setAttribute('playsinline','');
+    v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.preload='auto';
+    v.setAttribute('muted','');v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('loop','');
     v.setAttribute('aria-hidden','true');v.tabIndex=-1;
     if(img){v.poster=img.getAttribute('src');}
     var webm=src.replace('.mp4','.webm');
     var sw=document.createElement('source');sw.src=webm;sw.type='video/webm';v.appendChild(sw);
     var sm=document.createElement('source');sm.src=src;sm.type='video/mp4';v.appendChild(sm);
     function tryplay(){var p=v.play();if(p&&p.catch)p.catch(function(){});}
-    ['loadeddata','canplay','playing'].forEach(function(ev){
-      v.addEventListener(ev,function(){hero.classList.add('hero-video-on');tryplay();});
-    });
-    if(dbg){['loadedmetadata','loadeddata','canplay','canplaythrough','playing','error','stalled','waiting','suspend','abort'].forEach(function(ev){
-      v.addEventListener(ev,function(){log(ev+'  rs='+v.readyState+' ns='+v.networkState+' err='+(v.error&&v.error.code)+'\ncur='+((v.currentSrc||'').split('/').pop()));});
-    });}
+    ['loadeddata','canplay','playing'].forEach(function(ev){v.addEventListener(ev,function(){hero.classList.add('hero-video-on');tryplay();});});
+    if(dbg){['loadeddata','canplay','playing','pause','timeupdate','error','stalled','waiting'].forEach(function(ev){v.addEventListener(ev,function(){log(ev+'  paused='+v.paused+' t='+(Math.round(v.currentTime*10)/10)+' rs='+v.readyState+' err='+(v.error&&v.error.code)+'\ncur='+((v.currentSrc||'').split('/').pop()));});});}
     var anchor=(img&&img.closest('picture'))||img;
     if(anchor){anchor.insertAdjacentElement('afterend',v);}else{hero.insertBefore(v,hero.firstChild);}
+    vids.push(v);
     tryplay();
+  });
+  // Autoplay-blocked fallback: start on the first user interaction.
+  function kick(){vids.forEach(function(v){var p=v.play();if(p&&p.catch)p.catch(function(){});});}
+  ['pointerdown','touchstart','keydown','scroll','mousemove','click'].forEach(function(e){
+    window.addEventListener(e,kick,{once:true,passive:true});
   });
 })();
 </script>

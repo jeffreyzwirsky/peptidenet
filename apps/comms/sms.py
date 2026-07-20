@@ -84,4 +84,10 @@ def handle_inbound(from_number, to_number, body, site=None):
     elif word in HELP_WORDS:
         OptOut.objects.create(e164=from_e164, action="help", keyword=word, site=site)
         reply = "Research-use-only supplies support. Msg&data rates may apply. Reply STOP to opt out."
+    if word not in (STOP_WORDS | START_WORDS | HELP_WORDS):
+        try:  # alert staff about a real inbound text (not opt-out keywords)
+            from apps.mailer import mailer
+            mailer.sms_alert(msg)
+        except Exception:
+            pass
     return msg, reply

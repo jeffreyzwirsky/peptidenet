@@ -15,6 +15,7 @@ urlpatterns = [
     path("messages/", views.messages_inbox, name="messages"),
     path("calls/", views.calls, name="calls"),
     path("numbers/", views.numbers, name="numbers"),
+    path("emails/", views.emails, name="emails"),
     path("ai/", views.ai_usage, name="ai_usage"),
     path("blog/", views.blog, name="blog"),
     path("security/", views.security, name="security"),

@@ -100,9 +100,14 @@ def recording(request):
     duration = int(request.POST.get("RecordingDuration", 0) or 0)
     contact = sms.resolve_contact(frm, site=site) if frm else None
     text, source = providers.transcribe(rec_url) if rec_url else ("", "")
-    Voicemail.objects.create(
+    vm = Voicemail.objects.create(
         site=site, contact=contact, from_number=frm,
         category=request.GET.get("category", "general"),
         recording_url=rec_url, duration_sec=duration, transcript=text,
     )
+    try:
+        from apps.mailer import mailer
+        mailer.voicemail_alert(vm)
+    except Exception:
+        pass
     return HttpResponse("", content_type=XML)

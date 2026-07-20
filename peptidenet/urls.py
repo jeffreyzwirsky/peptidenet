@@ -14,6 +14,9 @@ urlpatterns = [
     # apps.manage.access.console_required enforces the right rule per namespace.
     path("manage/", include(("apps.manage.urls", "manage"), namespace="manage")),
     path("portal/", include(("apps.manage.urls", "manage"), namespace="portal")),
+    # Themed password-reset / set-password flow (Mailgun-backed). Single mount,
+    # non-namespaced so Django's built-in reverse() calls resolve.
+    path("account/", include("apps.mailer.auth_urls")),
     # Twilio SMS/voice webhooks (configure each number to point here).
     path("webhooks/twilio/", include("apps.comms.urls")),
     # AI support assistant.

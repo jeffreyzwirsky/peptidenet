@@ -1,0 +1,43 @@
+{% extends "manage/base.html" %}
+{% block title %}Email{% endblock %}
+{% block heading %}Email{% endblock %}
+{% block head_right %}
+  {% if live %}<span class="tag">Live</span>{% else %}<span class="badge">Stubbed — not sending</span>{% endif %}
+{% endblock %}
+{% block body %}
+<div class="cards-row" style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+  <div class="card" style="flex:1;min-width:120px"><div class="sub">Sent</div><div style="font-size:22px">{{ sent_count }}</div></div>
+  <div class="card" style="flex:1;min-width:120px"><div class="sub">Stubbed</div><div style="font-size:22px">{{ stub_count }}</div></div>
+  <div class="card" style="flex:1;min-width:120px"><div class="sub">Failed</div><div style="font-size:22px">{{ failed_count }}</div></div>
+</div>
+
+{% if not live %}
+<p class="empty" style="margin-bottom:14px">Email is <b>stubbed</b>: every message is logged here but nothing is actually sent until Mailgun is switched on (<code>PEPTIDENET_MAIL_LIVE=1</code> + key + a verified sending domain).</p>
+{% endif %}
+
+<section class="card">
+  <div class="card-head">
+    <h2>Recent email ({{ count }})</h2>
+    <form method="get" style="margin-left:auto">
+      <select name="kind" onchange="this.form.submit()">
+        <option value="">All kinds</option>
+        {% for val, label in kinds %}<option value="{{ val }}" {% if kind == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </form>
+  </div>
+  <table class="tbl">
+    <thead><tr><th>When</th><th>Kind</th><th>To</th><th>Subject</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for e in logs %}
+      <tr>
+        <td class="sub">{{ e.created_at|date:"M j, H:i" }}</td>
+        <td><span class="tag">{{ e.get_kind_display }}</span></td>
+        <td>{{ e.to_email }}</td>
+        <td>{{ e.subject }}{% if e.error %}<div class="sub" style="color:#ffb48b">{{ e.error }}</div>{% endif %}</td>
+        <td><span class="badge {{ e.status }}">{{ e.get_status_display }}</span></td>
+      </tr>
+      {% empty %}<tr><td colspan="5" class="empty">No email yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

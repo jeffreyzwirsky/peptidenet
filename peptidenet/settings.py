@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "apps.ai",
     "apps.security",
     "apps.blog",
+    "apps.mailer",
 ]
 
 MIDDLEWARE = [
@@ -176,6 +177,25 @@ OPENAI_API_KEY = env("OPENAI_API_KEY", "")          # Whisper transcription
 ELEVENLABS_API_KEY = env("ELEVENLABS_API_KEY", "")  # TTS voice greetings
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", "")    # AI-drafted SMS replies
 TELEPHONY_PUBLIC_HOST = env("PEPTIDENET_TELEPHONY_HOST", "")
+
+# --- Email (Mailgun) ---
+# One API key powers ALL platform email — transactional sends AND Django's
+# password-reset emails — through apps.mailer.backend.MailgunAPIBackend. Inert
+# (logs a 'stub' EmailLog and sends nothing) until MAIL_LIVE=1 + key + domain.
+MAIL_LIVE = env_bool("PEPTIDENET_MAIL_LIVE", False)
+MAILGUN_API_KEY = env("MAILGUN_API_KEY", "")
+MAILGUN_DOMAIN = env("MAILGUN_DOMAIN", "")            # e.g. mg.smashfatbiolabs.ca
+MAILGUN_BASE_URL = env("MAILGUN_BASE_URL", "https://api.mailgun.net/v3")  # US region
+DEFAULT_FROM_EMAIL = env(
+    "PEPTIDENET_DEFAULT_FROM", "SmashFat BioLabs <no-reply@smashfatbiolabs.ca>"
+)
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+MAIL_REPLY_TO = env("PEPTIDENET_REPLY_TO", "")
+MAIL_ALERTS_TO = [
+    e.strip() for e in env("PEPTIDENET_ALERTS_TO", "jeff@smashscrap.com").split(",") if e.strip()
+]
+PORTAL_BASE_URL = env("PEPTIDENET_PORTAL_URL", "https://smashfatbiolabs.ca")
+EMAIL_BACKEND = "apps.mailer.backend.MailgunAPIBackend"
 
 SESSION_COOKIE_NAME = "peptidenet_sessionid"
 CSRF_TRUSTED_ORIGINS = [

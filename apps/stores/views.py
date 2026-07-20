@@ -185,6 +185,11 @@ def checkout(request):
         name=data.get("name", ""),
     )
     cart.clear()
+    try:
+        from apps.mailer import mailer
+        mailer.order_confirmation(order)
+    except Exception:  # email must never break checkout
+        pass
     return JsonResponse({
         "ok": True,
         "order_number": order.number,
@@ -200,7 +205,7 @@ def contact(request):
     if is_bot_honeypot(request):
         return JsonResponse({"ok": True, "message": "Thanks — we'll be in touch."})
     data = _body(request)
-    Lead.objects.create(
+    lead = Lead.objects.create(
         site=request.site,
         name=data.get("name", ""),
         email=data.get("email", ""),
@@ -208,6 +213,11 @@ def contact(request):
         rating=data.get("rating") or None,
         kind=data.get("kind", "contact"),
     )
+    try:
+        from apps.mailer import mailer
+        mailer.lead_alert(lead)
+    except Exception:
+        pass
     return JsonResponse({"ok": True, "message": "Thanks — we'll be in touch."})
 
 

@@ -205,6 +205,12 @@ def messages_inbox(request):
                               ai_generated=request.POST.get("ai") == "1")
                 messages.success(request, "Message sent.")
                 return redirect(f"{request.path}?contact={selected.pk}")
+            elif action == "email" and body and selected.email:
+                from apps.mailer import mailer
+                subject = request.POST.get("subject") or "A note from SmashFat BioLabs"
+                mailer.customer_message(selected.email, subject, body, site=selected.site)
+                messages.success(request, f"Email sent to {selected.email}.")
+                return redirect(f"{request.path}?contact={selected.pk}")
     for c in contacts:
         c.last = c.messages.last()
     return render(request, "manage/messages.html", {
@@ -239,6 +245,24 @@ def numbers(request):
         "numbers": PhoneNumber.objects.select_related("site").all(),
         "optouts": OptOut.objects.filter(action="opt_out")[:100],
         "live": _settings.COMMS_LIVE,
+    })
+
+
+@console_required
+def emails(request):
+    from django.conf import settings as _settings
+
+    from apps.mailer.models import EmailLog
+    qs = EmailLog.objects.select_related("site").all()
+    kind = request.GET.get("kind", "")
+    if kind:
+        qs = qs.filter(kind=kind)
+    return render(request, "manage/emails.html", {
+        "nav": "emails", "logs": qs[:300], "count": qs.count(),
+        "kinds": EmailLog.KIND, "kind": kind, "live": _settings.MAIL_LIVE,
+        "stub_count": EmailLog.objects.filter(status="stub").count(),
+        "sent_count": EmailLog.objects.filter(status="sent").count(),
+        "failed_count": EmailLog.objects.filter(status="failed").count(),
     })
 
 

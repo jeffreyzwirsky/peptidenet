@@ -23,7 +23,10 @@ biolabs hero and framed art slots (e.g. neon) alike.
     v.setAttribute('muted','');v.setAttribute('playsinline','');
     v.setAttribute('aria-hidden','true');v.tabIndex=-1;
     if(img){v.poster=img.getAttribute('src');}
-    var s=document.createElement('source');s.src=src;s.type='video/mp4';v.appendChild(s);
+    // WebM (VP9) first for codec-limited Chromium, then H.264 MP4 for Safari/iOS/etc.
+    var webm=src.replace('.mp4','.webm');
+    var sw=document.createElement('source');sw.src=webm;sw.type='video/webm';v.appendChild(sw);
+    var sm=document.createElement('source');sm.src=src;sm.type='video/mp4';v.appendChild(sm);
     v.addEventListener('playing',function(){hero.classList.add('hero-video-on');});
     var anchor=(img&&img.closest('picture'))||img;
     if(anchor){anchor.insertAdjacentElement('afterend',v);}else{hero.insertBefore(v,hero.firstChild);}

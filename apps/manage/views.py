@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
+from .access import console_required
 from django.db.models import Count, DecimalField, F, Q, Sum
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect, render
@@ -19,7 +19,7 @@ def _money(x):
     return Decimal(x or 0)
 
 
-@staff_member_required
+@console_required
 def dashboard(request):
     orders = Order.objects.all()
     money = lambda qs, f: qs.aggregate(  # noqa: E731
@@ -74,7 +74,7 @@ def dashboard(request):
     return render(request, "manage/dashboard.html", ctx)
 
 
-@staff_member_required
+@console_required
 def orders(request):
     qs = Order.objects.select_related("site").all()
     site = request.GET.get("site", "")
@@ -97,7 +97,7 @@ def orders(request):
     return render(request, "manage/orders.html", ctx)
 
 
-@staff_member_required
+@console_required
 def order_detail(request, pk):
     order = get_object_or_404(Order.objects.select_related("site"), pk=pk)
     if request.method == "POST":
@@ -106,13 +106,13 @@ def order_detail(request, pk):
             order.status = new_status
             order.save(update_fields=["status"])
             messages.success(request, f"Order {order.number} → {order.get_status_display()}.")
-        return redirect("manage:order_detail", pk=pk)
+        return redirect(f"{request.resolver_match.namespace}:order_detail", pk=pk)
     return render(request, "manage/order_detail.html", {
         "nav": "orders", "order": order, "items": order.items.all(), "statuses": Order.STATUS,
     })
 
 
-@staff_member_required
+@console_required
 def inventory(request):
     if request.method == "POST":
         pid = request.POST.get("product_id")
@@ -160,7 +160,7 @@ def inventory(request):
     return render(request, "manage/inventory.html", ctx)
 
 
-@staff_member_required
+@console_required
 def leads(request):
     return render(request, "manage/leads.html", {
         "nav": "leads",
@@ -177,7 +177,7 @@ from apps.comms.models import (  # noqa: E402
 )
 
 
-@staff_member_required
+@console_required
 def messages_inbox(request):
     # Threads = contacts that have any message, most-recent first.
     contacts = list(
@@ -213,7 +213,7 @@ def messages_inbox(request):
     })
 
 
-@staff_member_required
+@console_required
 def calls(request):
     if request.method == "POST" and request.POST.get("mark_listened"):
         Voicemail.objects.filter(pk=request.POST["mark_listened"]).update(listened=True)
@@ -231,7 +231,7 @@ def calls(request):
     })
 
 
-@staff_member_required
+@console_required
 def numbers(request):
     from django.conf import settings as _settings
     return render(request, "manage/numbers.html", {
@@ -242,7 +242,7 @@ def numbers(request):
     })
 
 
-@staff_member_required
+@console_required
 def ai_usage(request):
     from django.conf import settings as _settings
 
@@ -260,7 +260,7 @@ def ai_usage(request):
     })
 
 
-@staff_member_required
+@console_required
 def blog(request):
     from django.utils import timezone
 
@@ -309,7 +309,7 @@ def blog(request):
     })
 
 
-@staff_member_required
+@console_required
 def security(request):
     from apps.security.models import SecurityEvent
     events = SecurityEvent.objects.all()

@@ -30,7 +30,7 @@
   </section>
 
   <section class="card">
-    <div class="card-head"><h2>Low stock</h2><a href="{% url 'manage:inventory' %}">Manage →</a></div>
+    <div class="card-head"><h2>Low stock</h2><a href="{% url cns|add:':inventory' %}">Manage →</a></div>
     {% if low_stock %}
     <table class="tbl">
       <thead><tr><th>Product</th><th class="r">On hand</th><th></th></tr></thead>
@@ -47,12 +47,12 @@
 </div>
 
 <section class="card">
-  <div class="card-head"><h2>Recent orders</h2><a href="{% url 'manage:orders' %}">All orders →</a></div>
+  <div class="card-head"><h2>Recent orders</h2><a href="{% url cns|add:':orders' %}">All orders →</a></div>
   <table class="tbl">
     <thead><tr><th>Order</th><th>Site</th><th>Customer</th><th class="r">Total</th><th>Status</th><th>When</th></tr></thead>
     <tbody>
       {% for o in recent_orders %}
-      <tr onclick="location='{% url 'manage:order_detail' o.pk %}'" class="clickable">
+      <tr onclick="location='{% url cns|add:':order_detail' o.pk %}'" class="clickable">
         <td class="mono">{{ o.number }}</td><td>{{ o.site.domain }}</td>
         <td>{{ o.email|default:"—" }}</td><td class="r">${{ o.total|floatformat:2 }}</td>
         <td><span class="badge s-{{ o.status }}">{{ o.get_status_display }}</span></td>

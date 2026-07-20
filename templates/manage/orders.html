@@ -21,7 +21,7 @@
     <thead><tr><th>Order</th><th>Site</th><th>Customer</th><th class="r">Items</th><th class="r">Total</th><th>Status</th><th>When</th></tr></thead>
     <tbody>
       {% for o in orders %}
-      <tr onclick="location='{% url 'manage:order_detail' o.pk %}'" class="clickable">
+      <tr onclick="location='{% url cns|add:':order_detail' o.pk %}'" class="clickable">
         <td class="mono">{{ o.number }}</td><td>{{ o.site.domain }}</td>
         <td>{{ o.name|default:o.email|default:"—" }}</td>
         <td class="r">{{ o.items.count }}</td><td class="r">${{ o.total|floatformat:2 }}</td>

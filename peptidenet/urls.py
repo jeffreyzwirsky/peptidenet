@@ -8,8 +8,12 @@ urlpatterns = [
     # Admin path is configurable (PEPTIDENET_ADMIN_PATH) to avoid the default
     # /admin/ scanner target in production. Defaults to "admin/" for dev.
     path(settings.ADMIN_PATH, admin.site.urls),
-    # One super-admin control panel for orders + inventory across every site.
-    path("manage/", include("apps.manage.urls")),
+    # The console is mounted twice from one codebase:
+    #   /manage/ → OWNER admin side (superuser only)
+    #   /portal/ → walled STAFF side (Portal Staff group; is_staff=False users)
+    # apps.manage.access.console_required enforces the right rule per namespace.
+    path("manage/", include(("apps.manage.urls", "manage"), namespace="manage")),
+    path("portal/", include(("apps.manage.urls", "manage"), namespace="portal")),
     # Twilio SMS/voice webhooks (configure each number to point here).
     path("webhooks/twilio/", include("apps.comms.urls")),
     # AI support assistant.

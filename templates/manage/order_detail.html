@@ -1,7 +1,7 @@
 {% extends "manage/base.html" %}
 {% block title %}{{ order.number }}{% endblock %}
 {% block heading %}Order {{ order.number }}{% endblock %}
-{% block head_right %}<a href="{% url 'manage:orders' %}" class="btn ghost">← All orders</a>{% endblock %}
+{% block head_right %}<a href="{% url cns|add:':orders' %}" class="btn ghost">← All orders</a>{% endblock %}
 {% block body %}
 <div class="cols">
   <section class="card">

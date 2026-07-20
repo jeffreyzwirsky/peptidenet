@@ -3,31 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}Control{% endblock %} · Peptidenet</title>
+<title>{% block title %}{% if is_admin_console %}Control{% else %}Staff Portal{% endif %}{% endblock %} · SmashFat BioLabs</title>
 <link rel="stylesheet" href="{% static 'manage/manage.css' %}">
 </head>
 <body>
 <div class="shell">
   <aside class="side">
-    <div class="logo">Peptide<span>net</span><small>Control</small></div>
+    {% if is_admin_console %}
+      <div class="logo">Peptide<span>net</span><small>Owner · Admin</small></div>
+    {% else %}
+      <div class="logo">Staff<span>Portal</span><small>SmashFat BioLabs</small></div>
+    {% endif %}
     <nav>
-      <a href="{% url 'manage:dashboard' %}" class="{% if nav == 'dashboard' %}on{% endif %}">Overview</a>
-      <a href="{% url 'manage:orders' %}" class="{% if nav == 'orders' %}on{% endif %}">Orders</a>
-      <a href="{% url 'manage:inventory' %}" class="{% if nav == 'inventory' %}on{% endif %}">Inventory</a>
-      <a href="{% url 'manage:leads' %}" class="{% if nav == 'leads' %}on{% endif %}">Leads</a>
+      <a href="{% url cns|add:':dashboard' %}" class="{% if nav == 'dashboard' %}on{% endif %}">Overview</a>
+      <a href="{% url cns|add:':orders' %}" class="{% if nav == 'orders' %}on{% endif %}">Orders</a>
+      <a href="{% url cns|add:':inventory' %}" class="{% if nav == 'inventory' %}on{% endif %}">Inventory</a>
+      <a href="{% url cns|add:':leads' %}" class="{% if nav == 'leads' %}on{% endif %}">Leads</a>
       <div class="nav-group">Comms</div>
-      <a href="{% url 'manage:messages' %}" class="{% if nav == 'messages' %}on{% endif %}">Messages</a>
-      <a href="{% url 'manage:calls' %}" class="{% if nav == 'calls' %}on{% endif %}">Calls &amp; Voicemail</a>
-      <a href="{% url 'manage:numbers' %}" class="{% if nav == 'numbers' %}on{% endif %}">Phone Numbers</a>
+      <a href="{% url cns|add:':messages' %}" class="{% if nav == 'messages' %}on{% endif %}">Messages</a>
+      <a href="{% url cns|add:':calls' %}" class="{% if nav == 'calls' %}on{% endif %}">Calls &amp; Voicemail</a>
+      <a href="{% url cns|add:':numbers' %}" class="{% if nav == 'numbers' %}on{% endif %}">Phone Numbers</a>
       <div class="nav-group">Content &amp; System</div>
-      <a href="{% url 'manage:blog' %}" class="{% if nav == 'blog' %}on{% endif %}">Blog</a>
-      <a href="{% url 'manage:ai_usage' %}" class="{% if nav == 'ai' %}on{% endif %}">AI Assistant</a>
-      <a href="{% url 'manage:security' %}" class="{% if nav == 'security' %}on{% endif %}">Security</a>
-      <a href="/admin/" class="ext">Django admin ↗</a>
+      <a href="{% url cns|add:':blog' %}" class="{% if nav == 'blog' %}on{% endif %}">Blog</a>
+      <a href="{% url cns|add:':ai_usage' %}" class="{% if nav == 'ai' %}on{% endif %}">AI Assistant</a>
+      <a href="{% url cns|add:':security' %}" class="{% if nav == 'security' %}on{% endif %}">Security</a>
+      {% if is_admin_console %}
+        <div class="nav-group">Owner</div>
+        <a href="{% url 'admin:index' %}" class="ext">Django admin ↗</a>
+        <a href="/portal/" class="ext">Staff portal ↗</a>
+      {% elif request.user.is_superuser %}
+        <div class="nav-group">Owner</div>
+        <a href="/manage/" class="ext">Admin panel ↗</a>
+      {% endif %}
     </nav>
-    <div class="side-foot">Signed in as {{ request.user.get_username }}<br><a href="/admin/logout/">Sign out</a></div>
+    <div class="side-foot">
+      {% if is_admin_console %}<span class="role-pill owner">Owner</span>{% else %}<span class="role-pill staff">Staff</span>{% endif %}
+      Signed in as {{ request.user.get_username }}<br>
+      <a href="{% url cns|add:':logout' %}">Sign out</a>
+    </div>
   </aside>
   <main class="content">
+    {% if is_staff_portal %}<div class="portal-banner">Staff Portal — you're working the SmashFat BioLabs front desk.</div>{% endif %}
     {% if messages %}<div class="flash">{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}</div>{% endif %}
     <header class="page-head"><h1>{% block heading %}{% endblock %}</h1><div class="head-right">{% block head_right %}{% endblock %}</div></header>
     {% block body %}{% endblock %}

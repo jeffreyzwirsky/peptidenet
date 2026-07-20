@@ -1,10 +1,12 @@
 from django.urls import path
 
-from . import views
+from . import auth_views, views
 
 app_name = "manage"
 
 urlpatterns = [
+    path("login/", auth_views.login_view, name="login"),
+    path("logout/", auth_views.logout_view, name="logout"),
     path("", views.dashboard, name="dashboard"),
     path("orders/", views.orders, name="orders"),
     path("orders/<int:pk>/", views.order_detail, name="order_detail"),

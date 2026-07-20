@@ -15,16 +15,44 @@ class ControlPanelTests(TestCase):
             "boss", password="x", is_staff=True, is_superuser=True
         )
 
-    def test_requires_staff(self):
+    def test_admin_requires_login(self):
         r = self.client.get("/manage/")
-        self.assertEqual(r.status_code, 302)  # redirected to admin login
-        self.assertIn("/admin/login", r.url)
+        self.assertEqual(r.status_code, 302)  # redirected to the console login
+        self.assertIn("/manage/login", r.url)
 
-    def test_dashboard_loads_for_staff(self):
-        self.client.force_login(self.staff)
+    def test_portal_requires_login(self):
+        r = self.client.get("/portal/")
+        self.assertEqual(r.status_code, 302)
+        self.assertIn("/portal/login", r.url)
+
+    def test_dashboard_loads_for_owner(self):
+        self.client.force_login(self.staff)  # 'boss' is a superuser
         r = self.client.get("/manage/")
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, "Overview")
+
+    def test_owner_can_see_both_sides(self):
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get("/manage/").status_code, 200)
+        self.assertEqual(self.client.get("/portal/").status_code, 200)
+
+    def test_walled_staff_can_use_portal_not_admin(self):
+        from django.contrib.auth.models import Group
+
+        from apps.manage.access import PORTAL_GROUP
+        g, _ = Group.objects.get_or_create(name=PORTAL_GROUP)
+        clerk = get_user_model().objects.create_user(
+            "clerk", password="x", is_staff=False, is_superuser=False
+        )
+        clerk.groups.add(g)
+        self.client.force_login(clerk)
+        # Portal: allowed.
+        self.assertEqual(self.client.get("/portal/").status_code, 200)
+        self.assertContains(self.client.get("/portal/messages/"), "")
+        # Admin side: walled out (redirected to the admin login).
+        r = self.client.get("/manage/")
+        self.assertEqual(r.status_code, 302)
+        self.assertIn("/manage/login", r.url)
 
     def test_checkout_decrements_shared_inventory(self):
         p = Product.objects.get(slug="bpc-157")

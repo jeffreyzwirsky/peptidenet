@@ -79,6 +79,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.stores.context_processors.storefront",
+                "apps.manage.context.console",
             ],
         },
     },

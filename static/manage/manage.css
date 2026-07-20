@@ -130,3 +130,11 @@ select,.filters input{background:var(--panel);border:1px solid var(--line);color
 tr.unread td{background:rgba(255,180,84,.06)}
 code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12px}
 .compliance-notes{max-width:300px;white-space:normal;margin-top:4px;color:#ffb48b;font-size:11.5px;line-height:1.4}
+
+/* --- Staff portal / owner-admin chrome --- */
+.side nav a.ext{color:var(--mut);font-size:12.5px}
+.side nav a.ext:hover{color:var(--fg)}
+.role-pill{display:inline-block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-bottom:8px}
+.role-pill.owner{background:rgba(79,143,247,.18);color:#8fb6ff;border:1px solid rgba(79,143,247,.4)}
+.role-pill.staff{background:rgba(55,224,166,.16);color:#5fe0b6;border:1px solid rgba(55,224,166,.4)}
+.portal-banner{background:linear-gradient(120deg,rgba(55,224,166,.14),rgba(79,143,247,.10));border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--fg)}

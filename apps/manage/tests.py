@@ -80,6 +80,12 @@ class ControlPanelTests(TestCase):
         from apps.manage.access import PORTAL_GROUP
         self.assertTrue(u.groups.filter(name=PORTAL_GROUP).exists())
 
+    def test_compliance_page_loads(self):
+        self.client.force_login(self.staff)
+        r = self.client.get("/manage/compliance/")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Consent audit")
+
     def test_checkout_decrements_shared_inventory(self):
         p = Product.objects.get(slug="bpc-157")
         start = p.stock_qty

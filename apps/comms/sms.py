@@ -1,6 +1,6 @@
 """The single SMS send + inbound path — opt-out guard mirrors SMASH's send_sms."""
-from . import phone, providers
-from .models import Contact, Message, OptOut, PhoneNumber
+from . import consent, phone, providers
+from .models import ComplianceConfig, Contact, Message, OptOut, PhoneNumber
 
 STOP_WORDS = {"STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"}
 START_WORDS = {"START", "YES", "UNSTOP", "SUBSCRIBE"}
@@ -73,18 +73,27 @@ def handle_inbound(from_number, to_number, body, site=None):
     )
     word = (body or "").strip().upper().split()[0] if body.strip() else ""
     reply = None
+    cfg = ComplianceConfig.get_solo()
+    is_keyword = word in (STOP_WORDS | START_WORDS | HELP_WORDS)
     if word in STOP_WORDS:
         OptOut.objects.create(e164=from_e164, action="opt_out", keyword=word, site=site)
         Contact.objects.filter(pk=contact.pk).update(marketing_opted_out=True)
-        reply = "You've been unsubscribed and won't receive further messages. Reply START to opt back in."
+        reply = cfg.stop_reply
+        consent.log_consent(from_e164, "opt_out", category="marketing",
+                            source="keyword", site=site, message_sid=msg.twilio_sid)
     elif word in START_WORDS:
         OptOut.objects.create(e164=from_e164, action="opt_in", keyword=word, site=site)
         Contact.objects.filter(pk=contact.pk).update(marketing_opted_out=False)
-        reply = "You're re-subscribed. Reply STOP to opt out at any time."
+        reply = cfg.start_reply
+        consent.log_consent(from_e164, "resubscribe", category="marketing",
+                            source="keyword", site=site, message_sid=msg.twilio_sid)
     elif word in HELP_WORDS:
         OptOut.objects.create(e164=from_e164, action="help", keyword=word, site=site)
-        reply = "Research-use-only supplies support. Msg&data rates may apply. Reply STOP to opt out."
-    if word not in (STOP_WORDS | START_WORDS | HELP_WORDS):
+        reply = cfg.help_reply
+    if is_keyword:
+        consent.log_keyword_event(from_e164, word, raw_body=body, receiving_number=to_number,
+                                  message_sid=msg.twilio_sid, reply_text=reply or "", site=site)
+    else:
         try:  # alert staff about a real inbound text (not opt-out keywords)
             from apps.mailer import mailer
             mailer.sms_alert(msg)

@@ -333,6 +333,73 @@ def team(request):
 
 
 @console_required
+def compliance(request):
+    """SMS/telephony compliance hub — consent audit, STOP/HELP/START trail,
+    opt-outs, editable keyword replies, and toll-free verification status."""
+    import csv
+
+    from django.http import HttpResponse as _Csv
+
+    from apps.comms.models import (
+        ComplianceConfig, OptOut, SmsConsent, SmsKeywordEvent, TwilioVerificationTracker,
+    )
+    cfg = ComplianceConfig.get_solo()
+    for k in ("toll_free", "a2p_10dlc"):
+        TwilioVerificationTracker.objects.get_or_create(kind=k)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "save_replies":
+            cfg.business_name = request.POST.get("business_name", cfg.business_name)[:120]
+            cfg.stop_reply = request.POST.get("stop_reply", cfg.stop_reply)[:300]
+            cfg.help_reply = request.POST.get("help_reply", cfg.help_reply)[:300]
+            cfg.start_reply = request.POST.get("start_reply", cfg.start_reply)[:300]
+            cfg.save()
+            messages.success(request, "Compliance replies saved.")
+        elif action == "save_verification":
+            t = get_object_or_404(TwilioVerificationTracker, pk=request.POST.get("tracker_id"))
+            if request.POST.get("status") in dict(TwilioVerificationTracker.STATUS):
+                t.status = request.POST["status"]
+                t.number = request.POST.get("number", t.number)[:20]
+                t.notes = request.POST.get("notes", t.notes)[:300]
+                t.save()
+                messages.success(request, "Verification status updated.")
+        return redirect(request.path)
+
+    export = request.GET.get("export")
+    if export in ("consent", "keywords"):
+        resp = _Csv(content_type="text/csv")
+        resp["Content-Disposition"] = f"attachment; filename=sms_{export}.csv"
+        w = csv.writer(resp)
+        if export == "consent":
+            w.writerow(["created_at", "phone", "event", "category", "source",
+                        "ip_address", "message_sid", "note", "site"])
+            for c in SmsConsent.objects.select_related("site")[:5000]:
+                w.writerow([c.created_at.isoformat(), c.e164, c.event_type, c.category,
+                            c.source, c.ip_address or "", c.message_sid, c.note,
+                            getattr(c.site, "domain", "")])
+        else:
+            w.writerow(["created_at", "phone", "keyword", "raw_body", "receiving_number",
+                        "reply_sent", "message_sid", "site"])
+            for k in SmsKeywordEvent.objects.select_related("site")[:5000]:
+                w.writerow([k.created_at.isoformat(), k.e164, k.keyword, k.raw_body,
+                            k.receiving_number, k.reply_sent, k.message_sid,
+                            getattr(k.site, "domain", "")])
+        return resp
+
+    return render(request, "manage/compliance.html", {
+        "nav": "compliance", "cfg": cfg,
+        "consents": SmsConsent.objects.select_related("site")[:200],
+        "keywords": SmsKeywordEvent.objects.select_related("site")[:200],
+        "optouts": OptOut.objects.filter(action="opt_out")[:200],
+        "trackers": TwilioVerificationTracker.objects.all(),
+        "n_optin": SmsConsent.objects.filter(event_type__in=["opt_in", "resubscribe"]).count(),
+        "n_optout": SmsConsent.objects.filter(event_type="opt_out").count(),
+        "n_keywords": SmsKeywordEvent.objects.count(),
+    })
+
+
+@console_required
 def ai_usage(request):
     from django.conf import settings as _settings
 

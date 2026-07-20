@@ -1,0 +1,94 @@
+{% extends "manage/base.html" %}
+{% block title %}SMS Compliance{% endblock %}
+{% block heading %}SMS Compliance{% endblock %}
+{% block body %}
+<div class="cards-row" style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+  <div class="card" style="flex:1;min-width:130px"><div class="sub">Opt-ins</div><div style="font-size:22px">{{ n_optin }}</div></div>
+  <div class="card" style="flex:1;min-width:130px"><div class="sub">Opt-outs</div><div style="font-size:22px">{{ n_optout }}</div></div>
+  <div class="card" style="flex:1;min-width:130px"><div class="sub">Keyword events</div><div style="font-size:22px">{{ n_keywords }}</div></div>
+</div>
+
+<section class="card" style="margin-bottom:16px">
+  <div class="card-head"><h2>Toll-free / A2P verification</h2></div>
+  <p class="sub" style="margin-bottom:10px">Marketing SMS at volume can't send until Twilio verification is <b>approved</b>. Track it here.</p>
+  <table class="tbl">
+    <thead><tr><th>Type</th><th>Number</th><th>Status</th><th>Update</th></tr></thead>
+    <tbody>
+      {% for t in trackers %}
+      <tr>
+        <form method="post">{% csrf_token %}
+          <input type="hidden" name="action" value="save_verification">
+          <input type="hidden" name="tracker_id" value="{{ t.pk }}">
+          <td><b>{{ t.get_kind_display }}</b></td>
+          <td><input name="number" value="{{ t.number }}" placeholder="+1…" style="width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 8px;color:var(--fg)"></td>
+          <td>
+            <select name="status" style="background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 8px;color:var(--fg)">
+              {% for val,label in t.STATUS %}<option value="{{ val }}" {% if t.status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          </td>
+          <td><button class="btn ghost">Save</button></td>
+        </form>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card" style="margin-bottom:16px">
+  <div class="card-head"><h2>Keyword auto-replies</h2></div>
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="action" value="save_replies">
+    <label class="sub">Registered business name (shown in disclosures)</label>
+    <input name="business_name" value="{{ cfg.business_name }}" style="width:100%;box-sizing:border-box;margin:5px 0 12px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg)">
+    <label class="sub">STOP reply</label>
+    <input name="stop_reply" value="{{ cfg.stop_reply }}" style="width:100%;box-sizing:border-box;margin:5px 0 10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg)">
+    <label class="sub">HELP reply</label>
+    <input name="help_reply" value="{{ cfg.help_reply }}" style="width:100%;box-sizing:border-box;margin:5px 0 10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg)">
+    <label class="sub">START reply</label>
+    <input name="start_reply" value="{{ cfg.start_reply }}" style="width:100%;box-sizing:border-box;margin:5px 0 12px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg)">
+    <button class="btn">Save replies</button>
+  </form>
+</section>
+
+<section class="card" style="margin-bottom:16px">
+  <div class="card-head"><h2>Consent audit ({{ n_optin|add:n_optout }})</h2><a href="?export=consent" class="btn ghost">Export CSV</a></div>
+  <p class="sub" style="margin-bottom:8px">Immutable TCPA/CASL evidence. Never edited or deleted.</p>
+  <table class="tbl">
+    <thead><tr><th>When</th><th>Phone</th><th>Event</th><th>Category</th><th>Source</th><th>IP</th></tr></thead>
+    <tbody>
+      {% for c in consents %}
+      <tr><td class="sub">{{ c.created_at|date:"M j, H:i" }}</td><td>{{ c.e164 }}</td>
+        <td><span class="tag">{{ c.get_event_type_display }}</span></td>
+        <td>{{ c.get_category_display }}</td><td class="sub">{{ c.get_source_display }}</td>
+        <td class="sub">{{ c.ip_address|default:"—" }}</td></tr>
+      {% empty %}<tr><td colspan="6" class="empty">No consent events yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card" style="margin-bottom:16px">
+  <div class="card-head"><h2>STOP / HELP / START trail</h2><a href="?export=keywords" class="btn ghost">Export CSV</a></div>
+  <table class="tbl">
+    <thead><tr><th>When</th><th>Phone</th><th>Keyword</th><th>Reply sent</th></tr></thead>
+    <tbody>
+      {% for k in keywords %}
+      <tr><td class="sub">{{ k.created_at|date:"M j, H:i" }}</td><td>{{ k.e164 }}</td>
+        <td><span class="tag">{{ k.keyword }}</span></td>
+        <td>{% if k.reply_sent %}✓{% else %}—{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="4" class="empty">No keyword events yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Currently opted out ({{ optouts|length }})</h2></div>
+  <table class="tbl">
+    <thead><tr><th>When</th><th>Phone</th><th>Via</th></tr></thead>
+    <tbody>
+      {% for o in optouts %}
+      <tr><td class="sub">{{ o.created_at|date:"M j, H:i" }}</td><td>{{ o.e164 }}</td><td class="sub">{{ o.keyword|default:"manual" }}</td></tr>
+      {% empty %}<tr><td colspan="3" class="empty">Nobody's opted out.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -78,13 +78,17 @@ def lead_alert(lead):
 
 
 def voicemail_alert(vm):
+    tag = f"{vm.urgency.upper()}" if vm.urgency in ("high", "urgent") else vm.urgency
     text = (
         f"New voicemail from {vm.from_number}\n"
-        f"Site: {getattr(vm.site, 'domain', '—')}  Duration: {vm.duration_sec}s\n\n"
+        f"Site: {getattr(vm.site, 'domain', '—')}  Duration: {vm.duration_sec}s\n"
+        f"AI triage: {vm.tier or '—'} · urgency {vm.urgency}"
+        f"{' · ' + vm.tier_rationale if vm.tier_rationale else ''}\n\n"
         f"Transcript:\n{vm.transcript or '(not transcribed)'}\n\n"
         f"Listen: {_portal('/portal/calls/')}"
     )
-    return _send("voicemail", f"[Voicemail] {vm.from_number}", _alerts_to(), text, site=vm.site)
+    subject = f"[Voicemail · {tag}] {vm.from_number}"
+    return _send("voicemail", subject, _alerts_to(), text, site=vm.site)
 
 
 def sms_alert(message):

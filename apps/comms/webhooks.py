@@ -104,7 +104,13 @@ def recording(request):
         site=site, contact=contact, from_number=frm,
         category=request.GET.get("category", "general"),
         recording_url=rec_url, duration_sec=duration, transcript=text,
+        transcript_source=source,
     )
+    try:  # AI triage: intent tier + urgency (heuristic when AI offline)
+        from . import triage
+        triage.classify_voicemail(vm)
+    except Exception:
+        pass
     try:
         from apps.mailer import mailer
         mailer.voicemail_alert(vm)

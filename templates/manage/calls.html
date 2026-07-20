@@ -21,11 +21,14 @@
         {% else %}
         <tr class="{% if not row.obj.listened %}unread{% endif %}">
           <td class="sub">{{ row.obj.created_at|date:"M j, H:i" }}</td>
-          <td><span class="badge low">voicemail{% if not row.obj.listened %} • new{% endif %}</span></td>
+          <td><span class="badge low">voicemail{% if not row.obj.listened %} • new{% endif %}</span>
+            {% if row.obj.urgency == 'urgent' or row.obj.urgency == 'high' %}<span class="badge failed" title="AI urgency">{{ row.obj.urgency }}</span>{% endif %}
+            {% if row.obj.tier %}<div class="sub" style="margin-top:3px">{{ row.obj.tier }}</div>{% endif %}
+          </td>
           <td class="mono">{{ row.obj.from_number }}</td>
           <td class="sub">{{ row.obj.site.domain|default:"—" }}</td>
           <td class="sub">{{ row.obj.duration_sec }}s</td>
-          <td class="msg-cell">{{ row.obj.transcript|default:"(no transcript)"|truncatechars:70 }}</td>
+          <td class="msg-cell">{{ row.obj.transcript|default:"(no transcript)"|truncatechars:70 }}{% if row.obj.tier_rationale %}<div class="sub" style="margin-top:3px;color:#8fb6ff">{{ row.obj.tier_rationale }}</div>{% endif %}</td>
           <td class="r nowrap">
             {% if row.obj.recording_url %}<a class="btn sm ghost" href="{{ row.obj.recording_url }}" target="_blank">▶</a>{% endif %}
             {% if not row.obj.listened %}<form method="post" style="display:inline">{% csrf_token %}<button class="btn sm" name="mark_listened" value="{{ row.obj.pk }}">Mark read</button></form>{% endif %}

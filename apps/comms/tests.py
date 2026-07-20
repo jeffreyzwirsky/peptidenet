@@ -102,3 +102,47 @@ class WebhookTests(TestCase):
     def test_unknown_number_rejects_call(self):
         r = self.client.post("/webhooks/twilio/voice/?number=+19999999999", {"From": "+1587", "CallSid": "CA2"})
         self.assertIn(b"<Reject", r.content)
+
+
+class ComplianceTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_sites")
+        cls.site = Site.objects.get(domain="smashfat.ca")
+        cls.number = PhoneNumber.objects.create(e164="+15875550000", label="line", site=cls.site)
+
+    def test_stop_logs_consent_and_keyword(self):
+        from .models import ComplianceConfig, SmsConsent, SmsKeywordEvent
+        _m, reply = sms.handle_inbound("+15875557777", self.number.e164, "STOP", site=self.site)
+        self.assertEqual(reply, ComplianceConfig.get_solo().stop_reply)
+        self.assertTrue(SmsConsent.objects.filter(e164="+15875557777", event_type="opt_out").exists())
+        self.assertTrue(SmsKeywordEvent.objects.filter(e164="+15875557777", keyword="STOP").exists())
+
+    def test_start_logs_resubscribe(self):
+        from .models import SmsConsent
+        sms.handle_inbound("+15875558888", self.number.e164, "STOP", site=self.site)
+        sms.handle_inbound("+15875558888", self.number.e164, "START", site=self.site)
+        self.assertTrue(SmsConsent.objects.filter(e164="+15875558888", event_type="resubscribe").exists())
+
+    def test_consent_is_immutable(self):
+        from .models import SmsConsent
+        c = SmsConsent.objects.create(e164="+15875559999", event_type="opt_in")
+        c.note = "changed"
+        with self.assertRaises(ValueError):
+            c.save()
+
+    def test_voicemail_triage_runs_via_webhook(self):
+        self.client.post("/webhooks/twilio/recording/?number=+15875550000&category=sales", {
+            "From": "+15875551234", "RecordingUrl": "https://x/r.mp3", "RecordingDuration": "9",
+        })
+        vm = Voicemail.objects.first()
+        self.assertIn(vm.urgency, ["low", "normal", "high", "urgent"])
+
+    def test_triage_heuristic_flags_urgent(self):
+        from . import triage
+        vm = Voicemail.objects.create(
+            from_number="+15875550001", site=self.site,
+            transcript="This is urgent, my order never arrived and I need it ASAP",
+        )
+        triage.classify_voicemail(vm)
+        self.assertEqual(vm.urgency, "urgent")

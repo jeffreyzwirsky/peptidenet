@@ -136,7 +136,15 @@ class Voicemail(models.Model):
     recording_url = models.URLField(blank=True)
     duration_sec = models.PositiveIntegerField(default=0)
     transcript = models.TextField(blank=True)
+    transcript_source = models.CharField(max_length=20, blank=True)
     listened = models.BooleanField(default=False)
+    # --- AI triage (mirrors AR-Sales Voicemail) ---
+    URGENCY = [("low", "Low"), ("normal", "Normal"), ("high", "High"), ("urgent", "Urgent")]
+    urgency = models.CharField(max_length=8, choices=URGENCY, default="normal")
+    tier = models.CharField(max_length=40, blank=True, help_text="AI lead/intent classification.")
+    tier_confidence = models.FloatField(null=True, blank=True)
+    tier_rationale = models.CharField(max_length=300, blank=True)
+    handled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -176,3 +184,122 @@ class IvrOption(models.Model):
     class Meta:
         ordering = ["digit"]
         unique_together = ("number", "digit")
+
+
+# ---------------------------------------------------------------------------
+# TCPA / CASL compliance subsystem (ports the SMASH Auction platform's model)
+# ---------------------------------------------------------------------------
+
+class SmsConsent(models.Model):
+    """Immutable audit log of every SMS consent event — legal evidence for
+    TCPA (US) / CASL (Canada). Never edited or hard-deleted. The active send-
+    blocker is still OptOut; this is the evidence layer."""
+
+    EVENT = [
+        ("opt_in", "Opt in"), ("opt_out", "Opt out"),
+        ("resubscribe", "Re-subscribe"), ("admin_suppress", "Admin suppress"),
+    ]
+    CATEGORY = [("transactional", "Transactional"), ("marketing", "Marketing")]
+    SOURCE = [
+        ("keyword", "SMS keyword"), ("contact_form", "Contact form"),
+        ("checkout", "Checkout"), ("account", "Account settings"),
+        ("admin", "Admin override"), ("import", "Import"),
+    ]
+
+    e164 = models.CharField(max_length=20, db_index=True)
+    event_type = models.CharField(max_length=16, choices=EVENT)
+    category = models.CharField(max_length=14, choices=CATEGORY, default="marketing")
+    source = models.CharField(max_length=14, choices=SOURCE, default="keyword")
+    ip_address = models.GenericIPAddressField(null=True, blank=True)  # spoof-resistant client IP
+    user_agent = models.CharField(max_length=300, blank=True)
+    note = models.CharField(max_length=300, blank=True)
+    message_sid = models.CharField(max_length=64, blank=True)
+    site = models.ForeignKey("stores.Site", null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="sms_consents")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def save(self, *args, **kwargs):
+        if self.pk:  # immutable — never update an existing consent row
+            raise ValueError("SmsConsent rows are immutable and cannot be edited.")
+        self.e164 = phone.normalize(self.e164)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.get_event_type_display()} [{self.category}] {phone.display(self.e164)}"
+
+
+class SmsKeywordEvent(models.Model):
+    """One row per inbound control keyword (STOP/HELP/START) — compliance trail."""
+
+    e164 = models.CharField(max_length=20, db_index=True)
+    keyword = models.CharField(max_length=20)
+    raw_body = models.CharField(max_length=300, blank=True)
+    receiving_number = models.CharField(max_length=20, blank=True)
+    message_sid = models.CharField(max_length=64, blank=True)
+    reply_sent = models.BooleanField(default=False)
+    reply_text = models.CharField(max_length=300, blank=True)
+    site = models.ForeignKey("stores.Site", null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="sms_keyword_events")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def save(self, *args, **kwargs):
+        self.e164 = phone.normalize(self.e164)
+        super().save(*args, **kwargs)
+
+
+class ComplianceConfig(models.Model):
+    """Single-row editable config: STOP/HELP/START reply text + the registered
+    business name shown in disclosures. Use ComplianceConfig.get_solo()."""
+
+    business_name = models.CharField(
+        max_length=120, default="SmashFat BioLabs (SmashScrap.ca LTD)")
+    stop_reply = models.CharField(
+        max_length=300,
+        default="You're unsubscribed and won't get further messages. Reply START to opt back in.")
+    help_reply = models.CharField(
+        max_length=300,
+        default="SmashFat BioLabs support. Msg&data rates may apply. Reply STOP to opt out.")
+    start_reply = models.CharField(
+        max_length=300,
+        default="You're re-subscribed. Reply STOP to opt out at any time.")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def get_solo(cls):
+        obj = cls.objects.first()
+        if obj is None:
+            obj = cls.objects.create()
+        return obj
+
+    def __str__(self):
+        return "SMS compliance config"
+
+
+class TwilioVerificationTracker(models.Model):
+    """Tracks Twilio toll-free / A2P 10DLC verification. Marketing SMS at volume
+    is gated on 'approved'."""
+
+    KIND = [("toll_free", "Toll-free verification"), ("a2p_10dlc", "A2P 10DLC")]
+    STATUS = [
+        ("not_started", "Not started"), ("pending", "Pending"),
+        ("submitted", "Submitted"), ("in_review", "In review"),
+        ("approved", "Approved"), ("rejected", "Rejected"),
+    ]
+    kind = models.CharField(max_length=12, choices=KIND, default="toll_free")
+    number = models.CharField(max_length=20, blank=True)
+    status = models.CharField(max_length=12, choices=STATUS, default="not_started")
+    notes = models.CharField(max_length=300, blank=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["kind"]
+
+    def __str__(self):
+        return f"{self.get_kind_display()}: {self.get_status_display()}"

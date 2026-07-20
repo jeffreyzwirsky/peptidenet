@@ -55,6 +55,12 @@ class Site(models.Model):
         return self.contact_email or f"info@{self.domain}"
 
     @property
+    def is_smash_brand(self):
+        """True for the SMASH-branded storefronts (gets the SMASH logo + favicon).
+        The Peptides Alberta / Where-Do-I-Get sites keep their own identity."""
+        return "smash" in (self.brand_name or "").lower()
+
+    @property
     def phone_tel_or_derived(self):
         """Dialable number: explicit phone_tel, else digits stripped from `phone`."""
         if self.phone_tel:

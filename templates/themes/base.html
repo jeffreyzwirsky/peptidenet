@@ -28,9 +28,9 @@
 "areaServed":"CA","brand":"{{ site.brand_name }}"}
 </script>
 {% if preload_hero %}<link rel="preload" as="image" href="/static/hero/hero-vials.jpg" fetchpriority="high">{% endif %}
-<link rel="stylesheet" href="{% static 'css/base.css' %}">
-<link rel="stylesheet" href="{% static 'fonts/'|add:theme|add:'.css' %}">
-<link rel="stylesheet" href="{% static 'themes/'|add:theme|add:'/theme.css' %}">
+<link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ asset_v }}">
+<link rel="stylesheet" href="{% static 'fonts/'|add:theme|add:'.css' %}?v={{ asset_v }}">
+<link rel="stylesheet" href="{% static 'themes/'|add:theme|add:'/theme.css' %}?v={{ asset_v }}">
 {% if site.is_smash_brand %}
 <link rel="icon" href="{% static 'brand/favicon.ico' %}" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="{% static 'brand/favicon-32.png' %}">
@@ -159,8 +159,8 @@
 {% include "partials/_ai_widget.html" %}
 {% include "partials/_hero_video.html" %}
 <div class="toast" data-toast></div>
-<script src="{% static 'js/store.js' %}" nonce="{{ request.csp_nonce }}" defer></script>
-<script src="{% static 'js/ai.js' %}" nonce="{{ request.csp_nonce }}" defer></script>
+<script src="{% static 'js/store.js' %}?v={{ asset_v }}" nonce="{{ request.csp_nonce }}" defer></script>
+<script src="{% static 'js/ai.js' %}?v={{ asset_v }}" nonce="{{ request.csp_nonce }}" defer></script>
 {% block body_extra %}{% endblock %}
 </body>
 </html>

@@ -125,6 +125,28 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+
+# Cache-busting version appended to CSS/JS URLs (?v=). Static assets are served
+# with a 1-year immutable cache under non-hashed filenames, so a per-deploy
+# version string is what actually makes CSS/JS changes reach returning visitors.
+# Prefer the short git sha (changes every deploy); fall back to base.css mtime.
+def _asset_version():
+    import subprocess
+    try:
+        r = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                           cwd=str(BASE_DIR), capture_output=True, text=True, timeout=3)
+        if r.returncode == 0 and r.stdout.strip():
+            return r.stdout.strip()
+    except Exception:
+        pass
+    try:
+        return str(int((BASE_DIR / "static" / "css" / "base.css").stat().st_mtime))
+    except Exception:
+        return "1"
+
+
+ASSET_VERSION = _asset_version()
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Payment processor is intentionally stubbed until a provider is connected.

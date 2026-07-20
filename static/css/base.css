@@ -406,3 +406,14 @@ section{padding:72px 0}
 .lab-band h2{color:#f4f8ff;font-size:clamp(26px,3.4vw,40px);margin:6px 0 12px;max-width:16ch}
 .lab-band p{color:#c7d2e6;font-size:16px;line-height:1.6;max-width:56ch}
 @media(max-width:640px){.lab-band-scrim{background:linear-gradient(0deg,rgba(4,7,14,.92) 20%,rgba(4,7,14,.66) 100%)}}
+
+
+/* --- Hero background video (shared; injected by partials/_hero_video.html) ---
+   Desktop-only, fades in over the poster image, then a slow cinematic push.
+   The push uses transform (GPU-composited) so it doesn't cost paint/layout. */
+.hero-photo .hero-video{opacity:0;transition:opacity 1.1s ease-in-out;
+  will-change:opacity,transform;transform:scale(1.03);
+  animation:heroKenBurns 26s ease-in-out 1.1s infinite alternate}
+.hero-photo.hero-video-on .hero-video{opacity:1}
+@keyframes heroKenBurns{from{transform:scale(1.03)}to{transform:scale(1.11)}}
+@media(prefers-reduced-motion:reduce){.hero-photo .hero-video{display:none}}

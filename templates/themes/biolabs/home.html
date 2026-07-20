@@ -25,26 +25,4 @@
     </div>
   </div>
 </section>
-<script nonce="{{ request.csp_nonce }}">
-(function(){
-  var hero=document.querySelector('.hero-photo[data-hero-video]');
-  if(!hero) return;
-  var src=hero.getAttribute('data-hero-video');
-  var big=window.matchMedia('(min-width:861px)').matches;
-  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var save=navigator.connection&&navigator.connection.saveData;
-  if(!src||!big||reduce||save) return;          /* mobile + reduced-motion + data-saver keep the static poster */
-  var img=hero.querySelector('img.hero-bg');
-  var v=document.createElement('video');
-  v.className='hero-bg hero-video';
-  v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.preload='auto';
-  v.setAttribute('muted','');v.setAttribute('playsinline','');
-  v.setAttribute('aria-hidden','true');v.tabIndex=-1;
-  if(img){v.poster=img.getAttribute('src');}
-  var s=document.createElement('source');s.src=src;s.type='video/mp4';v.appendChild(s);
-  v.addEventListener('playing',function(){hero.classList.add('hero-video-on');});
-  if(img){img.insertAdjacentElement('afterend',v);}else{hero.insertBefore(v,hero.firstChild);}
-  var pr=v.play();if(pr&&pr.catch){pr.catch(function(){});}
-})();
-</script>
 {% endblock %}

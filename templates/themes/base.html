@@ -29,6 +29,7 @@
 </script>
 {% if preload_hero %}<link rel="preload" as="image" href="/static/hero/hero-vials.jpg" fetchpriority="high">{% endif %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'fonts/'|add:theme|add:'.css' %}">
 <link rel="stylesheet" href="{% static 'themes/'|add:theme|add:'/theme.css' %}">
 {% if site.is_smash_brand %}
 <link rel="icon" href="{% static 'brand/favicon.ico' %}" sizes="any">

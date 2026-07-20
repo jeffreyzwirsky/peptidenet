@@ -147,8 +147,8 @@ TRUSTED_PROXY_COUNT = int(env("PEPTIDENET_TRUSTED_PROXIES", "0") or "0")
 CONTENT_SECURITY_POLICY = env(
     "PEPTIDENET_CSP",
     "default-src 'self'; img-src 'self' data:; "
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-    "font-src 'self' https://fonts.gstatic.com; "
+    "style-src 'self' 'unsafe-inline'; "
+    "font-src 'self'; "
     "script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'",
 )
 # In-process cache backs the rate limiter (fine for dev/single worker). Use Redis

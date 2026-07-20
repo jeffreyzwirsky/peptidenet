@@ -12,8 +12,8 @@ from .utils import log_event
 CSP_STRICT = (
     "default-src 'self'; base-uri 'none'; object-src 'none'; "
     "img-src 'self' data:; "
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-    "font-src 'self' https://fonts.gstatic.com; "
+    "style-src 'self' 'unsafe-inline'; "
+    "font-src 'self'; "
     # Google's recommended strict CSP: modern browsers use the nonce +
     # strict-dynamic; 'https:' and 'unsafe-inline' are ignored fallbacks for
     # older browsers. Every <script> we emit carries the matching nonce.
@@ -26,8 +26,8 @@ CSP_STRICT = (
 CSP_RELAXED = (
     "default-src 'self'; base-uri 'self'; object-src 'none'; "
     "img-src 'self' data:; "
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-    "font-src 'self' https://fonts.gstatic.com; "
+    "style-src 'self' 'unsafe-inline'; "
+    "font-src 'self'; "
     "script-src 'self' 'unsafe-inline'; "
     "connect-src 'self'; frame-ancestors 'none'; form-action 'self'"
 )

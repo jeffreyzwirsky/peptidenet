@@ -31,6 +31,13 @@
     const chk = $("[data-age-check]"), enter = $("[data-age-enter]");
     chk && chk.addEventListener("change", () => (enter.disabled = !chk.checked));
     enter && enter.addEventListener("click", () => {
+      // Remember the confirmation for a year so the gate doesn't reappear on
+      // every page. The server also skips rendering the gate when this cookie
+      // is present (see base.html), so there's no flash on later visits.
+      try {
+        var secure = location.protocol === "https:" ? "; Secure" : "";
+        document.cookie = "age_ok=1; path=/; max-age=31536000; SameSite=Lax" + secure;
+      } catch (e) {}
       gate.classList.add("hidden");
       body.style.overflow = "";
     });

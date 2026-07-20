@@ -107,3 +107,20 @@ class BulkPricingTests(TestCase):
         self.assertGreaterEqual(float(data["savings"]), 0.01)
         self.assertLess(float(data["total"]), float(data["subtotal"]))
         self.assertEqual(data["items"][0]["bulk_pct"], 10)
+
+
+class AgeGateTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_gate_shows_without_cookie(self):
+        r = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca", secure=True)
+        self.assertContains(r, "data-age-gate")
+
+    def test_gate_hidden_with_cookie(self):
+        self.client.cookies["age_ok"] = "1"
+        for path in ("/", "/product/bpc-157/", "/calculator/"):
+            r = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca", secure=True)
+            self.assertNotContains(r, "data-age-gate", msg_prefix=path)

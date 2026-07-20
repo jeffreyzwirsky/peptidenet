@@ -24,7 +24,7 @@
 </head>
 <body class="theme-{{ theme }}" data-checkout-url="{% url 'checkout' %}" data-contact-url="{% url 'contact' %}" data-cart-add-url="{% url 'cart_add' %}" data-cart-update-url="{% url 'cart_update' %}">
 {% csrf_token %}
-{% include "partials/_age_gate.html" %}
+{% if not request.COOKIES.age_ok %}{% include "partials/_age_gate.html" %}{% endif %}
 {% include "partials/_announcement.html" %}
 
 <header class="site-header">

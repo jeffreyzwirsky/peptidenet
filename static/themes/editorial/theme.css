@@ -34,6 +34,10 @@
 .theme-editorial .hero-kicker .ln{width:44px;height:1px;background:var(--line-2)}
 .theme-editorial .hero h1{font-size:clamp(52px,9vw,116px);line-height:.9;font-weight:700;letter-spacing:-.045em;margin-bottom:26px}
 .theme-editorial .hero h1 .it{font-style:italic;font-weight:400}
+/* Italic gradient word ("loud"): the slanted final glyph overflowed the
+   background-clip:text paint box and lost its tail (read as "loua"). Extend the
+   paint box to the right so the gradient covers the full italic glyph. */
+.theme-editorial .hero h1 .grad{padding-right:.22em}
 .theme-editorial .hero .lead{font-size:18px;color:var(--muted);max-width:520px;margin-bottom:34px;line-height:1.6}
 .theme-editorial .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
 .theme-editorial .hero-stats{display:flex;gap:40px;margin-top:52px;flex-wrap:wrap}

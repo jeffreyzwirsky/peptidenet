@@ -418,3 +418,15 @@ section{padding:72px 0}
 .hero-photo .hero-video{object-position:74% 62%}
 @keyframes heroKenBurns{from{transform:scale(1.03)}to{transform:scale(1.11)}}
 @media(prefers-reduced-motion:reduce){.hero-video{display:none}}
+
+/* --- Shared framed video slot for figure-based heroes (non-flagship themes) ---
+   Wraps the macro-vial poster in a consistent rounded frame so any theme's
+   hero figure can carry a background clip. The injected .hero-video covers it;
+   floating cards remain siblings and paint on top. Mobile keeps the poster. */
+.hero-vid-frame{position:relative;display:block;width:100%;max-width:440px;margin-inline:auto;
+  aspect-ratio:43/54;border-radius:20px;overflow:hidden;background:#0a1420;
+  box-shadow:0 26px 60px -24px rgba(10,20,40,.5)}
+.hero-vid-frame img.hero-vial{position:absolute!important;inset:0!important;width:100%!important;
+  height:100%!important;max-width:none!important;margin:0!important;object-fit:cover!important;
+  border-radius:0!important;filter:none!important;transform:none!important}
+.hero-vid-frame .hero-video{border-radius:0}

@@ -29,8 +29,13 @@ playback on the first user gesture. ?vdebug=1 shows a live state readout.
     v.setAttribute('aria-hidden','true');v.tabIndex=-1;
     if(img){v.poster=img.getAttribute('src');}
     var webm=src.replace('.mp4','.webm');
-    var sw=document.createElement('source');sw.src=webm;sw.type='video/webm';v.appendChild(sw);
-    var sm=document.createElement('source');sm.src=src;sm.type='video/mp4';v.appendChild(sm);
+    // Pick ONE source explicitly. Safari can't decode VP9/WebM in <video> and,
+    // with a webm-first <source> list, gets stuck on it instead of falling back
+    // to the MP4 — so choose by canPlayType and set src directly. Chrome/Firefox
+    // report 'probably' for VP9 (efficient); Safari reports '' -> H.264 MP4.
+    v.src=(v.canPlayType('video/webm; codecs="vp9"')==='probably')?webm:src;
+    v.setAttribute('webkit-playsinline','');
+    v.load();
     function tryplay(){var p=v.play();if(p&&p.catch)p.catch(function(){});}
     ['loadeddata','canplay','playing'].forEach(function(ev){v.addEventListener(ev,function(){hero.classList.add('hero-video-on');tryplay();});});
     if(dbg){['loadeddata','canplay','playing','pause','timeupdate','error','stalled','waiting'].forEach(function(ev){v.addEventListener(ev,function(){log(ev+'  paused='+v.paused+' t='+(Math.round(v.currentTime*10)/10)+' rs='+v.readyState+' err='+(v.error&&v.error.code)+'\ncur='+((v.currentSrc||'').split('/').pop()));});});}

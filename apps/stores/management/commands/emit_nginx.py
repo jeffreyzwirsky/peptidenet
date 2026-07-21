@@ -30,7 +30,16 @@ server {{
     server_tokens off;             # don't leak nginx version
     client_max_body_size 10m;      # cap request bodies
 
-    location /static/ {{ alias /var/www/peptidenet/staticfiles/; }}
+    # Far-future caching: asset URLs are versioned with ?v=<git-sha> (see
+    # settings.ASSET_VERSION), so the URL changes whenever an asset changes —
+    # making `immutable` + 1y safe and closing the Lighthouse "efficient cache
+    # policy" gap. Durable here so a config regen never drops it.
+    location /static/ {{
+        alias /var/www/peptidenet/staticfiles/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }}
 
     # Rate-limit the admin + control-panel to slow credential-stuffing.
     location /{admin} {{

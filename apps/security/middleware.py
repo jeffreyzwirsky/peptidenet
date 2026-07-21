@@ -65,7 +65,13 @@ class SecurityHeadersMiddleware:
         response.setdefault("Cross-Origin-Opener-Policy", "same-origin")
 
         admin_path = "/" + getattr(settings, "ADMIN_PATH", "admin/").strip("/")
-        relaxed = p.startswith("/manage") or p.startswith(admin_path)
+        # The authenticated, non-indexed consoles use a few inline handlers
+        # (e.g. clickable order rows). BOTH the owner admin (/manage) and the
+        # walled staff portal (/portal) must get the relaxed CSP — otherwise the
+        # strict nonce CSP blocks the inline onclick and staff can't open an
+        # order on the portal (login) side.
+        relaxed = (p.startswith("/manage") or p.startswith("/portal")
+                   or p.startswith(admin_path))
         csp = CSP_RELAXED if relaxed else CSP_STRICT.format(nonce=nonce)
         # Always set (override any inherited value) so the nonce matches this response.
         response["Content-Security-Policy"] = csp

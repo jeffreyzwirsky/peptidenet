@@ -69,3 +69,28 @@ class ClientIpTests(TestCase):
             self.assertEqual(client_ip(req), "2.2.2.2")
         with self.settings(TRUSTED_PROXY_COUNT=0):
             self.assertEqual(client_ip(req), "10.0.0.1")
+
+
+class CspScopeTests(TestCase):
+    """Public storefront pages get the strict nonce CSP; the authenticated
+    consoles (/manage AND the walled /portal) get the relaxed CSP so their
+    inline onclick handlers (e.g. clickable order rows) work."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_storefront_is_strict(self):
+        r = self.client.get("/", HTTP_HOST="smashfat.ca")
+        self.assertIn("strict-dynamic", r["Content-Security-Policy"])
+
+    def test_manage_login_is_relaxed(self):
+        r = self.client.get("/manage/login/", HTTP_HOST="smashfatbiolabs.ca")
+        self.assertNotIn("strict-dynamic", r["Content-Security-Policy"])
+
+    def test_portal_login_is_relaxed(self):
+        # Regression: /portal previously fell through to the strict CSP, which
+        # blocked the inline onclick used to open an order from the list.
+        r = self.client.get("/portal/login/", HTTP_HOST="smashfatbiolabs.ca")
+        self.assertNotIn("strict-dynamic", r["Content-Security-Policy"])

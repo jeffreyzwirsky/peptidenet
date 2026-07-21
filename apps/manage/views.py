@@ -453,10 +453,26 @@ def blog(request):
                 messages.success(request, "Moved back to review.")
             elif action == "archive":
                 post.status = "archived"; post.save()
+            elif action == "gen_image":
+                from apps.ai import images
+                accent = (post.site.palette or {}).get("accent", "#4f8ff7")
+                img = images.generate_blog_image(
+                    post.keyword or post.title, site=post.site, accent=accent, slug=post.slug)
+                if img:
+                    post.hero_image = img
+                    post.save(update_fields=["hero_image"])
+                    messages.success(request, "AI hero image generated.")
+                else:
+                    messages.error(
+                        request,
+                        "AI image generation is off. Set PEPTIDENET_AI_LIVE=1 + OPENAI_API_KEY "
+                        "(and pip install openai) on the server to enable it.")
             elif action == "set_image":
                 from apps.blog.models import BLOG_HERO_POOL
                 img = request.POST.get("hero_image", "")
-                if img in BLOG_HERO_POOL or img == "":
+                # Allow the stock pool, an AI-generated /static/blog/ image, or blank (SVG).
+                safe_ai = img.startswith("/static/blog/") and ".." not in img
+                if img in BLOG_HERO_POOL or safe_ai or img == "":
                     post.hero_image = img
                     post.save(update_fields=["hero_image"])
                     messages.success(request, "Hero image updated." if img else "Reverted to SVG banner.")

@@ -4,11 +4,24 @@ import zlib
 
 from django.utils.text import slugify
 
-from apps.ai import llm
+from apps.ai import images, llm
 from apps.catalog.models import Product
 
 from . import guardrails
 from .models import BLOG_HERO_POOL, BlogPost
+
+
+def _unique_slug(site, base):
+    """Per-site unique slug. Appends -2, -3, … so regenerating a keyword/title
+    never trips the (site, slug) unique constraint (which used to 500 the creator)."""
+    base = (base or "post")[:200]
+    slug = base
+    i = 2
+    while BlogPost.objects.filter(site=site, slug=slug).exists():
+        suffix = f"-{i}"
+        slug = f"{base[:200 - len(suffix)]}{suffix}"
+        i += 1
+    return slug
 
 SYSTEM = (
     "You write SEO blog posts for a Canadian RESEARCH-COMPOUND (peptide) store. "
@@ -73,12 +86,19 @@ def generate(site, keyword):
     review = guardrails.review(body)     # enforce disclaimer + scan for claims
     excerpt = " ".join(review["text"].replace("#", "").split())[:300]
 
+    slug = _unique_slug(site, slugify(title) or slugify(keyword))
+    accent = (site.palette or {}).get("accent", "#4f8ff7")
+    # OpenAI-generated hero (research-safe prompt); falls back to the stock pool
+    # when AI is offline/stubbed so drafts always have an image.
+    hero_image = images.generate_blog_image(keyword, site=site, accent=accent, slug=slug) \
+        or BLOG_HERO_POOL[zlib.crc32(keyword.encode()) % len(BLOG_HERO_POOL)]
+
     post = BlogPost.objects.create(
-        site=site, title=title[:200], slug=slugify(title)[:200] or slugify(keyword)[:200],
+        site=site, title=title[:200], slug=slug,
         keyword=keyword, excerpt=excerpt, body=review["text"],
         meta_description=excerpt[:300], seo_title=title[:200],
         hero_svg=banner_svg(site, title),
-        hero_image=BLOG_HERO_POOL[zlib.crc32(keyword.encode()) % len(BLOG_HERO_POOL)],
+        hero_image=hero_image,
         status="needs_review",                         # NEVER auto-published
         compliance_status=review["status"],
         compliance_notes=review["notes"],

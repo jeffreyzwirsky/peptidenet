@@ -37,6 +37,9 @@
             </select>
             <button class="btn sm ghost" name="action" value="set_image">Set</button>
           </form>
+          <form method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="post_id" value="{{ p.pk }}">
+            <button class="btn sm ghost" name="action" value="gen_image" title="Generate a new hero image with OpenAI (needs PEPTIDENET_AI_LIVE + OPENAI_API_KEY)">Gen AI image</button>
+          </form>
         </td>
         <td class="r nowrap">
           <form method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="post_id" value="{{ p.pk }}">

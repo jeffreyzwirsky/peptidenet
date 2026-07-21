@@ -11,6 +11,6 @@ psycopg[binary]>=3.1
 # Imports are lazy + guarded, so the app runs and all tests pass WITHOUT these.
 # Install + set the matching keys only when you flip PEPTIDENET_COMMS_LIVE=1.
 # twilio>=9.0          # SMS + voice + signature validation
-# openai>=1.0          # Whisper call/voicemail transcription
+# openai>=1.0          # Whisper transcription + blog hero images (gpt-image-1)
 # anthropic>=0.40      # AI-drafted SMS replies (Claude Haiku)
 # requests>=2.31       # fetch recordings for transcription

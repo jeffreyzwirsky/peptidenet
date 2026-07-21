@@ -93,3 +93,37 @@ class BlogStorefrontTests(TestCase):
         self.assertNotContains(r, "Draft one")
         # a draft's detail page 404s
         self.assertEqual(self.client.get("/blog/draft-one/", HTTP_HOST="smashfat.ca").status_code, 404)
+
+
+class BlogCreatorFixTests(TestCase):
+    """Regression: the creator used to 500 on a duplicate (site, slug); and blog
+    images can now come from OpenAI, degrading to the stock pool when offline."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_regenerating_same_keyword_does_not_crash(self):
+        site = Site.objects.get(domain="smashfat.ca")
+        p1 = generator.generate(site, "bpc-157 research")
+        p2 = generator.generate(site, "bpc-157 research")   # used to raise IntegrityError
+        self.assertNotEqual(p1.slug, p2.slug)
+        self.assertEqual(BlogPost.objects.filter(site=site).count(), 2)
+
+    def test_image_generation_stubs_when_ai_offline(self):
+        from apps.ai import images
+        from apps.ai.models import AgentRun
+        site = Site.objects.get(domain="smashfat.ca")
+        with self.settings(AI_LIVE=False):
+            path = images.generate_blog_image("bpc-157 research", site=site)
+        self.assertIsNone(path)  # offline -> caller falls back to stock/SVG
+        self.assertTrue(
+            AgentRun.objects.filter(purpose="blog_image", provider="stub").exists())
+
+    def test_offline_generate_falls_back_to_stock_pool(self):
+        from .models import BLOG_HERO_POOL
+        site = Site.objects.get(domain="smashfat.ca")
+        with self.settings(AI_LIVE=False):
+            post = generator.generate(site, "tirzepatide research")
+        self.assertIn(post.hero_image, BLOG_HERO_POOL)

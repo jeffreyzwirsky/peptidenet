@@ -37,10 +37,10 @@ SITES = [
 # Network phone numbers (owned Twilio vanity lines). Applied to every site
 # unless a site overrides them above. BIOLABS = 246-5227 on the keypad.
 PHONE_DEFAULTS = {
-    "phone": "1-839-BIOLABS",
-    "phone_tel": "+18392465227",
-    "phone_alt": "1-325-BIOLABS",
-    "phone_alt_tel": "+13252465227",
+    "phone": "1-325-BIOLABS",
+    "phone_tel": "+13252465227",
+    "phone_alt": "",
+    "phone_alt_tel": "",
 }
 
 

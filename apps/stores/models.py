@@ -25,11 +25,11 @@ class Site(models.Model):
     contact_email = models.EmailField(blank=True)
     phone = models.CharField(
         max_length=40, blank=True,
-        help_text='Display phone shown in header/hero/footer, e.g. "1-839-BIOLABS".',
+        help_text='Display phone shown in header/hero/footer, e.g. "1-325-BIOLABS" (owned vanity line).',
     )
     phone_tel = models.CharField(
         max_length=40, blank=True,
-        help_text='Dialable form for tel: links, e.g. "+18392465227".',
+        help_text='Dialable form for tel: links, e.g. "+13252465227".',
     )
     phone_alt = models.CharField(max_length=40, blank=True, help_text="Secondary display phone.")
     phone_alt_tel = models.CharField(max_length=40, blank=True)

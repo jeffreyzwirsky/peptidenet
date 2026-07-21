@@ -12,14 +12,14 @@
 <meta property="og:title" content="{% block og_title %}{{ site.brand_name }} — Research Compounds{% endblock %}">
 <meta property="og:description" content="{{ site.meta_description }}">
 <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-share.jpg">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="{{ site.brand_name }} — clear-liquid research-compound vials in a laboratory">
+<meta property="og:image:alt" content="{{ site.brand_name }} — {{ site.tagline }}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ site.brand_name }} — Research Compounds">
 <meta name="twitter:description" content="{{ site.meta_description }}">
-<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-share.jpg">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <script type="application/ld+json" nonce="{{ request.csp_nonce }}">
 {"@context":"https://schema.org","@type":"Store","name":"{{ site.brand_name }}",

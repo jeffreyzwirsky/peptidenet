@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
             name="ComplianceConfig",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("business_name", models.CharField(default="SmashFat BioLabs (SmashScrap.ca LTD)", max_length=120)),
+                ("business_name", models.CharField(default="325 BioLabs", max_length=120)),
                 ("stop_reply", models.CharField(default="You're unsubscribed and won't get further messages. Reply START to opt back in.", max_length=300)),
                 ("help_reply", models.CharField(default="SmashFat BioLabs support. Msg&data rates may apply. Reply STOP to opt out.", max_length=300)),
                 ("start_reply", models.CharField(default="You're re-subscribed. Reply STOP to opt out at any time.", max_length=300)),

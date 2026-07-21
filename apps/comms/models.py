@@ -258,7 +258,7 @@ class ComplianceConfig(models.Model):
     business name shown in disclosures. Use ComplianceConfig.get_solo()."""
 
     business_name = models.CharField(
-        max_length=120, default="SmashFat BioLabs (SmashScrap.ca LTD)")
+        max_length=120, default="325 BioLabs")
     stop_reply = models.CharField(
         max_length=300,
         default="You're unsubscribed and won't get further messages. Reply START to opt back in.")

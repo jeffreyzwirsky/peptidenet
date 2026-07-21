@@ -31,11 +31,6 @@
 <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ asset_v }}">
 <link rel="stylesheet" href="{% static 'fonts/'|add:theme|add:'.css' %}?v={{ asset_v }}">
 <link rel="stylesheet" href="{% static 'themes/'|add:theme|add:'/theme.css' %}?v={{ asset_v }}">
-{% if site.is_smash_brand %}
-<link rel="icon" href="{% static 'brand/favicon.ico' %}" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="{% static 'brand/favicon-32.png' %}">
-<link rel="apple-touch-icon" href="{% static 'brand/favicon-192.png' %}">
-{% endif %}
 {% block head_extra %}{% endblock %}
 </head>
 <body class="theme-{{ theme }}" data-checkout-url="{% url 'checkout' %}" data-contact-url="{% url 'contact' %}" data-cart-add-url="{% url 'cart_add' %}" data-cart-update-url="{% url 'cart_update' %}">
@@ -45,7 +40,7 @@
 
 <header class="site-header">
   <div class="wrap nav">
-    <a href="/" class="brand">{% if site.is_smash_brand %}<img class="brand-logo" src="{% if theme == 'neon' %}{% static 'brand/smash-logo-nav.png' %}{% else %}{% static 'brand/smash-logo-mono-nav.png' %}{% endif %}" alt="SMASH" width="59" height="48"><span class="brand-name">{{ site.brand_name }}</span>{% else %}{% block brandmark %}<span class="brand-name">{{ site.brand_name }}</span>{% endblock %}{% endif %}</a>
+    <a href="/" class="brand">{% block brandmark %}<span class="brand-name">{{ site.brand_name }}</span>{% endblock %}</a>
     <nav class="nav-links">{% block navlinks %}
       <a href="/#catalogue">Compounds</a>
       <a href="/calculator/">Calculator</a>

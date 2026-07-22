@@ -3,11 +3,24 @@ Mirrors SMASH's straight-to-voicemail default with an optional phone tree."""
 from urllib.parse import urlencode
 from xml.sax.saxutils import escape
 
+from django.conf import settings
 from django.urls import reverse
 
 
 def _say(text):
-    return f"<Say voice=\"Polly.Joanna\">{escape(text)}</Say>"
+    # Amazon Polly Neural voice via Twilio <Say> — natural-sounding, configurable
+    # through PEPTIDENET_TTS_VOICE (settings.COMMS_TTS_VOICE).
+    voice = getattr(settings, "COMMS_TTS_VOICE", "Polly.Ruth-Neural")
+    return f"<Say voice=\"{voice}\">{escape(text)}</Say>"
+
+
+def _greeting(number, request):
+    """Play the pre-generated ElevenLabs greeting mp3 if one exists, else fall
+    back to Twilio <Say> with the Polly Neural voice."""
+    audio = getattr(number, "greeting_audio", "")
+    if audio:
+        return f"<Play>{escape(request.build_absolute_uri(audio))}</Play>"
+    return _say(number.greeting)
 
 
 def voicemail_twiml(number, request, category="general"):
@@ -16,7 +29,7 @@ def voicemail_twiml(number, request, category="general"):
     action = request.build_absolute_uri(reverse("comms:recording") + "?" + q)
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n<Response>'
-        f"{_say(number.greeting)}"
+        f"{_greeting(number, request)}"
         f'<Record maxLength="120" playBeep="true" transcribe="false" '
         f'recordingStatusCallback="{escape(action)}" '
         f'recordingStatusCallbackEvent="completed"/>'

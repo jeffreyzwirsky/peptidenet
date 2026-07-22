@@ -21,6 +21,11 @@ class PhoneNumber(models.Model):
         blank=True,
         default="Thanks for calling. Please leave a message after the tone and we'll get back to you.",
     )
+    greeting_audio = models.CharField(
+        max_length=300, blank=True, default="",
+        help_text="Path to a pre-generated ElevenLabs greeting mp3 (e.g. "
+                  "/static/comms/greeting-1.mp3). Played instead of the Polly <Say> when set; "
+                  "regenerate with `manage.py generate_greeting_audio`.")
     ivr_enabled = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 

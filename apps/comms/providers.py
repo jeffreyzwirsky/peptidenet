@@ -68,12 +68,29 @@ def transcribe(audio_url):
 
 
 def tts_greeting_audio(text):
-    """ElevenLabs TTS for a nicer voice greeting. Returns a URL or None
-    (None → the voice webhook falls back to Twilio <Say>)."""
-    if not (settings.COMMS_LIVE and settings.ELEVENLABS_API_KEY):
+    """ElevenLabs TTS -> mp3 bytes for a natural greeting. Returns raw mp3 bytes,
+    or None (caller falls back to Twilio <Say> with the Polly Neural voice).
+    Generation is a one-time admin step (generate_greeting_audio), not per call."""
+    if not (settings.ELEVENLABS_API_KEY and (text or "").strip()):
         return None
-    # Real impl would synthesize + host the mp3 (e.g. DO Spaces) and return its URL.
-    return None  # pragma: no cover
+    try:  # pragma: no cover - needs a real ElevenLabs key
+        import requests
+        voice_id = getattr(settings, "ELEVENLABS_VOICE_ID", "") or "21m00Tcm4TlvDq8ikWAM"
+        model = getattr(settings, "ELEVENLABS_MODEL", "") or "eleven_turbo_v2_5"
+        r = requests.post(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+            headers={"xi-api-key": settings.ELEVENLABS_API_KEY,
+                     "accept": "audio/mpeg", "content-type": "application/json"},
+            json={"text": text, "model_id": model,
+                  "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}},
+            timeout=30,
+        )
+        if r.status_code == 200 and r.content:
+            return r.content
+        log.warning("elevenlabs tts %s: %s", r.status_code, r.text[:200])
+    except Exception:
+        log.exception("elevenlabs tts error")
+    return None
 
 
 def draft_reply(thread_messages, contact_name=""):

@@ -156,3 +156,31 @@ class ComplianceTests(TestCase):
         self.assertTrue(SmsConsent.objects.filter(
             e164="+15875556543", event_type="opt_in", category="marketing",
             source="contact_form").exists())
+
+
+class VoiceGreetingTests(TestCase):
+    """Greeting uses the natural Polly Neural voice by default, and plays a
+    pre-generated ElevenLabs mp3 via <Play> when greeting_audio is set."""
+
+    def _req(self):
+        from django.test import RequestFactory
+        return RequestFactory().post("/webhooks/twilio/voice/",
+                                     HTTP_HOST="smashfatbiolabs.ca")
+
+    def test_default_greeting_uses_neural_say(self):
+        from apps.comms import voice
+        from apps.comms.models import PhoneNumber
+        n = PhoneNumber.objects.create(e164="+13252465227", greeting="Hello there.")
+        xml = voice.voicemail_twiml(n, self._req())
+        self.assertIn("Polly.Ruth-Neural", xml)   # natural neural voice
+        self.assertIn("<Record", xml)
+
+    def test_elevenlabs_audio_played_when_set(self):
+        from apps.comms import voice
+        from apps.comms.models import PhoneNumber
+        n = PhoneNumber.objects.create(
+            e164="+13252465999", greeting="Hi",
+            greeting_audio="/static/comms/greeting-9.mp3")
+        xml = voice.voicemail_twiml(n, self._req())
+        self.assertIn("<Play>", xml)
+        self.assertIn("greeting-9.mp3", xml)

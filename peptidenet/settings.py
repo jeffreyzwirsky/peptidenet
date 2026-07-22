@@ -197,8 +197,14 @@ TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN", "")
 TWILIO_DEFAULT_FROM = env("TWILIO_DEFAULT_FROM", "")
 OPENAI_API_KEY = env("OPENAI_API_KEY", "")          # Whisper transcription
 ELEVENLABS_API_KEY = env("ELEVENLABS_API_KEY", "")  # TTS voice greetings
+ELEVENLABS_VOICE_ID = env("PEPTIDENET_ELEVENLABS_VOICE_ID", "")   # blank -> Rachel default
+ELEVENLABS_MODEL = env("PEPTIDENET_ELEVENLABS_MODEL", "eleven_turbo_v2_5")
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", "")    # AI-drafted SMS replies
 TELEPHONY_PUBLIC_HOST = env("PEPTIDENET_TELEPHONY_HOST", "")
+# IVR / voicemail greeting voice — Amazon Polly Neural via Twilio <Say>. Natural
+# sounding, no extra keys. Swap without a code change via PEPTIDENET_TTS_VOICE
+# (e.g. Polly.Ruth-Neural, Polly.Joanna-Neural, Polly.Matthew-Neural, Polly.Stephen-Neural).
+COMMS_TTS_VOICE = env("PEPTIDENET_TTS_VOICE", "Polly.Ruth-Neural")
 
 # --- Email (Mailgun) ---
 # One API key powers ALL platform email — transactional sends AND Django's

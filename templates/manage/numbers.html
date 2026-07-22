@@ -4,25 +4,32 @@
 {% block head_right %}<span class="pill {% if not live %}warn{% endif %}">{% if live %}Comms LIVE{% else %}Stub mode (not sending){% endif %}</span>{% endblock %}
 {% block body %}
 {% if not live %}<p class="note">Providers are stubbed — nothing sends or charges. Set <code>PEPTIDENET_COMMS_LIVE=1</code> plus Twilio/OpenAI/ElevenLabs keys to go live, and point each number's Twilio SMS webhook at <code>/webhooks/twilio/sms/</code> and voice webhook at <code>/webhooks/twilio/voice/?number=&lt;e164&gt;</code>.</p>{% endif %}
-<section class="card">
-  <table class="tbl">
-    <thead><tr><th>Number</th><th>Label</th><th>Site</th><th>Region</th><th>SMS</th><th>Voice</th><th>IVR</th><th>Active</th></tr></thead>
-    <tbody>
-      {% for n in numbers %}
-      <tr>
-        <td class="mono">{{ n.display_phone }}</td>
-        <td>{{ n.label|default:"—" }}</td>
-        <td class="sub">{{ n.site.domain|default:"shared (all sites)" }}</td>
-        <td>{{ n.region|default:"—" }}</td>
-        <td>{% if n.sms_enabled %}✓{% else %}—{% endif %}</td>
-        <td>{% if n.voice_enabled %}✓{% else %}—{% endif %}</td>
-        <td>{% if n.ivr_enabled %}on{% else %}voicemail{% endif %}</td>
-        <td>{% if n.is_active %}<span class="badge in">active</span>{% else %}<span class="badge out">off</span>{% endif %}</td>
-      </tr>
-      {% empty %}<tr><td colspan="8" class="empty">No numbers yet. Add them in Django admin → Phone numbers (or via provisioning once Twilio is wired).</td></tr>{% endfor %}
-    </tbody>
-  </table>
+{% for n in numbers %}
+<section class="card" style="padding:16px 18px">
+  <form method="post">{% csrf_token %}<input type="hidden" name="number_id" value="{{ n.pk }}">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+      <span class="mono" style="font-size:17px;font-weight:800">{{ n.display_phone }}</span>
+      <span class="sub">{{ n.site.domain|default:"shared (all sites)" }}{% if n.region %} · {{ n.region }}{% endif %}</span>
+      <input name="label" value="{{ n.label }}" placeholder="Label" style="margin-left:auto;background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:8px;padding:7px 10px;min-width:180px">
+    </div>
+    <label class="sub" style="display:block;margin-bottom:4px">Voicemail greeting (spoken if AI intake is off, or as the fallback)</label>
+    <textarea name="greeting" rows="2" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:9px;padding:9px 11px;font-family:inherit;font-size:13.5px;resize:vertical">{{ n.greeting }}</textarea>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 4px;font-size:13.5px">
+      <label style="cursor:pointer"><input type="checkbox" name="ai_intake" value="1" {% if n.ai_intake %}checked{% endif %}> AI intake <span class="sub">(answers + subject line)</span></label>
+      <label style="cursor:pointer"><input type="checkbox" name="voice_enabled" value="1" {% if n.voice_enabled %}checked{% endif %}> Voice</label>
+      <label style="cursor:pointer"><input type="checkbox" name="sms_enabled" value="1" {% if n.sms_enabled %}checked{% endif %}> SMS</label>
+      <label style="cursor:pointer"><input type="checkbox" name="ivr_enabled" value="1" {% if n.ivr_enabled %}checked{% endif %}> IVR menu</label>
+      <label style="cursor:pointer"><input type="checkbox" name="is_active" value="1" {% if n.is_active %}checked{% endif %}> Active</label>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px">
+      <button class="btn sm">Save</button>
+      <span class="sub">{% if n.greeting_audio %}ElevenLabs greeting set{% else %}Neural voice (no ElevenLabs mp3){% endif %}</span>
+      {% if n.ai_intake %}<span class="badge in">AI intake on</span>{% endif %}
+    </div>
+  </form>
 </section>
+{% empty %}<section class="card"><p class="empty">No numbers yet. Add one in Django admin → Phone numbers, or run <code>create_test_voicemail</code> to seed the network line.</p></section>{% endfor %}
+<p class="note"><strong>AI intake</strong> takes precedence over the IVR menu. When on: the AI greets, answers basic catalogue questions (guarded, research-use-only, no company/medical info), builds a voicemail subject line, then records — and callers can press <code>0</code> to skip straight to voicemail.</p>
 
 <section class="card">
   <div class="card-head"><h2>Opt-out list (STOP)</h2></div>

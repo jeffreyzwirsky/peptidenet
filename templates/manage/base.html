@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}{% if is_admin_console %}Control{% else %}Staff Portal{% endif %}{% endblock %} · SmashFat BioLabs</title>
-<link rel="stylesheet" href="{% static 'manage/manage.css' %}">
+<link rel="stylesheet" href="{% static 'manage/manage.css' %}?v={{ asset_v }}">
 </head>
 <body>
+<div class="topbar">
+  <button class="nav-btn" data-nav-toggle aria-label="Toggle navigation" title="Menu">☰</button>
+  <div class="tb-logo">{% if is_admin_console %}Peptide<span>net</span>{% else %}Staff<span>Portal</span>{% endif %}</div>
+</div>
+<div class="backdrop" data-nav-close></div>
 <div class="shell">
   <aside class="side">
     {% if is_admin_console %}
@@ -53,5 +58,14 @@
     {% block body %}{% endblock %}
   </main>
 </div>
+<script>
+(function(){var b=document.body,mq=window.matchMedia('(max-width:859px)');
+function tgl(){if(mq.matches){b.classList.toggle('nav-open');}else{b.classList.toggle('nav-collapsed');try{localStorage.setItem('pn_col',b.classList.contains('nav-collapsed')?'1':'0');}catch(e){}}}
+document.querySelectorAll('[data-nav-toggle]').forEach(function(e){e.addEventListener('click',tgl);});
+document.querySelectorAll('[data-nav-close]').forEach(function(e){e.addEventListener('click',function(){b.classList.remove('nav-open');});});
+document.querySelectorAll('.side nav a').forEach(function(a){a.addEventListener('click',function(){if(mq.matches)b.classList.remove('nav-open');});});
+try{if(localStorage.getItem('pn_col')==='1'&&!mq.matches)b.classList.add('nav-collapsed');}catch(e){}
+})();
+</script>
 </body>
 </html>

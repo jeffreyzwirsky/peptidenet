@@ -7,10 +7,19 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.5}
 a{color:inherit;text-decoration:none}
-.shell{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.shell{min-height:100vh}
 
-/* sidebar */
-.side{background:var(--panel2);border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+/* top bar — always visible; carries the menu / collapse button */
+.topbar{position:sticky;top:0;z-index:45;display:flex;align-items:center;gap:12px;background:var(--panel2);border-bottom:1px solid var(--line);padding:9px 14px}
+.nav-btn{background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:9px;padding:6px 12px;font-size:18px;line-height:1;cursor:pointer}
+.topbar .tb-logo{font-weight:800;font-size:15px}
+.topbar .tb-logo span{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:55;opacity:0;visibility:hidden;transition:opacity .2s}
+body.nav-open .backdrop{opacity:1;visibility:visible}
+
+/* sidebar — off-canvas drawer on mobile, scrollable sticky column on desktop */
+.side{background:var(--panel2);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;width:252px;max-width:84vw;overflow-y:auto;z-index:60;transform:translateX(-100%);transition:transform .22s ease}
+body.nav-open .side{transform:translateX(0)}
 .logo{font-weight:800;font-size:20px;margin:4px 8px 26px}
 .logo span{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .logo small{display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:4px}
@@ -23,7 +32,17 @@ a{color:inherit;text-decoration:none}
 .side-foot a{color:var(--accent)}
 
 /* content */
-.content{padding:26px 30px;max-width:1200px}
+.content{padding:16px;max-width:1200px}
+
+/* desktop: fixed sidebar column below the top bar; collapsible */
+@media(min-width:860px){
+  .shell{display:grid;grid-template-columns:236px 1fr}
+  .side{position:sticky;top:46px;height:calc(100vh - 46px);transform:none;width:auto;max-width:none;z-index:1}
+  .backdrop{display:none}
+  .content{padding:22px 30px}
+  body.nav-collapsed .shell{grid-template-columns:1fr}
+  body.nav-collapsed .side{display:none}
+}
 .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
 .page-head h1{font-size:24px;font-weight:800}
 .pill{font-size:12px;font-weight:700;color:var(--mut);border:1px solid var(--line);border-radius:100px;padding:5px 12px}
@@ -138,3 +157,18 @@ code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12px}
 .role-pill.owner{background:rgba(79,143,247,.18);color:#8fb6ff;border:1px solid rgba(79,143,247,.4)}
 .role-pill.staff{background:rgba(55,224,166,.16);color:#5fe0b6;border:1px solid rgba(55,224,166,.4)}
 .portal-banner{background:linear-gradient(120deg,rgba(55,224,166,.14),rgba(79,143,247,.10));border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--fg)}
+
+
+/* --- mobile-first responsive tweaks --- */
+@media(max-width:859px){
+  .page-head{margin-bottom:16px;flex-wrap:wrap;gap:8px}
+  .page-head h1{font-size:20px}
+  .card{overflow-x:auto}              /* wide tables scroll instead of breaking the layout */
+  .tbl{min-width:560px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .inbox{grid-template-columns:1fr;height:auto}
+  .inbox .thread-list{max-height:42vh}
+  .filters input{min-width:0;flex:1}
+  .inv-totals{flex-wrap:wrap;gap:12px}
+  .status-form,.filters{flex-wrap:wrap}
+}

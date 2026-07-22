@@ -240,6 +240,29 @@ def calls(request):
 @console_required
 def numbers(request):
     from django.conf import settings as _settings
+
+    from apps.comms.models import PhoneNumber as _PN
+    if request.method == "POST":
+        n = get_object_or_404(_PN, pk=request.POST.get("number_id"))
+        old_greeting = n.greeting
+        n.label = request.POST.get("label", n.label)[:80]
+        n.greeting = request.POST.get("greeting", n.greeting)[:1000]
+        n.sms_enabled = request.POST.get("sms_enabled") == "1"
+        n.voice_enabled = request.POST.get("voice_enabled") == "1"
+        n.ivr_enabled = request.POST.get("ivr_enabled") == "1"
+        n.ai_intake = request.POST.get("ai_intake") == "1"
+        n.is_active = request.POST.get("is_active") == "1"
+        greeting_changed = n.greeting != old_greeting
+        if greeting_changed:
+            # The pre-generated ElevenLabs mp3 is now stale — drop it so calls use
+            # the neural Polly voice until it's regenerated.
+            n.greeting_audio = ""
+        n.save()
+        msg = f"Saved settings for {n.display_phone}."
+        if greeting_changed:
+            msg += " Greeting changed — run generate_greeting_audio to refresh the ElevenLabs voice."
+        messages.success(request, msg)
+        return redirect(request.path)
     return render(request, "manage/numbers.html", {
         "nav": "numbers",
         "numbers": PhoneNumber.objects.select_related("site").all(),

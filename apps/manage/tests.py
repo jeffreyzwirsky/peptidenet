@@ -149,3 +149,19 @@ class ControlPanelTests(TestCase):
         self.client.post(f"/manage/orders/{o.pk}/", {"status": "fulfilled"})
         o.refresh_from_db()
         self.assertEqual(o.status, "fulfilled")
+
+    def test_numbers_page_loads_and_saves_settings(self):
+        from apps.comms.models import PhoneNumber
+        self.client.force_login(self.staff)
+        n = PhoneNumber.objects.create(e164="+13252465227", label="net", sms_enabled=True)
+        r = self.client.get("/manage/numbers/")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "AI intake")
+        self.client.post("/manage/numbers/", {
+            "number_id": n.pk, "label": "Network line", "greeting": "New greeting.",
+            "ai_intake": "1", "voice_enabled": "1", "is_active": "1",  # sms unchecked
+        })
+        n.refresh_from_db()
+        self.assertTrue(n.ai_intake)
+        self.assertFalse(n.sms_enabled)          # unchecked box -> turned off
+        self.assertEqual(n.greeting, "New greeting.")

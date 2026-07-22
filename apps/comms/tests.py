@@ -184,3 +184,76 @@ class VoiceGreetingTests(TestCase):
         xml = voice.voicemail_twiml(n, self._req())
         self.assertIn("<Play>", xml)
         self.assertIn("greeting-9.mp3", xml)
+
+
+class VoiceAgentTests(TestCase):
+    """Guarded AI phone intake: deflects dosing/medical + company/address/staff,
+    answers catalogue questions with the research-use-only disclaimer, and builds
+    a voicemail subject line. The webhook always ends by recording the message."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_deflects_dosing_and_medical(self):
+        from apps.comms import agent
+        self.assertEqual(agent.answer("how much should I inject", None), agent.MEDICAL_DEFLECT)
+        self.assertEqual(agent.answer("what is the dosage", None), agent.MEDICAL_DEFLECT)
+        self.assertEqual(agent.answer("does this treat inflammation", None), agent.MEDICAL_DEFLECT)
+
+    def test_deflects_company_info(self):
+        from apps.comms import agent
+        self.assertEqual(agent.answer("what is your address", None), agent.INFO_DEFLECT)
+        self.assertEqual(agent.answer("who is the owner", None), agent.INFO_DEFLECT)
+        self.assertEqual(agent.answer("can I speak to a real person", None), agent.INFO_DEFLECT)
+
+    def test_price_question_is_not_medical(self):
+        from apps.comms import agent
+        self.assertNotEqual(agent.classify("how much is bpc-157"), "medical")
+
+    def test_answers_product_with_research_disclaimer(self):
+        from apps.comms import agent
+        site = Site.objects.get(domain="smashfatbiolabs.ca")
+        with self.settings(AI_LIVE=False):
+            r = agent.answer("is BPC-157 in stock", site)
+        self.assertIn("research", r.lower())
+
+    def test_subject_line_short(self):
+        from apps.comms import agent
+        with self.settings(AI_LIVE=False):
+            s = agent.subject_line("I want to ask about bulk pricing on retatrutide", None)
+        self.assertTrue(0 < len(s) <= 80)
+
+    def test_voice_webhook_starts_ai_intake(self):
+        from apps.comms.models import PhoneNumber
+        PhoneNumber.objects.create(e164="+13252465227", ai_intake=True,
+                                   site=Site.objects.get(domain="smashfatbiolabs.ca"))
+        r = self.client.post("/webhooks/twilio/voice/",
+                             {"To": "+13252465227", "From": "+15875551212", "CallSid": "CA1"},
+                             HTTP_HOST="smashfatbiolabs.ca")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(b'input="speech dtmf"', r.content)   # gather intake (speech + press-0)
+
+    def test_gather_webhook_answers_then_records(self):
+        from apps.comms.models import PhoneNumber
+        PhoneNumber.objects.create(e164="+13252465227", ai_intake=True,
+                                   site=Site.objects.get(domain="smashfatbiolabs.ca"))
+        with self.settings(AI_LIVE=False):
+            r = self.client.post("/webhooks/twilio/gather/?number=%2B13252465227",
+                                 {"SpeechResult": "do you have BPC-157 in stock",
+                                  "From": "+15875551212"},
+                                 HTTP_HOST="smashfatbiolabs.ca")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(b"<Record", r.content)          # always records the message
+
+    def test_press_zero_skips_agent(self):
+        from apps.comms.models import PhoneNumber
+        PhoneNumber.objects.create(e164="+13252465227", ai_intake=True,
+                                   site=Site.objects.get(domain="smashfatbiolabs.ca"))
+        r = self.client.post("/webhooks/twilio/gather/?number=%2B13252465227",
+                             {"Digits": "0", "From": "+15875551212"},
+                             HTTP_HOST="smashfatbiolabs.ca")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(b"<Record", r.content)                       # straight to voicemail
+        self.assertNotIn(b"qualified professional", r.content)     # agent was skipped

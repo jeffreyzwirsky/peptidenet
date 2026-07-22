@@ -9,5 +9,6 @@ urlpatterns = [
     path("sms/", webhooks.inbound_sms, name="inbound_sms"),
     path("sms-status/", webhooks.sms_status, name="sms_status"),
     path("voice/", webhooks.voice, name="voice"),
+    path("gather/", webhooks.gather, name="gather"),
     path("recording/", webhooks.recording, name="recording"),
 ]

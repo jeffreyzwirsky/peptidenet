@@ -27,6 +27,11 @@ class PhoneNumber(models.Model):
                   "/static/comms/greeting-1.mp3). Played instead of the Polly <Say> when set; "
                   "regenerate with `manage.py generate_greeting_audio`.")
     ivr_enabled = models.BooleanField(default=False)
+    ai_intake = models.BooleanField(
+        default=False,
+        help_text="Turn-based AI intake: greet, answer basic catalogue questions "
+                  "(guarded, research-use-only, no company/medical info), build a "
+                  "voicemail subject line, then record.")
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
@@ -142,6 +147,9 @@ class Voicemail(models.Model):
     duration_sec = models.PositiveIntegerField(default=0)
     transcript = models.TextField(blank=True)
     transcript_source = models.CharField(max_length=20, blank=True)
+    subject = models.CharField(
+        max_length=200, blank=True, default="",
+        help_text="AI-intake subject line (from the caller's stated reason).")
     listened = models.BooleanField(default=False)
     # --- AI triage (mirrors AR-Sales Voicemail) ---
     URGENCY = [("low", "Low"), ("normal", "Normal"), ("high", "High"), ("urgent", "Urgent")]

@@ -77,6 +77,9 @@ def voice(request):
                   "status": request.POST.get("CallStatus", "in-progress")},
     )
     digit = request.POST.get("Digits") or request.GET.get("digit")
+    if getattr(number, "ai_intake", False) and not digit:
+        # Turn-based AI intake: greet + disclaimer, then gather the question.
+        return HttpResponse(voicelib.intake_twiml(number, request), content_type=XML)
     if number.ivr_enabled and not digit:
         return HttpResponse(voicelib.ivr_twiml(number, request), content_type=XML)
     category = "general"
@@ -85,6 +88,34 @@ def voice(request):
         if opt:
             category = opt.voicemail_category
     return HttpResponse(voicelib.voicemail_twiml(number, request, category), content_type=XML)
+
+
+@csrf_exempt
+@require_POST
+def gather(request):
+    """AI intake speech callback: answer the caller's question (guarded), build a
+    subject line, then record the full voicemail. Empty speech -> voicemail."""
+    if not _guard(request):
+        return HttpResponseForbidden("bad signature")
+    number = _lookup_number(request)
+    if number is None:
+        return HttpResponse(
+            '<?xml version="1.0" encoding="UTF-8"?><Response><Reject/></Response>',
+            content_type=XML)
+    # Caller pressed a key (0 = "just let me leave a message") -> skip the agent.
+    if request.POST.get("Digits"):
+        return HttpResponse(voicelib.voicemail_twiml(number, request), content_type=XML)
+    speech = (request.POST.get("SpeechResult") or "").strip()
+    if not speech:
+        return HttpResponse(voicelib.voicemail_twiml(number, request), content_type=XML)
+    from . import agent
+    try:
+        reply = agent.answer(speech, number.site)
+        subject = agent.subject_line(speech, number.site)
+    except Exception:  # never let the agent break the call
+        reply, subject = agent.SAFE_FALLBACK, " ".join(speech.split()[:8])[:80]
+    return HttpResponse(
+        voicelib.agent_reply_twiml(number, request, reply, subject), content_type=XML)
 
 
 @csrf_exempt
@@ -103,6 +134,7 @@ def recording(request):
     vm = Voicemail.objects.create(
         site=site, contact=contact, from_number=frm,
         category=request.GET.get("category", "general"),
+        subject=request.GET.get("subject", "")[:200],
         recording_url=rec_url, duration_sec=duration, transcript=text,
         transcript_source=source,
     )

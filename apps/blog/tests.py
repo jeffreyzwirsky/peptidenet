@@ -287,3 +287,45 @@ class DisclaimerNotFlaggedTests(TestCase):
                       self._labels("We do not ship from China."))
         self.assertIn("shipping origin claim",
                       self._labels("Our products are not manufactured in Canada."))
+
+
+class QuotedRedFlagTests(TestCase):
+    """Buyer-vetting guides quote the claims they warn readers about.
+
+    All real text from the live where-do-i-get-peptides drafts. Scanning a
+    quoted red flag as if the site were asserting it turned the network's most
+    useful editorial content into its most heavily flagged.
+    """
+
+    def _scan(self, text):
+        from . import guardrails
+        hard, soft = guardrails.scan(text)
+        return ({l for l, _ in hard}, {l for l, _ in soft})
+
+    def test_quoted_red_flags_are_surfaced_not_blocked(self):
+        for text in (
+            'Suppliers who rely on marketing language ("pharmaceutical grade," '
+            '"purest available," "clinically validated") should be questioned.',
+            'Phrases like "cheapest research peptides," "lowest prices in the '
+            'industry," or "unbeatable rates" are a warning sign.',
+            'Watch for "clinically proven" or "proven to work" efficacy claims.',
+        ):
+            hard, soft = self._scan(text)
+            self.assertEqual(hard, set(), text)
+            self.assertTrue(any(l.startswith("quoted example") for l in soft), text)
+
+    def test_advisory_warnings_are_not_read_as_promises(self):
+        hard, _ = self._scan(
+            "Avoid suppliers who promise same-day or next-day delivery on "
+            "custom compounds.")
+        self.assertEqual(hard, set())
+
+    def test_the_same_claim_unquoted_still_blocks(self):
+        hard, _ = self._scan("Our compounds are pharmaceutical grade and "
+                             "clinically proven.")
+        self.assertTrue(hard)
+
+    def test_quoting_does_not_launder_an_origin_claim(self):
+        hard, _ = self._scan('Our partner calls them "manufactured in China" '
+                             'reference materials.')
+        self.assertIn("shipping origin claim", hard)

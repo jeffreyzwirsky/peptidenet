@@ -96,8 +96,30 @@ SOFT_PATTERNS = {
 # a real violation gets waved through.
 _NEGATION = re.compile(
     r"\b(not|never|no|cannot|can't|nor|without|neither|"
-    r"prohibited|forbidden|unlawful|illegal)\b", re.I,
+    r"prohibited|forbidden|unlawful|illegal|"
+    # Advisory cues. The buyer-education sites exist to tell a reader what to
+    # steer clear of — "avoid suppliers who promise next-day delivery" is the
+    # warning, not the promise.
+    r"avoid|beware|steer clear of|walk away from|unsubstantiated)\b", re.I,
 )
+
+# Quoted spans. A claim inside quotation marks is being *reported*, not made.
+#
+# The vetting guides quote the exact red flags they teach readers to spot —
+# "cheapest research peptides", "clinically proven", "pharmaceutical grade".
+# Scanning those as if the site were asserting them turns the most valuable
+# editorial content on the network into the most heavily flagged.
+_QUOTED = re.compile(r"\"[^\"\n]{0,300}\"|“[^”\n]{0,300}”")
+
+
+def _in_quotes(text, start, end):
+    """True when the match sits wholly inside a quoted span on its own line."""
+    line_start = text.rfind("\n", 0, start) + 1
+    line_end = text.find("\n", end)
+    line_end = len(text) if line_end == -1 else line_end
+    line = text[line_start:line_end]
+    a, b = start - line_start, end - line_start
+    return any(m.start() <= a and b <= m.end() for m in _QUOTED.finditer(line))
 # How far back to look for the negation. Long enough to span "They are not
 # intended for human consumption, veterinary use, medical diagnosis, treatment
 # …" where the cue sits well ahead of the match, short enough not to reach
@@ -129,7 +151,17 @@ def scan(text):
             # Origin claims are checked WITHOUT the negation escape. "We don't
             # ship from China" still puts a country on the page next to this
             # business, and the standing rule is silence on origin, not denial.
-            if label != "shipping origin claim" and _is_negated(text, m.start()):
+            if label == "shipping origin claim":
+                # No escapes for origin. Denying an origin, or quoting someone
+                # else's, still puts a country on the page beside this business.
+                hard.append((label, m.group(0)))
+                continue
+            if _is_negated(text, m.start()):
+                continue
+            if _in_quotes(text, m.start(), m.end()):
+                # Surfaced, not blocking — the reviewer still sees it, but the
+                # post is not painted red for teaching a reader what to avoid.
+                soft.append((f"quoted example — {label}", m.group(0)))
                 continue
             hard.append((label, m.group(0)))
     for label, pat in SOFT_PATTERNS.items():

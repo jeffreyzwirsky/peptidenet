@@ -581,29 +581,47 @@ class NoUnevidencedClaimsTests(TestCase):
 
     def test_no_claims_on_any_homepage(self):
         for host in self.HOSTS:
-            html = self.client.get("/", HTTP_HOST=host).content.decode()
+            r = self.client.get("/", HTTP_HOST=host)
+            self.assertEqual(r.status_code, 200, host)
+            html = r.content.decode()
             for phrase in self.BANNED:
                 self.assertNotIn(phrase, html, f"{phrase!r} still on {host}")
 
     def test_no_claims_on_product_pages(self):
         for host in self.HOSTS:
             for slug in ("bpc-157", "tb-500", "ghk-cu"):
-                html = self.client.get(f"/product/{slug}/", HTTP_HOST=host).content.decode()
+                r = self.client.get(f"/product/{slug}/", HTTP_HOST=host)
+                self.assertEqual(r.status_code, 200, f"{host}/product/{slug}/")
+                html = r.content.decode()
                 for phrase in self.BANNED:
                     self.assertNotIn(phrase, html, f"{phrase!r} on {host}/product/{slug}/")
 
     def test_no_claims_in_policies_or_regions(self):
-        paths = ["/policy/shipping/", "/policy/terms/", "/research-peptides/alberta/"]
-        for p in paths:
-            html = self.client.get(p, HTTP_HOST="peptidesalberta.ca").content.decode()
+        """Assert the page exists BEFORE asserting what isn't on it.
+
+        The first version of this test requested /policy/shipping/, which does
+        not exist — the real path is /shipping/. A 404 body contains none of the
+        banned phrases, so the test passed without ever loading a policy page.
+        A content assertion against an unchecked status code is not a test.
+        """
+        paths = ["/shipping/", "/returns/", "/privacy/", "/terms/",
+                 "/research-peptides/alberta/"]
+        for path in paths:
+            r = self.client.get(path, HTTP_HOST="peptidesalberta.ca")
+            self.assertEqual(r.status_code, 200, f"{path} did not resolve")
+            html = r.content.decode()
+            self.assertGreater(len(html), 2000, f"{path} looks like an error page")
             for phrase in self.BANNED:
-                self.assertNotIn(phrase, html, f"{phrase!r} on {p}")
+                self.assertNotIn(phrase, html, f"{phrase!r} on {path}")
 
     def test_no_claims_in_machine_readable_feeds(self):
         """llms.txt and the COA endpoint are read by agents, not people — an
         unevidenced claim there is repeated verbatim by whatever consumes it."""
         for path in ("/llms.txt", "/llms-full.txt"):
-            body = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca").content.decode()
+            r = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca")
+            self.assertEqual(r.status_code, 200, path)
+            body = r.content.decode()
+            self.assertGreater(len(body), 500, f"{path} looks empty")
             for phrase in self.BANNED:
                 self.assertNotIn(phrase, body, f"{phrase!r} in {path}")
 

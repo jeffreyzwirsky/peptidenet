@@ -1,5 +1,5 @@
 {
- "note": "Shared research-compound catalogue for all SmashFat-family peptide sites. Prices in CAD per vial. 'was' is the pre-discount reference price; 'price' is the current sell price (30% network-wide reduction applied 2026-07-27). 'cost' is the PLACEHOLDER landed cost (35% of the pre-discount price) and must be replaced with the real per-vial supplier cost before margin figures mean anything. purity is the release threshold. Descriptions are research-framed. 'new' and stock ('in'|'low') are display flags. Products carrying `sup` are linked to a supplier catalogue code; their cost and price are maintained by `manage.py reprice` from the supplier price list and the live USD/CAD rate.",
+ "note": "Shared research-compound catalogue for all SmashFat-family peptide sites. Prices in CAD per vial. 'was' is the pre-discount reference price; 'price' is the current sell price (30% network-wide reduction applied 2026-07-27). 'cost' is the PLACEHOLDER landed cost (35% of the pre-discount price) and must be replaced with the real per-vial supplier cost before margin figures mean anything. purity is the release threshold. Descriptions are research-framed. 'new' and stock ('in'|'low') are display flags. Products carrying `sup` are linked to a supplier catalogue code; their cost and price are maintained by `manage.py reprice` from the supplier price list and the live USD/CAD rate. Products sharing a `family` are strengths of one compound: they render as a single catalogue card with a size selector, but each remains its own SKU with its own price, URL and supplier code.",
  "products": [
   {
    "n": "KLOW",
@@ -44,7 +44,11 @@
    "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
    "was": 84.0,
    "cost": 29.4,
-   "sup": "RT10"
+   "sup": "RT10",
+   "family": "retatrutide",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "MOTS-C",
@@ -59,7 +63,11 @@
    "d": "A mitochondrial-derived research compound encoded in the 12S rRNA gene with metabolic and cytoprotective properties.",
    "was": 60.0,
    "cost": 21.0,
-   "sup": "MS10"
+   "sup": "MS10",
+   "family": "mots-c",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "BPC-157",
@@ -74,7 +82,11 @@
    "d": "Body Protection Compound-157. A 15-amino-acid partial sequence of human gastric juice protein.",
    "was": 60.0,
    "cost": 21.0,
-   "sup": "BC10"
+   "sup": "BC10",
+   "family": "bpc-157",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "GHK-Cu",
@@ -82,15 +94,18 @@
    "price": 35.0,
    "pur": "\u226599%",
    "sizes": [
-    "50mg",
-    "100mg"
+    "50mg"
    ],
    "stock": "in",
    "new": false,
    "d": "Copper research compound tripeptide-1. A naturally occurring plasma tripeptide with copper-binding properties.",
    "was": 50.0,
    "cost": 17.5,
-   "sup": "CU50"
+   "sup": "CU50",
+   "family": "ghk-cu",
+   "size_label": "50mg",
+   "family_order": 5000,
+   "is_family_default": true
   },
   {
    "n": "TB-500",
@@ -105,7 +120,11 @@
    "d": "Thymosin Beta-4. A 43-amino-acid research compound involved in actin sequestration and tissue repair.",
    "was": 65.0,
    "cost": 22.75,
-   "sup": "BT10"
+   "sup": "BT10",
+   "family": "tb-500",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "Ipamorelin",
@@ -120,7 +139,11 @@
    "d": "A selective growth-hormone secretagogue and ghrelin receptor agonist.",
    "was": 40.0,
    "cost": 14.0,
-   "sup": "IP10"
+   "sup": "IP10",
+   "family": "ipamorelin",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "Selank",
@@ -135,7 +158,11 @@
    "d": "A synthetic analogue of the endogenous tetrapeptide tuftsin with anxiolytic properties.",
    "was": 50.0,
    "cost": 17.5,
-   "sup": "SK10"
+   "sup": "SK10",
+   "family": "selank",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "Semax",
@@ -150,7 +177,11 @@
    "d": "An ACTH(4-7) analogue with nootropic and neuroprotective properties.",
    "was": 53.0,
    "cost": 18.55,
-   "sup": "XA10"
+   "sup": "XA10",
+   "family": "semax",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "Tesamorelin",
@@ -165,7 +196,11 @@
    "d": "A stabilized GHRH analogue with potent growth-hormone-releasing activity for metabolic and body-composition research.",
    "was": 90.0,
    "cost": 31.5,
-   "sup": "TSM10"
+   "sup": "TSM10",
+   "family": "tesamorelin",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "SS-31",
@@ -180,7 +215,11 @@
    "d": "A mitochondria-targeted tetrapeptide with potent antioxidant and cardioprotective properties.",
    "was": 70.0,
    "cost": 24.5,
-   "sup": "2S10"
+   "sup": "2S10",
+   "family": "ss-31",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "NAD+",
@@ -195,7 +234,11 @@
    "d": "Nicotinamide adenine dinucleotide \u2014 a critical coenzyme in cellular energy metabolism and DNA repair.",
    "was": 60.0,
    "cost": 21.0,
-   "sup": "NJ500"
+   "sup": "NJ500",
+   "family": "nad",
+   "size_label": "500mg",
+   "family_order": 50000,
+   "is_family_default": true
   },
   {
    "n": "BPC-157 + TB-500",
@@ -225,7 +268,11 @@
    "d": "A synthetic tetrapeptide analogue of epithalamin studied for telomere elongation, anti-aging, and circadian-rhythm regulation.",
    "was": 55.0,
    "cost": 19.25,
-   "sup": "ET10"
+   "sup": "ET10",
+   "family": "epithalon",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "KPV",
@@ -286,7 +333,11 @@
    "area": "Studied in laboratory models for its interaction with the GHRH receptor and its short plasma half-life relative to DAC-conjugated analogues.",
    "cost": 18.63,
    "sup": "CND10",
-   "margin": 75
+   "margin": 75,
+   "family": "cjc-1295-no-dac",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "CJC-1295 with DAC",
@@ -318,7 +369,11 @@
    "area": "Used as a reference peptide in GHRH receptor and pituitary-signalling research.",
    "cost": 17.67,
    "sup": "SMO10",
-   "margin": 75
+   "margin": 75,
+   "family": "sermorelin",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "Hexarelin",
@@ -334,7 +389,11 @@
    "area": "Studied for its interaction with the GHS-R1a receptor and CD36 in laboratory models.",
    "cost": 20.28,
    "sup": "HX10",
-   "margin": 75
+   "margin": 75,
+   "family": "hexarelin",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "GHRP-2",
@@ -350,7 +409,11 @@
    "area": "Investigated in receptor-binding studies of the ghrelin/GHS-R axis.",
    "cost": 6.71,
    "sup": "G210",
-   "margin": 75
+   "margin": 75,
+   "family": "ghrp-2",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "GHRP-6",
@@ -366,7 +429,11 @@
    "area": "A common reference compound in growth-hormone secretagogue receptor research.",
    "cost": 6.71,
    "sup": "G610",
-   "margin": 75
+   "margin": 75,
+   "family": "ghrp-6",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "IGF-1 LR3",
@@ -382,7 +449,11 @@
    "area": "Used in cell-culture work where reduced IGFBP binding is the property under study.",
    "cost": 24.11,
    "sup": "IG1",
-   "margin": 75
+   "margin": 75,
+   "family": "igf-1-lr3",
+   "size_label": "1mg",
+   "family_order": 100,
+   "is_family_default": true
   },
   {
    "n": "Thymosin Alpha-1",
@@ -398,7 +469,11 @@
    "area": "Studied in immunological research for its interaction with toll-like receptor signalling.",
    "cost": 20.96,
    "sup": "TA10",
-   "margin": 75
+   "margin": 75,
+   "family": "thymosin-alpha-1",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "Thymalin",
@@ -446,7 +521,11 @@
    "area": "A reference ligand in research on the kisspeptin/GPR54 signalling axis.",
    "cost": 12.19,
    "sup": "KS10",
-   "margin": 75
+   "margin": 75,
+   "family": "kisspeptin-10",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "DSIP",
@@ -462,7 +541,11 @@
    "area": "Studied in neuropeptide research for its distribution and receptor interactions.",
    "cost": 11.23,
    "sup": "DS10",
-   "margin": 75
+   "margin": 75,
+   "family": "dsip",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "Oxytocin Acetate",
@@ -478,7 +561,11 @@
    "area": "A standard reference peptide in oxytocin receptor binding and signalling assays.",
    "cost": 12.19,
    "sup": "OT10",
-   "margin": 75
+   "margin": 75,
+   "family": "oxytocin-acetate",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "AOD9604",
@@ -494,7 +581,11 @@
    "area": "Investigated in laboratory models of lipid metabolism as a growth-hormone fragment analogue.",
    "cost": 24.11,
    "sup": "10AD",
-   "margin": 75
+   "margin": 75,
+   "family": "aod9604",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "5-amino-1MQ",
@@ -510,7 +601,11 @@
    "area": "Used in research on nicotinamide N-methyltransferase and cellular NAD+ handling.",
    "cost": 14.52,
    "sup": "50AM",
-   "margin": 75
+   "margin": 75,
+   "family": "5-amino-1mq",
+   "size_label": "50mg",
+   "family_order": 5000,
+   "is_family_default": true
   },
   {
    "n": "AICAR",
@@ -574,7 +669,11 @@
    "area": "Investigated in laboratory studies of short-peptide interaction with nucleic acids.",
    "cost": 11.92,
    "sup": "PI20",
-   "margin": 75
+   "margin": 75,
+   "family": "pinealon",
+   "size_label": "20mg",
+   "family_order": 2000,
+   "is_family_default": true
   },
   {
    "n": "Dihexa",
@@ -638,7 +737,11 @@
    "area": "A standard ligand in VPAC1/VPAC2 receptor research.",
    "cost": 20.96,
    "sup": "VIP10",
-   "margin": 75
+   "margin": 75,
+   "family": "vip",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": true
   },
   {
    "n": "Ara-290",
@@ -686,7 +789,11 @@
    "area": "A copper-peptide reference compound in fibroblast and matrix research.",
    "cost": 6.44,
    "sup": "ACU50",
-   "margin": 75
+   "margin": 75,
+   "family": "ahk-cu",
+   "size_label": "50mg",
+   "family_order": 5000,
+   "is_family_default": true
   },
   {
    "n": "MGF",
@@ -750,7 +857,830 @@
    "area": "Studied in laboratory models of vasculature-targeted delivery.",
    "cost": 22.61,
    "sup": "AP5",
-   "margin": 75
+   "margin": 75,
+   "family": "adipotide",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": true
+  },
+  {
+   "n": "Retatrutide",
+   "slug": "retatrutide-5mg",
+   "cat": "Metabolic",
+   "price": 26.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
+   "area": "",
+   "cost": 6.63,
+   "sup": "RT5",
+   "margin": 75,
+   "family": "retatrutide",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Retatrutide",
+   "slug": "retatrutide-15mg",
+   "cat": "Metabolic",
+   "price": 57.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "15mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
+   "area": "",
+   "cost": 14.25,
+   "sup": "RT15",
+   "margin": 75,
+   "family": "retatrutide",
+   "size_label": "15mg",
+   "family_order": 1500,
+   "is_family_default": false
+  },
+  {
+   "n": "Retatrutide",
+   "slug": "retatrutide-20mg",
+   "cat": "Metabolic",
+   "price": 69.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "20mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
+   "area": "",
+   "cost": 17.21,
+   "sup": "RT20",
+   "margin": 75,
+   "family": "retatrutide",
+   "size_label": "20mg",
+   "family_order": 2000,
+   "is_family_default": false
+  },
+  {
+   "n": "Retatrutide",
+   "slug": "retatrutide-30mg",
+   "cat": "Metabolic",
+   "price": 93.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "30mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
+   "area": "",
+   "cost": 23.28,
+   "sup": "RT30",
+   "margin": 75,
+   "family": "retatrutide",
+   "size_label": "30mg",
+   "family_order": 3000,
+   "is_family_default": false
+  },
+  {
+   "n": "Retatrutide",
+   "slug": "retatrutide-40mg",
+   "cat": "Metabolic",
+   "price": 119.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "40mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
+   "area": "",
+   "cost": 29.91,
+   "sup": "RT40",
+   "margin": 75,
+   "family": "retatrutide",
+   "size_label": "40mg",
+   "family_order": 4000,
+   "is_family_default": false
+  },
+  {
+   "n": "Retatrutide",
+   "slug": "retatrutide-50mg",
+   "cat": "Metabolic",
+   "price": 132.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "50mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
+   "area": "",
+   "cost": 33.15,
+   "sup": "RT50",
+   "margin": 75,
+   "family": "retatrutide",
+   "size_label": "50mg",
+   "family_order": 5000,
+   "is_family_default": false
+  },
+  {
+   "n": "Retatrutide",
+   "slug": "retatrutide-60mg",
+   "cat": "Metabolic",
+   "price": 159.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "60mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
+   "area": "",
+   "cost": 39.78,
+   "sup": "RT60",
+   "margin": 75,
+   "family": "retatrutide",
+   "size_label": "60mg",
+   "family_order": 6000,
+   "is_family_default": false
+  },
+  {
+   "n": "MOTS-C",
+   "slug": "mots-c-40mg",
+   "cat": "Mitochondrial",
+   "price": 126.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "40mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A mitochondrial-derived research compound encoded in the 12S rRNA gene with metabolic and cytoprotective properties.",
+   "area": "",
+   "cost": 31.6,
+   "sup": "MS40",
+   "margin": 75,
+   "family": "mots-c",
+   "size_label": "40mg",
+   "family_order": 4000,
+   "is_family_default": false
+  },
+  {
+   "n": "BPC-157",
+   "slug": "bpc-157-5mg",
+   "cat": "Repair & Recovery",
+   "price": 22.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Body Protection Compound-157. A 15-amino-acid partial sequence of human gastric juice protein.",
+   "area": "",
+   "cost": 5.64,
+   "sup": "BC5",
+   "margin": 75,
+   "family": "bpc-157",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "GHK-Cu",
+   "slug": "ghk-cu-100mg",
+   "cat": "Growth Factors",
+   "price": 22.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "100mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Copper research compound tripeptide-1. A naturally occurring plasma tripeptide with copper-binding properties.",
+   "area": "",
+   "cost": 5.64,
+   "sup": "CU100",
+   "margin": 75,
+   "family": "ghk-cu",
+   "size_label": "100mg",
+   "family_order": 10000,
+   "is_family_default": false
+  },
+  {
+   "n": "TB-500",
+   "slug": "tb-500-5mg",
+   "cat": "Repair & Recovery",
+   "price": 40.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Thymosin Beta-4. A 43-amino-acid research compound involved in actin sequestration and tissue repair.",
+   "area": "",
+   "cost": 10.02,
+   "sup": "BT5",
+   "margin": 75,
+   "family": "tb-500",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Ipamorelin",
+   "slug": "ipamorelin-5mg",
+   "cat": "Growth Factors",
+   "price": 22.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A selective growth-hormone secretagogue and ghrelin receptor agonist.",
+   "area": "",
+   "cost": 5.64,
+   "sup": "IP5",
+   "margin": 75,
+   "family": "ipamorelin",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Selank",
+   "slug": "selank-5mg",
+   "cat": "Neuropeptides",
+   "price": 26.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A synthetic analogue of the endogenous tetrapeptide tuftsin with anxiolytic properties.",
+   "area": "",
+   "cost": 6.63,
+   "sup": "SK5",
+   "margin": 75,
+   "family": "selank",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Semax",
+   "slug": "semax-5mg",
+   "cat": "Neuropeptides",
+   "price": 30.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "An ACTH(4-7) analogue with nootropic and neuroprotective properties.",
+   "area": "",
+   "cost": 7.62,
+   "sup": "XA5",
+   "margin": 75,
+   "family": "semax",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Tesamorelin",
+   "slug": "tesamorelin-5mg",
+   "cat": "Growth Factors",
+   "price": 53.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A stabilized GHRH analogue with potent growth-hormone-releasing activity for metabolic and body-composition research.",
+   "area": "",
+   "cost": 13.26,
+   "sup": "TSM5",
+   "margin": 75,
+   "family": "tesamorelin",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Tesamorelin",
+   "slug": "tesamorelin-20mg",
+   "cat": "Growth Factors",
+   "price": 185.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "20mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A stabilized GHRH analogue with potent growth-hormone-releasing activity for metabolic and body-composition research.",
+   "area": "",
+   "cost": 46.42,
+   "sup": "TSM20",
+   "margin": 75,
+   "family": "tesamorelin",
+   "size_label": "20mg",
+   "family_order": 2000,
+   "is_family_default": false
+  },
+  {
+   "n": "SS-31",
+   "slug": "ss-31-50mg",
+   "cat": "Mitochondrial",
+   "price": 225.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "50mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A mitochondria-targeted tetrapeptide with potent antioxidant and cardioprotective properties.",
+   "area": "",
+   "cost": 56.43,
+   "sup": "2S50",
+   "margin": 75,
+   "family": "ss-31",
+   "size_label": "50mg",
+   "family_order": 5000,
+   "is_family_default": false
+  },
+  {
+   "n": "NAD+",
+   "slug": "nad-100mg",
+   "cat": "Mitochondrial",
+   "price": 18.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "100mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Nicotinamide adenine dinucleotide \u2014 a critical coenzyme in cellular energy metabolism and DNA repair.",
+   "area": "",
+   "cost": 4.66,
+   "sup": "NJ100",
+   "margin": 75,
+   "family": "nad",
+   "size_label": "100mg",
+   "family_order": 10000,
+   "is_family_default": false
+  },
+  {
+   "n": "NAD+",
+   "slug": "nad-1000mg",
+   "cat": "Mitochondrial",
+   "price": 73.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "1000mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Nicotinamide adenine dinucleotide \u2014 a critical coenzyme in cellular energy metabolism and DNA repair.",
+   "area": "",
+   "cost": 18.2,
+   "sup": "NJ1000",
+   "margin": 75,
+   "family": "nad",
+   "size_label": "1000mg",
+   "family_order": 100000,
+   "is_family_default": false
+  },
+  {
+   "n": "Epithalon",
+   "slug": "epithalon-50mg",
+   "cat": "Repair & Recovery",
+   "price": 74.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "50mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A synthetic tetrapeptide analogue of epithalamin studied for telomere elongation, anti-aging, and circadian-rhythm regulation.",
+   "area": "",
+   "cost": 18.62,
+   "sup": "ET50",
+   "margin": 75,
+   "family": "epithalon",
+   "size_label": "50mg",
+   "family_order": 5000,
+   "is_family_default": false
+  },
+  {
+   "n": "CJC-1295 (no DAC)",
+   "slug": "cjc-1295-no-dac-5mg",
+   "cat": "Growth Factors",
+   "price": 48.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A modified growth-hormone-releasing hormone analogue, also called Mod GRF (1-29).",
+   "area": "Studied in laboratory models for its interaction with the GHRH receptor and its short plasma half-life relative to DAC-conjugated analogues.",
+   "cost": 11.99,
+   "sup": "CND5",
+   "margin": 75,
+   "family": "cjc-1295-no-dac",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Sermorelin",
+   "slug": "sermorelin-5mg",
+   "cat": "Growth Factors",
+   "price": 40.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A 29-amino-acid fragment corresponding to the active region of growth-hormone-releasing hormone.",
+   "area": "Used as a reference peptide in GHRH receptor and pituitary-signalling research.",
+   "cost": 10.02,
+   "sup": "SMO5",
+   "margin": 75,
+   "family": "sermorelin",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Hexarelin",
+   "slug": "hexarelin-2mg",
+   "cat": "Growth Factors",
+   "price": 29.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "2mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A synthetic hexapeptide of the growth-hormone secretagogue class.",
+   "area": "Studied for its interaction with the GHS-R1a receptor and CD36 in laboratory models.",
+   "cost": 7.34,
+   "sup": "HX2",
+   "margin": 75,
+   "family": "hexarelin",
+   "size_label": "2mg",
+   "family_order": 200,
+   "is_family_default": false
+  },
+  {
+   "n": "Hexarelin",
+   "slug": "hexarelin-5mg",
+   "cat": "Growth Factors",
+   "price": 46.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A synthetic hexapeptide of the growth-hormone secretagogue class.",
+   "area": "Studied for its interaction with the GHS-R1a receptor and CD36 in laboratory models.",
+   "cost": 11.57,
+   "sup": "HX5",
+   "margin": 75,
+   "family": "hexarelin",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "GHRP-2",
+   "slug": "ghrp-2-5mg",
+   "cat": "Growth Factors",
+   "price": 17.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Growth hormone releasing peptide-2, a synthetic secretagogue hexapeptide.",
+   "area": "Investigated in receptor-binding studies of the ghrelin/GHS-R axis.",
+   "cost": 4.37,
+   "sup": "G25",
+   "margin": 75,
+   "family": "ghrp-2",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "GHRP-2",
+   "slug": "ghrp-2-15mg",
+   "cat": "Growth Factors",
+   "price": 38.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "15mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Growth hormone releasing peptide-2, a synthetic secretagogue hexapeptide.",
+   "area": "Investigated in receptor-binding studies of the ghrelin/GHS-R axis.",
+   "cost": 9.59,
+   "sup": "G215",
+   "margin": 75,
+   "family": "ghrp-2",
+   "size_label": "15mg",
+   "family_order": 1500,
+   "is_family_default": false
+  },
+  {
+   "n": "GHRP-6",
+   "slug": "ghrp-6-5mg",
+   "cat": "Growth Factors",
+   "price": 17.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Growth hormone releasing peptide-6, one of the earliest characterised GHS peptides.",
+   "area": "A common reference compound in growth-hormone secretagogue receptor research.",
+   "cost": 4.37,
+   "sup": "G65",
+   "margin": 75,
+   "family": "ghrp-6",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "IGF-1 LR3",
+   "slug": "igf-1-lr3-0-1mg",
+   "cat": "Growth Factors",
+   "price": 23.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "0.1mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Long R3 insulin-like growth factor-1, an analogue with reduced binding-protein affinity.",
+   "area": "Used in cell-culture work where reduced IGFBP binding is the property under study.",
+   "cost": 5.93,
+   "sup": "IG01",
+   "margin": 75,
+   "family": "igf-1-lr3",
+   "size_label": "0.1mg",
+   "family_order": 10,
+   "is_family_default": false
+  },
+  {
+   "n": "Thymosin Alpha-1",
+   "slug": "thymosin-alpha-1-5mg",
+   "cat": "Repair & Recovery",
+   "price": 53.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A 28-amino-acid peptide originally isolated from thymic tissue.",
+   "area": "Studied in immunological research for its interaction with toll-like receptor signalling.",
+   "cost": 13.26,
+   "sup": "TA5",
+   "margin": 75,
+   "family": "thymosin-alpha-1",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Kisspeptin-10",
+   "slug": "kisspeptin-10-5mg",
+   "cat": "Neuropeptides",
+   "price": 29.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "The 10-amino-acid C-terminal fragment of kisspeptin, a KISS1R ligand.",
+   "area": "A reference ligand in research on the kisspeptin/GPR54 signalling axis.",
+   "cost": 7.34,
+   "sup": "KS5",
+   "margin": 75,
+   "family": "kisspeptin-10",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "DSIP",
+   "slug": "dsip-5mg",
+   "cat": "Neuropeptides",
+   "price": 21.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Delta sleep-inducing peptide, a nonapeptide first characterised in the 1970s.",
+   "area": "Studied in neuropeptide research for its distribution and receptor interactions.",
+   "cost": 5.36,
+   "sup": "DS5",
+   "margin": 75,
+   "family": "dsip",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Oxytocin Acetate",
+   "slug": "oxytocin-acetate-2mg",
+   "cat": "Neuropeptides",
+   "price": 16.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "2mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A nine-amino-acid cyclic neuropeptide, supplied as the acetate salt.",
+   "area": "A standard reference peptide in oxytocin receptor binding and signalling assays.",
+   "cost": 3.95,
+   "sup": "OT2",
+   "margin": 75,
+   "family": "oxytocin-acetate",
+   "size_label": "2mg",
+   "family_order": 200,
+   "is_family_default": false
+  },
+  {
+   "n": "Oxytocin Acetate",
+   "slug": "oxytocin-acetate-5mg",
+   "cat": "Neuropeptides",
+   "price": 26.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A nine-amino-acid cyclic neuropeptide, supplied as the acetate salt.",
+   "area": "A standard reference peptide in oxytocin receptor binding and signalling assays.",
+   "cost": 6.63,
+   "sup": "OT5",
+   "margin": 75,
+   "family": "oxytocin-acetate",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "AOD9604",
+   "slug": "aod9604-5mg",
+   "cat": "Metabolic",
+   "price": 53.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A modified fragment corresponding to residues 177-191 of human growth hormone.",
+   "area": "Investigated in laboratory models of lipid metabolism as a growth-hormone fragment analogue.",
+   "cost": 13.26,
+   "sup": "5AD",
+   "margin": 75,
+   "family": "aod9604",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "5-amino-1MQ",
+   "slug": "5-amino-1mq-5mg",
+   "cat": "Metabolic",
+   "price": 26.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A small-molecule NNMT inhibitor, supplied as the iodide salt.",
+   "area": "Used in research on nicotinamide N-methyltransferase and cellular NAD+ handling.",
+   "cost": 6.63,
+   "sup": "5AM",
+   "margin": 75,
+   "family": "5-amino-1mq",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "Pinealon",
+   "slug": "pinealon-10mg",
+   "cat": "Neuropeptides",
+   "price": 33.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A short synthetic tripeptide of the Khavinson peptide series.",
+   "area": "Investigated in laboratory studies of short-peptide interaction with nucleic acids.",
+   "cost": 8.32,
+   "sup": "PI10",
+   "margin": 75,
+   "family": "pinealon",
+   "size_label": "10mg",
+   "family_order": 1000,
+   "is_family_default": false
+  },
+  {
+   "n": "VIP",
+   "slug": "vip-5mg",
+   "cat": "Neuropeptides",
+   "price": 44.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Vasoactive intestinal peptide, a 28-amino-acid signalling peptide.",
+   "area": "A standard ligand in VPAC1/VPAC2 receptor research.",
+   "cost": 11.0,
+   "sup": "VIP5",
+   "margin": 75,
+   "family": "vip",
+   "size_label": "5mg",
+   "family_order": 500,
+   "is_family_default": false
+  },
+  {
+   "n": "AHK-Cu",
+   "slug": "ahk-cu-100mg",
+   "cat": "Repair & Recovery",
+   "price": 50.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "100mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "The tripeptide Ala-His-Lys as its copper(II) complex.",
+   "area": "A copper-peptide reference compound in fibroblast and matrix research.",
+   "cost": 12.56,
+   "sup": "ACU100",
+   "margin": 75,
+   "family": "ahk-cu",
+   "size_label": "100mg",
+   "family_order": 10000,
+   "is_family_default": false
+  },
+  {
+   "n": "Adipotide",
+   "slug": "adipotide-2mg",
+   "cat": "Metabolic",
+   "price": 49.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "2mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A peptidomimetic combining a targeting motif with a pro-apoptotic sequence.",
+   "area": "Studied in laboratory models of vasculature-targeted delivery.",
+   "cost": 12.27,
+   "sup": "AP2",
+   "margin": 75,
+   "family": "adipotide",
+   "size_label": "2mg",
+   "family_order": 200,
+   "is_family_default": false
   }
  ]
 }

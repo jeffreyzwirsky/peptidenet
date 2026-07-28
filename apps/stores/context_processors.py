@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Q
 
 from apps.catalog.models import Category, Product, Review
 
@@ -42,7 +43,16 @@ def storefront(request):
         "site": site,
         "theme": theme,
         "categories": Category.objects.all(),
-        "products": Product.objects.filter(is_active=True).select_related("category"),
+        # One card per compound, not one per strength.
+        #
+        # A compound sold in 5mg and 10mg is one product to a customer and two
+        # SKUs to us. Listing both filled the grid with near-identical cards
+        # differing only by a number in the size chip — the catalogue read as
+        # padded rather than deep. Standalone products have no family and so
+        # match the empty-string branch.
+        "products": (Product.objects.filter(is_active=True)
+                     .filter(Q(family="") | Q(is_family_default=True))
+                     .select_related("category")),
         "cart_count": cart.count(),
         "cart_total": cart.total(),
         "cart_items": cart.items(),

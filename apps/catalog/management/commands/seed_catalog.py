@@ -90,27 +90,38 @@ class Command(BaseCommand):
             }
             if p.get("area"):
                 defaults["research_area"] = p["area"]
+            # Size-family grouping. A sibling strength carries an explicit
+            # slug so the original product keeps the URL that is already
+            # indexed and linked — appending a strength to an existing slug
+            # would silently 404 every link to it.
+            defaults["family"] = p.get("family", "")
+            defaults["size_label"] = p.get("size_label", "")
+            defaults["family_order"] = p.get("family_order", 0)
+            defaults["is_family_default"] = p.get("is_family_default", False)
+
             # Point at the generated product renders when they exist on disk, so
             # a fresh deploy gets real photography without a second command.
-            slug = slugify(p["n"])
-            img = Path(settings.BASE_DIR) / "static" / "products" / f"{slug}.png"
+            # Siblings share the family's artwork — same compound, same vial.
+            slug = p.get("slug") or slugify(p["n"])
+            art = p.get("family") or slug
+            img = Path(settings.BASE_DIR) / "static" / "products" / f"{art}.png"
             if img.exists():
-                defaults["image"] = f"/static/products/{slug}.png"
-                label = Path(settings.BASE_DIR) / "static" / "products" / f"{slug}-label.png"
+                defaults["image"] = f"/static/products/{art}.png"
+                label = Path(settings.BASE_DIR) / "static" / "products" / f"{art}-label.png"
                 if label.exists():
                     defaults["gallery"] = [{
-                        "src": f"/static/products/{slug}-label.png",
+                        "src": f"/static/products/{art}-label.png",
                         "alt": f"{p['n']} vial label detail — research use only",
                         "label": "Label detail",
                     }]
 
-            existing = Product.objects.filter(slug=slugify(p["n"])).first()
+            existing = Product.objects.filter(slug=slug).first()
             if existing is None:
                 # only set qty + cost on first seed; don't clobber later edits
                 defaults["stock_qty"] = seed_qty
                 defaults["unit_cost"] = seed_cost
             _, was_created = Product.objects.update_or_create(
-                slug=slugify(p["n"]), defaults=defaults,
+                slug=slug, defaults=defaults,
             )
             created += was_created
             updated += not was_created

@@ -1,4 +1,5 @@
 from django.core.management import call_command
+from django.db import models
 from django.test import TestCase
 
 from apps.catalog.models import Product
@@ -34,7 +35,9 @@ class StorefrontTests(TestCase):
         doesn't fail this test for the wrong reason — what's being asserted is
         that no site shows a different set, not that there are exactly N.
         """
-        expected = Product.objects.filter(is_active=True).count()
+        # Cards, not SKUs — sibling strengths collapse into one listing.
+        expected = Product.objects.filter(is_active=True).filter(
+            models.Q(family="") | models.Q(is_family_default=True)).count()
         self.assertGreater(expected, 0)
         for host in ("smashfatbiolabs.ca", "smash-fat.com"):
             r = self.client.get("/", HTTP_HOST=host)
@@ -457,3 +460,88 @@ class SupplierCommandTests(TestCase):
         self.assertEqual(Supplier.objects.count(), 1)
         s.refresh_from_db()
         self.assertEqual(s.email, "new@x.com")
+
+
+class SizeFamilyTests(TestCase):
+    """One compound, several strengths, one card.
+
+    A size stays its own Product — the cart, order line, purchase order and
+    repricer all key on Product, and all four handle money. Grouping is a
+    presentation concern layered on top, and these tests pin the seam.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_existing_urls_did_not_move(self):
+        """The original strength keeps the slug that is already indexed.
+
+        Renaming it to bpc-157-10mg would 404 every existing link and lose the
+        page's ranking — the one thing a catalogue restructure must not do.
+        """
+        for slug in ("bpc-157", "tb-500", "ghk-cu", "mots-c", "retatrutide",
+                     "tesamorelin", "epithalon", "nad", "selank", "semax"):
+            r = self.client.get(f"/product/{slug}/", HTTP_HOST="smashfatbiolabs.ca")
+            self.assertEqual(r.status_code, 200, slug)
+
+    def test_sibling_strengths_are_their_own_pages(self):
+        r = self.client.get("/product/bpc-157-5mg/", HTTP_HOST="smashfatbiolabs.ca")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "BPC-157")
+
+    def test_grid_shows_one_card_per_compound(self):
+        """87 SKUs, 48 cards. The grid should read as deep, not padded."""
+        skus = Product.objects.filter(is_active=True).count()
+        cards = Product.objects.filter(is_active=True).filter(
+            models.Q(family="") | models.Q(is_family_default=True)).count()
+        self.assertGreater(skus, cards)
+        html = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertEqual(html.count('class="pcard"'), cards)
+
+    def test_every_family_has_exactly_one_default(self):
+        """Two defaults would double-list a compound; none would hide it."""
+        from django.db.models import Count
+        fams = (Product.objects.filter(is_active=True).exclude(family="")
+                .values("family")
+                .annotate(defaults=Count("id", filter=models.Q(is_family_default=True))))
+        self.assertTrue(fams)
+        for f in fams:
+            self.assertEqual(f["defaults"], 1, f["family"])
+
+    def test_each_strength_carries_its_own_price_and_supplier_code(self):
+        small = Product.objects.get(slug="bpc-157-5mg")
+        big = Product.objects.get(slug="bpc-157")
+        self.assertNotEqual(small.price, big.price)
+        self.assertNotEqual(small.supplier_cat_no, big.supplier_cat_no)
+        self.assertLess(small.price, big.price)
+
+    def test_size_selector_lists_every_strength_as_a_real_link(self):
+        """No-JS and crawlers both need somewhere real to go."""
+        html = self.client.get("/product/bpc-157/",
+                               HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertIn('data-size-picker', html)
+        self.assertIn('href="/product/bpc-157-5mg/"', html)
+        self.assertIn('aria-current="true"', html)
+
+    def test_multi_size_card_does_not_add_to_cart(self):
+        """Adding from a card showing three sizes would silently pick one."""
+        html = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertIn("Choose size", html)
+
+    def test_a_standalone_product_is_unaffected(self):
+        klow = Product.objects.get(slug="klow")
+        self.assertEqual(klow.family, "")
+        self.assertFalse(klow.has_sizes)
+        self.assertEqual(klow.siblings, [])
+
+    def test_buying_a_sibling_strength_charges_that_strength(self):
+        """The seam that matters: the cart must price what was selected."""
+        small = Product.objects.get(slug="bpc-157-5mg")
+        self.client.get("/", HTTP_HOST="smashfat.ca")
+        r = self.client.post("/cart/add/", {"product_id": small.id},
+                             content_type="application/json", HTTP_HOST="smashfat.ca")
+        item = r.json()["items"][0]
+        self.assertEqual(item["id"], small.id)
+        self.assertEqual(item["pack_price"], str(small.pack_price))

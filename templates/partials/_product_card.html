@@ -35,6 +35,9 @@
     {% if product.sells_in_packs %}
     <p class="pcard-unit">${{ product.price }} per vial · {{ product.vials_per_pack }}-vial minimum</p>
     {% endif %}
+    {% if product.has_sizes %}
+    <p class="pcard-from">{{ product.siblings|length }} sizes, from ${{ product.price_from }} per pack</p>
+    {% endif %}
     <h3 class="pcard-name"><a href="/product/{{ product.slug }}/">{{ product.name }}</a></h3>
     {% comment %} Ratings already existed on the model and were never rendered on the card —
        the catalogue grid had zero social proof. {% endcomment %}
@@ -47,14 +50,31 @@
     <p class="pcard-desc">{{ product.description }}</p>
     <div class="pcard-chips">
       <span class="chip pur">{{ product.purity }}</span>
-      {% for s in product.sizes %}<span class="chip">{{ s }}</span>{% endfor %}
+      {% if not product.has_sizes %}
+        {% for s in product.sizes %}<span class="chip">{{ s }}</span>{% endfor %}
+      {% endif %}
     </div>
+    {% comment %} Available strengths, shown on the card so the choice is visible before
+       the click. Read-only chips — picking one happens on the product page,
+       where the price for that strength is shown alongside it. {% endcomment %}
+    {% if product.has_sizes %}
+    <div class="pcard-sizes" aria-label="Available sizes">
+      {% for s in product.siblings %}<span class="pcard-size">{{ s.size_display }}</span>{% endfor %}
+    </div>
+    {% endif %}
     {% if product.stock_state == "low" and product.track_inventory and product.stock_qty > 0 %}
       <p class="stock-count">Only {{ product.stock_qty }} left</p>
     {% endif %}
     <div class="pcard-actions">
       {% if product.stock_state == "out" %}
         <button class="btn btn-ghost" disabled>Sold out</button>
+      {% elif product.has_sizes %}
+        {% comment %} A compound with several strengths gets a link, not an add button.
+           "Add to cart" on a card showing three sizes has to silently pick
+           one, and a customer who wanted the 50mg discovering they bought
+           10mg only after paying is exactly the error worth designing out.
+        {% endcomment %}
+        <a class="btn btn-primary" href="/product/{{ product.slug }}/">Choose size →</a>
       {% else %}
         <button class="btn btn-primary btn-add" data-add="{{ product.id }}" data-name="{{ product.name }}"
                 data-pack="{{ product.vials_per_pack }}">

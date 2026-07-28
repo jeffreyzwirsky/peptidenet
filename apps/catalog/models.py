@@ -65,6 +65,35 @@ class Product(models.Model):
         max_digits=8, decimal_places=2, default=0,
         help_text="Your landed cost per vial (CAD) — used for margin, COGS and inventory value.",
     )
+    # --- size families -------------------------------------------------------
+    # One compound, several strengths, one listing.
+    #
+    # A size stays a Product rather than becoming a variant row, deliberately.
+    # Product is already the unit the cart, the order line, the purchase order
+    # and the repricer all key on, and every one of those paths handles money.
+    # Turning size into a variant would mean rewriting all four; grouping them
+    # instead is a presentation change that leaves the money paths untouched.
+    #
+    # It also keeps a crawlable URL per strength — each has its own price and
+    # its own Product schema, which is what a search engine needs to show the
+    # right figure.
+    family = models.SlugField(
+        max_length=140, blank=True, db_index=True,
+        help_text="Groups sibling strengths into one listing, e.g. 'bpc-157'. "
+                  "Blank means this product stands alone.",
+    )
+    size_label = models.CharField(
+        max_length=20, blank=True,
+        help_text="The strength this row represents, e.g. '10mg'. Shown on the "
+                  "size selector.",
+    )
+    family_order = models.PositiveIntegerField(
+        default=0, help_text="Order within the size selector, smallest first.")
+    is_family_default = models.BooleanField(
+        default=False,
+        help_text="The strength shown on the catalogue card and opened by default.",
+    )
+
     # --- cost-plus pricing ---------------------------------------------------
     # `unit_cost` above stays a stored field, not a derived one, because order
     # lines snapshot it at checkout and must not move afterwards. `reprice`
@@ -242,6 +271,37 @@ class Product(models.Model):
         if not self.is_discounted:
             return 0
         return int(round(self.savings / self.list_price * 100))
+
+    # --- size family ---------------------------------------------------------
+    @property
+    def siblings(self):
+        """Every active strength of this compound, smallest first.
+
+        Returns an empty list for a standalone product so callers can treat
+        "no siblings" and "one size" identically.
+        """
+        if not self.family:
+            return []
+        return list(
+            Product.objects.filter(family=self.family, is_active=True)
+            .order_by("family_order", "price")
+        )
+
+    @property
+    def has_sizes(self):
+        return len(self.siblings) > 1
+
+    @property
+    def size_display(self):
+        """What to call this strength. Falls back to the first `sizes` entry so
+        products predating the family fields still render sensibly."""
+        return self.size_label or (self.sizes[0] if self.sizes else "")
+
+    @property
+    def price_from(self):
+        """Lowest pack price across the family — the 'from' figure on a card."""
+        sibs = self.siblings
+        return min((s.pack_price for s in sibs), default=self.pack_price)
 
     # --- cost-plus derivation ------------------------------------------------
     @property

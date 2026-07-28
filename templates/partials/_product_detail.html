@@ -47,19 +47,51 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
 
         <div class="pdp-pricerow">
           <div class="pdp-price">
-            ${{ product.pack_price }} <span>{{ site.currency|default:"CAD" }} / {{ product.pack_label }}</span>
-            {% if product.is_discounted %}<s class="price-was">${{ product.pack_list_price }}</s>
-            <span class="price-save">Save {{ product.discount_pct }}%</span>{% endif %}
+            <span data-pdp-price>${{ product.pack_price }}</span>
+            <span>{{ site.currency|default:"CAD" }} / {{ product.pack_label }}</span>
+            <s class="price-was" data-pdp-was{% if not product.is_discounted %} hidden{% endif %}>${{ product.pack_list_price }}</s>
+            {% if product.is_discounted %}<span class="price-save">Save {{ product.discount_pct }}%</span>{% endif %}
           </div>
-          <div class="pdp-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
+          <div class="pdp-stock {{ product.stock_state }}" data-pdp-stock><span class="dot"></span>{{ product.stock_state_label }}</div>
         </div>
         {% if product.sells_in_packs %}
-        <p class="pdp-unit">${{ product.price }} per vial · sold in packs of {{ product.vials_per_pack }}</p>
+        <p class="pdp-unit"><span data-pdp-unit>${{ product.price }}</span> per vial · sold in packs of {{ product.vials_per_pack }}</p>
+        {% endif %}
+
+        {% comment %} Size selector.
+           Real links, not buttons: every strength is its own SKU with its own
+           price and its own indexable URL, so a crawler and a no-JS visitor
+           both get somewhere real. store.js upgrades these to swap the price
+           in place and push the URL, which is what makes it feel like one
+           product rather than a set of pages. {% endcomment %}
+        {% if product.has_sizes %}
+        <div class="pdp-sizes" data-size-picker>
+          <span class="pdp-sizes-label">Size</span>
+          <div class="size-opts">
+            {% for s in product.siblings %}
+              <a class="size-opt{% if s.id == product.id %} on{% endif %}"
+                 href="/product/{{ s.slug }}/"
+                 data-size-slug="{{ s.slug }}"
+                 data-size-id="{{ s.id }}"
+                 data-size-price="{{ s.pack_price }}"
+                 data-size-unit="{{ s.price }}"
+                 data-size-was="{{ s.pack_list_price|default_if_none:'' }}"
+                 data-size-stock="{{ s.stock_state }}"
+                 data-size-stock-label="{{ s.stock_state_label }}"
+                 data-size-pack="{{ s.vials_per_pack }}"
+                 {% if s.id == product.id %}aria-current="true"{% endif %}>
+                {{ s.size_display }}
+              </a>
+            {% endfor %}
+          </div>
+        </div>
         {% endif %}
 
         <div class="pdp-attrs">
           <span class="chip pur">{{ product.purity }} purity</span>
-          {% for s in product.sizes %}<span class="chip">{{ s }}</span>{% endfor %}
+          {% if not product.has_sizes %}
+            {% for s in product.sizes %}<span class="chip">{{ s }}</span>{% endfor %}
+          {% endif %}
           {% if product.cas_number %}<span class="chip">CAS {{ product.cas_number }}</span>{% endif %}
         </div>
 

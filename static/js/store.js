@@ -218,4 +218,71 @@
   if (Number(($("[data-cart-count]") || {}).textContent || 0) > 0) {
     fetch("/cart/").then((r) => r.json()).then((s) => { lastState = s; renderCart(s); });
   }
+
+  /* ---------- Size selector ----------
+     Progressive enhancement over real links. Without JS each strength is a
+     normal page with its own price and its own URL, which is what a crawler
+     and a no-JS visitor need. With JS the price, stock, per-vial figure and
+     the add-to-cart target swap in place and the URL is pushed, so picking a
+     size feels like one product rather than a page load.
+
+     The add button's data-add is repointed at the selected SKU. Getting that
+     wrong would put the wrong strength in the cart at the right price, which
+     is the kind of error a customer only finds after paying. */
+  const picker = $("[data-size-picker]");
+  if (picker) {
+    const scope = picker.closest("[data-buybox]") || document;
+    const priceEl = $("[data-pdp-price]", scope);
+    const wasEl   = $("[data-pdp-was]", scope);
+    const unitEl  = $("[data-pdp-unit]", scope);
+    const stockEl = $("[data-pdp-stock]", scope);
+    const addBtn  = $(".pdp-add", scope);
+    const qtyIn   = $("[data-qty-input]", scope);
+
+    function selectSize(opt, push) {
+      $$(".size-opt", picker).forEach((a) => {
+        a.classList.toggle("on", a === opt);
+        if (a === opt) a.setAttribute("aria-current", "true");
+        else a.removeAttribute("aria-current");
+      });
+      const d = opt.dataset;
+      if (priceEl) priceEl.textContent = money(d.sizePrice);
+      if (unitEl)  unitEl.textContent  = money(d.sizeUnit);
+      if (wasEl) {
+        // Only show a comparison price when this strength genuinely has one.
+        // Carrying the previous size's "was" across would be a fabricated
+        // reference price on the new one.
+        if (d.sizeWas) { wasEl.textContent = money(d.sizeWas); wasEl.hidden = false; }
+        else { wasEl.hidden = true; }
+      }
+      if (stockEl) {
+        stockEl.className = "pdp-stock " + d.sizeStock;
+        stockEl.innerHTML = '<span class="dot"></span>' + d.sizeStockLabel;
+      }
+      if (addBtn) {
+        addBtn.dataset.add = d.sizeId;
+        addBtn.dataset.pack = d.sizePack;
+        addBtn.disabled = d.sizeStock === "out";
+        addBtn.textContent = d.sizeStock === "out" ? "Currently sold out" : "Add to cart";
+      }
+      if (qtyIn) { qtyIn.dataset.pack = d.sizePack; syncBuybox(scope); }
+      if (push && window.history && history.pushState) {
+        history.pushState({ size: d.sizeSlug }, "", "/product/" + d.sizeSlug + "/");
+      }
+    }
+
+    $$(".size-opt", picker).forEach((a) =>
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        selectSize(a, true);
+      })
+    );
+    // Back/forward has to move the selection too, or the URL and the price
+    // disagree — and the price is what the customer trusts.
+    window.addEventListener("popstate", () => {
+      const slug = location.pathname.replace(/^\/product\/|\/$/g, "");
+      const match = $$(".size-opt", picker).find((a) => a.dataset.sizeSlug === slug);
+      if (match) selectSize(match, false);
+    });
+  }
 })();

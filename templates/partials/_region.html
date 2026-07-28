@@ -1,0 +1,83 @@
+{% comment %}Regional landing page body. Copy lives in apps/stores/regions.py and is
+written per region — these are deliberately NOT the swap-the-place-name doorway
+pages Google demotes. A site only serves regions in its own market.{% endcomment %}
+<article class="region">
+  <div class="wrap">
+
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a><span>/</span>
+      <span class="crumb-cur">{{ region.name }}</span>
+    </nav>
+
+    <header class="region-head">
+      <p class="eyebrow">Serving researchers in {{ region.name }}</p>
+      <h1>{{ region.h1 }}</h1>
+      <p class="region-intro">{{ region.intro }}</p>
+
+      <ul class="region-facts">
+        <li><b>{{ site.shipping_window }}</b><span>Delivery window</span></li>
+        <li><b>{{ site.currency }}</b><span>Prices shown in</span></li>
+        <li><b>{{ region.timezone }}</b><span>Support hours</span></li>
+        <li><b>≥99%</b><span>Release purity</span></li>
+      </ul>
+
+      {% if region.cities %}
+      <p class="region-cities">Researchers ordering from
+        {% for c in region.cities %}<b>{{ c }}</b>{% if not forloop.last %}, {% endif %}{% endfor %}
+        and across {{ region.name }}.</p>
+      {% endif %}
+
+      <a href="/#catalogue" class="btn btn-primary">Browse the catalogue</a>
+    </header>
+
+    <div class="region-body">
+      {% for s in region.sections %}
+      <section class="region-block">
+        <h2>{{ s.h2 }}</h2>
+        <p>{{ s.body }}</p>
+      </section>
+      {% endfor %}
+    </div>
+
+    <section class="region-products">
+      <div class="section-head">
+        <p class="eyebrow">From the catalogue</p>
+        <h2>Available to researchers in {{ region.name }}</h2>
+      </div>
+      <div class="product-grid">
+        {% for product in featured %}{% include "partials/_product_card.html" %}{% endfor %}
+      </div>
+      <p class="region-more"><a href="/#catalogue">See all 18 compounds →</a></p>
+    </section>
+
+    {% if region.faqs %}
+    <section class="region-faq">
+      <div class="section-head"><h2>{{ region.name }} questions</h2></div>
+      {% for f in region.faqs %}
+      <details class="faq-item">
+        <summary>{{ f.q }}<span class="pm">+</span></summary>
+        <p>{{ f.a }}</p>
+      </details>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <p class="ship-notice">
+      <strong>{{ site.shipping_window }} delivery.</strong>
+      {{ site.shipping_notice }} {{ site.customs_notice }}
+    </p>
+
+    {% if siblings %}
+    <nav class="region-siblings" aria-label="Other regions">
+      <h2>Other regions we serve</h2>
+      <ul>
+        {% for s in siblings %}<li><a href="/research-peptides/{{ s.slug }}/">{{ s.name }}</a></li>{% endfor %}
+      </ul>
+    </nav>
+    {% endif %}
+
+    <p class="region-ruo"><strong>For Research Use Only.</strong> Not for human or
+      veterinary use. You are responsible for confirming that purchase and import
+      are lawful where you are.</p>
+  </div>
+</article>

@@ -34,6 +34,14 @@ urlpatterns = [
     path("product/<slug:slug>/", views.product_detail, name="product_detail"),
     path("calculator/", views.calculator, name="calculator"),
     path("rewards/", views.rewards, name="rewards"),
+    # Regional landing pages. A site only serves its own market's regions.
+    path("research-peptides/<slug:slug>/", views.region_page, name="region"),
+    # Policy pages. Clean top-level paths because these are the URLs a payment
+    # processor is handed at onboarding, and buyers look for them by name.
+    path("shipping/", views.policy, {"slug": "shipping"}, name="policy_shipping"),
+    path("returns/", views.policy, {"slug": "returns"}, name="policy_returns"),
+    path("privacy/", views.policy, {"slug": "privacy"}, name="policy_privacy"),
+    path("terms/", views.policy, {"slug": "terms"}, name="policy_terms"),
     # Cart + checkout (shared backend for every site)
     path("cart/", views.cart_state, name="cart_state"),
     path("cart/add/", views.cart_add, name="cart_add"),

@@ -194,6 +194,49 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
         </section>
 
       </div>
+
+      {% comment %}The right half of .pdp-detail was empty on desktop — the wrapper
+      was built for two columns and only ever got one. It now carries a sticky rail
+      so the price, the delivery promise and the COA stay in view while the buyer
+      reads the spec table, instead of being scrolled away above.{% endcomment %}
+      <aside class="pdp-rail">
+        <div class="pdp-rail-inner">
+          <div class="pdp-rail-price">
+            ${{ product.price }} <span>{{ site.currency|default:"CAD" }} / vial</span>
+            {% if product.is_discounted %}<s class="price-was">${{ product.list_price }}</s>{% endif %}
+          </div>
+          <div class="pdp-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
+
+          {% if product.stock_state == "out" %}
+            <button class="btn btn-ghost" disabled>Currently sold out</button>
+          {% else %}
+            <button class="btn btn-primary" data-add="{{ product.id }}" data-name="{{ product.name }}">Add to cart</button>
+          {% endif %}
+
+          <p class="ship-notice ship-notice--inline">
+            <strong>{{ site.shipping_window|default:"10–15 days" }} delivery.</strong>
+            {{ site.shipping_notice }}
+          </p>
+
+          <dl class="pdp-rail-facts">
+            <div><dt>Purity</dt><dd>{{ product.purity }}</dd></div>
+            {% if product.sizes %}<div><dt>Size</dt><dd>{{ product.sizes|join:", " }}</dd></div>{% endif %}
+            {% if product.cas_number %}<div><dt>CAS</dt><dd>{{ product.cas_number }}</dd></div>{% endif %}
+            <div><dt>Lab</dt><dd>{{ product.lab_name }}</dd></div>
+          </dl>
+
+          {% if product.has_coa %}
+          <a class="btn btn-ghost" href="{{ product.coa_url }}" target="_blank" rel="noopener">View COA</a>
+          {% else %}
+          <p class="pdp-rail-coa">A batch-specific COA is available on request.</p>
+          {% endif %}
+
+          <p class="pdp-rail-ruo">Research use only. Not for human or veterinary use.</p>
+          <p class="pdp-rail-links">
+            <a href="/shipping/">Shipping</a> · <a href="/returns/">Returns</a>
+          </p>
+        </div>
+      </aside>
     </div>
 
     {% if related %}

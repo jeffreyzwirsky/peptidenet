@@ -38,6 +38,11 @@
   --ease-out:cubic-bezier(.2,.7,.2,1);
   --ease-spring:cubic-bezier(.32,.72,0,1);
   --dur-fast:.15s; --dur-mid:.28s;
+
+  /* Sticky-header clearance. The header is 72px (74px on apothecary), so every
+     sticky rail offsets off this instead of guessing its own number and
+     sliding under the nav on one theme. */
+  --header-h:74px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -524,8 +529,14 @@ section{padding:72px 0}
 /* The 10–15 day shipping window is a disclosure, not fine print: if a buyer
    misses it we get the chargeback. So it uses --fg and an accent rule rather
    than --muted, which on these dark palettes reads as "ignorable". */
+/* display:block, not flex. As a flex container the bold lead-in ("10–15 days
+   delivery.") becomes its own flex item and collapses to a narrow column —
+   "10–15 / days / delivery." stacked over three lines — anywhere the notice is
+   under ~500px wide. Block lets the lead-in run inline with the sentence, which
+   is how it reads everywhere. Opt into flex with .ship-notice--icon when an
+   icon is actually present. */
 .ship-notice{
-  display:flex;align-items:flex-start;gap:10px;
+  display:block;
   margin:var(--sp-3) 0 0;padding:10px var(--sp-3);
   border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));
   border-left:3px solid var(--accent);
@@ -534,6 +545,7 @@ section{padding:72px 0}
   color:var(--fg);font-size:var(--fs-xs);font-weight:600;line-height:1.5;
 }
 .ship-notice b,.ship-notice strong{font-weight:800}
+.ship-notice--icon{display:flex;align-items:flex-start;gap:10px}
 .ship-notice a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .ship-notice svg,.ship-notice .ship-ic{flex:none;width:16px;height:16px;margin-top:2px;color:var(--accent)}
 /* Compact variant for the cart drawer and footer column, where the notice sits
@@ -563,3 +575,209 @@ section{padding:72px 0}
 /* Urgency. Warn-coloured on purpose — it is scarcity, not an error state. */
 .stock-count{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-2xs);font-weight:700;color:var(--warn);letter-spacing:.01em}
 .stock-count::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* ============================================================
+   Policy pages (.policy-*) — shipping, returns, privacy, terms.
+   These get read slowly, usually because something went wrong
+   with an order, so the whole layout optimises for measure and
+   vertical rhythm rather than for scanning.
+   ============================================================ */
+.policy{padding:28px 0 var(--sp-6)}
+.policy-head{max-width:72ch;margin:0 0 var(--sp-5)}
+.policy-head h1{font-size:clamp(28px,3.8vw,42px)}
+/* The summary is the entire policy in one sentence — the only line a lot of
+   readers will take in. Accent rule + a tint that fades out gives it standout
+   weight without a card, which would read as a callout box mid-header. */
+.policy-summary{
+  margin:var(--sp-3) 0 0;padding:var(--sp-2) var(--sp-3);
+  border-left:3px solid var(--accent);
+  border-radius:0 calc(var(--radius) - 4px) calc(var(--radius) - 4px) 0;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 10%,transparent),transparent 75%);
+  font-size:var(--fs-lg);line-height:1.55;color:var(--fg);
+}
+
+/* Body + narrow sticky aside. 260px is enough for four policy titles and an
+   email address; anything wider steals from the reading measure. */
+.policy-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:var(--sp-6);align-items:start}
+/* 17px matches .blog-content — the site's established long-form reading size,
+   deliberately one step off the UI type scale. max-width lands at ~68ch. */
+.policy-body{min-width:0;max-width:68ch;font-size:17px;line-height:1.8}
+/* .policy-block is a <section>, so it inherits the global 72px band padding
+   meant for full-width homepage bands. Rhythm here comes from a hairline
+   between blocks instead — cheaper vertically and it reads as a legal document.
+   Qualified by .policy-body so it also outweighs `.theme-clinical section`. */
+.policy-body .policy-block{padding:0}
+.policy-body .policy-block+.policy-block{margin-top:var(--sp-5);padding-top:var(--sp-5);border-top:1px solid var(--line)}
+.policy-block h2{font-size:var(--fs-xl);font-weight:800;margin:0 0 var(--sp-2)}
+/* Long-form body sits just off --fg. Pure --muted is unreadable at length on
+   the four dark themes; the mix keeps contrast on all eight. */
+.policy-block p{margin:0;color:color-mix(in srgb,var(--fg) 86%,var(--muted))}
+.policy-block p+p{margin-top:var(--sp-2)}
+/* Copy opens paragraphs with a bolded lead-in ("Damaged on arrival."), which
+   has to function as a sub-heading inside the paragraph, not as emphasis. */
+.policy-block p strong,.policy-block p b{color:var(--fg);font-weight:800}
+.policy-block a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.policy-updated{margin:var(--sp-4) 0 0;font-size:var(--fs-xs);color:var(--muted);font-style:italic}
+
+/* Aside travels with the reader down a 2000px policy. Offset by the sticky
+   header so it never tucks under the nav. */
+.policy-aside{
+  position:sticky;top:calc(var(--header-h) + var(--sp-2));
+  background:color-mix(in srgb,var(--card) 70%,transparent);
+  border:1px solid var(--line);border-radius:var(--radius);padding:var(--sp-3);
+}
+.policy-aside h3{font-size:var(--fs-2xs);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 var(--sp-1)}
+.policy-nav{list-style:none;margin:0 0 var(--sp-4)}
+/* Negative margin pulls the hit area's padding back so labels stay optically
+   flush with the "Policies" heading above them. */
+.policy-nav a{display:block;margin:0 calc(var(--sp-1) * -1);padding:6px var(--sp-1);
+  border-radius:calc(var(--radius) - 6px);font-size:var(--fs-sm);color:var(--muted);
+  transition:color var(--dur-fast) var(--ease-out),background var(--dur-fast) var(--ease-out)}
+.policy-nav a:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 7%,transparent)}
+.policy-nav a.is-current{color:var(--accent);font-weight:700;background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.policy-contact{margin:0 0 var(--sp-3)}
+.policy-contact p{font-size:var(--fs-sm);margin:4px 0 0}
+.policy-contact a{color:var(--accent)}
+/* Superseded: .ship-notice is display:block globally now, so these two contexts
+   no longer need their own override. Kept as a no-op guard in case a theme
+   reintroduces flex on the base component.
+   Original note: .ship-notice is display:flex, which turns the bold lead-in into its own flex
+   column. Fine at 500px, unreadable in a 230–270px rail — so in both rails it
+   reverts to a block and the lead-in flows inline with the sentence. */
+.policy-aside .ship-notice--inline,.pdp-rail .ship-notice--inline{display:block}
+/* Formal footnote: spans both columns under the layout, set off by a rule
+   rather than a card so it closes the page instead of interrupting it. */
+.policy-ruo,.region-ruo{
+  margin:var(--sp-6) 0 0;padding:var(--sp-3) 0 0;border-top:1px solid var(--line);
+  max-width:78ch;font-size:var(--fs-xs);line-height:1.65;color:var(--muted);
+}
+.policy-ruo strong,.region-ruo strong{color:var(--fg);font-weight:800}
+@media(max-width:900px){
+  .policy-layout{grid-template-columns:1fr;gap:var(--sp-4)}
+  /* Aside drops below the body, so sticky would pin it to a screen the reader
+     has already passed. */
+  .policy-aside{position:static}
+}
+@media(max-width:560px){.policy-body{font-size:var(--fs-md);line-height:1.75}}
+
+/* ============================================================
+   Regional landing pages (.region-*). Same reading discipline as
+   the policy pages up top, then catalogue + FAQ + sibling links.
+   ============================================================ */
+.region{padding:28px 0 var(--sp-6)}
+/* Prose in the header carries its own measure so the stat strip below can run
+   the full width of the wrap — capping the whole header would leave the strip
+   floating in the left two-thirds of the page. */
+.region-head h1{font-size:clamp(28px,4vw,44px);max-width:24ch}
+.region-intro{margin:var(--sp-3) 0 0;max-width:68ch;font-size:var(--fs-lg);line-height:1.6;color:color-mix(in srgb,var(--fg) 86%,var(--muted))}
+/* Stat strip. 1px grid gap over a --line background paints the dividers, so
+   four cells share one border box instead of four adjacent borders doubling up. */
+.region-facts{
+  list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  margin:var(--sp-4) 0 0;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+}
+.region-facts li{display:flex;flex-direction:column;gap:3px;padding:var(--sp-2) var(--sp-3);background:var(--card)}
+.region-facts b{font-size:var(--fs-lg);font-weight:800;line-height:1.2;letter-spacing:-.01em}
+.region-facts span{font-size:var(--fs-3xs);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.region-cities{margin:var(--sp-3) 0 0;max-width:68ch;font-size:var(--fs-sm);color:var(--muted)}
+.region-cities b{color:var(--fg);font-weight:700}
+.region-head .btn{margin-top:var(--sp-4)}
+
+/* Same <section> padding reset as .policy-block — see note there. */
+.region-body{margin:var(--sp-6) 0 0;max-width:70ch;font-size:17px;line-height:1.8}
+.region-body .region-block{padding:0}
+.region-body .region-block+.region-block{margin-top:var(--sp-5)}
+.region-block h2{font-size:var(--fs-xl);font-weight:800;margin:0 0 var(--sp-2)}
+.region-block p{margin:0;color:color-mix(in srgb,var(--fg) 86%,var(--muted))}
+.region .region-products,.region .region-faq{padding:var(--sp-6) 0 0}
+.region-products .section-head,.region-faq .section-head{margin-bottom:var(--sp-4)}
+.region-more{margin:var(--sp-4) 0 0}
+.region-more a{color:var(--accent);font-weight:700;font-size:var(--fs-sm)}
+
+/* Region FAQs are bare <details> with no .faq-list wrapper, so each one has to
+   carry its own frame. Kept at base specificity (.region-faq .faq-item = 0,2,0)
+   so the guide theme's own .faq-item rules, which load after base at the same
+   weight, still win on that site. */
+.region-faq .faq-item{border:1px solid var(--line);border-radius:calc(var(--radius) - 2px);background:var(--card);margin:0 0 var(--sp-1)}
+.region-faq .faq-item p{margin:0;padding:0 18px 18px;font-size:var(--fs-sm);line-height:1.65;color:color-mix(in srgb,var(--fg) 82%,var(--muted))}
+/* The markup ships its own toggle glyph in .pm, so suppress base's ::after twin
+   here only — the PDP's .faq-list has no .pm and still needs it. */
+.region-faq .faq-item summary::after{content:none}
+.faq-item .pm{flex:none;color:var(--accent);font-size:20px;font-weight:400;line-height:1;transition:transform var(--dur-fast) var(--ease-out)}
+.faq-item[open] .pm{transform:rotate(45deg)}
+/* The rotation is the only transform this block animates, so it snaps for
+   anyone who has opted out — the +/− state still changes, just instantly. */
+@media(prefers-reduced-motion:reduce){.faq-item .pm{transition:none}}
+
+.region .ship-notice{max-width:80ch;margin-top:var(--sp-6)}
+/* Up to 24 sibling regions. auto-fill chips wrap into as many columns as fit
+   and collapse to one at 360px without a breakpoint of their own. */
+.region-siblings{margin:var(--sp-6) 0 0;padding-top:var(--sp-4);border-top:1px solid var(--line)}
+.region-siblings h2{font-size:var(--fs-lg);font-weight:800;margin:0 0 var(--sp-3)}
+.region-siblings ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:var(--sp-1)}
+.region-siblings a{display:block;padding:7px var(--sp-2);border:1px solid var(--line);border-radius:var(--radius-pill);
+  font-size:var(--fs-xs);font-weight:600;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  transition:color var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out),background var(--dur-fast) var(--ease-out)}
+.region-siblings a:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,transparent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+@media(max-width:760px){
+  /* 4-up stat strip at 360px gives each cell ~80px — two rows of two instead. */
+  .region-facts{grid-template-columns:1fr 1fr}
+  .region-body{font-size:var(--fs-md);line-height:1.75}
+}
+
+/* ============================================================
+   Product-page sticky rail (.pdp-rail-*). .pdp-detail was built
+   as a two-column wrapper but only ever rendered one child, so
+   the right half sat empty for the whole length of the spec
+   table. It now carries a rail that keeps price, delivery window
+   and COA in view while the buyer reads.
+   ============================================================ */
+.pdp-detail{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:var(--sp-6)}
+.pdp-main{min-width:0}
+/* .pdp-block is a <section>, so it inherited the global section{padding:72px 0}
+   — 144px of dead band between Specifications, Research context, COA and FAQ.
+   Tolerable when the column was alone on the page; beside the rail it reads as
+   broken. Reset it and separate blocks with a rule instead. Qualified as
+   .pdp-main .pdp-block (0,2,0) to outweigh .theme-clinical section (0,1,1). */
+.pdp-main .pdp-block{padding:0;margin:0 0 var(--sp-6)}
+.pdp-main .pdp-block+.pdp-block{padding-top:var(--sp-6);border-top:1px solid var(--line)}
+/* The first block's inherited 72px section padding left the rail floating
+   beside dead space; the 52px on .pdp-detail already separates it from the
+   buy box. */
+.pdp-main>.pdp-block:first-child{padding-top:0}
+/* .pdp-rail stretches to the row so the inner card has travel to stick over;
+   the sticky element itself must not be the grid item. */
+.pdp-rail{min-width:0}
+.pdp-rail-inner{
+  position:sticky;top:calc(var(--header-h) + var(--sp-2));
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:var(--sp-3);box-shadow:var(--elev-1);
+}
+.pdp-rail-price{font-size:var(--fs-xl);font-weight:800;line-height:1.25}
+.pdp-rail-price span{font-size:var(--fs-2xs);font-weight:600;color:var(--muted)}
+.pdp-rail .pdp-stock{margin:var(--sp-1) 0 0;font-size:var(--fs-2xs)}
+.pdp-rail .btn{width:100%;justify-content:center;margin:var(--sp-2) 0 0}
+/* .ship-notice--inline was sized for the cart drawer; at 268px of usable rail
+   its 3px accent rule and 16px padding crowd the copy, so tighten both. */
+.pdp-rail .ship-notice--inline{margin:var(--sp-2) 0 0;padding:7px var(--sp-1);font-size:var(--fs-3xs);gap:7px}
+/* Compact key/value list. dt/dd on one baseline-aligned row, values right-set
+   so they line up as a column against ragged labels. */
+.pdp-rail-facts{margin:var(--sp-3) 0 0;border-top:1px solid var(--line)}
+.pdp-rail-facts>div{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-2);padding:7px 0;border-bottom:1px solid var(--line)}
+.pdp-rail-facts dt{flex:none;font-size:var(--fs-3xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pdp-rail-facts dd{min-width:0;font-size:var(--fs-2xs);font-weight:700;text-align:right;overflow-wrap:anywhere}
+.pdp-rail-coa{margin:var(--sp-2) 0 0;font-size:var(--fs-2xs);line-height:1.5;color:var(--muted)}
+.pdp-rail-ruo{margin:var(--sp-2) 0 0;padding-top:var(--sp-2);border-top:1px solid var(--line);font-size:var(--fs-3xs);line-height:1.5;color:var(--muted)}
+.pdp-rail-links{margin:6px 0 0;font-size:var(--fs-2xs);color:var(--muted)}
+.pdp-rail-links a{color:var(--accent);font-weight:600}
+.pdp-rail-links a:hover{text-decoration:underline;text-underline-offset:2px}
+@media(max-width:980px){
+  .pdp-detail{grid-template-columns:1fr;gap:0}
+  /* Hidden, not stacked: below this width the rail is a verbatim repeat of the
+     buy box a phone user scrolled past a moment ago, so stacking it would just
+     put a second price and a second Add to cart after the spec table. */
+  .pdp-rail{display:none}
+  .pdp-main>.pdp-block:first-child{padding-top:0}
+}

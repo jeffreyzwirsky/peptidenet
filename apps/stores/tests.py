@@ -202,3 +202,128 @@ class AgeGateTests(TestCase):
         for path in ("/", "/product/bpc-157/", "/calculator/"):
             r = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca", secure=True)
             self.assertNotContains(r, "data-age-gate", msg_prefix=path)
+
+
+class PolicyPageTests(TestCase):
+    """Policy pages were entirely missing. They're a buyer-trust gap on a 10-15
+    day delivery and a blocker on any payment-processor application."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_all_four_policies_render_on_every_site(self):
+        for host in ("smashfatbiolabs.ca", "smashfatbiolabs.com", "smashfat.ca",
+                     "smash-fat.ca", "smash-fat.com", "peptidesalberta.ca",
+                     "where-do-i-get-peptides.ca", "where-do-i-get-peptides.com"):
+            for slug in ("shipping", "returns", "privacy", "terms"):
+                r = self.client.get(f"/{slug}/", HTTP_HOST=host)
+                self.assertEqual(r.status_code, 200, f"{host}/{slug}")
+
+    def test_policies_state_the_delivery_window_not_an_origin(self):
+        html = self.client.get("/shipping/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertIn("10–15 days", html)
+        for phrase in ("Ships from Canada", "ships from Canada", "same-day",
+                       "Same-day", "1–2 business"):
+            self.assertNotIn(phrase, html)
+
+    def test_privacy_is_market_aware(self):
+        ca = self.client.get("/privacy/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        us = self.client.get("/privacy/", HTTP_HOST="smashfatbiolabs.com").content.decode()
+        self.assertIn("PIPEDA", ca)
+        self.assertNotIn("PIPEDA", us)
+        self.assertIn("California", us)
+
+    def test_terms_carry_the_research_use_only_gate(self):
+        html = self.client.get("/terms/", HTTP_HOST="smashfat.ca").content.decode()
+        self.assertIn("research use only", html.lower())
+        self.assertIn("21", html)
+
+    def test_policies_linked_in_footer_and_sitemap(self):
+        home = self.client.get("/", HTTP_HOST="smashfat.ca").content.decode()
+        for slug in ("shipping", "returns", "privacy", "terms"):
+            self.assertIn(f'href="/{slug}/"', home)
+        sm = self.client.get("/sitemap.xml", HTTP_HOST="smashfat.ca").content.decode()
+        for slug in ("shipping", "returns", "privacy", "terms"):
+            self.assertIn(f"/{slug}/", sm)
+
+
+class RegionPageTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_ca_region_serves_on_ca_site_only(self):
+        self.assertEqual(
+            self.client.get("/research-peptides/alberta/",
+                            HTTP_HOST="peptidesalberta.ca").status_code, 200)
+        # A .com serving Canadian provinces would be the doorway pattern these
+        # pages are written to avoid.
+        self.assertEqual(
+            self.client.get("/research-peptides/alberta/",
+                            HTTP_HOST="smash-fat.com").status_code, 404)
+
+    def test_us_region_serves_on_us_site_only(self):
+        self.assertEqual(
+            self.client.get("/research-peptides/california/",
+                            HTTP_HOST="smash-fat.com").status_code, 200)
+        self.assertEqual(
+            self.client.get("/research-peptides/california/",
+                            HTTP_HOST="smashfat.ca").status_code, 404)
+
+    def test_every_region_renders_on_a_site_in_its_market(self):
+        from apps.stores import regions
+        hosts = {"CA": "smashfatbiolabs.ca", "US": "smashfatbiolabs.com"}
+        for r in regions.REGIONS:
+            resp = self.client.get(f"/research-peptides/{r['slug']}/",
+                                   HTTP_HOST=hosts[r["market"]])
+            self.assertEqual(resp.status_code, 200, r["slug"])
+
+    def test_region_copy_makes_no_banned_claim(self):
+        """These pages are the biggest surface of new copy in the project. If a
+        claim slips in anywhere, it slips in here."""
+        from apps.stores import regions
+        hosts = {"CA": "smashfatbiolabs.ca", "US": "smashfatbiolabs.com"}
+        banned = ["Ships from", "ships from", "same-day", "Same-day",
+                  "1–2 business", "dosage", "weight loss"]
+        for r in regions.REGIONS:
+            html = self.client.get(f"/research-peptides/{r['slug']}/",
+                                   HTTP_HOST=hosts[r["market"]]).content.decode()
+            for phrase in banned:
+                self.assertNotIn(phrase, html, f"{phrase!r} on {r['slug']}")
+            self.assertIn("Research Use Only", html)
+
+    def test_sitemap_lists_only_this_markets_regions(self):
+        ca = self.client.get("/sitemap.xml", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        us = self.client.get("/sitemap.xml", HTTP_HOST="smashfatbiolabs.com").content.decode()
+        self.assertIn("/research-peptides/alberta/", ca)
+        self.assertNotIn("/research-peptides/alberta/", us)
+        self.assertIn("/research-peptides/california/", us)
+        self.assertNotIn("/research-peptides/california/", ca)
+
+
+class SupplierCommandTests(TestCase):
+    def test_add_supplier_requires_a_reachable_channel(self):
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            call_command("add_supplier", "Partner")
+
+    def test_add_supplier_rejects_non_e164_whatsapp(self):
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            call_command("add_supplier", "Partner", "--whatsapp", "8613800000000",
+                         "--channel", "whatsapp")
+
+    def test_add_supplier_creates_and_sets_default(self):
+        from apps.suppliers.models import Supplier
+        call_command("add_supplier", "Partner Labs", "--email", "o@x.com", "--default")
+        s = Supplier.objects.get(slug="partner-labs")
+        self.assertTrue(s.is_default)
+        self.assertEqual(Supplier.get_default(), s)
+        # Re-running updates rather than duplicating.
+        call_command("add_supplier", "Partner Labs", "--email", "new@x.com")
+        self.assertEqual(Supplier.objects.count(), 1)
+        s.refresh_from_db()
+        self.assertEqual(s.email, "new@x.com")

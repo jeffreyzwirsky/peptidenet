@@ -139,6 +139,68 @@ def product_detail(request, slug):
     )
 
 
+def policy(request, slug):
+    """Shipping, returns, privacy and terms — built per site and per market.
+
+    These are also what a payment processor asks for during onboarding, which is
+    the other reason their absence was blocking.
+    """
+    _require_site(request)
+    from . import policies
+    doc = policies.get(slug, request.site)
+    if doc is None:
+        raise Http404("No such policy.")
+    return render(request, _theme_template(request, "policy.html"), {
+        "policy": doc,
+        "policy_nav": policies.nav(request.site),
+    })
+
+
+def region_page(request, slug):
+    """
+    Regional landing page — /research-peptides/<region>/.
+
+    A site only serves regions in its own market: the .ca domains serve Canadian
+    provinces, the .com domains serve US states. Serving both from one domain
+    would be the doorway-page pattern these pages are written to avoid.
+    """
+    _require_site(request)
+    from . import regions
+    r = regions.get(slug)
+    if r is None or r["market"] != request.site.country:
+        raise Http404("No such region for this storefront.")
+
+    base = _base_url(request)
+    url = f"{base}/research-peptides/{slug}/"
+    ld = [{
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": base + "/"},
+            {"@type": "ListItem", "position": 2, "name": r["name"], "item": url},
+        ],
+    }]
+    if r.get("faqs"):
+        ld.append({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {"@type": "Question", "name": f["q"],
+                 "acceptedAnswer": {"@type": "Answer", "text": f["a"]}}
+                for f in r["faqs"]
+            ],
+        })
+    siblings = [x for x in regions.by_market(request.site.country)
+                if x["slug"] != slug]
+    return render(request, _theme_template(request, "region.html"), {
+        "region": r,
+        "siblings": siblings,
+        "featured": Product.objects.filter(is_active=True)
+                           .select_related("category")[:4],
+        "jsonld": json.dumps(ld),
+    })
+
+
 def calculator(request):
     _require_site(request)
     return render(request, _theme_template(request, "calculator.html"), {})
@@ -388,6 +450,7 @@ def robots_txt(request):
 def sitemap_xml(request):
     base = _base_url(request)
     from apps.blog.models import BlogPost
+    from . import policies, regions
     urls = [(base + "/", "daily", "1.0"), (base + "/blog/", "daily", "0.7"),
             (base + "/calculator/", "monthly", "0.6"),
             (base + "/rewards/", "monthly", "0.5")]
@@ -395,9 +458,16 @@ def sitemap_xml(request):
         urls.append((f"{base}/category/{c.slug}/", "weekly", "0.7"))
     for p in Product.objects.filter(is_active=True):
         urls.append((f"{base}/product/{p.slug}/", "weekly", "0.8"))
-    if getattr(request, "site", None):
-        for post in BlogPost.objects.filter(site=request.site, status="published"):
+    site = getattr(request, "site", None)
+    if site:
+        # Only this site's own market. A .com listing Canadian provinces would
+        # be the doorway pattern these pages are written to avoid.
+        for r in regions.by_market(site.country):
+            urls.append((f"{base}/research-peptides/{r['slug']}/", "monthly", "0.6"))
+        for post in BlogPost.objects.filter(site=site, status="published"):
             urls.append((f"{base}/blog/{post.slug}/", "monthly", "0.6"))
+    for slug in policies.POLICY_SLUGS:
+        urls.append((f"{base}/{slug}/", "yearly", "0.3"))
     body = ['<?xml version="1.0" encoding="UTF-8"?>',
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for loc, freq, pri in urls:
@@ -418,7 +488,8 @@ def llms_txt(request):
         "",
         f"> {getattr(site, 'meta_description', '') if site else ''}".rstrip(),
         "",
-        "Canadian research-compound (peptide) store. All products are for laboratory "
+        f"Research-compound (peptide) store serving "
+        f"{site.country_name if site else 'Canada'}. All products are for laboratory "
         "and in-vitro research use only — not for human or veterinary use. Every batch "
         "is third-party HPLC/MS tested to ≥99% purity with a COA available.",
         "",
@@ -427,6 +498,9 @@ def llms_txt(request):
         f"- [Reconstitution & dosage calculator]({base}/calculator/): concentration, "
         "volume-to-draw, units, doses per vial",
         f"- [Rewards & bulk pricing]({base}/rewards/): automatic bulk tiers, first-order code",
+        f"- [Shipping & delivery]({base}/shipping/): delivery window, customs, tracking",
+        f"- [Returns & refunds]({base}/returns/): damage, non-delivery, cancellation",
+        f"- [Privacy]({base}/privacy/) · [Terms of sale]({base}/terms/)",
         f"- [Blog]({base}/blog/): research notes and educational articles",
         f"- [Full LLM map]({base}/llms-full.txt): complete catalogue with specs + FAQs",
         f"- [Sitemap]({base}/sitemap.xml): all indexable URLs",

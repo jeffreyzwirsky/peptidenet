@@ -234,6 +234,33 @@ Blog keywords split by market in `apps/blog/keywords.py`; product JSON-LD carrie
 the right `priceCurrency`, `eligibleRegion` and a `shippingDetails` transit time
 matching the on-page promise.
 
+## Policy pages
+
+`/shipping/`, `/returns/`, `/privacy/`, `/terms/` — built per site and per market
+in `apps/stores/policies.py`, linked from every footer and listed in each
+sitemap. Privacy is market-aware (PIPEDA/CASL framing on the .ca sites, US state
+framing on the .com sites).
+
+These are also the URLs a payment processor asks for at onboarding, which is the
+other reason their absence was blocking.
+
+> ⚠️ **Not legal advice.** They are drafted from how the business actually
+> operates and are deliberately conservative, but no lawyer has read them. The
+> compliance review has been open since 2026-07-19.
+
+## Regional landing pages
+
+`/research-peptides/<region>/` — 13 Canadian provinces and territories, 12 US
+states. Copy lives in `apps/stores/regions.py`, hand-written per region.
+
+A site only serves regions in **its own market**: a `.com` requesting
+`/research-peptides/alberta/` gets a 404, and each sitemap lists only its own
+market's regions. These are deliberately not the swap-the-place-name doorway
+pages Google demotes — every page differentiates on something real (time zone
+and order cut-offs, climate and transit handling, customs, regional logistics).
+`test_region_copy_makes_no_banned_claim` scans all 25 rendered pages for origin,
+speed and medical claims.
+
 ## Product photography
 
 `python manage.py generate_product_images` renders the vials from a

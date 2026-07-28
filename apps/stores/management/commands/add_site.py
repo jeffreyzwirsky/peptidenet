@@ -18,7 +18,9 @@ class Command(BaseCommand):
         parser.add_argument("--tagline", default="")
         parser.add_argument("--promo", default="")
         parser.add_argument("--email", default="")
-        parser.add_argument("--ships-from", default="Canada")
+        # Deliberately blank: goods ship direct from the manufacturing partner, so a
+        # ships-from claim on a storefront would be a false representation.
+        parser.add_argument("--ships-from", default="")
         parser.add_argument("--alias", action="append", default=[],
                             help="Extra host that resolves here (repeatable).")
 

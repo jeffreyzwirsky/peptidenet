@@ -40,14 +40,15 @@ SYSTEM = (
 def _stub_post(site, keyword):
     """Compliant fallback post (used when no AI key). Written to pass guardrails."""
     brand = site.brand_name
-    ships = site.ships_from
+    market = site.country_name
+    window = f"{site.shipping_min_days}-{site.shipping_max_days}"
     names = ", ".join(p.name for p in Product.objects.filter(is_active=True)[:6])
     title = f"{keyword.title()}: What to Look For in a Research Supplier"
     body = f"""# {title}
 
 Researchers searching for **{keyword}** should evaluate a supplier on documentation and
 transparency, not marketing language. This overview explains what {brand} publishes for
-every batch and how ordering works for laboratories in Canada.
+every batch and how ordering works for laboratories in {market}.
 
 ## Purity and third-party testing
 Every compound is released above a documented ≥99% purity threshold and independently
@@ -58,9 +59,10 @@ available on request so a lab can match the vial to its analysis.
 The catalogue spans research categories such as {names}. Listings show the research category,
 size, and purity so a purchasing decision can be made on documented specifications.
 
-## Ordering in Canada
-Orders ship from {ships} in plain, tracked packaging, typically arriving within 1-4 days.
-Compounds are supplied strictly as laboratory reference materials.
+## Ordering
+Orders ship directly from our manufacturing partner in plain, tracked packaging. Allow
+{window} days for delivery; shipments may be subject to customs clearance. Compounds are
+supplied strictly as laboratory reference materials.
 
 For research use only. Not for human or veterinary use. This article is informational and
 describes laboratory research materials; it makes no medical, therapeutic, or health claims.

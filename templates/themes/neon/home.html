@@ -11,7 +11,7 @@
       <div class="kicker"><span class="pulse"></span> {{ site.tagline }}</div>
       <h1 class="hero-title">{{ site.brand_name }}<span class="hero-slash">.</span></h1>
       <p class="hero-sub">High-purity <b>metabolic research compounds</b> — third-party HPLC/MS
-        verified, <b>&ge;99% release purity</b>, shipped discreetly from {{ site.ships_from }}.</p>
+        verified, <b>&ge;99% release purity</b>, shipped discreetly in plain, tracked packaging.</p>
       <div class="hero-cta">
         <a href="#catalogue" class="btn btn-primary">Shop the bench &rarr;</a>
         <a href="#quality" class="btn btn-ghost">See the COAs</a>
@@ -46,7 +46,7 @@
     <span>&ge;99% PURITY <b class="star">&#10022;</b></span>
     <span>HPLC + MS VERIFIED <b class="star">&#10022;</b></span>
     <span>COA ON FILE <b class="star">&#10022;</b></span>
-    <span>SHIPS FROM {{ site.ships_from|upper }} <b class="star">&#10022;</b></span>
+    <span>{{ site.shipping_window|upper }} DELIVERY <b class="star">&#10022;</b></span>
     <span>BATCH-TESTED <b class="star">&#10022;</b></span>
     <span>DISCREET DELIVERY <b class="star">&#10022;</b></span>
     {% endfor %}
@@ -66,4 +66,52 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block quality %}
+<section id="quality" class="quality">
+  {% include "partials/_molecule_bg.html" %}
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">The Standard</p>
+      <h2>Metabolic research, supplied like it matters.</h2>
+    </div>
+    <div class="quality-grid">
+      <div class="q-item">
+        <h3>&ge;99% or it doesn't list</h3>
+        <p>One threshold, applied to every lot. Below it, the batch never reaches this page.</p>
+      </div>
+      <div class="q-item">
+        <h3>HPLC + MS, outside labs</h3>
+        <p>Purity measured by chromatography, identity confirmed by mass spec — both by
+          third parties, because self-graded homework isn't data.</p>
+      </div>
+      <div class="q-item">
+        <h3>Built around GLP-1 work</h3>
+        <p>The catalogue is weighted toward metabolic and GLP-1 research targets, with molecular
+          weight and sequence data listed for every compound. In-vitro research use only.</p>
+      </div>
+      <div class="q-item">
+        <h3>COA, then {{ site.shipping_window }}</h3>
+        <p>Batch-matched certificate on file for every lot. Orders leave our manufacturing
+          partner and arrive in plain, tracked packaging.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block lab_band %}
+<section class="lab-band">
+  <img class="lab-band-img" src="/static/brand/og-neon.jpg" width="1200" height="630"
+       alt="Research-compound vials lit under neon laboratory light" loading="lazy">
+  <div class="lab-band-scrim"></div>
+  <div class="wrap lab-band-inner">
+    <p class="eyebrow">Bench-ready</p>
+    <h2>Loud branding. Quiet, boring paperwork.</h2>
+    <p>Behind the lime and the noise is a dull, repeatable process: synthesise, test by HPLC,
+      confirm by MS, release above ≥99%, file the COA against the lot. Eighteen compounds in the
+      catalogue, every one carrying its own numbers. {{ site.shipping_notice }}</p>
+  </div>
+</section>
 {% endblock %}

@@ -1,12 +1,19 @@
 {% load static %}<!DOCTYPE html>
-<html lang="en">
+<html lang="{{ site.hreflang|default:'en-ca' }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}{{ site.brand_name }} — Research Compounds{% endblock %}</title>
 <meta name="description" content="{{ site.meta_description }}">
 <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
-<meta name="theme-color" content="{{ site.theme_color|default:'#0a0f1c' }}">
+{% comment %} hreflang — the fix for our biggest SEO problem. Three brands each run a .ca
+   and a .com serving the same catalogue; without these tags Google reads them
+   as duplicates and suppresses one of every pair. Only emitted when a genuine
+   alternate exists (see Site.alternates), because hreflang pointing at nothing
+   is worse than none. {% endcomment %}
+{% for alt in site.alternates %}<link rel="alternate" hreflang="{{ alt.hreflang }}" href="{{ request.scheme }}://{{ alt.domain }}{{ request.path }}">
+{% endfor %}{% if site.alternates %}<link rel="alternate" hreflang="x-default" href="{{ request.scheme }}://{{ site.domain }}{{ request.path }}">
+{% endif %}<meta name="theme-color" content="{{ site.theme_color|default:'#0a0f1c' }}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{{ site.brand_name }}">
 <meta property="og:title" content="{% block og_title %}{{ site.brand_name }} — Research Compounds{% endblock %}">
@@ -25,9 +32,15 @@
 {"@context":"https://schema.org","@type":"Store","name":"{{ site.brand_name }}",
 "url":"{{ request.scheme }}://{{ request.get_host }}/",
 "description":"{{ site.meta_description }}",
-"areaServed":"CA","brand":"{{ site.brand_name }}"}
+"areaServed":{"@type":"Country","name":"{{ site.country_name }}"},
+"currenciesAccepted":"{{ site.currency }}",
+"paymentAccepted":"{{ payment_methods_label }}",
+"brand":"{{ site.brand_name }}"}
 </script>
-{% if preload_hero %}<link rel="preload" as="image" href="/static/hero/hero-vials.jpg" fetchpriority="high">{% endif %}
+{% comment %} Preload the hero this theme actually renders. Previously hardcoded to
+   hero-vials.jpg, which only biolabs uses — the other 7 domains were fetching a
+   large unused JPG at high priority, competing with their real LCP image. {% endcomment %}
+{% if preload_hero and hero_image %}<link rel="preload" as="image" href="{{ hero_image }}" fetchpriority="high">{% endif %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ asset_v }}">
 <link rel="stylesheet" href="{% static 'fonts/'|add:theme|add:'.css' %}?v={{ asset_v }}">
 <link rel="stylesheet" href="{% static 'themes/'|add:theme|add:'/theme.css' %}?v={{ asset_v }}">
@@ -49,10 +62,10 @@
       <a href="/#contact">Contact</a>
     {% endblock %}</nav>
     <div class="nav-actions">
-      {% if site.phone %}<a class="nav-phone" href="tel:{{ site.phone_tel_or_derived }}" aria-label="Call {{ site.phone }}"><span class="nav-phone-ic" aria-hidden="true">📞</span><span class="nav-phone-num">{{ site.phone }}</span></a>{% endif %}
+      {% if site.phone %}<a class="nav-phone" href="tel:{{ site.phone_tel_or_derived }}" aria-label="Call {{ site.phone }}"><svg class="nav-phone-ic" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span class="nav-phone-num">{{ site.phone }}</span></a>{% endif %}
       {% block navcta %}<a href="#catalogue" class="btn btn-primary">Shop</a>{% endblock %}
       <button class="cart-btn" data-cart-open aria-label="Cart">
-        <span class="cart-ic">🛒</span><span class="cart-count" data-cart-count>{{ cart_count }}</span>
+        <svg class="cart-ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 2h2.5l2.4 12.1a2 2 0 0 0 2 1.6h8.5a2 2 0 0 0 2-1.6L21 6H5.6"/></svg><span class="cart-count" data-cart-count>{{ cart_count }}</span>
       </button>
     </div>
   </div>
@@ -86,7 +99,10 @@
         <div class="q-item"><h3>≥99% purity</h3><p>Every lot released above a documented purity threshold.</p></div>
         <div class="q-item"><h3>Third-party tested</h3><p>Independent HPLC &amp; mass-spec verification before release.</p></div>
         <div class="q-item"><h3>COA available</h3><p>A batch-specific certificate for every product on request.</p></div>
-        <div class="q-item"><h3>Discreet, from {{ site.ships_from }}</h3><p>Plain, tracked packaging shipped from {{ site.ships_from }}.</p></div>
+        {% comment %} Fourth card previously claimed goods shipped from Canada. They don't —
+           the manufacturing partner ships direct — so it states the delivery
+           window instead. This one edit puts the disclosure on all 8 homepages. {% endcomment %}
+        <div class="q-item"><h3>{{ site.shipping_window|default:"10–15 days" }} delivery</h3><p>Plain, tracked packaging, shipped direct from our manufacturing partner.</p></div>
       </div>
     </div>
   </section>
@@ -103,7 +119,7 @@
       <p class="eyebrow">Analytically verified</p>
       <h2>Purity, documented to the lot.</h2>
       <p>Every batch is independently tested by HPLC and mass spectrometry and released against a
-        certificate of analysis — shipped discreetly from {{ site.ships_from }}.</p>
+        certificate of analysis, then shipped discreetly in plain, tracked packaging.</p>
     </div>
   </section>
   {% endblock %}
@@ -144,8 +160,15 @@
       <div class="foot-contact">{{ site.contact_email_or_default }}</div>
       {% if site.phone %}<div class="foot-contact"><a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% if site.phone_alt %} · <a href="tel:{{ site.phone_alt_tel_or_derived }}">{{ site.phone_alt }}</a>{% endif %}</div>{% endif %}
     </div>
+    <div class="foot-shipping">
+      <strong>Shipping</strong>
+      <p class="ship-notice ship-notice--inline">{{ site.shipping_notice }}</p>
+      <p class="foot-customs">{{ site.customs_notice }}</p>
+    </div>
   </div>
-  <div class="wrap foot-bottom">© 2026 {{ site.brand_name }}. Ships from {{ site.ships_from }}. Age 21+.</div>
+  {% comment %} No origin claim here. Orders ship direct from the manufacturing partner, so
+     stating a ships-from country would be a false representation. {% endcomment %}
+  <div class="wrap foot-bottom">© 2026 {{ site.brand_name }}. {{ site.shipping_window }} delivery. Age 21+.</div>
 </footer>
 {% endblock %}
 

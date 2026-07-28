@@ -13,7 +13,8 @@ site is one command.
 | **Site registry** | `apps/stores` (`Site` model) | domain → brand + theme. The whole "add a site" surface. |
 | **Host routing** | `apps/stores/middleware.py` | resolves `request.site` + `request.theme` from the host (with a tiny cache; www + aliases supported). |
 | **Shared catalogue** | `apps/catalog` (`Product`, `Category`) | one product list for the network — edit once, updates everywhere. |
-| **Cart + checkout** | `apps/stores/cart.py`, `apps/orders` | session cart; checkout creates an `Order` (payment **stubbed** — nothing is charged until you wire a processor). |
+| **Cart + checkout** | `apps/stores/cart.py`, `apps/orders` | session cart; checkout creates an `Order` in the dropship flow (see below). Requires a shipping address and a research-use-only acknowledgement. |
+| **Dropship supply chain** | `apps/suppliers` | `Supplier` + `PurchaseOrder`. One PO per paid customer order, rendered as text for email/WhatsApp and sent by a human. |
 | **Leads** | `apps/leads` | central contact/feedback capture across every site. |
 | **Themes** | `templates/themes/<t>/home.html` + `static/themes/<t>/theme.css` | 8 distinct looks, all extending one `base.html` that owns the catalogue grid, cart drawer, age gate, cookie banner and JS. |
 | **Ops tooling** | management commands | `seed_catalog`, `seed_sites`, `add_site`, `emit_nginx`, `emit_hosts`. |
@@ -181,13 +182,65 @@ Every site that renders that category updates instantly — no per-site edits.
 5. `systemctl enable --now peptidenet` · `nginx -t && systemctl reload nginx`.
 6. TLS: `certbot --nginx -d <each domain>` (or put it behind Cloudflare like SMASH).
 
-## Going live on payments
+## The dropship order flow
 
-Checkout deliberately creates `pending_payment` orders and charges nothing.
-Implement `charge()` in `apps/orders/payments.py` against your processor
-(Stripe/PayPal/Square — the lead system already uses Stripe/PayPal), set
-`PEPTIDENET_PAYMENTS_LIVE=1`, and have the checkout view call it before marking
-an order paid.
+Orders are fulfilled by a manufacturing partner who ships **direct to the
+customer**. We hold no stock.
+
+```
+customer pays  ->  payment_review   (every method is confirmed by a human)
+                   paid             (operator marks it in /manage/purchasing/)
+                   po_sent          (PurchaseOrder raised + sent by email/WhatsApp)
+                   supplier_shipped (tracking number recorded)
+                   delivered
+```
+
+Run it from **`/manage/purchasing/`** — three queues in order: awaiting payment,
+paid-but-not-ordered, and open purchase orders. Nothing sends itself; the
+supplier takes orders by email and WhatsApp, so an operator presses send. The
+page renders the PO as plain text with a prefilled `mailto:` and `wa.me` link.
+
+**Payments** (`PEPTIDENET_PAYMENT_METHODS`, default all four): Interac
+e-Transfer, cryptocurrency, Alipay, Western Union. None of them auto-capture —
+that's why a new order lands in `payment_review` rather than `paid`.
+
+**Inventory.** `PEPTIDENET_DROPSHIP=1` (the default) means checkout does **not**
+decrement an owned stock pool — we don't own one. `stock_qty` is a
+supplier-availability signal a human maintains. Set `PEPTIDENET_DROPSHIP=0` to
+restore the old owned-inventory behaviour.
+
+**Delivery window** (`PEPTIDENET_SHIPPING_MIN_DAYS` / `MAX`, default 10–15). It
+is stated on the product page under the buy button, in the cart above checkout,
+in the confirmation email, and on the customer's `/order/<number>/` status page.
+
+### Two rules the copy must keep
+
+1. **No origin claims.** `Site.ships_from` is deliberately blank and is never
+   rendered. Goods ship direct from the manufacturing partner, so stating a
+   ships-from country would be a false representation under Canada's Competition
+   Act and the US FTC Act. `test_no_shipping_origin_claim_anywhere` enforces this
+   across all 8 domains — if you add one, the suite fails.
+2. **No invented reviews.** The reviews block renders real `Review` rows and an
+   honest empty state. Fabricated testimonials breach Competition Act s.74.01 and
+   the FTC endorsement rules. `test_no_fabricated_reviews` enforces it.
+
+## Geo targeting (.ca = Canada, .com = USA)
+
+Each `Site` carries a `country`, a `currency` and a `brand_key`. Sites sharing a
+`brand_key` are **hreflang twins** — the three .ca/.com brand pairs declare each
+other as regional alternates, which is what stops Google reading eight
+same-catalogue domains as duplicate content and suppressing all but one.
+Blog keywords split by market in `apps/blog/keywords.py`; product JSON-LD carries
+the right `priceCurrency`, `eligibleRegion` and a `shippingDetails` transit time
+matching the on-page promise.
+
+## Product photography
+
+`python manage.py generate_product_images` renders the vials from a
+parameterised HTML scene and screenshots them (Playwright), producing a
+pixel-consistent set with correct, legible labels and the research-use-only
+marking. `assign_product_images` points each `Product.image` / `gallery` at the
+output; `seed_catalog` picks them up automatically when the files exist.
 
 > For Research Use Only. All products are intended for laboratory and in-vitro
 > research — not for human or veterinary use. Age-gated 21+.

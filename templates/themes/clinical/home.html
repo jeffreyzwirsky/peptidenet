@@ -29,7 +29,7 @@
       <h1>{{ site.tagline }}</h1>
       <p class="lead">{{ site.brand_name }} supplies analytically certified peptides and research
         molecules — each lot independently verified by HPLC and mass spectrometry, documented,
-        and shipped from {{ site.ships_from }}.</p>
+        and released against a batch-specific certificate of analysis.</p>
       <div class="hero-cta">
         <a href="#catalogue" class="btn btn-primary">Browse the catalogue</a>
         <a href="#coa" class="btn btn-ghost">View a sample COA</a>
@@ -111,6 +111,58 @@
         </div>
       </div>
     </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block quality %}
+<section id="quality" class="quality">
+  {% include "partials/_molecule_bg.html" %}
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Analytical Specification</p>
+      <h2>Reference-grade material, released against a written specification.</h2>
+      <p class="sec-sub">Four controls stand between a synthesis lot and a listing on this page.
+        Each one leaves a record you can read.</p>
+    </div>
+    <div class="quality-grid">
+      <div class="q-item">
+        <h3>Purity specification</h3>
+        <p>Release requires ≥99% by RP-HPLC area. The integration report — not a rounded
+          marketing figure — is what the release decision is made against.</p>
+      </div>
+      <div class="q-item">
+        <h3>Identity confirmation</h3>
+        <p>ESI mass spectrometry matches observed mass to the expected mass for the sequence.
+          A purity number without an identity result is an incomplete assay.</p>
+      </div>
+      <div class="q-item">
+        <h3>Assay documentation</h3>
+        <p>Each lot carries a certificate of analysis: method, purity, identity, appearance,
+          fill weight, water content and release date, keyed to the vial's lot number.</p>
+      </div>
+      <div class="q-item">
+        <h3>Fulfilment terms</h3>
+        <p>{{ site.shipping_window }} delivery to laboratories across the United States, sent
+          direct from our manufacturing partner in plain, tracked packaging.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block lab_band %}
+<section class="lab-band">
+  <img class="lab-band-img" src="/static/brand/og-clinical.jpg" width="1200" height="630"
+       alt="Analytical instrumentation and sealed research-compound vials in a laboratory" loading="lazy">
+  <div class="lab-band-scrim"></div>
+  <div class="wrap lab-band-inner">
+    <p class="eyebrow">Documented to specification</p>
+    <h2>Every figure on the label has an instrument trace behind it.</h2>
+    <p>Independent HPLC and mass-spectrometry data are generated per lot, reviewed against the
+      release specification and archived with the batch record. Request the current lot's
+      certificate before you order, then compare it to the vial you receive.
+      {{ site.shipping_notice }}</p>
   </div>
 </section>
 {% endblock %}

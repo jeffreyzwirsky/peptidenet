@@ -19,7 +19,7 @@
       <div class="hero-stats">
         <div class="st"><div class="n grad">≥99%</div><div class="l">Release purity</div></div>
         <div class="st"><div class="n">HPLC / MS</div><div class="l">Verified batches</div></div>
-        <div class="st"><div class="n">{{ site.ships_from }}</div><div class="l">Cold-chain shipped</div></div>
+        <div class="st"><div class="n">{{ site.shipping_window }}</div><div class="l">Delivery window</div></div>
       </div>
     </div>
     <div class="hero-figure hero-figure-ed">
@@ -49,7 +49,7 @@
       <div class="ed-l">
         <div class="big-num grad">02</div>
         <h3>Documented from vial to spectrum.</h3>
-        <p>Every batch that leaves our facility in {{ site.ships_from }} carries a full certificate of
+        <p>Every batch in the library carries a full certificate of
           analysis — identity, purity and mass confirmation. No mystery powders, no unverifiable claims.
           Just numbers you can put in a lab notebook. First order gets code <b>{{ site.promo_code }}</b>.</p>
       </div>
@@ -57,6 +57,58 @@
         <div class="quote">"The paperwork is the product. Purity means nothing without a spectrum to back it."</div>
       </div>
     </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block quality %}
+<section id="quality" class="quality">
+  {% include "partials/_molecule_bg.html" %}
+  <div class="wrap">
+    <div class="section-head ed-head">
+      <span class="sec-num">03 — The Standard</span>
+      <h2>Four entries in the masthead.</h2>
+      <p class="eyebrow">The editorial policy of a reference library: publish the molecule, publish
+        the method, publish the number, publish the date.</p>
+    </div>
+    <div class="quality-grid">
+      <div class="q-item">
+        <h3>A threshold, not an adjective</h3>
+        <p>"High purity" is copywriting. ≥99% by HPLC area, applied as a release gate to every
+          lot, is a specification you can hold us to.</p>
+      </div>
+      <div class="q-item">
+        <h3>Two instruments, one answer</h3>
+        <p>Chromatography says how much. Mass spectrometry says what. Independent laboratories run
+          both before a compound is catalogued.</p>
+      </div>
+      <div class="q-item">
+        <h3>Molecular data on the page</h3>
+        <p>Sequence, molecular weight and research category are printed with every listing —
+          the reference detail you'd otherwise go hunting for in a database.</p>
+      </div>
+      <div class="q-item">
+        <h3>Delivery, stated plainly</h3>
+        <p>{{ site.shipping_window }} to researchers across the United States, shipped direct from
+          our manufacturing partner in plain, tracked packaging.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block lab_band %}
+<section class="lab-band">
+  <img class="lab-band-img" src="/static/brand/og-editorial.jpg" width="1200" height="630"
+       alt="Research-compound vials photographed against a bold graphic backdrop" loading="lazy">
+  <div class="lab-band-scrim"></div>
+  <div class="wrap lab-band-inner">
+    <p class="eyebrow">04 — Provenance</p>
+    <h2>A reference library that happens to sell vials.</h2>
+    <p>Eighteen compounds, each with its sequence, molecular weight, purity result and mass
+      confirmation on the record. Read the entry first and the price second — that's the order
+      the design intends. {{ site.shipping_notice }} All compounds are supplied for in-vitro
+      laboratory research only.</p>
   </div>
 </section>
 {% endblock %}

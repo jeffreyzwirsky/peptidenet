@@ -17,7 +17,7 @@
     <div class="hero-text">
       <div class="hero-eyebrow">
         <span class="ln"></span>
-        <span class="eyebrow">Compounded for Research · Ships from {{ site.ships_from }}</span>
+        <span class="eyebrow">Compounded for Research · Documented to the Lot</span>
       </div>
       <h1>Quiet purity,<br><em>documented</em> to the lot.</h1>
       <p class="lede">{{ site.tagline }}</p>
@@ -28,7 +28,7 @@
       <div class="hero-meta">
         <div><span class="n">≥99%</span><span class="eyebrow">Release purity</span></div>
         <div><span class="n">100%</span><span class="eyebrow">COA coverage</span></div>
-        <div><span class="n">Est.</span><span class="eyebrow">{{ site.ships_from }}</span></div>
+        <div><span class="n">{{ site.shipping_window }}</span><span class="eyebrow">Delivery window</span></div>
       </div>
     </div>
     <div class="hero-art">
@@ -58,4 +58,55 @@
   <h2>Research Compound Catalogue</h2>
   <p class="sec-sub">Every vial is lyophilized, sealed, and released against its own certificate of analysis. Select a category to refine.</p>
 </div>
+{% endblock %}
+
+{% block quality %}
+<section id="quality" class="quality">
+  {% include "partials/_molecule_bg.html" %}
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">House Standards</p>
+      <h2>A small formulary, kept carefully.</h2>
+      <p class="sec-sub">Eighteen compounds, each one handled the same unhurried way — from the
+        release assay to the paper that travels with the vial.</p>
+    </div>
+    <div class="quality-grid">
+      <div class="q-item">
+        <h3>Released at ≥99%</h3>
+        <p>A lot is admitted to the formulary only once it has been measured above the threshold.
+          Nothing is stocked on the strength of a supplier's word.</p>
+      </div>
+      <div class="q-item">
+        <h3>Read twice, by outside hands</h3>
+        <p>Independent HPLC for purity, mass spectrometry for identity. Two readings, taken by a
+          third party, before anything is put on the shelf.</p>
+      </div>
+      <div class="q-item">
+        <h3>Lyophilised &amp; sealed</h3>
+        <p>Compounds are freeze-dried to a stable powder and sealed under vacuum. Kept cool, dark
+          and dry, a sealed vial waits patiently for your bench.</p>
+      </div>
+      <div class="q-item">
+        <h3>Quietly delivered</h3>
+        <p>{{ site.shipping_window }} from our manufacturing partner, in plain, unbranded,
+          tracked packaging — with the lot's certificate of analysis to match.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block lab_band %}
+<section class="lab-band">
+  <img class="lab-band-img" src="/static/brand/og-apothecary.jpg" width="1200" height="630"
+       alt="Sealed amber vials of lyophilised research compounds on an apothecary shelf" loading="lazy">
+  <div class="lab-band-scrim"></div>
+  <div class="wrap lab-band-inner">
+    <p class="eyebrow">Handled with care</p>
+    <h2>Freeze-dried, sealed, and written up before it leaves the shelf.</h2>
+    <p>An apothecary's habit, applied to research chemistry: label everything, record everything,
+      rush nothing. Each lot leaves with its own certificate of analysis, storage guidance and
+      handling notes. {{ site.shipping_notice }} For laboratory research use only.</p>
+  </div>
+</section>
 {% endblock %}

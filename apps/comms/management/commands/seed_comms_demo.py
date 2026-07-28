@@ -14,7 +14,7 @@ NUMBERS = [
 THREADS = [
     ("+15875551212", "Dr. Priya Sandhu", "smashfat.ca", [
         ("in", "Hi, do you ship BPC-157 to Alberta?"),
-        ("out", "We do — free express on orders over $200, usually 1–2 days to AB."),
+        ("out", "Orders ship direct from our manufacturing partner \u2014 allow 10\u201315 days."),
         ("in", "Great, is there a COA for the current batch?"),
     ]),
     ("+16045553434", "Ty Nguyen", "smashfatbiolabs.ca", [

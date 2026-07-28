@@ -12,7 +12,13 @@ from apps.orders.models import Order, OrderItem
 from apps.stores.models import Site
 
 # One place to change what "revenue" counts as.
-REVENUE_STATUSES = ["paid", "fulfilled"]
+# Money has landed once an order is marked paid; it stays counted through the
+# whole dropship run (PO raised -> supplier shipped -> delivered). The old
+# "fulfilled" status no longer exists — see Order.PAID_STATUSES.
+REVENUE_STATUSES = list(Order.PAID_STATUSES)
+# Orders still waiting on money. Under manual payment confirmation this is where
+# most new orders sit, so it's the queue that actually needs watching.
+PIPELINE_STATUSES = list(Order.OPEN_STATUSES)
 
 
 def _money(x):
@@ -30,7 +36,7 @@ def dashboard(request):
     cogs = money(realized, "cost_total")
     gross_profit = revenue - cogs
     margin_pct = round(gross_profit / revenue * 100, 1) if revenue else 0
-    pipeline = money(orders.filter(status="pending_payment"), "total")
+    pipeline = money(orders.filter(status__in=PIPELINE_STATUSES), "total")
 
     # Inventory valuation (on-hand) at cost and at retail.
     inv = Product.objects.filter(is_active=True)
@@ -54,7 +60,7 @@ def dashboard(request):
         "nav": "dashboard",
         "kpi": {
             "orders": orders.count(),
-            "pending": orders.filter(status="pending_payment").count(),
+            "pending": orders.filter(status__in=PIPELINE_STATUSES).count(),
             "revenue": revenue,
             "cogs": cogs,
             "gross_profit": gross_profit,
@@ -138,7 +144,7 @@ def inventory(request):
     cat = request.GET.get("cat", "")
     if cat:
         qs = qs.filter(category__slug=cat)
-    # Units sold per product (paid/fulfilled) for a quick sell-through view.
+    # Units sold per product (any paid status) for a quick sell-through view.
     sold = {
         r["product_id"]: r["n"]
         for r in OrderItem.objects.filter(order__status__in=REVENUE_STATUSES)
@@ -521,4 +527,105 @@ def security(request):
     return render(request, "manage/security.html", {
         "nav": "security", "events": events[:200], "by_kind": by_kind,
         "total": events.count(),
+    })
+
+
+# ---- Suppliers & purchase orders (dropship) ----
+from apps.suppliers import dispatch as _dispatch  # noqa: E402
+from apps.suppliers.models import PurchaseOrder, Supplier  # noqa: E402
+
+
+def _notify(order, fn_name):
+    """Fire a customer email, but never let a mail failure break the queue —
+    the operator's action has already been recorded."""
+    try:
+        from apps.mailer import mailer
+        getattr(mailer, fn_name)(order)
+    except Exception:
+        pass
+
+
+@console_required
+def purchasing(request):
+    """
+    The dropship queue.
+
+    Three things a human has to do here, in order: confirm a customer's payment
+    (every method we accept is manual), raise the purchase order, then send it
+    by email or WhatsApp and paste back the tracking number. Nothing is sent
+    automatically — the supplier channels are a person's inbox and phone.
+    """
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "mark_paid":
+            order = get_object_or_404(Order, pk=request.POST.get("order_id"))
+            order.mark_paid(
+                method=request.POST.get("payment_method", "") or order.payment_method,
+                reference=request.POST.get("payment_reference", ""),
+            )
+            _notify(order, "payment_confirmed")
+            messages.success(request, f"Order {order.number} marked paid.")
+
+        elif action == "raise_po":
+            order = get_object_or_404(Order, pk=request.POST.get("order_id"))
+            if not order.is_paid:
+                messages.error(
+                    request,
+                    f"Order {order.number} isn't paid yet — confirm the payment "
+                    "before committing to the supplier.",
+                )
+            else:
+                try:
+                    po = PurchaseOrder.build_for(order)
+                    messages.success(request, f"{po.number} drafted for {po.supplier.name}.")
+                except ValueError as exc:
+                    messages.error(request, str(exc))
+
+        elif action == "mark_sent":
+            po = get_object_or_404(PurchaseOrder, pk=request.POST.get("po_id"))
+            po.mark_sent(channel=request.POST.get("channel", ""),
+                         by=request.user.get_username())
+            messages.success(request, f"{po.number} marked sent.")
+
+        elif action == "add_tracking":
+            po = get_object_or_404(PurchaseOrder, pk=request.POST.get("po_id"))
+            po.mark_shipped(
+                tracking_number=request.POST.get("tracking_number", ""),
+                carrier=request.POST.get("tracking_carrier", ""),
+            )
+            po.order.refresh_from_db()
+            _notify(po.order, "order_shipped")
+            messages.success(request, f"{po.number} shipped — customer can now track it.")
+
+        return redirect(f"{request.resolver_match.namespace}:purchasing")
+
+    awaiting_payment = (
+        Order.objects.filter(status__in=PIPELINE_STATUSES)
+        .select_related("site").order_by("created_at")
+    )
+    # Paid but no PO raised yet — the queue that actually costs you money to ignore.
+    to_order = (
+        Order.objects.filter(status="paid", purchase_order__isnull=True)
+        .select_related("site").order_by("created_at")
+    )
+    pos = (
+        PurchaseOrder.objects.select_related("supplier", "order", "order__site")
+        .prefetch_related("items")
+    )
+    open_pos = [p for p in pos.exclude(status__in=("delivered", "cancelled"))]
+    for p in open_pos:
+        p.po_text = _dispatch.render_po_text(p)
+        p.wa_link = _dispatch.whatsapp_link(p)
+        p.mail_link = _dispatch.mailto_link(p)
+
+    return render(request, "manage/purchasing.html", {
+        "nav": "purchasing",
+        "awaiting_payment": awaiting_payment,
+        "to_order": to_order,
+        "open_pos": open_pos,
+        "overdue": [p for p in open_pos if p.is_overdue],
+        "suppliers": Supplier.objects.filter(is_active=True),
+        "payment_methods": Order.PAYMENT_METHODS,
+        "channels": Supplier.CHANNELS,
     })

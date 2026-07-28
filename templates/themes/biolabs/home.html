@@ -10,7 +10,7 @@
   <div class="hero-scrim"></div>
   <div class="wrap hero-inner">
     <div class="hero-copy">
-      <p class="eyebrow">Research Compounds · Canada</p>
+      <p class="eyebrow">Research Compounds · For Canadian laboratories</p>
       <h1>Purity you can <span class="grad">prove.</span></h1>
       <p class="lead">High-purity research compounds for serious scientific inquiry — every batch
         independently third-party tested, with a certificate of analysis published for every product.</p>
@@ -23,9 +23,58 @@
         <li><b>≥99%</b> HPLC-verified</li>
         <li><b>3rd-party</b> tested</li>
         <li><b>COA</b> every batch</li>
-        <li><b>Ships</b> from Canada</li>
+        <li><b>{{ site.shipping_window }}</b> delivery</li>
       </ul>
     </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block quality %}
+<section id="quality" class="quality">
+  {% include "partials/_molecule_bg.html" %}
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Analytical Standards</p>
+      <h2>Nothing ships on a claim. Everything ships on data.</h2>
+    </div>
+    <div class="quality-grid">
+      <div class="q-item">
+        <h3>The release gate</h3>
+        <p>A lot either clears the ≥99% purity threshold or it never reaches the catalogue.
+          There is no second tier and no "close enough" grade.</p>
+      </div>
+      <div class="q-item">
+        <h3>Two instruments, independently</h3>
+        <p>Reversed-phase HPLC produces the purity figure; mass spectrometry confirms the
+          molecule that figure belongs to. Both are run by third-party laboratories.</p>
+      </div>
+      <div class="q-item">
+        <h3>The lot file follows the vial</h3>
+        <p>A certificate of analysis tied to the exact lot number on your vial — chromatogram,
+          mass confirmation, appearance and fill weight. Ask for it before you order if you like.</p>
+      </div>
+      <div class="q-item">
+        <h3>What we promise on delivery</h3>
+        <p>{{ site.shipping_window }}, direct from our manufacturing partner, in plain tracked
+          packaging. We publish the window we can actually stand behind.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block lab_band %}
+<section class="lab-band">
+  <img class="lab-band-img" src="/static/brand/og-biolabs.jpg" width="1200" height="630"
+       alt="Research-compound vials on a dark analytical bench" loading="lazy">
+  <div class="lab-band-scrim"></div>
+  <div class="wrap lab-band-inner">
+    <p class="eyebrow">The evidence file</p>
+    <h2>If we can't show the chromatogram, we don't make the claim.</h2>
+    <p>Purity is a measurement, not an adjective. Every compound in this catalogue carries an
+      independent HPLC purity result and an MS identity confirmation recorded against its lot
+      number — the same file our own bench works from. {{ site.shipping_notice }}</p>
   </div>
 </section>
 {% endblock %}

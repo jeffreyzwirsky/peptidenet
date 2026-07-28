@@ -7,14 +7,25 @@ DISCLAIMER = ("All products are for laboratory and in-vitro research use only �
               "not for human or veterinary use.")
 
 
+def _window(site):
+    """Delivery window as a plain string. Single source of truth for anything the
+    assistant says about timing."""
+    if site is None:
+        return "10\u201315"
+    return f"{site.shipping_min_days}\u2013{site.shipping_max_days}"
+
+
 def system_prompt(site):
     brand = site.brand_name if site else "our store"
     lines = [
-        f"You are the support assistant for {brand}, a Canadian research-compound store.",
+        f"You are the support assistant for {brand}, a research-compound store.",
         "Answer concisely and helpfully about products, purity, COAs, shipping and ordering.",
         "NEVER give medical, dosing, or human-use advice. Always keep a research-use-only framing.",
-        f"Ships from {getattr(site, 'ships_from', 'Canada') if site else 'Canada'}. "
-        "Every batch is third-party HPLC/MS tested to ≥99% purity with a COA available.",
+        "Orders ship directly from our manufacturing partner; delivery takes "
+        f"{_window(site)} days. NEVER state or imply which country goods ship from \u2014 "
+        "we make no origin claim. If asked, say orders ship from our manufacturing "
+        "partner and quote the delivery window.",
+        "Every batch is third-party HPLC/MS tested to \u226599% purity with a COA available.",
         "Catalogue (name — category — $price/vial — sizes):",
     ]
     for p in Product.objects.filter(is_active=True).select_related("category")[:40]:
@@ -36,9 +47,10 @@ def stub_answer(question, site):
                     f"released at {p.purity} purity and currently {stock}. {p.description} "
                     f"A COA is available on request. {DISCLAIMER}")
     if any(w in q for w in ["ship", "delivery", "arrive", "how long", "track"]):
-        sf = getattr(site, "ships_from", "Canada") if site else "Canada"
-        return (f"We ship from {sf} — most orders arrive in 1–4 days. Free express over $200 "
-                f"and free priority over $500, in plain discreet packaging. {DISCLAIMER}")
+        return (f"Orders ship directly from our manufacturing partner \u2014 allow "
+                f"{_window(site)} days for delivery, in plain, discreet, tracked packaging. "
+                "Shipments may be subject to customs clearance, which can affect timing. "
+                f"{DISCLAIMER}")
     if any(w in q for w in ["coa", "test", "purity", "quality", "hplc", "lab"]):
         return ("Every batch is independently third-party tested by HPLC and mass spec to a "
                 f"≥99% purity threshold, and a batch-specific COA is available for any product. {DISCLAIMER}")

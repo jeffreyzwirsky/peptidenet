@@ -24,7 +24,7 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow hero-eyebrow">● Verified {{ site.ships_from }} research supplier</span>
+      <span class="eyebrow hero-eyebrow">● Documentation-verified research supplier</span>
       <p class="hero-q">You searched: "where do I get peptides?"</p>
       <h1>The answer <span>is here.</span></h1>
       <p class="lead">{{ site.tagline }}</p>
@@ -46,7 +46,7 @@
         <div class="checkline">✓ Third-party HPLC &amp; mass-spec verified</div>
         <div class="checkline">✓ Certificate of Analysis on every batch</div>
         <div class="checkline">✓ Discreet, tracked shipping</div>
-        <div class="checkline">✓ Dispatched from within {{ site.ships_from }}</div>
+        <div class="checkline">✓ A published delivery window: {{ site.shipping_window }}</div>
       </aside>
     </div>
   </div>
@@ -77,7 +77,7 @@
             <th>Criteria</th>
             <th class="us col-us">{{ site.brand_name }}</th>
             <th>Typical online vendor</th>
-            <th>Overseas grey market</th>
+            <th>Unverified grey market</th>
           </tr>
         </thead>
         <tbody>
@@ -100,10 +100,10 @@
             <td><span class="no">✕ None</span></td>
           </tr>
           <tr>
-            <td class="feat">Ships from {{ site.ships_from }}</td>
-            <td class="col-us"><span class="yes">✓ Domestic</span></td>
-            <td><span class="maybe">Sometimes</span></td>
-            <td><span class="no">✕ Customs risk</span></td>
+            <td class="feat">Published delivery window</td>
+            <td class="col-us"><span class="yes">✓ {{ site.shipping_window }}</span></td>
+            <td><span class="maybe">"Fast" only</span></td>
+            <td><span class="no">✕ Not stated</span></td>
           </tr>
           <tr>
             <td class="feat">Discreet, tracked packaging</td>
@@ -150,9 +150,9 @@
       </details>
       <details class="acc">
         <summary>How is my order shipped?<span class="plus">+</span></summary>
-        <p>Orders dispatch same-day from within {{ site.ships_from }} in plain, unbranded packaging with
-          tracked delivery. Lyophilized compounds are stable for transit; we recommend refrigeration on
-          arrival.</p>
+        <p>{{ site.shipping_notice }} Everything travels in plain, unbranded packaging with tracked
+          delivery. {{ site.customs_notice }} Lyophilized compounds are stable for transit; we
+          recommend refrigerated storage on arrival.</p>
       </details>
       <details class="acc">
         <summary>What does the {{ site.promo_code }} code do?<span class="plus">+</span></summary>
@@ -160,6 +160,63 @@
           Enter it at checkout. Questions? Reach us at {{ site.contact_email_or_default }}.</p>
       </details>
     </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block quality %}
+<section id="quality" class="quality">
+  {% include "partials/_molecule_bg.html" %}
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">The vetting criteria</p>
+      <h2>Five things a supplier must be able to prove.</h2>
+      <p class="head-sub">This is the checklist we built the directory around. Run it against us,
+        then run it against whoever else is in your browser tabs.</p>
+    </div>
+    <div class="quality-grid">
+      <div class="q-item">
+        <h3>1 · A stated release threshold</h3>
+        <p>Ours is ≥99% by HPLC area, applied lot by lot. A supplier without a published number
+          has nothing to fail against.</p>
+      </div>
+      <div class="q-item">
+        <h3>2 · Independent testing</h3>
+        <p>HPLC for purity, mass spectrometry for identity, run outside the seller's own building.
+          In-house-only data is a marketing asset, not a control.</p>
+      </div>
+      <div class="q-item">
+        <h3>3 · A lot-matched certificate</h3>
+        <p>The COA's lot number must match the vial's. Reused certificates are the single most
+          common failure among the listings we've reviewed.</p>
+      </div>
+      <div class="q-item">
+        <h3>4 · A published delivery window</h3>
+        <p>{{ site.shipping_window }}, direct from our manufacturing partner, tracked. A real
+          window beats an unverifiable promise of speed every time.</p>
+      </div>
+      <div class="q-item">
+        <h3>5 · A reachable human</h3>
+        <p>An email address and phone number that answer questions about a batch before you buy —
+          and still answer after you have.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block lab_band %}
+<section class="lab-band">
+  <img class="lab-band-img" src="/static/brand/og-directory.jpg" width="1200" height="630"
+       alt="Research-compound vials beside batch documentation on a laboratory bench" loading="lazy">
+  <div class="lab-band-scrim"></div>
+  <div class="wrap lab-band-inner">
+    <p class="eyebrow">Verification, not vibes</p>
+    <h2>A supplier is only as good as the file behind the lot.</h2>
+    <p>We answer the search query that brought you here by showing our own paperwork: ≥99% release
+      purity, third-party HPLC and mass-spec confirmation, and a certificate of analysis tied to
+      the lot number on your vial, available to researchers across the United States before you
+      spend a dollar. {{ site.shipping_notice }} Supplied for in-vitro laboratory research only.</p>
   </div>
 </section>
 {% endblock %}

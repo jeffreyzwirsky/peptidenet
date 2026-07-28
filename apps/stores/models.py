@@ -9,6 +9,9 @@ class Site(models.Model):
     turn these rows into the nginx server_name blocks + ALLOWED_HOSTS list.
     """
 
+    COUNTRIES = [("CA", "Canada"), ("US", "United States")]
+    CURRENCIES = [("CAD", "Canadian dollar"), ("USD", "US dollar")]
+
     domain = models.CharField(
         max_length=190, unique=True, help_text="Canonical host, e.g. smashfatbiolabs.ca"
     )
@@ -33,7 +36,38 @@ class Site(models.Model):
     )
     phone_alt = models.CharField(max_length=40, blank=True, help_text="Secondary display phone.")
     phone_alt_tel = models.CharField(max_length=40, blank=True)
-    ships_from = models.CharField(max_length=80, default="Canada")
+    ships_from = models.CharField(
+        max_length=80, blank=True, default="",
+        help_text="DEPRECATED — internal note only. Never rendered on the storefront. "
+                  "Orders ship direct from the manufacturing partner, so an origin "
+                  "claim here would be a false representation.",
+    )
+
+    # --- market / geo targeting -------------------------------------------
+    # `country` drives hreflang, currency, geo JSON-LD and which keyword set the
+    # blog generator uses. `brand_key` groups the .ca/.com twins of one brand so
+    # hreflang can pair them and Google stops treating them as duplicates.
+    country = models.CharField(
+        max_length=2, choices=COUNTRIES, default="CA",
+        help_text="Primary market this domain targets. .ca -> CA, .com -> US.",
+    )
+    currency = models.CharField(
+        max_length=3, choices=CURRENCIES, default="CAD",
+        help_text="Display + schema currency for this storefront.",
+    )
+    brand_key = models.SlugField(
+        max_length=80, blank=True,
+        help_text="Sites sharing a brand_key are hreflang twins (e.g. the .ca and "
+                  ".com of one brand). Leave blank for a standalone site.",
+    )
+
+    # --- fulfilment ---------------------------------------------------------
+    # Orders are dropshipped: the manufacturing partner ships direct to the
+    # customer. These drive the shipping disclosure shown on the product page,
+    # in the cart, at checkout and in the confirmation email.
+    shipping_min_days = models.PositiveSmallIntegerField(default=10)
+    shipping_max_days = models.PositiveSmallIntegerField(default=15)
+
     meta_description = models.CharField(max_length=300, blank=True)
     # Optional per-site theme variable overrides (e.g. {"accent": "#c6ff00"}).
     palette = models.JSONField(default=dict, blank=True)
@@ -78,6 +112,59 @@ class Site(models.Model):
             digits = "".join(c for c in self.phone_alt if c.isdigit())
             return ("+" + digits) if digits else ""
         return ""
+
+    # --- geo / SEO helpers --------------------------------------------------
+    @property
+    def hreflang(self):
+        """BCP-47 tag for this storefront, e.g. 'en-ca'."""
+        return f"en-{self.country.lower()}"
+
+    @property
+    def country_name(self):
+        return dict(self.COUNTRIES).get(self.country, "Canada")
+
+    @property
+    def currency_symbol(self):
+        return "$"
+
+    def twins(self):
+        """Sibling storefronts of the same brand in other markets. Drives the
+        hreflang alternates. Returns [] for a standalone site — emitting
+        hreflang with no real alternate is worse than emitting none."""
+        if not self.brand_key:
+            return []
+        return list(
+            Site.objects.filter(brand_key=self.brand_key, is_active=True)
+            .exclude(pk=self.pk)
+        )
+
+    def alternates(self):
+        """Self + twins, for building the full hreflang block. Only returns
+        rows when a genuine alternate exists."""
+        sibs = self.twins()
+        return ([self] + sibs) if sibs else []
+
+    # --- fulfilment helpers -------------------------------------------------
+    @property
+    def shipping_window(self):
+        """e.g. '10–15 days' — the single source of truth for the delivery
+        promise shown on the product page, cart, checkout and email."""
+        return f"{self.shipping_min_days}–{self.shipping_max_days} days"
+
+    @property
+    def shipping_notice(self):
+        """One plain sentence stating the delivery window. Deliberately makes no
+        claim about where goods ship from."""
+        return (
+            f"Orders ship directly from our manufacturing partner. "
+            f"Allow {self.shipping_window} for delivery."
+        )
+
+    @property
+    def customs_notice(self):
+        """Shipments may cross a border, so the buyer is told customs can apply.
+        States no country of origin."""
+        return "Shipments may be subject to customs clearance, which can affect delivery time."
 
     def __str__(self):
         return f"{self.brand_name} ({self.domain})"

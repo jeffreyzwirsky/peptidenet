@@ -12,14 +12,31 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
     </nav>
 
     <div class="pdp-top">
-      <div class="pdp-media" style="--cap:{{ product.category.color }}">
-        {% if product.is_new %}<span class="pdp-flag">New</span>{% endif %}
-        <img class="pdp-photo" src="/static/hero/hero-vials.jpg"
-             alt="{{ product.name }} — clear-liquid research-compound vials" loading="eager">
-        <div class="pdp-media-badge">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          Third-party tested · {{ product.purity }}
+      {% comment %} Previously every product page rendered the same hardcoded stock photo
+         (/static/hero/hero-vials.jpg — the homepage hero reused). Now each
+         product shows its own render, with a thumbnail gallery. {% endcomment %}
+      <div class="pdp-gallery">
+        <div class="pdp-media" style="--cap:{{ product.category.color }}">
+          {% if product.is_new %}<span class="pdp-flag">New</span>{% endif %}
+          <img class="pdp-photo" data-pdp-photo
+               src="{% if product.image %}{{ product.image }}{% else %}/static/hero/hero-vials.jpg{% endif %}"
+               alt="{{ product.alt_text }}" width="1000" height="1000" loading="eager" fetchpriority="high">
+          <div class="pdp-media-badge">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            Third-party tested · {{ product.purity }}
+          </div>
         </div>
+        {% if product.has_gallery %}
+        <div class="pdp-thumbs" role="group" aria-label="{{ product.name }} images">
+          {% for img in product.images %}
+          <button type="button" class="pdp-thumb{% if forloop.first %} is-active{% endif %}"
+                  data-pdp-thumb data-src="{{ img.src }}" data-alt="{{ img.alt }}"
+                  aria-label="View {{ img.label|default:'image' }}">
+            <img src="{{ img.src }}" alt="" width="160" height="160" loading="lazy" decoding="async">
+          </button>
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
 
       <div class="pdp-buy" data-buybox>
@@ -29,7 +46,11 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
         {% if product.research_area %}<p class="pdp-lead">{{ product.research_area }}</p>{% endif %}
 
         <div class="pdp-pricerow">
-          <div class="pdp-price">${{ product.price }} <span>CAD / vial</span></div>
+          <div class="pdp-price">
+            ${{ product.price }} <span>{{ site.currency|default:"CAD" }} / vial</span>
+            {% if product.is_discounted %}<s class="price-was">${{ product.list_price }}</s>
+            <span class="price-save">Save {{ product.discount_pct }}%</span>{% endif %}
+          </div>
           <div class="pdp-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
         </div>
 
@@ -56,6 +77,13 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
           </button>
         {% endif %}
 
+        {% comment %} Delivery window sits directly under the buy button — the moment the
+           decision is made — not buried in a policy page. {% endcomment %}
+        <p class="ship-notice">
+          <strong>{{ site.shipping_window|default:"10–15 days" }} delivery.</strong>
+          {{ site.shipping_notice }} {{ site.customs_notice }}
+        </p>
+
         <table class="pdp-bulk">
           <caption>Buy more, save more — applied automatically at checkout</caption>
           <thead><tr><th>Quantity</th><th>Discount</th><th>Per vial</th></tr></thead>
@@ -70,10 +98,10 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
         <ul class="pdp-trust">
           <li><b>COA</b> issued by {{ product.lab_name }}</li>
           <li><b>HPLC + MS</b> verified identity</li>
-          <li><b>Ships</b> discreetly from {{ site.ships_from }}</li>
-          <li><b>Interac</b> &amp; crypto accepted</li>
+          <li><b>Discreet</b> plain, tracked packaging</li>
+          <li><b>{{ payment_methods_label|default:"Interac, crypto, Alipay &amp; Western Union" }}</b></li>
         </ul>
-        <p class="pdp-calc-link"><a href="/calculator/">🧪 Reconstitution &amp; dosage calculator →</a></p>
+        <p class="pdp-calc-link"><a href="/calculator/"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v6.5L4.4 18a2 2 0 0 0 1.7 3h11.8a2 2 0 0 0 1.7-3L15 9.5V3"/><path d="M7.5 3h9M7 14h10"/></svg> Reconstitution &amp; dosage calculator →</a></p>
       </div>
     </div>
 

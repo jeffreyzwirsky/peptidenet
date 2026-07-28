@@ -1,11 +1,37 @@
+{% comment %} These four reviews used to be hardcoded fabrications — invented names, cities
+   and five-star quotes, including "arrived in two days" and "shipping is fair
+   and always fast". Two problems: they were false, and made-up testimonials
+   breach Competition Act s.74.01 in Canada and the FTC's endorsement rules in
+   the US. The project's own notes say reviews were meant to ship empty for
+   exactly this reason.
+
+   It now renders real Review rows and shows an honest empty state until there
+   are some. `reviews` is passed by the product view; `site_reviews` covers the
+   homepage (Review rows with no product attached). {% endcomment %}
 <section id="reviews" class="reviews">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">Researcher Reviews</p><h2>Trusted by researchers across Canada</h2></div>
-    <div class="review-grid">
-      <figure class="review"><div class="stars">★★★★★</div><blockquote>Ordered BPC-157 and TB-500 together — arrived in two days, packaging was solid, and the COA was right on the site. Will reorder.</blockquote><figcaption>M. Larson · Calgary, AB</figcaption></figure>
-      <figure class="review"><div class="stars">★★★★★</div><blockquote>The only Canadian source I've used that includes documentation without chasing it down. Fast, discreet, no issues.</blockquote><figcaption>R. Okafor · Toronto, ON</figcaption></figure>
-      <figure class="review"><div class="stars">★★★★★</div><blockquote>Had a reconstitution question and got a clear answer within the hour. Impressed with the service — second order placed.</blockquote><figcaption>S. Beaumont · Vancouver, BC</figcaption></figure>
-      <figure class="review"><div class="stars">★★★★★</div><blockquote>Consistent quality across multiple orders. Flat-rate shipping is fair and always fast. Discreet packaging is a nice touch.</blockquote><figcaption>T. Nguyen · Edmonton, AB</figcaption></figure>
+    <div class="section-head">
+      <p class="eyebrow">Researcher Reviews</p>
+      <h2>{% block reviews_head %}What researchers say{% endblock %}</h2>
     </div>
+    {% if site_reviews %}
+    <div class="review-grid">
+      {% for r in site_reviews %}
+      <figure class="review">
+        <div class="stars" aria-label="{{ r.rating }} out of 5">{% for _ in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+        <blockquote>{{ r.body }}</blockquote>
+        <figcaption>
+          {{ r.author }}{% if r.location %} · {{ r.location }}{% endif %}
+          {% if r.is_verified %}<span class="review-verified">Verified order</span>{% endif %}
+        </figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="reviews-empty">
+      We don't publish reviews we haven't received. Verified researcher reviews
+      will appear here as orders are completed — nothing on this page is invented.
+    </p>
+    {% endif %}
   </div>
 </section>

@@ -1,0 +1,133 @@
+{% extends "manage/base.html" %}
+{% block title %}Purchasing{% endblock %}
+{% block heading %}Purchasing{% endblock %}
+
+{% block body %}
+<div class="page-intro">
+  <p class="sub">Confirm payment → raise the purchase order → send it → paste the tracking number back.
+    Nothing here sends on its own: the supplier takes orders by email and WhatsApp, so a person presses send.</p>
+</div>
+
+{% if overdue %}
+<div class="card card-warn">
+  <h2>Chasing ({{ overdue|length }})</h2>
+  <p>Past the supplier's own lead time with nothing shipped.</p>
+  <ul class="plain">
+    {% for po in overdue %}
+    <li><b>{{ po.number }}</b> → {{ po.supplier.name }} · sent {{ po.sent_at|date:"M j" }} · order
+      <a href="{% url cns|add:':order_detail' po.order.pk %}">{{ po.order.number }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>1 · Awaiting payment ({{ awaiting_payment|length }})</h2>
+  <p class="sub">Every method we accept — Interac, crypto, Alipay, Western Union — is confirmed by hand.
+    Mark an order paid only once the funds have actually landed.</p>
+  {% if awaiting_payment %}
+  <table class="tbl">
+    <thead><tr><th>Order</th><th>Site</th><th>Customer</th><th>Total</th><th>Method</th><th>Placed</th><th>Confirm</th></tr></thead>
+    <tbody>
+      {% for o in awaiting_payment %}
+      <tr>
+        <td><a href="{% url cns|add:':order_detail' o.pk %}">{{ o.number }}</a></td>
+        <td>{{ o.site.domain }}</td>
+        <td>{{ o.name }}<br><small>{{ o.email }}</small></td>
+        <td>${{ o.total }} {{ o.site.currency }}</td>
+        <td>{{ o.get_payment_method_display|default:"—" }}</td>
+        <td>{{ o.created_at|date:"M j" }}</td>
+        <td>
+          <form method="post" class="inline-form">{% csrf_token %}
+            <input type="hidden" name="action" value="mark_paid">
+            <input type="hidden" name="order_id" value="{{ o.pk }}">
+            <select name="payment_method">
+              {% for v, label in payment_methods %}<option value="{{ v }}" {% if o.payment_method == v %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+            <input name="payment_reference" placeholder="Reference / tx hash" size="16">
+            <button class="btn btn-sm">Mark paid</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">Nothing waiting on payment.</p>{% endif %}
+</div>
+
+<div class="card">
+  <h2>2 · Paid, not yet ordered ({{ to_order|length }})</h2>
+  <p class="sub">Money is in. Raise the purchase order — this is the queue that costs you delivery days if it sits.</p>
+  {% if to_order %}
+  <table class="tbl">
+    <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Paid</th><th></th></tr></thead>
+    <tbody>
+      {% for o in to_order %}
+      <tr>
+        <td><a href="{% url cns|add:':order_detail' o.pk %}">{{ o.number }}</a></td>
+        <td>{{ o.name }}<br><small>{{ o.email }}</small></td>
+        <td>{% for i in o.items.all %}{{ i.qty }}× {{ i.product_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+        <td>{{ o.paid_at|date:"M j" }}</td>
+        <td>
+          <form method="post">{% csrf_token %}
+            <input type="hidden" name="action" value="raise_po">
+            <input type="hidden" name="order_id" value="{{ o.pk }}">
+            <button class="btn btn-sm btn-primary">Raise PO</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">Nothing to order.</p>{% endif %}
+</div>
+
+<div class="card">
+  <h2>3 · Open purchase orders ({{ open_pos|length }})</h2>
+  {% if open_pos %}
+    {% for po in open_pos %}
+    <div class="po">
+      <div class="po-head">
+        <b>{{ po.number }}</b> → {{ po.supplier.name }}
+        <span class="pill pill-{{ po.status }}">{{ po.get_status_display }}</span>
+        {% if po.is_overdue %}<span class="pill pill-warn">Overdue</span>{% endif %}
+        · order <a href="{% url cns|add:':order_detail' po.order.pk %}">{{ po.order.number }}</a>
+      </div>
+
+      <textarea class="po-text" rows="12" readonly aria-label="Purchase order text for {{ po.number }}">{{ po.po_text }}</textarea>
+
+      <div class="po-actions">
+        {% if po.mail_link %}<a class="btn btn-sm" href="{{ po.mail_link }}">Send by email</a>{% endif %}
+        {% if po.wa_link %}<a class="btn btn-sm" href="{{ po.wa_link }}" target="_blank" rel="noopener">Send on WhatsApp</a>{% endif %}
+
+        {% if po.status == "draft" %}
+        <form method="post" class="inline-form">{% csrf_token %}
+          <input type="hidden" name="action" value="mark_sent">
+          <input type="hidden" name="po_id" value="{{ po.pk }}">
+          <select name="channel">{% for v, label in channels %}<option value="{{ v }}">{{ label }}</option>{% endfor %}</select>
+          <button class="btn btn-sm">Mark sent</button>
+        </form>
+        {% else %}
+        <form method="post" class="inline-form">{% csrf_token %}
+          <input type="hidden" name="action" value="add_tracking">
+          <input type="hidden" name="po_id" value="{{ po.pk }}">
+          <input name="tracking_carrier" placeholder="Carrier" size="10">
+          <input name="tracking_number" placeholder="Tracking number" size="18">
+          <button class="btn btn-sm btn-primary">Mark shipped</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}<p class="empty">No open purchase orders.</p>{% endif %}
+</div>
+
+{% if not suppliers %}
+<div class="card card-warn">
+  <h2>No supplier configured</h2>
+  <p>Purchase orders can't be raised until a manufacturing partner exists. Add one in
+    <a href="{% url 'admin:suppliers_supplier_changelist' %}">Django admin → Suppliers</a>:
+    name, email and/or WhatsApp number, lead time, and their per-vial pricing.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -40,16 +40,34 @@ def _portal(path=""):
     return settings.PORTAL_BASE_URL.rstrip("/") + path
 
 
+def _order_url(order):
+    """Customer-facing status page, on the domain they actually bought from —
+    not the portal host."""
+    return f"https://{order.site.domain}/order/{order.number}/"
+
+
 # ---- Transactional -------------------------------------------------------
 
 def order_confirmation(order):
     """Customer confirmation + a new-order alert to staff."""
     lines = "\n".join(f"  {i.qty}x {i.product_name} — ${i.line_total}" for i in order.items.all())
     if order.email:
+        # The delivery window has to be in the confirmation too, not just on the
+        # site — this email is what the customer keeps and refers back to on
+        # day 9 when they're wondering where the package is.
+        window = order.promised_window
+        status_url = _order_url(order)
         text = (
             f"Hi {order.name or 'there'},\n\n{order.confirmation_message}\n\n"
             f"Order {order.number}\n{lines}\nTotal: ${order.total}\n\n"
-            "This is a research-use-only order. We'll follow up with next steps.\n\n"
+            f"DELIVERY: Your order ships directly from our manufacturing partner. "
+            f"Allow {window} for delivery. Shipments may be subject to customs "
+            f"clearance, which can affect timing. We'll email you a tracking "
+            f"number as soon as it ships.\n\n"
+            f"Track your order: {status_url}\n\n"
+            "This is a research-use-only order. These compounds are supplied as "
+            "laboratory reference materials and are not for human or veterinary "
+            "use.\n\n"
             "— SmashFat BioLabs"
         )
         _send("order", f"Your SmashFat BioLabs order {order.number}", order.email, text,
@@ -61,6 +79,46 @@ def order_confirmation(order):
         f"{_portal('/portal/orders/')}"
     )
     _send("order", f"[New order] {order.number} — ${order.total}", _alerts_to(), staff,
+          site=order.site)
+
+
+def payment_confirmed(order):
+    """Sent when a human confirms the payment landed. Every method we accept is
+    manual, so this is the customer's signal that their money actually arrived."""
+    if not order.email:
+        return
+    text = (
+        f"Hi {order.name or 'there'},\n\n"
+        f"We've confirmed payment for order {order.number}. It's now being placed "
+        f"with our manufacturing partner, who ships directly to you.\n\n"
+        f"Allow {order.promised_window} from today for delivery. We'll send a "
+        f"tracking number the moment it dispatches.\n\n"
+        f"Track your order: {_order_url(order)}\n\n"
+        "For research use only. Not for human or veterinary use.\n\n"
+        "— SmashFat BioLabs"
+    )
+    _send("order", f"Payment confirmed — order {order.number}", order.email, text,
+          site=order.site)
+
+
+def order_shipped(order):
+    """Sent when the supplier's tracking number lands on the order."""
+    if not order.email:
+        return
+    tracking = order.tracking_number or "—"
+    carrier = f"{order.tracking_carrier} " if order.tracking_carrier else ""
+    text = (
+        f"Hi {order.name or 'there'},\n\n"
+        f"Order {order.number} has shipped.\n\n"
+        f"{carrier}Tracking: {tracking}\n"
+        + (f"{order.tracking_url}\n" if order.tracking_url else "")
+        + f"\nShipments may be subject to customs clearance, which can affect "
+        f"delivery time.\n\n"
+        f"Track your order: {_order_url(order)}\n\n"
+        "For research use only. Not for human or veterinary use.\n\n"
+        "— SmashFat BioLabs"
+    )
+    _send("order", f"Order {order.number} has shipped", order.email, text,
           site=order.site)
 
 

@@ -1,0 +1,65 @@
+{% comment %} Customer-facing order tracking. Before this the entire post-purchase
+   experience was a toast that auto-dismissed after 2.6 seconds — on a 10–15 day
+   delivery that is the main driver of "where is my order" calls. {% endcomment %}
+<section class="ostatus">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Order {{ order.number }}</p>
+      <h1>{{ order.get_status_display }}</h1>
+    </div>
+
+    <div class="ostatus-grid">
+      <div class="ostatus-main">
+        <ol class="ostatus-steps">
+          {% for step in timeline %}
+          <li class="ostatus-step{% if step.done %} is-done{% endif %}">
+            <span class="ostatus-dot" aria-hidden="true"></span>
+            <div>
+              <h3>{{ step.label }}</h3>
+              <p>{{ step.note }}</p>
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+
+        {% if order.tracking_number %}
+        <div class="ostatus-tracking">
+          <h3>Tracking</h3>
+          <p>
+            {% if order.tracking_carrier %}{{ order.tracking_carrier }} · {% endif %}
+            <b>{{ order.tracking_number }}</b>
+          </p>
+          {% if order.tracking_url %}<a class="btn btn-ghost" href="{{ order.tracking_url }}" target="_blank" rel="noopener">Track shipment</a>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <aside class="ostatus-side">
+        <h3>Your order</h3>
+        <ul class="ostatus-items">
+          {% for item in order.items.all %}
+          <li><span>{{ item.qty }}× {{ item.product_name }}</span><span>${{ item.line_total }}</span></li>
+          {% endfor %}
+        </ul>
+        <div class="ostatus-total"><span>Total</span><span>${{ order.total }} {{ site.currency }}</span></div>
+
+        <p class="ship-notice">
+          <strong>{{ order.promised_window }} delivery.</strong>
+          {{ site.shipping_notice }}
+          {% if expected_from %}Expected between <b>{{ expected_from|date:"M j" }}</b> and <b>{{ expected_to|date:"M j, Y" }}</b>.{% endif %}
+        </p>
+        <p class="ostatus-customs">{{ site.customs_notice }}</p>
+
+        {% if order.payment_method %}
+        <p class="ostatus-pay">Payment method: <b>{{ order.get_payment_method_display }}</b></p>
+        {% endif %}
+
+        <p class="ostatus-help">
+          Questions? Email <a href="mailto:{{ site.contact_email_or_default }}">{{ site.contact_email_or_default }}</a>{% if site.phone %} or call <a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% endif %}.
+        </p>
+      </aside>
+    </div>
+
+    <p class="ostatus-ruo"><strong>For Research Use Only.</strong> Not for human or veterinary use.</p>
+  </div>
+</section>

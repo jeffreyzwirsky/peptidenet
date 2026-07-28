@@ -135,8 +135,24 @@
       lastState = { count: 0, total: 0, items: [] };
       renderCart(lastState);
       toast(r.message || "Order received");
+      // Send the buyer to their order page. On a 10-15 day delivery a toast that
+      // vanishes after 2.6s is not an acceptable post-purchase experience.
+      if (r.status_url) setTimeout(() => { window.location.href = r.status_url; }, 900);
     });
   });
+
+  /* ---------- Product gallery ---------- */
+  const pdpPhoto = $("[data-pdp-photo]");
+  if (pdpPhoto) {
+    $$("[data-pdp-thumb]").forEach((thumb) =>
+      thumb.addEventListener("click", () => {
+        $$("[data-pdp-thumb]").forEach((t) => t.classList.remove("is-active"));
+        thumb.classList.add("is-active");
+        pdpPhoto.src = thumb.dataset.src;
+        pdpPhoto.alt = thumb.dataset.alt || pdpPhoto.alt;
+      })
+    );
+  }
 
   /* ---------- Contact ---------- */
   $$("[data-contact-form]").forEach((f) =>
@@ -163,6 +179,10 @@
     );
   }
 
-  // Prime cart state on load.
-  fetch("/cart/").then((r) => r.json()).then((s) => { lastState = s; renderCart(s); });
+  // Prime cart state — but only when there's something in it. The server already
+  // renders the badge count, so firing this on every page load (including for
+  // bots) bought an extra round-trip on first paint for nothing.
+  if (Number(($("[data-cart-count]") || {}).textContent || 0) > 0) {
+    fetch("/cart/").then((r) => r.json()).then((s) => { lastState = s; renderCart(s); });
+  }
 })();

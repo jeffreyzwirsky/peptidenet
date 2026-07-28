@@ -1,0 +1,10 @@
+{% extends "themes/base.html" %}
+
+{% block title %}Order {{ order.number }} — {{ site.brand_name }}{% endblock %}
+{% block head_extra %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block navcta %}<a href="/#catalogue" class="btn btn-primary">Browse catalogue</a>{% endblock %}
+
+{% block main %}
+{% include "partials/_order_status.html" %}
+{% endblock %}

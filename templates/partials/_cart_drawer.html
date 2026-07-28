@@ -8,12 +8,40 @@
   <div class="cart-foot">
     <div class="cart-savings" data-cart-savings></div>
     <div class="cart-subtotal"><span>Subtotal</span><span data-cart-total>$0.00</span></div>
+
+    {% comment %} Delivery window stated before the customer commits, not after. This drawer
+       is both the cart and the checkout, so the disclosure has to sit directly
+       above the submit button — not at the top where it scrolls away. {% endcomment %}
+    <p class="ship-notice">
+      <strong>{{ site.shipping_window|default:"10–15 days" }} delivery.</strong>
+      {{ site.shipping_notice }}
+    </p>
+
     <form data-checkout-form>
       <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="ai-hp" aria-hidden="true">
       <input name="name" placeholder="Name" aria-label="Your name" autocomplete="name" required>
       <input name="email" type="email" placeholder="Email for order" aria-label="Email for order" autocomplete="email" required>
-      <button type="submit" class="btn btn-primary btn-checkout">Checkout</button>
+      <textarea name="shipping_address" rows="3" placeholder="Shipping address" aria-label="Shipping address" autocomplete="shipping street-address" required></textarea>
+
+      {% if payment_methods %}
+      <fieldset class="pay-methods">
+        <legend>How would you like to pay?</legend>
+        {% for m in payment_methods %}
+        <label class="pay-method">
+          <input type="radio" name="payment_method" value="{{ m.value }}" {% if forloop.first %}checked{% endif %}>
+          <span>{{ m.label }}</span>
+        </label>
+        {% endfor %}
+        <p class="pay-note">We'll email payment instructions once your order is placed. Nothing is charged automatically.</p>
+      </fieldset>
+      {% endif %}
+
+      <label class="cart-ruo">
+        <input type="checkbox" name="ruo_ack" value="1" required>
+        I confirm these compounds are for laboratory research use only, and not for human or veterinary use.
+      </label>
+      <button type="submit" class="btn btn-primary btn-checkout">Place order</button>
     </form>
-    <p class="cart-note">Free express shipping over $200 · For research use only</p>
+    <p class="cart-note">{{ site.customs_notice }} · For research use only</p>
   </div>
 </aside>

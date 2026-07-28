@@ -1,6 +1,6 @@
 {% extends "themes/base.html" %}
 
-{% block title %}{{ site.brand_name }} — Research Peptides, Dispatched from {{ site.ships_from }}{% endblock %}
+{% block title %}{{ site.brand_name }} — Research Peptides for Alberta Laboratories{% endblock %}
 
 {% block head_extra %}
 {% endblock %}
@@ -8,14 +8,14 @@
 {% block brandmark %}
 <span class="pr-brand">
   <svg width="34" height="34" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0b3d6b"/><path d="M6 28 L14 17 L20 24 L26 13 L34 28 Z" fill="#155a8a"/><path d="M6 28 L14 17 L20 24 L26 13 L34 28" stroke="#e6b422" stroke-width="1.6" fill="none"/><circle cx="29" cy="11" r="2.6" fill="#e6b422"/></svg>
-  <span class="pr-brand-txt"><span class="brand-name">{{ site.brand_name }}</span><small>Dispatched from {{ site.ships_from }}</small></span>
+  <span class="pr-brand-txt"><span class="brand-name">{{ site.brand_name }}</span><small>Serving Alberta researchers</small></span>
 </span>
 {% endblock %}
 
 {% block navlinks %}
   <a href="#catalogue">Catalogue</a>
   <a href="#quality">Quality &amp; COA</a>
-  <a href="#local">{{ site.ships_from }} Shipping</a>
+  <a href="#local">For Alberta Labs</a>
   <a href="#reviews">Reviews</a>
 {% endblock %}
 
@@ -31,9 +31,9 @@
       <div class="hero-copy">
         <div class="pr-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#e6b422"><path d="M12 2 L14.5 8 L21 8.5 L16 12.5 L17.5 19 L12 15.5 L6.5 19 L8 12.5 L3 8.5 L9.5 8 Z"/></svg>
-          {{ site.ships_from }}'s Research-Peptide Source
+          Built for Alberta researchers
         </div>
-        <h1>Research peptides,<br><span class="grad">dispatched from {{ site.ships_from }}.</span></h1>
+        <h1>Research peptides,<br><span class="grad">for Alberta benches.</span></h1>
         <p class="lead">{{ site.tagline }}</p>
         <div class="hero-cta">
           <a href="#catalogue" class="btn btn-primary">Browse the Catalogue →</a>
@@ -42,19 +42,19 @@
         <div class="trust-row">
           <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>≥99% Verified Purity</div>
           <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Third-Party HPLC/MS</div>
-          <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Ships from {{ site.ships_from }}</div>
+          <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>COA on Every Lot</div>
         </div>
       </div>
       <div class="hero-figure">
         <div class="hero-vid-frame" data-hero-video="/static/hero/hero-v6.mp4?v={{ asset_v }}">{% include "partials/_hero_vial.html" %}</div>
         <div class="hero-card">
-          <h3>{{ site.ships_from }} Launch Offer</h3>
-          <div class="pr-sub">New researcher? Verified purity, delivered fast.</div>
+          <h3>Alberta Researcher Launch Offer</h3>
+          <div class="pr-sub">New researcher? Verified purity, documented to the lot.</div>
           <div class="promo-tile">
             <div><div class="lbl">Use code</div><div class="code">{{ site.promo_code }}</div></div>
             <div style="text-align:right"><div class="pct">10%</div><div class="lbl">off first order</div></div>
           </div>
-          <div class="fineprint">Same-day dispatch · Ships discreetly from {{ site.ships_from }}</div>
+          <div class="fineprint">Plain, tracked packaging · {{ site.shipping_window }} delivery</div>
         </div>
       </div>
     </div>
@@ -67,10 +67,10 @@
 
 <div class="strip">
   <div class="wrap strip-inner">
-    <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Same-Day Calgary &amp; Edmonton Dispatch</div>
+    <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Serving Calgary &amp; Edmonton Researchers</div>
     <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Discreet Packaging</div>
     <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Third-Party Tested</div>
-    <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>Canadian-Owned</div>
+    <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>Canada-Wide Ordering</div>
   </div>
 </div>
 {% endblock %}
@@ -82,11 +82,13 @@
   </svg>
   <div class="wrap local-inner">
     <div>
-      <p class="eyebrow gold">Rooted in {{ site.ships_from }}</p>
-      <h2>From our lab to your bench — fast across the prairies.</h2>
-      <p>We're a {{ site.ships_from }}-based, Canadian-owned supplier. Orders placed before 2 PM MT ship the
-        same day, and most of the province receives their compounds within 1–2 business days. Coast-to-coast
-        Canadian delivery is always discreet and tracked from {{ site.ships_from }}.</p>
+      <p class="eyebrow gold">Serving Alberta</p>
+      <h2>Built for the benches across the prairies.</h2>
+      <p>Alberta research groups are who this catalogue was assembled for — university labs, private
+        research groups and independent benches from the foothills to the northern research corridor.
+        We price in {{ site.currency }}, answer the phone in Mountain Time, and put a batch-matched
+        certificate of analysis behind every compound we list. {{ site.shipping_notice }} Orders travel
+        in plain, tracked packaging.</p>
       <div class="cities">
         <span class="city-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>Calgary</span>
         <span class="city-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>Edmonton</span>
@@ -95,11 +97,61 @@
       </div>
     </div>
     <div class="local-stats">
-      <div class="lstat"><b>Same-Day</b><span>Calgary &amp; Edmonton dispatch</span></div>
-      <div class="lstat"><b>1–2 Days</b><span>Most of the province</span></div>
+      <div class="lstat"><b>{{ site.shipping_window }}</b><span>Delivery window</span></div>
+      <div class="lstat"><b>18</b><span>Compounds in the catalogue</span></div>
       <div class="lstat"><b>≥99%</b><span>Release purity threshold</span></div>
-      <div class="lstat"><b>100%</b><span>Canadian-owned &amp; operated</span></div>
+      <div class="lstat"><b>100%</b><span>Lots third-party tested</span></div>
     </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block quality %}
+<section id="quality" class="quality">
+  {% include "partials/_molecule_bg.html" %}
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow gold">Quality &amp; COA</p>
+      <h2>How a lot earns its place in the catalogue.</h2>
+    </div>
+    <div class="quality-grid">
+      <div class="q-item">
+        <h3>Tested before it's listed</h3>
+        <p>Independent HPLC measures purity and mass spectrometry confirms identity. A lot that
+          misses the ≥99% release threshold doesn't get a listing.</p>
+      </div>
+      <div class="q-item">
+        <h3>A COA with your lot number on it</h3>
+        <p>Not a generic PDF. The certificate matches the number printed on the vial in your
+          hand — ask for the current lot's paperwork before you order.</p>
+      </div>
+      <div class="q-item">
+        <h3>Priced in {{ site.currency }}, answered in Mountain Time</h3>
+        <p>No conversion guesswork at checkout, and a real phone number staffed on prairie
+          business hours when you have a question about a batch.</p>
+      </div>
+      <div class="q-item">
+        <h3>{{ site.shipping_window }} delivery</h3>
+        <p>Orders are sent direct from our manufacturing partner in plain, tracked packaging.
+          That's the window we quote, so plan your bench work around it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block lab_band %}
+<section class="lab-band">
+  <img class="lab-band-img" src="/static/brand/og-prairie.jpg" width="1200" height="630"
+       alt="Research-compound vials on a laboratory bench under prairie light" loading="lazy">
+  <div class="lab-band-scrim"></div>
+  <div class="wrap lab-band-inner">
+    <p class="eyebrow gold">For prairie researchers</p>
+    <h2>Alberta labs shouldn't have to guess what's in the vial.</h2>
+    <p>This catalogue exists because researchers here kept asking the same question: who can show
+      me the numbers? Eighteen compounds, each released above ≥99% purity, each verified by
+      third-party HPLC and mass spectrometry, each with a batch-matched certificate of analysis.
+      {{ site.shipping_notice }} For laboratory research use only.</p>
   </div>
 </section>
 {% endblock %}

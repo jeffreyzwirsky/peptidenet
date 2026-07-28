@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "apps.catalog",
     "apps.stores",
     "apps.orders",
+    "apps.suppliers",
     "apps.leads",
     "apps.manage",
     "apps.comms",
@@ -153,6 +154,25 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # When PEPTIDENET_PAYMENTS_LIVE flips on, wire the real gateway in
 # apps/orders/payments.py. Orders are created as "pending" until then.
 PAYMENTS_LIVE = env_bool("PEPTIDENET_PAYMENTS_LIVE", False)
+
+# Accepted payment methods, in the order shown at checkout. Every one of these
+# is confirmed by a human — none of them auto-capture — so a new order lands in
+# `payment_review` and a person marks it paid.
+PAYMENT_METHODS = [
+    m.strip() for m in
+    env("PEPTIDENET_PAYMENT_METHODS", "interac,crypto,alipay,western_union").split(",")
+    if m.strip()
+]
+
+# --- Fulfilment ---
+# Dropship: the manufacturing partner ships direct to the customer, so we hold
+# no inventory and nothing is decremented from an owned stock pool at checkout.
+# Set PEPTIDENET_DROPSHIP=0 to go back to selling owned stock.
+DROPSHIP = env_bool("PEPTIDENET_DROPSHIP", True)
+# Delivery window quoted to customers. Must be stated on the product page, in
+# the cart, at checkout and in the confirmation email — a Site row can override.
+SHIPPING_MIN_DAYS = int(env("PEPTIDENET_SHIPPING_MIN_DAYS", 10))
+SHIPPING_MAX_DAYS = int(env("PEPTIDENET_SHIPPING_MAX_DAYS", 15))
 
 # The theme used when a Site has no theme set, or for an unknown host in DEBUG.
 DEFAULT_THEME = "biolabs"

@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -61,11 +62,37 @@ def product_detail(request, slug):
         "offers": {
             "@type": "Offer",
             "price": str(product.price),
-            "priceCurrency": "CAD",
+            # Currency follows the storefront's market, not a hardcoded CAD —
+            # a US buyer seeing CAD in the rich result is a conversion killer.
+            "priceCurrency": request.site.currency or "CAD",
             "availability": avail,
             "url": url,
+            "eligibleRegion": {
+                "@type": "Country", "name": request.site.country_name,
+            },
+            # Google reads this to show a delivery estimate in Shopping results.
+            # It has to match the 10–15 days we tell the buyer on-page.
+            "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "deliveryTime": {
+                    "@type": "ShippingDeliveryTime",
+                    "transitTime": {
+                        "@type": "QuantitativeValue",
+                        "minValue": request.site.shipping_min_days,
+                        "maxValue": request.site.shipping_max_days,
+                        "unitCode": "DAY",
+                    },
+                },
+            },
         },
     }
+    if product.is_discounted:
+        product_ld["offers"]["priceSpecification"] = {
+            "@type": "UnitPriceSpecification",
+            "price": str(product.list_price),
+            "priceCurrency": request.site.currency or "CAD",
+            "priceType": "https://schema.org/ListPrice",
+        }
     if product.cas_number:
         product_ld["additionalProperty"] = [
             {"@type": "PropertyValue", "name": "CAS Number", "value": product.cas_number}
@@ -166,8 +193,14 @@ def cart_update(request):
 @require_POST
 @rate_limit("checkout", limit=12, window=60)
 def checkout(request):
-    """Create a pending order. Payment is stubbed until a processor is wired
-    (see apps/orders/payments.py) — nothing is charged."""
+    """
+    Create an order in the dropship flow.
+
+    Every accepted payment method (Interac, crypto, Alipay, Western Union) is
+    confirmed by a human, so nothing is captured here — the order lands in
+    `payment_review` and a person marks it paid, which is what then releases the
+    purchase order to the manufacturing partner.
+    """
     _require_site(request)
     if is_bot_honeypot(request):
         return JsonResponse({"ok": True, "order_number": "—", "status": "ignored",
@@ -177,12 +210,37 @@ def checkout(request):
     if not items:
         return JsonResponse({"ok": False, "error": "Your cart is empty."}, status=400)
     data = _body(request)
+
+    # Research-use-only acknowledgement is a hard gate, not a nicety — it's the
+    # record that the buyer was told what they were buying.
+    if not data.get("ruo_ack"):
+        return JsonResponse(
+            {"ok": False,
+             "error": "Please confirm these compounds are for research use only."},
+            status=400,
+        )
+
+    shipping_address = (data.get("shipping_address") or "").strip()
+    if not shipping_address:
+        return JsonResponse(
+            {"ok": False, "error": "A shipping address is required — the "
+                                   "manufacturing partner ships direct to you."},
+            status=400,
+        )
+
+    method = data.get("payment_method", "")
+    valid = {m for m in getattr(settings, "PAYMENT_METHODS", [])}
+    if method and method not in valid:
+        method = ""
+
     order = Order.create_from_cart(
         site=request.site,
         items=items,
         total=cart.total(),
         email=data.get("email", ""),
         name=data.get("name", ""),
+        payment_method=method,
+        shipping_address=shipping_address,
     )
     cart.clear()
     try:
@@ -194,7 +252,44 @@ def checkout(request):
         "ok": True,
         "order_number": order.number,
         "status": order.status,
+        "status_url": f"/order/{order.number}/",
         "message": order.confirmation_message,
+    })
+
+
+def order_status(request, number):
+    """
+    Customer-facing order status.
+
+    Before this, the entire post-purchase experience was a toast that
+    auto-dismissed after 2.6 seconds — on a 10–15 day delivery that is the
+    single biggest driver of "where is my order" support calls.
+    """
+    _require_site(request)
+    order = get_object_or_404(Order, number=number, site=request.site)
+    steps = [
+        ("payment_review", "Payment received", "We're confirming your payment."),
+        ("paid", "Payment confirmed", "Your order is being placed with our manufacturing partner."),
+        ("po_sent", "Ordered", "Your order has gone to our manufacturing partner."),
+        ("supplier_shipped", "Shipped", "Your order is on its way."),
+        ("delivered", "Delivered", "Your order has arrived."),
+    ]
+    order_of = {s: i for i, s in enumerate(
+        ["pending_payment", "payment_review", "paid", "po_sent",
+         "supplier_shipped", "in_transit", "delivered"]
+    )}
+    current = order_of.get(order.status, 0)
+    timeline = [
+        {"key": key, "label": label, "note": note,
+         "done": order_of.get(key, 99) <= current}
+        for key, label, note in steps
+    ]
+    window = order.expected_delivery_range
+    return render(request, _theme_template(request, "order_status.html"), {
+        "order": order,
+        "timeline": timeline,
+        "expected_from": window[0] if window else None,
+        "expected_to": window[1] if window else None,
     })
 
 
@@ -341,9 +436,14 @@ def llms_txt(request):
     for p in Product.objects.filter(is_active=True).select_related("category")[:60]:
         out.append(f"- [{p.name}]({base}/product/{p.slug}/): {p.category.name}, "
                    f"${p.price}/vial, {p.purity} purity — {p.description}")
+    # No origin claim: goods ship direct from the manufacturing partner, and the
+    # "free express / free priority" promises were never true under dropship.
+    window = f"{site.shipping_min_days}\u2013{site.shipping_max_days}" if site else "10\u201315"
     out += ["", "## Ordering",
-            f"- Ships from {getattr(site, 'ships_from', 'Canada') if site else 'Canada'}; "
-            "free express over $200, free priority over $500.",
+            f"- Orders ship directly from our manufacturing partner; allow {window} days "
+            "for delivery. Shipments may be subject to customs clearance.",
+            "- Payment: Interac e-Transfer, cryptocurrency, Alipay or Western Union. "
+            "Every payment is confirmed manually.",
             "- For research use only. Age 21+."]
     return HttpResponse("\n".join(out), content_type="text/plain; charset=utf-8")
 
@@ -357,15 +457,17 @@ def llms_full_txt(request):
     site = getattr(request, "site", None)
     base = _base_url(request)
     brand = site.brand_name if site else "Research Compounds"
-    ships = getattr(site, "ships_from", "Canada") if site else "Canada"
+    window = f"{site.shipping_min_days}\u2013{site.shipping_max_days}" if site else "10\u201315"
+    market = site.country_name if site else "Canada"
     out = [
         f"# {brand} — Full Content Map",
         "",
-        "> Complete, machine-readable reference for this Canadian research-compound "
-        "(peptide) store. FOR RESEARCH USE ONLY — not for human or veterinary use. "
-        "All figures are laboratory reference data.",
+        f"> Complete, machine-readable reference for this research-compound "
+        f"(peptide) store serving {market}. FOR RESEARCH USE ONLY \u2014 not for human or "
+        "veterinary use. All figures are laboratory reference data.",
         "",
-        f"Ships from {ships}. Every batch is independently HPLC/MS tested; a batch-specific "
+        f"Orders ship directly from our manufacturing partner; allow {window} days for "
+        "delivery. Every batch is independently HPLC/MS tested; a batch-specific "
         "certificate of analysis (COA) is available on request. Age 21+.",
         "",
         "## Catalogue",

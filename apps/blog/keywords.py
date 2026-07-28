@@ -98,6 +98,56 @@ MARKET_BY_DOMAIN = {
 }
 
 
+# One editorial lane per domain.
+#
+# The keyword lists above already stop the eight sites from bidding on the same
+# terms, but keywords alone don't stop the prose converging: given the same
+# catalogue and the same compliance rules, a model writes eight near-identical
+# posts. These angles are what actually differentiate the bodies — they change
+# what a post is *about*, not just which phrase it repeats. Duplicate-content
+# filtering across a network of related domains is the risk being managed here,
+# and it is the whole reason the network runs eight sites instead of one.
+ANGLE_BY_DOMAIN = {
+    "smashfatbiolabs.ca":
+        "Analytical rigour. Lead with methodology — how HPLC and mass spectrometry "
+        "establish identity and purity, what a release threshold means, how to read "
+        "a chromatogram. Technical register, for a reader with bench experience.",
+    "smashfat.ca":
+        "Metabolic research context. Explain what class of compound is being studied "
+        "and why, at the level of mechanism and research literature. Never touch "
+        "outcomes in people.",
+    "smash-fat.ca":
+        "Laboratory handling. Lyophilised material, reconstitution practice, storage "
+        "and cold chain, stability, labelling and chain of custody. Practical bench "
+        "procedure, not product promotion.",
+    "peptidesalberta.ca":
+        "Regional and practical, written for Alberta institutions — university and "
+        "private labs, procurement processes, documentation a purchasing office asks "
+        "for. Plain, local, unhurried.",
+    "where-do-i-get-peptides.ca":
+        "Buyer education. How a non-specialist evaluates a supplier: what documentation "
+        "to demand, which claims are meaningless, what a certificate of analysis proves "
+        "and what it does not. Guide voice, genuinely useful even to someone who buys "
+        "elsewhere.",
+    "smashfatbiolabs.com":
+        "Reference-grade documentation for US laboratories. Specification, traceability, "
+        "batch records, what 'reference grade' means and what it doesn't.",
+    "smash-fat.com":
+        "Reference library. Structural and physicochemical data — sequence, molecular "
+        "weight, formula, solubility — presented as a factual entry a researcher cites. "
+        "Encyclopaedic, near-neutral in tone.",
+    "where-do-i-get-peptides.com":
+        "Verification and vetting for the US market. How to check a supplier's claims "
+        "independently, comparison frameworks, red flags. Investigative, sceptical, "
+        "willing to say when a common industry claim is unverifiable.",
+}
+
+
+def angle_for(site):
+    """The editorial lane for a domain, or '' when it has none."""
+    return ANGLE_BY_DOMAIN.get(getattr(site, "domain", ""), "")
+
+
 def market_for(site):
     """'CA' or 'US'. Prefers the Site row, falls back to the TLD."""
     country = getattr(site, "country", "") or ""

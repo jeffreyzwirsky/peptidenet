@@ -76,6 +76,10 @@ class Command(BaseCommand):
                 "order": i,
                 "track_inventory": True,
                 "low_stock_threshold": 5,
+                # Compounds sell in 10-vial packs; Supplies are single units.
+                # Driven off the catalogue's own "pack" key where present so a
+                # future exception doesn't need a code change.
+                "pack_size": p.get("pack", 1 if p["cat"] == "Supplies" else 10),
             }
             # Point at the generated product renders when they exist on disk, so
             # a fresh deploy gets real photography without a second command.

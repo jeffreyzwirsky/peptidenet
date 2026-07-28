@@ -69,6 +69,16 @@ def _shipping(site):
             f"clearance, which can affect timing."
         ),
         "sections": [
+            ("Order minimum", [
+                "Research compounds are supplied in sealed packs of 10 vials and "
+                "cannot be split. Ten vials of a given compound is therefore the "
+                "minimum order for that compound, and quantities go up in whole "
+                "packs from there.",
+                "Every product page shows the price of a full pack alongside the "
+                "per-vial figure, and your cart shows the total number of vials "
+                "before you pay. Consumables such as bacteriostatic water are not "
+                "vials and can be bought singly.",
+            ]),
             ("How your order ships", [
                 f"{brand} does not hold stock. When your payment is confirmed we "
                 f"place a purchase order with our manufacturing partner, who ships "

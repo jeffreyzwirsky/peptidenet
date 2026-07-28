@@ -47,12 +47,15 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
 
         <div class="pdp-pricerow">
           <div class="pdp-price">
-            ${{ product.price }} <span>{{ site.currency|default:"CAD" }} / vial</span>
-            {% if product.is_discounted %}<s class="price-was">${{ product.list_price }}</s>
+            ${{ product.pack_price }} <span>{{ site.currency|default:"CAD" }} / {{ product.pack_label }}</span>
+            {% if product.is_discounted %}<s class="price-was">${{ product.pack_list_price }}</s>
             <span class="price-save">Save {{ product.discount_pct }}%</span>{% endif %}
           </div>
           <div class="pdp-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
         </div>
+        {% if product.sells_in_packs %}
+        <p class="pdp-unit">${{ product.price }} per vial · sold in packs of {{ product.vials_per_pack }}</p>
+        {% endif %}
 
         <div class="pdp-attrs">
           <span class="chip pur">{{ product.purity }} purity</span>
@@ -63,16 +66,26 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
         {% if product.stock_state == "out" %}
           <button class="btn btn-ghost pdp-add" disabled>Currently sold out</button>
         {% else %}
+          {% comment %} The stepper counts PACKS. The live vial figure next to it is the
+             whole reason a customer doesn't get a surprise at checkout — "3" and
+             "30 vials" have to appear together or the number is meaningless.
+          {% endcomment %}
           <div class="pdp-qty">
-            <span class="pdp-qty-label">Quantity</span>
+            <span class="pdp-qty-label">{% if product.sells_in_packs %}Packs{% else %}Quantity{% endif %}</span>
             <div class="qty-stepper">
               <button type="button" data-qty-step="-1" aria-label="Decrease">−</button>
-              <input data-qty-input type="number" value="1" min="1" inputmode="numeric" aria-label="Quantity">
+              <input data-qty-input type="number" value="1" min="1" inputmode="numeric"
+                     data-pack="{{ product.vials_per_pack }}"
+                     aria-label="{% if product.sells_in_packs %}Number of {{ product.vials_per_pack }}-vial packs{% else %}Quantity{% endif %}">
               <button type="button" data-qty-step="1" aria-label="Increase">+</button>
             </div>
-            <span class="pdp-tier-hint" data-tier-hint>Buy 3+ to unlock bulk pricing</span>
+            {% if product.sells_in_packs %}
+            <span class="pdp-vial-count" data-vial-count>{{ product.vials_per_pack }} vials</span>
+            {% endif %}
+            <span class="pdp-tier-hint" data-tier-hint>Buy 3+ packs to unlock bulk pricing</span>
           </div>
-          <button class="btn btn-primary pdp-add" data-add="{{ product.id }}" data-name="{{ product.name }}">
+          <button class="btn btn-primary pdp-add" data-add="{{ product.id }}" data-name="{{ product.name }}"
+                  data-pack="{{ product.vials_per_pack }}">
             Add to cart
           </button>
         {% endif %}
@@ -86,11 +99,17 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
 
         <table class="pdp-bulk">
           <caption>Buy more, save more — applied automatically at checkout</caption>
-          <thead><tr><th>Quantity</th><th>Discount</th><th>Per vial</th></tr></thead>
+          <thead><tr><th>{% if product.sells_in_packs %}Packs{% else %}Quantity{% endif %}</th><th>Discount</th><th>Per vial</th></tr></thead>
           <tbody>
-            <tr><td>1–2</td><td>—</td><td>${{ product.price }}</td></tr>
+            <tr>
+              <td>1–2{% if product.sells_in_packs %} <span class="bulk-vials">({{ product.vials_per_pack }}–{{ product.vials_per_pack|add:product.vials_per_pack }} vials)</span>{% endif %}</td>
+              <td>—</td><td>${{ product.price }}</td>
+            </tr>
             {% for t in product.bulk_tiers %}
-            <tr><td>{{ t.min_qty }}+</td><td>−{{ t.pct }}%</td><td>${{ t.unit_price }}</td></tr>
+            <tr>
+              <td>{{ t.min_qty }}+{% if product.sells_in_packs %} <span class="bulk-vials">({{ t.vials }}+ vials)</span>{% endif %}</td>
+              <td>−{{ t.pct }}%</td><td>${{ t.per_vial }}</td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -202,15 +221,21 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
       <aside class="pdp-rail">
         <div class="pdp-rail-inner">
           <div class="pdp-rail-price">
-            ${{ product.price }} <span>{{ site.currency|default:"CAD" }} / vial</span>
-            {% if product.is_discounted %}<s class="price-was">${{ product.list_price }}</s>{% endif %}
+            ${{ product.pack_price }} <span>{{ site.currency|default:"CAD" }} / {{ product.pack_label }}</span>
+            {% if product.is_discounted %}<s class="price-was">${{ product.pack_list_price }}</s>{% endif %}
           </div>
+          {% if product.sells_in_packs %}
+          <p class="pdp-rail-unit">${{ product.price }} per vial</p>
+          {% endif %}
           <div class="pdp-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
 
           {% if product.stock_state == "out" %}
             <button class="btn btn-ghost" disabled>Currently sold out</button>
           {% else %}
-            <button class="btn btn-primary" data-add="{{ product.id }}" data-name="{{ product.name }}">Add to cart</button>
+            <button class="btn btn-primary" data-add="{{ product.id }}" data-name="{{ product.name }}"
+                    data-pack="{{ product.vials_per_pack }}">
+              {% if product.sells_in_packs %}Add {{ product.vials_per_pack }} vials{% else %}Add to cart{% endif %}
+            </button>
           {% endif %}
 
           <p class="ship-notice ship-notice--inline">

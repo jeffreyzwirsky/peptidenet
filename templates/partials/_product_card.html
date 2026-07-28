@@ -22,11 +22,19 @@
   <div class="pcard-body">
     <div class="pcard-cat">{{ product.category.name }}</div>
     <div class="pcard-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
+    {% comment %} The headline figure has to be the price of the thing you can actually
+       buy. Compounds sell only in 10-vial packs, so leading with the per-vial
+       price and charging ten times it at checkout is a bait-and-switch — the
+       per-vial number stays, underneath, as the comparison figure it always was.
+    {% endcomment %}
     <div class="pcard-price">
-      ${{ product.price }} <span>/ vial</span>
-      {% if product.is_discounted %}<s class="price-was">${{ product.list_price }}</s>
+      ${{ product.pack_price }} <span>/ {{ product.pack_label }}</span>
+      {% if product.is_discounted %}<s class="price-was">${{ product.pack_list_price }}</s>
       <span class="price-save">Save {{ product.discount_pct }}%</span>{% endif %}
     </div>
+    {% if product.sells_in_packs %}
+    <p class="pcard-unit">${{ product.price }} per vial · {{ product.vials_per_pack }}-vial minimum</p>
+    {% endif %}
     <h3 class="pcard-name"><a href="/product/{{ product.slug }}/">{{ product.name }}</a></h3>
     {% comment %} Ratings already existed on the model and were never rendered on the card —
        the catalogue grid had zero social proof. {% endcomment %}
@@ -48,7 +56,10 @@
       {% if product.stock_state == "out" %}
         <button class="btn btn-ghost" disabled>Sold out</button>
       {% else %}
-        <button class="btn btn-primary btn-add" data-add="{{ product.id }}" data-name="{{ product.name }}">Add to cart</button>
+        <button class="btn btn-primary btn-add" data-add="{{ product.id }}" data-name="{{ product.name }}"
+                data-pack="{{ product.vials_per_pack }}">
+          {% if product.sells_in_packs %}Add {{ product.vials_per_pack }} vials{% else %}Add to cart{% endif %}
+        </button>
       {% endif %}
       {% if product.has_coa %}<a class="btn btn-ghost" href="{{ product.coa_url }}" target="_blank" rel="noopener">COA</a>{% endif %}
     </div>

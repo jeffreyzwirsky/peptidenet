@@ -3,8 +3,19 @@ from decimal import Decimal
 from django.db import models
 from django.utils.text import slugify
 
-# Network-wide "buy more, save more" tiers: (minimum vials, % off per vial).
-# Applied in the cart and shown on every product page.
+# Compounds are sold in fixed packs, never as loose vials — the manufacturing
+# partner prices and picks per vial but will not break a pack. `Product.pack_size`
+# holds the vials per sellable unit (10 for compounds, 1 for supplies).
+DEFAULT_PACK_SIZE = 10
+
+# Network-wide "buy more, save more" tiers: (minimum PACKS, % off).
+#
+# These count packs, not vials. That matters: when the minimum order became one
+# 10-vial pack, tiers keyed to vials meant every order cleared the top tier on
+# its first item — a permanent extra 15% off dressed up as a volume reward, and
+# 15% straight off the margin of the smallest possible order. Counting packs
+# restores the intent: the minimum order pays full freight, and a real volume
+# commitment (3 packs = 30 vials) is what earns the discount.
 BULK_DISCOUNT_TIERS = [(3, 5), (5, 10), (10, 15)]
 
 
@@ -53,6 +64,12 @@ class Product(models.Model):
     unit_cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=0,
         help_text="Your landed cost per vial (CAD) — used for margin, COGS and inventory value.",
+    )
+    pack_size = models.PositiveIntegerField(
+        default=DEFAULT_PACK_SIZE,
+        help_text="Vials per sellable unit. Compounds ship in packs of 10 and "
+                  "cannot be split. Set 1 for supplies (bacteriostatic water, "
+                  "syringes) so they can still be bought singly.",
     )
     purity = models.CharField(max_length=20, default="≥99%")
     sizes = models.JSONField(default=list, help_text='e.g. ["10mg", "50mg"]')
@@ -139,6 +156,56 @@ class Product(models.Model):
     @property
     def stock_label(self):  # kept for template back-compat
         return self.stock_state_label
+
+    # --- pack pricing -------------------------------------------------------
+    # `price` and `unit_cost` stay per-vial in the database so margin, COGS and
+    # the supplier's per-vial invoicing all keep working untouched. Everything
+    # the customer sees and buys is a pack, and these derive it.
+    @property
+    def sells_in_packs(self):
+        return (self.pack_size or 1) > 1
+
+    @property
+    def vials_per_pack(self):
+        return self.pack_size or 1
+
+    @property
+    def pack_price(self):
+        """What one sellable unit costs the customer."""
+        return (self.price * self.vials_per_pack).quantize(Decimal("0.01"))
+
+    @property
+    def pack_list_price(self):
+        """Struck-through comparison price for a pack, or None."""
+        if not self.is_discounted:
+            return None
+        return (self.list_price * self.vials_per_pack).quantize(Decimal("0.01"))
+
+    @property
+    def pack_savings(self):
+        if not self.is_discounted:
+            return Decimal("0")
+        return (self.savings * self.vials_per_pack).quantize(Decimal("0.01"))
+
+    @property
+    def pack_cost(self):
+        return (self.unit_cost * self.vials_per_pack).quantize(Decimal("0.01"))
+
+    @property
+    def pack_label(self):
+        """Human unit, e.g. '10-vial pack'. Supplies read 'each'."""
+        return f"{self.vials_per_pack}-vial pack" if self.sells_in_packs else "each"
+
+    @property
+    def pack_noun(self):
+        return "pack" if self.sells_in_packs else "unit"
+
+    @property
+    def minimum_order_note(self):
+        if not self.sells_in_packs:
+            return ""
+        return (f"Sold in packs of {self.vials_per_pack} vials — "
+                f"{self.vials_per_pack} vials is the minimum order for this compound.")
 
     # --- discount display ---
     @property
@@ -236,11 +303,22 @@ class Product(models.Model):
 
     # --- bulk / tiered pricing ---
     def bulk_tiers(self):
-        """List of {min_qty, pct, unit_price} rows for the buy-more-save table."""
+        """Rows for the buy-more-save table.
+
+        `min_qty` counts PACKS. `vials` spells that out for the customer, because
+        "3+" next to a per-vial price is the kind of ambiguity that turns into a
+        chargeback. Every price here is per pack.
+        """
         rows = []
         for min_qty, pct in BULK_DISCOUNT_TIERS:
-            unit = (self.price * (Decimal(100 - pct) / Decimal(100))).quantize(Decimal("0.01"))
-            rows.append({"min_qty": min_qty, "pct": pct, "unit_price": unit})
+            unit = (self.pack_price * (Decimal(100 - pct) / Decimal(100))).quantize(Decimal("0.01"))
+            rows.append({
+                "min_qty": min_qty,
+                "pct": pct,
+                "unit_price": unit,
+                "vials": min_qty * self.vials_per_pack,
+                "per_vial": (unit / self.vials_per_pack).quantize(Decimal("0.01")),
+            })
         return rows
 
     def auto_faqs(self):

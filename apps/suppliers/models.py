@@ -163,14 +163,21 @@ class PurchaseOrder(models.Model):
             ship_to=order.shipping_address,
             cost_total=order.cost_total or Decimal("0"),
         )
+        # A purchase order is denominated in VIALS, never packs.
+        #
+        # The 10-vial pack is our retail construct; the manufacturing partner
+        # picks and prices per vial and has never heard of it. Passing the pack
+        # count straight through would order one tenth of what the customer
+        # bought — and because the PO is sent by hand over WhatsApp, nothing
+        # downstream would catch it before the parcel shipped short.
         PurchaseOrderItem.objects.bulk_create([
             PurchaseOrderItem(
                 purchase_order=po,
                 product=item.product,
                 product_name=item.product_name,
-                qty=item.qty,
-                unit_cost=item.unit_cost,
-                line_cost=item.unit_cost * item.qty,
+                qty=item.vials,
+                unit_cost=item.unit_cost_per_vial,
+                line_cost=(item.unit_cost_per_vial * item.vials),
             )
             for item in order.items.all()
         ])

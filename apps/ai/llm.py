@@ -26,8 +26,14 @@ def _log_run(purpose, provider, model, itok, otok, cost, site, ok):
         pass
 
 
-def complete(system, user, purpose="assistant", site=None, stub=""):
-    """Return assistant text. Uses the LLM when live, else `stub`. Always ledgers."""
+def complete(system, user, purpose="assistant", site=None, stub="", max_tokens=400):
+    """Return assistant text. Uses the LLM when live, else `stub`. Always ledgers.
+
+    `max_tokens` defaults to the short budget the on-site assistant wants. Blog
+    generation passes a much larger one: a 400-token ceiling caps a post at
+    roughly 300 words, which is below the length at which a page competes for
+    anything, and the truncation lands mid-sentence.
+    """
     if not ai_live():
         _log_run(purpose, "stub", "", 0, 0, 0, site, True)
         return stub
@@ -36,7 +42,7 @@ def complete(system, user, purpose="assistant", site=None, stub=""):
             import anthropic
             client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
             msg = client.messages.create(
-                model="claude-haiku-4-5", max_tokens=400, system=system,
+                model="claude-haiku-4-5", max_tokens=max_tokens, system=system,
                 messages=[{"role": "user", "content": user}],
             )
             text = msg.content[0].text.strip()
@@ -49,7 +55,7 @@ def complete(system, user, purpose="assistant", site=None, stub=""):
         from openai import OpenAI
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
         r = client.chat.completions.create(
-            model="gpt-4o-mini", max_tokens=400,
+            model="gpt-4o-mini", max_tokens=max_tokens,
             messages=[{"role": "system", "content": system},
                       {"role": "user", "content": user}],
         )

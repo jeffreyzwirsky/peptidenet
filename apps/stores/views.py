@@ -1,4 +1,5 @@
 import json
+import math
 
 from django.conf import settings
 from django.http import Http404, HttpResponse, JsonResponse
@@ -213,7 +214,8 @@ def rewards(request):
 
 def _cart_payload(cart):
     return {
-        "count": cart.count(),
+        "count": cart.count(),          # packs
+        "vials": cart.vial_count(),     # vials — what actually ships
         "total": str(cart.total()),
         "subtotal": str(cart.subtotal()),
         "savings": str(cart.savings()),
@@ -221,6 +223,8 @@ def _cart_payload(cart):
             {
                 **i,
                 "price": str(i["price"]),
+                "pack_price": str(i["pack_price"]),
+                "per_vial": str(i["per_vial"]),
                 "unit_price": str(i["unit_price"]),
                 "line_total": str(i["line_total"]),
                 "line_gross": str(i["line_gross"]),
@@ -236,11 +240,35 @@ def cart_state(request):
     return JsonResponse(_cart_payload(Cart(request)))
 
 
+def _packs(value, default=1):
+    """Coerce a client-supplied quantity to whole packs.
+
+    The wire value is packs, not vials — every caller in store.js sends packs.
+    Anything unparseable falls back to the default rather than 500ing, and the
+    server never trusts the client to have enforced the minimum.
+
+    Fractions round UP, and deliberately so. `int(0.4)` is 0, which the cart
+    reads as "remove this line" — so a request for four vials of a ten-vial
+    compound would have emptied the line instead of correcting it. A positive
+    request means the customer wants some; the only quantity they can have is
+    a whole pack.
+    """
+    try:
+        n = float(value)
+    except (TypeError, ValueError):
+        return default
+    if n <= 0:
+        return 0
+    return max(int(math.ceil(n)), 1)
+
+
 @require_POST
 def cart_add(request):
     data = _body(request)
     cart = Cart(request)
-    cart.add(data.get("product_id"), int(data.get("qty", 1)))
+    # One pack is the minimum sellable unit, so a bare "add to cart" adds a
+    # full pack — 10 vials for a compound, 1 bottle for a supply.
+    cart.add(data.get("product_id"), max(_packs(data.get("qty", 1)), 1))
     return JsonResponse(_cart_payload(cart))
 
 
@@ -248,7 +276,10 @@ def cart_add(request):
 def cart_update(request):
     data = _body(request)
     cart = Cart(request)
-    cart.update(data.get("product_id"), int(data.get("qty", 0)))
+    # 0 still means "remove"; anything else is clamped up to a whole pack so a
+    # hand-crafted request can't buy 3 vials of a 10-vial compound.
+    qty = _packs(data.get("qty", 0), default=0)
+    cart.update(data.get("product_id"), qty if qty <= 0 else max(qty, 1))
     return JsonResponse(_cart_payload(cart))
 
 

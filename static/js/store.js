@@ -65,14 +65,21 @@
       bodyEl.innerHTML = '<p class="cart-empty">Your cart is empty.</p>';
       return;
     }
+    // `qty` is packs; `vials` is what ships. Both are shown, because the number
+    // beside the +/− buttons is the one people sanity-check against their
+    // receipt, and "2" meaning twenty vials is not self-evident.
     bodyEl.innerHTML = state.items.map((i) => `
       <div class="cart-item">
         <div class="ci-info">
           <div class="ci-name">${i.name}</div>
-          <div class="ci-meta">${money(i.unit_price || i.price)} / vial${
+          <div class="ci-meta">${money(i.unit_price || i.pack_price || i.price)} / ${
+            i.pack_label || "unit"}${
             +i.bulk_pct ? ` <span class="ci-save">−${i.bulk_pct}% bulk</span>` : ""}</div>
           <div class="ci-qty">
-            <button data-dec="${i.id}">−</button><span>${i.qty}</span><button data-inc="${i.id}">+</button>
+            <button data-dec="${i.id}" aria-label="Remove one pack">−</button>
+            <span>${i.qty}</span>
+            <button data-inc="${i.id}" aria-label="Add one pack">+</button>
+            ${i.sells_in_packs ? `<span class="ci-vials">${i.vials} vials</span>` : ""}
             <span class="ci-line">${money(i.line_total)}</span>
           </div>
         </div>
@@ -81,6 +88,11 @@
     if (sv) {
       const s = parseFloat(state.savings || 0);
       sv.textContent = s > 0 ? `You're saving ${money(state.savings)} with bulk pricing` : "";
+    }
+    const vc = $("[data-cart-vials]");
+    if (vc) {
+      const v = parseInt(state.vials, 10) || 0;
+      vc.textContent = v ? `${v} vial${v === 1 ? "" : "s"} total` : "";
     }
     $$("[data-inc]", bodyEl).forEach((b) => b.addEventListener("click", () =>
       change(b.dataset.inc, +1)));
@@ -111,19 +123,40 @@
     })
   );
 
-  /* Quantity steppers on the product buy-box */
+  /* Quantity steppers on the product buy-box. The input counts PACKS; the
+     live vial readout beside it is what makes that legible. */
+  function syncBuybox(scope) {
+    const input = scope.querySelector("[data-qty-input]");
+    if (!input) return;
+    const packs = Math.max(1, parseInt(input.value, 10) || 1);
+    input.value = packs;
+    const per = parseInt(input.dataset.pack, 10) || 1;
+    const vials = scope.querySelector("[data-vial-count]");
+    if (vials) vials.textContent = `${packs * per} vial${packs * per === 1 ? "" : "s"}`;
+    const tier = scope.querySelector("[data-tier-hint]");
+    if (tier) {
+      const pct = packs >= 10 ? 15 : packs >= 5 ? 10 : packs >= 3 ? 5 : 0;
+      tier.textContent = pct
+        ? `${pct}% bulk discount applied`
+        : (per > 1 ? "Buy 3+ packs to unlock bulk pricing" : "Buy 3+ to unlock bulk pricing");
+    }
+  }
+
   $$("[data-qty-step]").forEach((b) => b.addEventListener("click", () => {
     const scope = b.closest("[data-buybox]") || document;
     const input = scope.querySelector("[data-qty-input]");
     if (!input) return;
-    const n = Math.max(1, (parseInt(input.value, 10) || 1) + parseInt(b.dataset.qtyStep, 10));
-    input.value = n;
-    const tier = scope.querySelector("[data-tier-hint]");
-    if (tier) {
-      const pct = n >= 10 ? 15 : n >= 5 ? 10 : n >= 3 ? 5 : 0;
-      tier.textContent = pct ? `${pct}% bulk discount applied` : "Buy 3+ to unlock bulk pricing";
-    }
+    input.value = Math.max(1, (parseInt(input.value, 10) || 1) + parseInt(b.dataset.qtyStep, 10));
+    syncBuybox(scope);
   }));
+
+  // Typing straight into the box has to resync too, and can't be allowed to
+  // sit at 0 or a fraction of a pack.
+  $$("[data-qty-input]").forEach((input) => {
+    const scope = input.closest("[data-buybox]") || document;
+    input.addEventListener("change", () => syncBuybox(scope));
+    syncBuybox(scope);
+  });
 
   /* ---------- Checkout ---------- */
   const coForm = $("[data-checkout-form]");

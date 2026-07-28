@@ -118,7 +118,8 @@ class ControlPanelTests(TestCase):
         with self.settings(DROPSHIP=False):
             self._checkout()
         p.refresh_from_db()
-        self.assertEqual(p.stock_qty, start - 3)
+        # stock_qty counts vials; the cart counted 3 PACKS.
+        self.assertEqual(p.stock_qty, start - 3 * p.vials_per_pack)
 
     def test_inventory_edit_updates_pool(self):
         self.client.force_login(self.staff)
@@ -148,7 +149,8 @@ class ControlPanelTests(TestCase):
                          content_type="application/json", HTTP_HOST="smashfat.ca")
         self._checkout()
         o = Order.objects.latest("created_at")
-        self.assertEqual(o.cost_total, p.unit_cost * 2)
+        # 2 packs of 10 vials — unit_cost is per vial, so COGS covers 20.
+        self.assertEqual(o.cost_total, p.unit_cost * 2 * p.vials_per_pack)
         self.assertEqual(o.profit, o.total - o.cost_total)
         self.assertGreater(o.profit, 0)
 
@@ -195,7 +197,8 @@ class ControlPanelTests(TestCase):
         self.assertEqual(po.supplier, supplier)
         self.assertEqual(po.ship_to, "1 Bench Rd")
         self.assertEqual(po.items.count(), 1)
-        self.assertEqual(po.items.first().qty, 2)
+        # The PO is denominated in vials — 2 packs is 20 vials to the partner.
+        self.assertEqual(po.items.first().qty, 2 * p.vials_per_pack)
 
         # Idempotent — building twice must not double-order from the supplier.
         self.assertEqual(PurchaseOrder.build_for(order).pk, po.pk)
@@ -221,11 +224,13 @@ class ControlPanelTests(TestCase):
         site = Site.objects.first()
         order = Order.objects.create(number="SFB-9", site=site, total=999,
                                      shipping_address="12 Lab Way\nWinnipeg MB")
-        order.items.create(product_name="BPC-157", unit_price=42, unit_cost=21,
-                           qty=2, line_total=84)
+        order.items.create(product_name="BPC-157", unit_price=420, unit_cost=210,
+                           qty=2, pack_size=10, line_total=840)
         po = PurchaseOrder.build_for(order)
         text = render_po_text(po)
-        self.assertIn("2 x BPC-157", text)
+        # Vials, spelled out. An unlabelled "2" beside a compound name is the
+        # ambiguity that ships a customer 2 vials instead of 20.
+        self.assertIn("20 vials x BPC-157", text)
         self.assertIn("12 Lab Way", text)
         # No pricing of any kind reaches the supplier. (Asserting on the digits
         # alone would be flaky — the PO number is 8 random digits.)

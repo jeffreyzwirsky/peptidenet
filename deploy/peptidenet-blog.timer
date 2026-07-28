@@ -1,0 +1,14 @@
+[Unit]
+Description=Daily PeptideNet blog draft generation
+
+[Timer]
+# 04:12 local (America/Winnipeg). Off-peak, and the odd minute keeps it from
+# landing on the same tick as every other cron on the box.
+OnCalendar=*-*-* 04:12:00
+# If the droplet was down at 04:12, run on the next boot rather than skipping
+# the day — a missed run is a missing post, and the gap compounds.
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

@@ -346,6 +346,14 @@ section{padding:var(--sp-section) 0}
 .pcard-price{font-size:var(--fs-xl);font-weight:800;letter-spacing:var(--track-tight);
   font-variant-numeric:tabular-nums}
 .pcard-price span{font-size:var(--fs-2xs);color:var(--muted);font-weight:500;letter-spacing:0}
+/* ===== Pack pricing =======================================================
+   Compounds sell only in 10-vial packs, so the headline price is the pack.
+   These are the per-vial and vial-count lines that keep that honest — quiet
+   in weight, but never hidden: they carry the number a buyer needs to check
+   the maths, so they stay legible rather than dropping to a whisper grey. */
+.pcard-unit,.pdp-unit,.pdp-rail-unit{font-size:var(--fs-2xs);color:var(--muted);
+  font-weight:600;margin:2px 0 0;font-variant-numeric:tabular-nums}
+.pdp-unit{font-size:var(--fs-xs);margin:calc(var(--sp-1) * -1) 0 var(--sp-2)}
 .pcard-name{font-size:var(--fs-lg);font-weight:800;margin:6px 0;letter-spacing:var(--track-tight)}
 .pcard-desc{font-size:var(--fs-xs);color:var(--muted);flex:1;margin-bottom:var(--sp-2);line-height:1.55}
 .pcard-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--sp-2)}
@@ -539,9 +547,17 @@ section{padding:var(--sp-section) 0}
 .ci-qty button:active{transform:scale(.94)}
 .ci-line{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
 .ci-save{color:var(--ok);font-weight:700;font-size:var(--fs-3xs)}
+/* Vial count sits beside the pack stepper. `margin-left` (not auto) so it
+   stays anchored to the number it explains rather than drifting across to
+   the line total, which is a different quantity entirely. */
+.ci-vials{font-size:var(--fs-3xs);color:var(--muted);font-weight:700;
+  margin-left:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .cart-foot{margin-top:auto;flex:none;padding:var(--sp-3);border-top:1px solid var(--hairline);
   background:color-mix(in srgb, var(--card) 40%, var(--bg))}
 .cart-savings{color:var(--ok);font-weight:700;font-size:var(--fs-xs);padding:0 0 var(--sp-1);text-align:center}
+.cart-vials{color:var(--muted);font-weight:700;font-size:var(--fs-2xs);
+  padding:0 0 var(--sp-1);text-align:center;font-variant-numeric:tabular-nums}
+.cart-vials:empty{display:none}
 .cart-subtotal{display:flex;justify-content:space-between;font-weight:800;font-size:var(--fs-md);
   margin-bottom:var(--sp-2);font-variant-numeric:tabular-nums;letter-spacing:var(--track-tight)}
 .cart-foot form{display:grid;gap:10px}
@@ -761,6 +777,12 @@ section{padding:var(--sp-section) 0}
 .qty-stepper input::-webkit-outer-spin-button,.qty-stepper input::-webkit-inner-spin-button{
   -webkit-appearance:none;margin:0}
 .pdp-tier-hint{font-size:var(--fs-2xs);color:var(--muted);font-weight:600}
+/* The live "30 vials" readout next to the pack stepper. Full foreground
+   colour and tabular figures — it updates as the stepper moves, and a number
+   that changes under the reader's eye has to be the easiest thing to read. */
+.pdp-vial-count{font-size:var(--fs-xs);font-weight:800;color:var(--fg);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.bulk-vials{color:var(--muted);font-weight:600;white-space:nowrap}
 .pdp-add{margin:var(--sp-3) 0 0;width:100%;font-size:var(--fs-md);min-height:54px;padding:15px 22px}
 /* border-collapse:separate + no overflow clip: `overflow:hidden` on a table
    also clips the <caption>, which shaved the first glyph off "Buy more, save

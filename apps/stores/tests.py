@@ -181,10 +181,130 @@ class BulkPricingTests(TestCase):
             content_type="application/json", HTTP_HOST="smashfat.ca",
         )
         data = r.json()
-        # 10% off at qty 5 -> savings > 0 and total < subtotal
+        # 10% off at 5 packs -> savings > 0 and total < subtotal
         self.assertGreaterEqual(float(data["savings"]), 0.01)
         self.assertLess(float(data["total"]), float(data["subtotal"]))
         self.assertEqual(data["items"][0]["bulk_pct"], 10)
+
+    def test_minimum_order_is_one_pack_not_one_vial(self):
+        """A single 'add to cart' must buy a whole pack.
+
+        The tiers count packs, so this also pins the thing that made the
+        minimum worth introducing: one pack earns NO bulk discount. When the
+        tiers counted vials, this same cart cleared the top tier on its first
+        click and handed back 15% of the margin.
+        """
+        self.client.get("/", HTTP_HOST="smashfat.ca")
+        r = self.client.post(
+            "/cart/add/", {"product_id": 1},
+            content_type="application/json", HTTP_HOST="smashfat.ca",
+        )
+        data = r.json()
+        item = data["items"][0]
+        self.assertEqual(item["qty"], 1)
+        self.assertEqual(item["pack_size"], 10)
+        self.assertEqual(item["vials"], 10)
+        self.assertEqual(data["vials"], 10)
+        self.assertEqual(item["bulk_pct"], 0)
+        self.assertEqual(float(data["savings"]), 0.0)
+
+    def test_pack_price_is_ten_times_the_vial_price(self):
+        from apps.catalog.models import Product
+        p = Product.objects.get(id=1)
+        self.assertEqual(p.pack_price, p.price * 10)
+        self.assertEqual(p.pack_list_price, p.list_price * 10)
+
+    def test_supplies_are_not_forced_into_packs(self):
+        """Bacteriostatic water is a bottle, not a vial of compound."""
+        from apps.catalog.models import Product
+        water = Product.objects.filter(category__name__iexact="Supplies").first()
+        self.assertIsNotNone(water)
+        self.assertEqual(water.vials_per_pack, 1)
+        self.assertFalse(water.sells_in_packs)
+        self.assertEqual(water.pack_price, water.price)
+
+    def test_sub_pack_quantity_cannot_be_forced_by_a_crafted_request(self):
+        """The server does not trust the client to have enforced the minimum."""
+        self.client.get("/", HTTP_HOST="smashfat.ca")
+        self.client.post("/cart/add/", {"product_id": 1},
+                         content_type="application/json", HTTP_HOST="smashfat.ca")
+        r = self.client.post(
+            "/cart/update/", {"product_id": 1, "qty": 0.4},
+            content_type="application/json", HTTP_HOST="smashfat.ca",
+        )
+        item = r.json()["items"][0]
+        self.assertGreaterEqual(item["qty"], 1)
+        self.assertGreaterEqual(item["vials"], 10)
+
+
+class PackOrderMathTests(TestCase):
+    """Money and fulfilment arithmetic across the pack boundary.
+
+    Both failures guarded here are silent: the order still completes, the page
+    still renders, and the damage only shows up in a margin report or a short
+    shipment. They are the reason pack_size is snapshotted on OrderItem.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def _order(self, qty=2):
+        from apps.orders.models import Order
+        from apps.stores.models import Site
+        site = Site.objects.get(domain="smashfat.ca")
+        self.client.get("/", HTTP_HOST="smashfat.ca")
+        self.client.post("/cart/add/", {"product_id": 1, "qty": qty},
+                         content_type="application/json", HTTP_HOST="smashfat.ca")
+        from apps.stores.cart import Cart
+
+        class _R:
+            session = self.client.session
+        cart = Cart(_R())
+        items = cart.items()
+        return Order.create_from_cart(
+            site=site, items=items, total=cart.total(),
+            email="lab@example.com", name="Lab",
+            payment_method="interac", shipping_address="1 Test St",
+        )
+
+    def test_cogs_counts_vials_not_packs(self):
+        order = self._order(qty=2)
+        item = order.items.first()
+        self.assertEqual(item.pack_size, 10)
+        self.assertEqual(item.vials, 20)
+        # unit_cost is per PACK, so line_cost covers all 20 vials. The bug this
+        # replaces multiplied a per-vial cost by a pack count and reported a
+        # tenth of the true COGS — i.e. ~95% margins on every order.
+        self.assertEqual(item.line_cost, item.unit_cost_per_vial * 20)
+        self.assertEqual(order.cost_total, item.line_cost)
+
+    def test_invoice_reconciles(self):
+        order = self._order(qty=3)
+        item = order.items.first()
+        self.assertEqual(item.unit_price * item.qty, item.line_total)
+
+    def test_purchase_order_is_denominated_in_vials(self):
+        """The partner picks per vial and has never heard of our pack."""
+        from apps.suppliers.models import PurchaseOrder, Supplier
+        Supplier.objects.create(
+            name="Partner Labs", slug="partner-labs",
+            email="orders@example.com", preferred_channel="email",
+            is_default=True, is_active=True,
+        )
+        order = self._order(qty=2)
+        order.status = "paid"
+        order.save(update_fields=["status"])
+        po = PurchaseOrder.build_for(order)
+        po_item = po.items.first()
+        self.assertEqual(po_item.qty, 20, "PO must order 20 vials, not 2 packs")
+
+        from apps.suppliers import dispatch
+        text = dispatch.render_po_text(po)
+        self.assertIn("20 vials", text)
+        # Customer pricing still never reaches the manufacturing partner.
+        self.assertNotIn("$", text)
 
 
 class AgeGateTests(TestCase):

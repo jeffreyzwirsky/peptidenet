@@ -127,3 +127,111 @@ class BlogCreatorFixTests(TestCase):
         with self.settings(AI_LIVE=False):
             post = generator.generate(site, "tirzepatide research")
         self.assertIn(post.hero_image, BLOG_HERO_POOL)
+
+
+class ClaimGuardrailTests(TestCase):
+    """The claims a generated post must never be able to make.
+
+    Every string below is something a well-intentioned model produces readily,
+    because each one reads as reassurance rather than as a claim. The origin
+    cases are the sharpest: the network makes no representation about where
+    goods ship from in either direction, and a model told its audience is
+    Canadian will volunteer "ships from Canada" unprompted.
+    """
+
+    def _labels(self, text):
+        from . import guardrails
+        hard, _ = guardrails.scan(text)
+        return {label for label, _ in hard}
+
+    def test_origin_claims_are_blocked_in_both_directions(self):
+        for text in (
+            "All orders ship from Canada in plain packaging.",
+            "Our compounds are shipped from Alberta the same week.",
+            "Stock is warehoused in Canada for fast fulfilment.",
+            "These peptides are manufactured in China to our specification.",
+            "Product is sourced from China and inspected on arrival.",
+            "Dispatched from the United States within one business day.",
+        ):
+            self.assertIn("shipping origin claim", self._labels(text), text)
+
+    def test_domestic_stock_phrasings_are_blocked(self):
+        for text in ("Canadian-made research compounds.",
+                     "We hold domestic stock of every catalogue item.",
+                     "Made in Canada, tested independently."):
+            self.assertTrue(
+                {"shipping origin claim", "domestic-stock claim"} & self._labels(text),
+                text)
+
+    def test_approved_origin_neutral_wording_passes(self):
+        """The sanctioned substitute must not trip the scanner.
+
+        If the compliant phrasing were flagged, every clean post would arrive
+        with a false positive and the reviewer would stop trusting the flag.
+        """
+        text = ("Orders ship directly from our manufacturing partner in plain, "
+                "tracked packaging. Allow 10–15 days for delivery; shipments may "
+                "be subject to customs clearance. Serving research laboratories "
+                "across Canada.")
+        self.assertEqual(self._labels(text), set())
+
+    def test_unverifiable_superlatives_and_price_claims_blocked(self):
+        for text in ("The cheapest research peptides in Canada.",
+                     "We offer the best price on BPC-157.",
+                     "The purest compounds on the market."):
+            self.assertIn("unverifiable superlative", self._labels(text), text)
+
+    def test_uncertified_credentials_blocked(self):
+        for text in ("Produced in a GMP-certified facility.",
+                     "Our ISO 17025 accredited partner lab.",
+                     "Pharmaceutical-grade material."):
+            self.assertIn("unheld certification", self._labels(text), text)
+
+    def test_off_policy_delivery_promises_blocked(self):
+        for text in ("Expect 2-3 days delivery on all orders.",
+                     "Next-day delivery available.",
+                     "Free express shipping over $200."):
+            self.assertIn("off-policy delivery promise", self._labels(text), text)
+
+    def test_the_real_delivery_window_passes(self):
+        self.assertEqual(self._labels("Allow 10–15 days delivery."), set())
+        self.assertEqual(self._labels("Allow 10-15 days delivery."), set())
+
+    def test_in_vitro_language_is_not_flagged_as_a_medical_claim(self):
+        """'cells treated with' is ordinary bench description, not a claim."""
+        self.assertNotIn(
+            "medical/therapeutic claim",
+            self._labels("Cultures were treated with the compound for 24 hours."))
+        self.assertIn(
+            "medical/therapeutic claim",
+            self._labels("This compound treats inflammation."))
+
+
+class BlogMarketTargetingTests(TestCase):
+    """US storefronts were being handed Canada-targeted prompts."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_us_sites_are_not_prompted_as_canadian(self):
+        us = Site.objects.get(domain="smashfatbiolabs.com")
+        prompt = generator.build_system(us)
+        self.assertIn("United States", prompt)
+        self.assertNotIn("Canadian research-compound", prompt)
+
+    def test_ca_sites_still_target_canada(self):
+        ca = Site.objects.get(domain="smashfatbiolabs.ca")
+        self.assertIn("Canada", generator.build_system(ca))
+
+    def test_prompt_forbids_naming_any_origin(self):
+        prompt = generator.build_system(Site.objects.get(domain="smashfat.ca"))
+        self.assertIn("NEVER state or imply a country", prompt)
+        self.assertIn("manufacturing partner", prompt)
+
+    def test_every_domain_has_its_own_editorial_angle(self):
+        from . import keywords
+        angles = [keywords.angle_for(s) for s in Site.objects.all()]
+        self.assertTrue(all(angles), "a site with no angle writes the same post as its twin")
+        self.assertEqual(len(set(angles)), len(angles), "two sites share an angle")

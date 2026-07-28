@@ -7,6 +7,10 @@
   <div class="cart-body" data-cart-body></div>
   <div class="cart-foot">
     <div class="cart-savings" data-cart-savings></div>
+    {% comment %} Total vials, stated before payment. The cart counts packs, and the one
+       thing a buyer must not discover after the fact is how many vials they
+       actually bought. {% endcomment %}
+    <div class="cart-vials" data-cart-vials></div>
     <div class="cart-subtotal"><span>Subtotal</span><span data-cart-total>$0.00</span></div>
 
     {% comment %} Delivery window stated before the customer commits, not after. This drawer

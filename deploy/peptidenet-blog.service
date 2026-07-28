@@ -1,0 +1,32 @@
+[Unit]
+Description=PeptideNet — generate one draft SEO blog post per site
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/peptidenet
+
+# The same EnvironmentFile gunicorn uses. settings.py also reads .env directly
+# now, so this is belt-and-braces rather than the only line of defence — but it
+# is what keeps the unit honest if the file is ever moved out of BASE_DIR.
+EnvironmentFile=/var/www/peptidenet/.env
+
+ExecStart=/var/www/peptidenet/venv/bin/python manage.py generate_daily_posts
+
+# Drafts only. The command never publishes; a human approves in the control
+# panel. Nothing here should ever be changed to auto-publish without the
+# compliance guardrails being re-reviewed first.
+Nice=10
+TimeoutStartSec=900
+
+# Same hardening posture as the web service.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -19,9 +19,15 @@ def render_po_text(po):
         "",
         "ITEMS",
     ]
+    # Spelled out as "vials" on every line. The partner prices per vial, and an
+    # unlabelled integer next to a compound name is exactly the ambiguity that
+    # gets read as packs by someone working in a second language at speed.
     for item in po.items.all():
-        lines.append(f"  {item.qty} x {item.product_name}")
+        lines.append(f"  {item.qty} vials x {item.product_name}")
+    total_vials = sum(i.qty for i in po.items.all())
     lines += [
+        "",
+        f"TOTAL: {total_vials} vials",
         "",
         "SHIP DIRECT TO:",
     ]

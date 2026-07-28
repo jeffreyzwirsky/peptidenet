@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.db import models
 from django.utils.crypto import get_random_string
@@ -152,11 +154,21 @@ class Order(models.Model):
         number = "SFB-" + get_random_string(8, "0123456789")
         # Snapshot each product's unit cost so COGS/profit stay accurate even if
         # costs change later.
+        #
+        # `unit_cost` on Product is PER VIAL, but a cart line's qty counts PACKS.
+        # Multiplying the two directly understates cost of goods by the pack size
+        # — a factor of ten on every compound — which would have shown ~95% margins
+        # on orders that actually earn ~50%. Scale to the pack before doing any
+        # arithmetic with qty.
         costs = dict(Product.objects.filter(
             id__in=[i["id"] for i in items if i.get("id")]
         ).values_list("id", "unit_cost"))
+        pack_cost = {
+            i["id"]: (costs.get(i["id"], Decimal("0")) * (i.get("pack_size") or 1))
+            for i in items if i.get("id")
+        }
         cost_total = sum(
-            (costs.get(i.get("id"), Decimal("0")) * i["qty"] for i in items),
+            (pack_cost.get(i.get("id"), Decimal("0")) * i["qty"] for i in items),
             Decimal("0"),
         )
         order = cls.objects.create(
@@ -173,8 +185,13 @@ class Order(models.Model):
         OrderItem.objects.bulk_create([
             OrderItem(
                 order=order, product_id=i.get("id"), product_name=i["name"],
-                unit_price=i["price"], unit_cost=costs.get(i.get("id"), Decimal("0")),
-                qty=i["qty"], line_total=i["line_total"],
+                # The price actually charged per pack, after any bulk tier — so
+                # unit_price × qty == line_total and the invoice reconciles.
+                unit_price=i.get("unit_price") or i["price"],
+                unit_cost=pack_cost.get(i.get("id"), Decimal("0")),
+                qty=i["qty"],
+                pack_size=i.get("pack_size") or 1,
+                line_total=i["line_total"],
             )
             for i in items
         ])
@@ -185,8 +202,9 @@ class Order(models.Model):
         if not settings.DROPSHIP:
             for i in items:
                 if i.get("id"):
+                    # stock_qty is counted in vials, qty in packs.
                     Product.objects.filter(id=i["id"], track_inventory=True).update(
-                        stock_qty=F("stock_qty") - i["qty"]
+                        stock_qty=F("stock_qty") - (i["qty"] * (i.get("pack_size") or 1))
                     )
         return order
 
@@ -215,10 +233,29 @@ class OrderItem(models.Model):
         related_name="order_items",
     )
     product_name = models.CharField(max_length=140)
+    # Both of these are PER SELLABLE UNIT — i.e. per pack, not per vial — so
+    # that unit_price × qty reconciles to line_total on the face of an invoice.
+    # Per-vial figures are derived below; `pack_size` is snapshotted so a later
+    # change to how a compound is packed can't retroactively rewrite an old
+    # order's arithmetic.
     unit_price = models.DecimalField(max_digits=8, decimal_places=2)
     unit_cost = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-    qty = models.PositiveIntegerField(default=1)
+    qty = models.PositiveIntegerField(default=1, help_text="Packs ordered.")
+    pack_size = models.PositiveIntegerField(default=1, help_text="Vials per pack at time of order.")
     line_total = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def vials(self):
+        """What the manufacturing partner actually picks and ships."""
+        return self.qty * (self.pack_size or 1)
+
+    @property
+    def unit_price_per_vial(self):
+        return (self.unit_price / (self.pack_size or 1)).quantize(Decimal("0.01"))
+
+    @property
+    def unit_cost_per_vial(self):
+        return (self.unit_cost / (self.pack_size or 1)).quantize(Decimal("0.01"))
 
     @property
     def line_cost(self):
@@ -228,5 +265,11 @@ class OrderItem(models.Model):
     def line_profit(self):
         return self.line_total - self.line_cost
 
+    @property
+    def qty_label(self):
+        if (self.pack_size or 1) > 1:
+            return f"{self.qty} × {self.pack_size}-vial pack ({self.vials} vials)"
+        return f"{self.qty} ×"
+
     def __str__(self):
-        return f"{self.qty}× {self.product_name}"
+        return f"{self.qty_label} {self.product_name}"

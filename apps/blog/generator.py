@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from apps.ai import images, llm
 from apps.catalog.models import Product
 
-from . import guardrails
+from . import guardrails, keywords
 from .models import BLOG_HERO_POOL, BlogPost
 
 
@@ -23,18 +23,51 @@ def _unique_slug(site, base):
         i += 1
     return slug
 
-SYSTEM = (
-    "You write SEO blog posts for a Canadian RESEARCH-COMPOUND (peptide) store. "
-    "STRICT COMPLIANCE RULES — follow exactly:\n"
-    "1. Everything is for laboratory research use only. Never imply human or veterinary use.\n"
-    "2. Make NO medical, therapeutic, diagnostic, or health claims (no cure/treat/prevent/heal).\n"
-    "3. NO dosing, administration, or 'how to take' guidance. NO weight-loss or body-composition promises.\n"
-    "4. NO efficacy guarantees, 'clinically proven', 'FDA approved', or testimonials.\n"
-    "5. Write factually and neutrally about the compound's research context, purity, testing, COAs, "
-    "and Canadian availability/shipping. Educational, not promotional hype.\n"
-    "6. Naturally include the target keyword for SEO. End with a research-use-only disclaimer.\n"
-    "Return Markdown: an H1 title, a 2-3 sentence intro, 2-3 short sections, and a closing disclaimer."
-)
+
+def build_system(site):
+    """Compliance prompt, built per site.
+
+    This used to be a module-level constant that opened "You write SEO blog
+    posts for a Canadian research-compound store" and asked for "Canadian
+    availability/shipping" — regardless of which of the eight domains was
+    calling. The four .com storefronts were therefore having Canada-targeted
+    posts written for a United States audience, which quietly undid the market
+    split in keywords.py.
+
+    Rule 6 is the one worth reading twice. The network makes no statement about
+    where goods ship from, in either direction, and a model writing for a
+    national audience will volunteer one unless told not to.
+    """
+    market = site.country_name or "Canada"
+    window = f"{site.shipping_min_days}–{site.shipping_max_days}"
+    return (
+        f"You write SEO blog posts for a RESEARCH-COMPOUND (peptide) supplier "
+        f"serving laboratories in {market}.\n"
+        "STRICT COMPLIANCE RULES — follow exactly:\n"
+        "1. Everything is for laboratory research use only. Never imply human or veterinary use.\n"
+        "2. Make NO medical, therapeutic, diagnostic, or health claims (no cure/treat/prevent/heal).\n"
+        "3. NO dosing, administration, or 'how to take' guidance. NO weight-loss or "
+        "body-composition promises.\n"
+        "4. NO efficacy guarantees, 'clinically proven', 'FDA approved', or testimonials. "
+        "Do not invent customer quotes, review counts, ratings, or case studies.\n"
+        "5. Do not claim certifications the business has not stated: no GMP, ISO, USP, "
+        "'pharmaceutical grade', or regulatory registration of any kind.\n"
+        "6. NEVER state or imply a country or region that products ship from, are stocked "
+        "in, or are manufactured in — not Canada, not anywhere else. Do not write 'ships "
+        "from', 'domestic stock', 'made in', or any equivalent. Say only that orders ship "
+        "directly from our manufacturing partner. Writing about a market is fine; writing "
+        "about an origin is not.\n"
+        f"7. The delivery window is {window} days. Never state any other window, and never "
+        "promise same-day, next-day, overnight, or free express shipping.\n"
+        "8. No superlatives or price claims — no 'cheapest', 'best', 'purest', 'number one'.\n"
+        "9. Write factually and neutrally about the compound's research context, purity "
+        "thresholds, third-party HPLC/MS testing, and certificates of analysis. "
+        "Educational, not promotional hype.\n"
+        "10. Naturally include the target keyword. End with a research-use-only disclaimer.\n"
+        "Return Markdown: an H1 title, a 2–3 sentence intro, then 4–6 substantive sections "
+        "with H2 headings, and a closing disclaimer. Aim for 900–1300 words of genuine "
+        "information — depth a researcher would actually find useful, not padding."
+    )
 
 
 def _stub_post(site, keyword):
@@ -72,11 +105,22 @@ describes laboratory research materials; it makes no medical, therapeutic, or he
 
 def generate(site, keyword):
     stub_title, stub_body = _stub_post(site, keyword)
+    market = site.country_name or "Canada"
+    # The angle keeps eight sites off one another's toes. All eight share a
+    # single catalogue, so without a distinct lane per domain the network reads
+    # as one site duplicated eight times — which is the failure mode that gets
+    # a network filtered rather than ranked.
+    angle = keywords.angle_for(site)
+    lane = f"\nEditorial angle for this site: {angle}" if angle else ""
     body = llm.complete(
-        system=SYSTEM,
+        system=build_system(site),
         user=(f"Write an SEO blog post for {site.brand_name} targeting the keyword "
-              f"\"{keyword}\" for the Canadian research market. Follow all compliance rules."),
+              f"\"{keyword}\" for the {market} research market.{lane}\n"
+              "Write it so it stands on its own — a reader who found this page from "
+              "search should leave better informed about how to evaluate a supplier "
+              "and read a certificate of analysis. Follow all compliance rules."),
         purpose="blog_post", site=site, stub=stub_body,
+        max_tokens=2600,
     )
     # derive a title from the first H1 if present, else the stub title
     title = stub_title
@@ -123,7 +167,7 @@ def banner_svg(site, title):
 <circle cx="980" cy="90" r="7" fill="{accent}"/><circle cx="1040" cy="192" r="7" fill="{accent}"/>
 <path d="M980 226 L975 300 L1050 340"/><circle cx="1050" cy="340" r="7" fill="{accent}"/>
 <polygon points="150,300 205,332 205,396 150,428 95,396 95,332"/></g>
-<text x="70" y="150" fill="{accent}" font-family="Inter,Arial" font-size="20" font-weight="700" letter-spacing="3">RESEARCH NOTES</text>
-<text x="70" y="250" fill="#eaf0fb" font-family="Inter,Arial" font-size="52" font-weight="800">{head[:34]}</text>
-<text x="70" y="410" fill="#93a2bd" font-family="Inter,Arial" font-size="18">{site.brand_name} · For research use only</text>
+<text x="70" y="150" fill="{accent}" font-family="IBM Plex Sans,Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" letter-spacing="3">RESEARCH NOTES</text>
+<text x="70" y="250" fill="#eaf0fb" font-family="IBM Plex Sans,Segoe UI,Arial,sans-serif" font-size="52" font-weight="800">{head[:34]}</text>
+<text x="70" y="410" fill="#93a2bd" font-family="IBM Plex Sans,Segoe UI,Arial,sans-serif" font-size="18">{site.brand_name} · For research use only</text>
 </svg>"""

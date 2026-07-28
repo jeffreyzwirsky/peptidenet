@@ -12,6 +12,42 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def _load_dotenv(path):
+    """Populate os.environ from a .env file, without overriding real env vars.
+
+    gunicorn gets its configuration from the systemd unit's EnvironmentFile, so
+    the served site was always correct. Anything run from a shell — a migration,
+    a management command, a cron job — got no such treatment: `env()` fell
+    through to its defaults, DATABASES silently dropped to the local SQLite file,
+    and the command reported success against a database nobody serves. That is
+    how `generate_daily_posts` came to write blog posts into db.sqlite3 while the
+    live blog stayed empty, and it would have quietly swallowed every scheduled
+    run from here on.
+
+    Real environment variables still win, so the systemd unit and any explicit
+    `VAR=x manage.py …` keep their precedence.
+    """
+    try:
+        raw = Path(path).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        if key.startswith("export "):
+            key = key[len("export "):].strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        os.environ.setdefault(key, value)
+
+
+_load_dotenv(BASE_DIR / ".env")
+
+
 def env(key, default=None):
     return os.environ.get(key, default)
 

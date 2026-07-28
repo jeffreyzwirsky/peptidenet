@@ -14,7 +14,10 @@
 
 {% block navlinks %}
   <a href="#catalogue">Catalogue</a>
-  <a href="#quality">Quality &amp; COA</a>
+  {% comment %} Link read "Quality & COA". We hold no certificate of analysis for any
+     lot, so naming a COA in the navigation advertises a document we cannot
+     produce. Relabelled to point at the disclosure section instead. {% endcomment %}
+  <a href="#quality">What We Hold</a>
   <a href="#local">For Alberta Labs</a>
   <a href="#reviews">Reviews</a>
 {% endblock %}
@@ -37,19 +40,29 @@
         <p class="lead">{{ site.tagline }}</p>
         <div class="hero-cta">
           <a href="#catalogue" class="btn btn-primary">Browse the Catalogue →</a>
-          <a href="#quality" class="btn btn-ghost">See our COA process</a>
+          {% comment %} Button read "See our COA process". There is no COA process — we hold no
+             certificate of analysis and cannot produce one on request — so the
+             button now points at the section that says what we do and don't hold. {% endcomment %}
+          <a href="#quality" class="btn btn-ghost">Read what we don't hold</a>
         </div>
         <div class="trust-row">
-          <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>≥99% Verified Purity</div>
-          <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Third-Party HPLC/MS</div>
-          <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>COA on Every Lot</div>
+          {% comment %} First trust row read "≥99% Verified Purity". That is a performance claim
+             with no adequate and proper testing behind it (Competition Act
+             s.74.01(1)(b)) — we hold no purity result of any kind. Replaced with a
+             fact about how the material is sold. Same row, same check icon. {% endcomment %}
+          <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sold uncharacterised</div>
+          <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Plain, tracked packaging</div>
+          <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6b422" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Research Use Only</div>
         </div>
       </div>
       <div class="hero-figure">
         <div class="hero-vid-frame" data-hero-video="/static/hero/hero-v6.mp4?v={{ asset_v }}">{% include "partials/_hero_vial.html" %}</div>
         <div class="hero-card">
           <h3>Alberta Researcher Launch Offer</h3>
-          <div class="pr-sub">New researcher? Verified purity, documented to the lot.</div>
+          {% comment %} Sub-line read "Verified purity, documented to the lot." No purity was
+             measured and no lot documentation exists, so both halves are removed.
+             Replaced with the sale terms, which are checkable. {% endcomment %}
+          <div class="pr-sub">73 compounds, sold in sealed 10-vial packs at 30% below our former pricing.</div>
           <div class="promo-tile">
             <div><div class="lbl">Use code</div><div class="code">{{ site.promo_code }}</div></div>
             <div style="text-align:right"><div class="pct">10%</div><div class="lbl">off first order</div></div>
@@ -69,8 +82,15 @@
   <div class="wrap strip-inner">
     <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Serving Calgary &amp; Edmonton Researchers</div>
     <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Discreet Packaging</div>
-    <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Third-Party Tested</div>
-    <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>Canada-Wide Ordering</div>
+    {% comment %} Strip item read "Third-Party Tested". No independent laboratory has tested
+       this material as far as we can evidence, and we hold no report from one, so
+       the claim is removed. Same tile, same icon. {% endcomment %}
+    <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Sold Uncharacterised</div>
+    {% comment %} Strip item read "Canada-Wide Ordering". Read alongside the shipping copy it
+       invites the reader to assume goods are stocked or dispatched domestically,
+       and we make no claim about where anything ships from. Replaced with the
+       delivery window, which we state up front. {% endcomment %}
+    <div class="strip-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b3d6b" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>{{ site.shipping_window }} Delivery, Stated Up Front</div>
   </div>
 </div>
 {% endblock %}
@@ -84,11 +104,16 @@
     <div>
       <p class="eyebrow gold">Serving Alberta</p>
       <h2>Built for the benches across the prairies.</h2>
+      {% comment %} This paragraph promised "a batch-matched certificate of analysis behind
+         every compound we list". We hold no certificate of analysis for any lot,
+         batch-matched or otherwise, so the promise is removed rather than softened —
+         we cannot supply one on request either. The Alberta references are about the
+         market this catalogue serves, not where anything ships from, so they stay. {% endcomment %}
       <p>Alberta research groups are who this catalogue was assembled for — university labs, private
         research groups and independent benches from the foothills to the northern research corridor.
-        We price in {{ site.currency }}, answer the phone in Mountain Time, and put a batch-matched
-        certificate of analysis behind every compound we list. {{ site.shipping_notice }} Orders travel
-        in plain, tracked packaging.</p>
+        We price in {{ site.currency }} and answer the phone in Mountain Time. What we cannot give you
+        is paperwork: we hold no analysis for any compound we list, so treat the material as
+        uncharacterised. {{ site.shipping_notice }} Orders travel in plain, tracked packaging.</p>
       <div class="cities">
         <span class="city-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>Calgary</span>
         <span class="city-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>Edmonton</span>
@@ -96,11 +121,16 @@
         <span class="city-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>Lethbridge</span>
       </div>
     </div>
+    {% comment %} Two of these four tiles were unsubstantiated: "≥99% Release purity threshold"
+       is a performance claim resting on testing that we cannot evidence, and "100%
+       Lots third-party tested" claims independent testing we hold no report for.
+       Both are replaced with counts we can check ourselves; the compound count is
+       also corrected to the 73 actually listed. Four tiles, unchanged markup. {% endcomment %}
     <div class="local-stats">
       <div class="lstat"><b>{{ site.shipping_window }}</b><span>Delivery window</span></div>
-      <div class="lstat"><b>18</b><span>Compounds in the catalogue</span></div>
-      <div class="lstat"><b>≥99%</b><span>Release purity threshold</span></div>
-      <div class="lstat"><b>100%</b><span>Lots third-party tested</span></div>
+      <div class="lstat"><b>73</b><span>Compounds in the catalogue</span></div>
+      <div class="lstat"><b>10</b><span>Vials per sealed pack</span></div>
+      <div class="lstat"><b>0</b><span>Analytical documents held</span></div>
     </div>
   </div>
 </section>
@@ -110,20 +140,33 @@
 <section id="quality" class="quality">
   {% include "partials/_molecule_bg.html" %}
   <div class="wrap">
+    {% comment %} Section heading was "Quality & COA / How a lot earns its place in the
+       catalogue", which framed the whole block as a testing-and-release process.
+       No such process exists on our side, so the heading now introduces a
+       disclosure instead of a quality programme. {% endcomment %}
     <div class="section-head">
-      <p class="eyebrow gold">Quality &amp; COA</p>
-      <h2>How a lot earns its place in the catalogue.</h2>
+      <p class="eyebrow gold">What we hold</p>
+      <h2>What we can tell you about a lot — and what we can't.</h2>
     </div>
     <div class="quality-grid">
+      {% comment %} Card claimed independent HPLC purity measurement, mass-spectrometry
+         identity confirmation and a ≥99% release threshold. We hold no such
+         results from our manufacturing partner or anyone else, and under
+         Competition Act s.74.01(1)(b) the testing must exist before the claim is
+         made. All three claims removed. {% endcomment %}
       <div class="q-item">
-        <h3>Tested before it's listed</h3>
-        <p>Independent HPLC measures purity and mass spectrometry confirms identity. A lot that
-          misses the ≥99% release threshold doesn't get a listing.</p>
+        <h3>No testing we can point to</h3>
+        <p>We hold no purity result and no identity confirmation for anything in this
+          catalogue. Nothing here has been screened against a release threshold by us.</p>
       </div>
+      {% comment %} Card promised a lot-matched certificate of analysis and invited buyers to
+         "ask for the current lot's paperwork". We hold no certificate of analysis
+         and cannot produce one on request, so the offer is withdrawn outright. {% endcomment %}
       <div class="q-item">
-        <h3>A COA with your lot number on it</h3>
-        <p>Not a generic PDF. The certificate matches the number printed on the vial in your
-          hand — ask for the current lot's paperwork before you order.</p>
+        <h3>No analytical paperwork to send</h3>
+        <p>We publish documentation only where we actually hold it, and for this stock we
+          hold none. Treat the material as uncharacterised and confirm what you need
+          on your own bench.</p>
       </div>
       <div class="q-item">
         <h3>Priced in {{ site.currency }}, answered in Mountain Time</h3>
@@ -146,12 +189,20 @@
        alt="Research-compound vials on a laboratory bench under prairie light" loading="lazy">
   <div class="lab-band-scrim"></div>
   <div class="wrap lab-band-inner">
+    {% comment %} The closing band claimed a purity threshold, third-party HPLC and
+       mass-spectrometry verification and a batch-matched certificate of analysis for
+       every compound. None of that documentation exists on our side, so all of it is
+       removed; the headline is rewritten because it promised certainty we cannot
+       give. Compound count corrected to 73. Alberta stays — it is the market we
+       serve, not a statement about where goods come from. {% endcomment %}
     <p class="eyebrow gold">For prairie researchers</p>
-    <h2>Alberta labs shouldn't have to guess what's in the vial.</h2>
-    <p>This catalogue exists because researchers here kept asking the same question: who can show
-      me the numbers? Eighteen compounds, each released above ≥99% purity, each verified by
-      third-party HPLC and mass spectrometry, each with a batch-matched certificate of analysis.
-      {{ site.shipping_notice }} For laboratory research use only.</p>
+    <h2>We would rather tell you what we don't know.</h2>
+    <p>Researchers here keep asking the same question: who can show me the numbers? We can't —
+      we hold no purity result, no identity confirmation and no certificate of analysis for any
+      of it. What we can state is the deal: 73 compounds, sold in sealed 10-vial packs at 30%
+      below our former pricing, in plain, tracked packaging. {{ site.shipping_notice }}
+      Treat the material as uncharacterised. For laboratory research use only — not for human
+      or veterinary use.</p>
   </div>
 </section>
 {% endblock %}

@@ -12,22 +12,37 @@
       <span class="hero-kicker"><span class="ln"></span>Issue 01 · {{ site.brand_name }}</span>
       <h1>Peptides,<br>with a <span class="it grad">loud</span><br>signature.</h1>
       <p class="lead">{{ site.tagline }}</p>
+      {% comment %}
+        Removed: the "Our testing standard" button, the "=99% release purity" tile and the
+        "HPLC / MS verified batches" tile. We hold no analytical documentation from our
+        manufacturing partner - no certificate of analysis, no chromatography result, no
+        mass-spectrometry identity confirmation - so none of those claims had any testing
+        behind them. They have been replaced with facts we can actually stand behind:
+        how many compounds are listed, how the material is packed, and when it arrives.
+      {% endcomment %}
       <div class="hero-cta">
         <a href="#catalogue" class="btn btn-primary">Browse the catalogue →</a>
-        <a href="#quality" class="btn btn-ghost">Our testing standard</a>
+        <a href="#quality" class="btn btn-ghost">What we can tell you</a>
       </div>
       <div class="hero-stats">
-        <div class="st"><div class="n grad">≥99%</div><div class="l">Release purity</div></div>
-        <div class="st"><div class="n">HPLC / MS</div><div class="l">Verified batches</div></div>
+        <div class="st"><div class="n grad">73</div><div class="l">Compounds catalogued</div></div>
+        <div class="st"><div class="n">10 vials</div><div class="l">Sealed pack, one size</div></div>
         <div class="st"><div class="n">{{ site.shipping_window }}</div><div class="l">Delivery window</div></div>
       </div>
     </div>
     <div class="hero-figure hero-figure-ed">
       <span class="hero-plate">Fig. 01</span>
       <div class="hero-vid-frame" data-hero-video="/static/hero/hero-v4.mp4?v={{ asset_v }}">{% include "partials/_hero_vial.html" %}</div>
+      {% comment %}
+        The floating badge previously read "=99% - HPLC / MS release". Both halves were
+        unsupported: we have never been sent a chromatography or mass-spectrometry result
+        for any lot, so we cannot claim a release figure. The badge now carries the price
+        reduction, which is a fact about our own pricing. The CSS class names are left
+        untouched so the theme's layout and animation keep working.
+      {% endcomment %}
       <div class="purity-float">
-        <div class="pf-big">≥99%</div>
-        <div class="pf-sub">HPLC / MS release</div>
+        <div class="pf-big">30% off</div>
+        <div class="pf-sub">Across the library</div>
       </div>
     </div>
   </div>
@@ -35,10 +50,15 @@
 {% endblock %}
 
 {% block catalogue_head %}
+{% comment %}
+  Removed "released only above threshold purity" from the catalogue standfirst. A release
+  threshold is a testing claim, and we have no test result to release against. Replaced with
+  the plain shape of the offer: how many compounds, how they are packed, what they are for.
+{% endcomment %}
 <div class="section-head ed-head">
   <span class="sec-num">01 — The Catalogue</span>
   <h2>The full library.</h2>
-  <p class="eyebrow">Every compound lyophilized, batch-numbered and released only above threshold purity.</p>
+  <p class="eyebrow">73 compounds, each sold in a sealed 10-vial pack, supplied for laboratory research only.</p>
 </div>
 {% endblock %}
 
@@ -46,15 +66,25 @@
 <section class="editorial">
   <div class="wrap">
     <div class="editorial-inner">
+      {% comment %}
+        This panel used to promise "a full certificate of analysis - identity, purity and mass
+        confirmation" with every batch, and the pull-quote leaned on the same idea. We hold no
+        such paperwork for any lot and cannot obtain it, so the promise was simply false. The
+        panel now says what is actually true: no analytical file exists, we will not describe
+        one that does not, and the buyer should treat the material as uncharacterised.
+        The promo code line is kept because the discount is real.
+      {% endcomment %}
       <div class="ed-l">
         <div class="big-num grad">02</div>
-        <h3>Documented from vial to spectrum.</h3>
-        <p>Every batch in the library carries a full certificate of
-          analysis — identity, purity and mass confirmation. No mystery powders, no unverifiable claims.
-          Just numbers you can put in a lab notebook. First order gets code <b>{{ site.promo_code }}</b>.</p>
+        <h3>What arrives, and what doesn't.</h3>
+        <p>What arrives is a sealed 10-vial pack of lyophilised material from our manufacturing
+          partner. What doesn't arrive is an analytical file — we hold none, and we would rather
+          say so than describe paperwork we cannot produce. Treat the contents as uncharacterised
+          and confirm anything you need to rely on in your own lab. First order gets code
+          <b>{{ site.promo_code }}</b>.</p>
       </div>
       <div class="ed-r">
-        <div class="quote">"The paperwork is the product. Purity means nothing without a spectrum to back it."</div>
+        <div class="quote">"Say what you know, and say plainly where the record stops. We publish documentation only where we hold it — here we hold none."</div>
       </div>
     </div>
   </div>
@@ -65,27 +95,38 @@
 <section id="quality" class="quality">
   {% include "partials/_molecule_bg.html" %}
   <div class="wrap">
+    {% comment %}
+      The first two cards here carried our strongest unsupported claims: a "=99% by HPLC area"
+      release gate, and "independent laboratories" running chromatography and mass spectrometry
+      before cataloguing. Neither happens. No lab is named because no lab was ever engaged by us.
+      Both cards have been rewritten to state the absence of documentation and what follows from
+      it. The third and fourth cards described listing data and shipping and were already true;
+      the third is trimmed so it no longer reads as a quality guarantee. Card count is unchanged.
+    {% endcomment %}
     <div class="section-head ed-head">
       <span class="sec-num">03 — The Standard</span>
       <h2>Four entries in the masthead.</h2>
-      <p class="eyebrow">The editorial policy of a reference library: publish the molecule, publish
-        the method, publish the number, publish the date.</p>
+      <p class="eyebrow">The editorial policy of a reference library is mostly about restraint:
+        publish what you hold, say where the record stops, and never fill the gap with adjectives.</p>
     </div>
     <div class="quality-grid">
       <div class="q-item">
-        <h3>A threshold, not an adjective</h3>
-        <p>"High purity" is copywriting. ≥99% by HPLC area, applied as a release gate to every
-          lot, is a specification you can hold us to.</p>
+        <h3>No analytical file, stated up front</h3>
+        <p>We hold no certificate of analysis for any compound in this catalogue — no purity
+          figure, no identity confirmation, nothing. We will not quote a number we cannot
+          support, and we cannot produce a document on request that does not exist.</p>
       </div>
       <div class="q-item">
-        <h3>Two instruments, one answer</h3>
-        <p>Chromatography says how much. Mass spectrometry says what. Independent laboratories run
-          both before a compound is catalogued.</p>
+        <h3>Treat the material as uncharacterised</h3>
+        <p>Because nothing has been characterised for us, the only safe assumption is that
+          identity, content and impurity profile are unknown. Any property you need to rely on
+          is yours to establish, in your own laboratory, before you use it.</p>
       </div>
       <div class="q-item">
-        <h3>Molecular data on the page</h3>
-        <p>Sequence, molecular weight and research category are printed with every listing —
-          the reference detail you'd otherwise go hunting for in a database.</p>
+        <h3>Reference data on the page</h3>
+        <p>Sequence, molecular weight and research category are printed with every listing as
+          published reference values for the named compound — literature detail about the
+          molecule, not a measurement of the vial you receive.</p>
       </div>
       <div class="q-item">
         <h3>Delivery, stated plainly</h3>
@@ -103,12 +144,20 @@
        alt="Research-compound vials photographed against a bold graphic backdrop" loading="lazy">
   <div class="lab-band-scrim"></div>
   <div class="wrap lab-band-inner">
+    {% comment %}
+      Removed "purity result and mass confirmation on the record" - there is no such record.
+      Also corrected the compound count, which read eighteen and is actually 73. What is left
+      is the honest version of provenance: where it ships from, how it is packed, what it costs,
+      and the fact that the analytical record is empty.
+    {% endcomment %}
     <p class="eyebrow">04 — Provenance</p>
     <h2>A reference library that happens to sell vials.</h2>
-    <p>Eighteen compounds, each with its sequence, molecular weight, purity result and mass
-      confirmation on the record. Read the entry first and the price second — that's the order
-      the design intends. {{ site.shipping_notice }} All compounds are supplied for in-vitro
-      laboratory research only.</p>
+    <p>73 compounds, each listed with its sequence, molecular weight and research category, sold
+      in sealed 10-vial packs at 30% below our former pricing. Shipped direct from our
+      manufacturing partner. Read the entry first and the price second — that's the order the
+      design intends. What we cannot show you is any analytical documentation, because we hold
+      none. {{ site.shipping_notice }} All compounds are supplied for in-vitro laboratory
+      research only — not for human or veterinary use.</p>
   </div>
 </section>
 {% endblock %}

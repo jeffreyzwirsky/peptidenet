@@ -70,6 +70,26 @@ HARD_PATTERNS = {
                             r"usp[- ]grade|pharmaceutical[- ]grade|cgmp|fda[- ]registered|"
                             r"health canada licen[cs]ed|licen[cs]ed facility)\b",
 
+    # Analytical claims. We hold no certificate of analysis, no purity result and
+    # no identity confirmation for anything in the catalogue. Every one of these
+    # phrases was live across all eight storefronts until it turned out none of
+    # it could be evidenced. Competition Act s.74.01(1)(b) requires adequate and
+    # proper testing BEFORE a performance claim is made, and the burden sits with
+    # the advertiser — so the scanner treats any of them as hard failures.
+    #
+    # Explaining what a COA or an HPLC test IS remains fine: the negation and
+    # quoted-example escapes in scan() cover genuine buyer education.
+    "unsupported testing claim": r"\b((third[- ]party|independent(ly)?|lab)\s+"
+                                r"(tested|verified|analy[sz]ed|screened)|"
+                                r"hplc[- /]?(ms|verified|tested)?|mass[- ]spec(trometry)?|"
+                                r"chromatograph(y|ic)|batch[- ]tested|lot[- ]tested|"
+                                r"purity[- ](tested|verified|threshold)|release purity)\b",
+    "unsupported COA claim": r"\b(coa[s]?\b|certificate[s]? of analysis|"
+                             r"batch[- ](specific|matched) certificate|lot file)\b",
+    "unsupported purity figure": r"(≥\s*9[0-9](\.[0-9])?\s*%|"
+                                 r"\b9[0-9](\.[0-9])?\s*%\s*(pure|purity)|"
+                                 r"\b(high|reference|analytical)[- ]?(purity|grade)\b)",
+
     # The delivery promise is 10–15 days everywhere. Any other window in a post
     # is a promise the fulfilment chain has not agreed to.
     "off-policy delivery promise": r"\b((?!10\s*[-–]\s*15)\d{1,2}\s*[-–]\s*\d{1,2}\s*(business\s+)?days?\s+"

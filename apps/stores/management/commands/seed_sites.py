@@ -18,46 +18,46 @@ SITES = [
     # ---------------- Canada (.ca) ----------------
     {"domain": "smashfatbiolabs.ca", "brand_name": "SmashFat BioLabs", "theme": "biolabs",
      "country": "CA", "currency": "CAD", "brand_key": "smashfatbiolabs",
-     "tagline": "Purity you can prove.", "promo_code": "SMASH10",
-     "meta_description": "High-purity research compounds for Canadian laboratories, "
-                         "independently tested with a COA on every lot."},
+     "tagline": "We only claim what we can show.", "promo_code": "SMASH10",
+     "meta_description": "Research compounds for Canadian laboratories. Sold uncharacterised — "
+                         "we hold no analysis and say so. 10–15 day delivery."},
     {"domain": "smashfat.ca", "brand_name": "SmashFat", "theme": "neon",
      "country": "CA", "currency": "CAD", "brand_key": "smashfat",
      "tagline": "Smash fat. Research-grade.", "promo_code": "BURN10",
-     "meta_description": "High-purity metabolic research compounds for Canadian "
+     "meta_description": "Metabolic research compounds for Canadian "
                          "researchers — GLP-1, GIP and mitochondrial targets."},
     {"domain": "smash-fat.ca", "brand_name": "Smash Fat", "theme": "apothecary",
      "country": "CA", "currency": "CAD", "brand_key": "smash-fat",
-     "tagline": "Quiet purity, documented to the lot.", "promo_code": "CALM10",
+     "tagline": "A small formulary, plainly described.", "promo_code": "CALM10",
      "meta_description": "A boutique research peptide source for Canada — lyophilised, "
                          "batch-documented, handled with care."},
     {"domain": "peptidesalberta.ca", "brand_name": "Peptides Alberta", "theme": "prairie",
      "country": "CA", "currency": "CAD", "brand_key": "peptidesalberta",
      "tagline": "Research peptides for Alberta labs.", "promo_code": "ALBERTA10",
      "meta_description": "Lab-verified research compounds for researchers in Calgary, "
-                         "Edmonton and across Alberta. COA on every lot."},
+                         "Edmonton and across Alberta. Sold uncharacterised."},
     {"domain": "where-do-i-get-peptides.ca", "brand_name": "Where Do I Get Peptides?", "theme": "guide",
      "country": "CA", "currency": "CAD", "brand_key": "where-do-i-get-peptides",
      "tagline": "Where do I get peptides? Right here.", "promo_code": "START10",
      "meta_description": "Straight answers for Canadian buyers and lab-grade research "
-                         "compounds — purity and COA included."},
+                         "compounds, and an honest account of what we don't hold."},
 
     # ---------------- United States (.com) ----------------
     {"domain": "smashfatbiolabs.com", "brand_name": "SmashFat BioLabs", "theme": "clinical",
      "country": "US", "currency": "USD", "brand_key": "smashfatbiolabs",
-     "tagline": "Reference-grade compounds for precision research.", "promo_code": "LAB10",
-     "meta_description": "Analytically certified research peptides for US laboratories, "
-                         "with a COA on every lot."},
+     "tagline": "Plainly described compounds for precision research.", "promo_code": "LAB10",
+     "meta_description": "Research peptides for US laboratories, sold uncharacterised, "
+                         "sold uncharacterised, with no analysis claimed."},
     {"domain": "smash-fat.com", "brand_name": "Smash Fat", "theme": "editorial",
      "country": "US", "currency": "USD", "brand_key": "smash-fat",
      "tagline": "Peptides, with a loud signature.", "promo_code": "NOISE10",
-     "meta_description": "A design-forward reference library of high-purity research "
+     "meta_description": "A design-forward reference library of research "
                          "peptides, with full molecular data on every compound."},
     {"domain": "where-do-i-get-peptides.com", "brand_name": "Where Do I Get Peptides?", "theme": "directory",
      "country": "US", "currency": "USD", "brand_key": "where-do-i-get-peptides",
      "tagline": "The answer is here.", "promo_code": "GUIDE10",
-     "meta_description": "How to vet a research peptide supplier — and a third-party "
-                         "tested source that meets the checklist."},
+     "meta_description": "How to vet a research peptide supplier — and an honest "
+                         "source that tells you plainly where it falls short."},
 ]
 
 

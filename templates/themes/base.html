@@ -94,11 +94,16 @@
   <section id="quality" class="quality">
     {% include "partials/_molecule_bg.html" %}
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Quality Standards</p><h2>What "research-grade" means here</h2></div>
+      {% comment %} This block used to promise a documented purity threshold, independent
+         HPLC and mass-spec verification, and a batch-specific certificate for
+         every product. We hold none of it. What replaces it is the set of things
+         that are actually true and actually checkable by the buyer — which is a
+         weaker pitch and an honest one. {% endcomment %}
+      <div class="section-head"><p class="eyebrow">How we operate</p><h2>What we will and won't tell you</h2></div>
       <div class="quality-grid">
-        <div class="q-item"><h3>≥99% purity</h3><p>Every lot released above a documented purity threshold.</p></div>
-        <div class="q-item"><h3>Third-party tested</h3><p>Independent HPLC &amp; mass-spec verification before release.</p></div>
-        <div class="q-item"><h3>COA available</h3><p>A batch-specific certificate for every product on request.</p></div>
+        <div class="q-item"><h3>No analysis, no claim</h3><p>We publish testing documentation only where we actually hold it. We hold none today, and say so rather than describing tests we can't evidence.</p></div>
+        <div class="q-item"><h3>Uncharacterised material</h3><p>Treat every compound as unverified. If your work depends on confirmed identity or purity, budget for your own analysis.</p></div>
+        <div class="q-item"><h3>Research use only</h3><p>Sold strictly as laboratory reference material. Not for human or veterinary use, and never described as fit for either.</p></div>
         {% comment %} Fourth card previously claimed goods shipped from Canada. They don't —
            the manufacturing partner ships direct — so it states the delivery
            window instead. This one edit puts the disclosure on all 8 homepages. {% endcomment %}
@@ -116,10 +121,11 @@
          alt="Clear-liquid research-compound vials on a laboratory bench with molecular structures" loading="lazy">
     <div class="lab-band-scrim"></div>
     <div class="wrap lab-band-inner">
-      <p class="eyebrow">Analytically verified</p>
-      <h2>Purity, documented to the lot.</h2>
-      <p>Every batch is independently tested by HPLC and mass spectrometry and released against a
-        certificate of analysis, then shipped discreetly in plain, tracked packaging.</p>
+      <p class="eyebrow">Plainly stated</p>
+      <h2>We'd rather be useful than impressive.</h2>
+      <p>No purity figure, no certificate and no testing claim appears on this site unless the
+        document behind it is in our hands. Right now none is. What you do get: the real price,
+        the real delivery window, and plain, tracked packaging.</p>
     </div>
   </section>
   {% endblock %}
@@ -136,7 +142,7 @@
         <input name="email" type="email" placeholder="Email" aria-label="Your email" autocomplete="email" required>
         <textarea name="message" placeholder="How can we help?" aria-label="Your message" required></textarea>
         <input name="phone" type="tel" placeholder="Phone (optional — for SMS updates)" aria-label="Your phone" autocomplete="tel">
-        <label class="sms-optin"><input type="checkbox" name="sms_optin_transactional" value="1"> Text me order &amp; COA updates (transactional).</label>
+        <label class="sms-optin"><input type="checkbox" name="sms_optin_transactional" value="1"> Text me order updates (transactional).</label>
         <label class="sms-optin"><input type="checkbox" name="sms_optin_marketing" value="1"> Text me offers &amp; restock alerts (marketing).</label>
         <p class="sms-disclosure">If you check a box, you agree to receive recurring SMS from {{ site.brand_name }}. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of purchase.</p>
         <button type="submit" class="btn btn-primary">Send</button>

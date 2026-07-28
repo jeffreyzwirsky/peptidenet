@@ -1,7 +1,11 @@
 {% extends "themes/base.html" %}
 {% load static %}
 
-{% block title %}{{ site.brand_name }} — Certified-Purity Research Compounds{% endblock %}
+{% comment %} The page title read "Certified-Purity Research Compounds". We hold no
+   certificate of analysis and no purity result of any kind, so "certified
+   purity" was a performance claim with nothing behind it. Replaced with a
+   description of what the catalogue actually is. {% endcomment %}
+{% block title %}{{ site.brand_name }} — Research Compounds, Sold Uncharacterised{% endblock %}
 
 {% block head_extra %}
 {% endblock %}
@@ -24,40 +28,66 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="hero-badge"><span class="dot"></span> Batch-tested to ≥99% purity · COA on every lot</span>
+      {% comment %} Badge previously read "Batch-tested to ≥99% purity". No batch of this
+         material has been tested by us or by anyone whose results we hold, so
+         both the threshold and the testing claim are removed. {% endcomment %}
+      <span class="hero-badge"><span class="dot"></span> Sold uncharacterised · Research use only</span>
       <p class="eyebrow">Research Compounds</p>
-      <h1>{{ site.tagline }}</h1>
-      <p class="lead">{{ site.brand_name }} supplies analytically certified peptides and research
-        molecules — each lot independently verified by HPLC and mass spectrometry, documented,
-        and released against a batch-specific certificate of analysis.</p>
+      {% comment %} The headline rendered {{ site.tagline }}, which for this site reads
+         "Reference-grade compounds for precision research." "Reference-grade" is
+         a quality claim we cannot substantiate, so the tag is replaced with the
+         brand name plus static copy. The tagline field itself still needs
+         correcting in the seed data — this template can only stop showing it. {% endcomment %}
+      <h1>{{ site.brand_name }} sells the material. It does not vouch for it.</h1>
+      {% comment %} The lede claimed "analytically certified" compounds, per-lot independent
+         verification by HPLC and mass spectrometry, and release against a
+         batch-specific certificate of analysis. We hold no analytical
+         documentation of any kind from our manufacturing partner, so every one
+         of those claims is unsubstantiated and has been removed. {% endcomment %}
+      <p class="lead">Seventy-three research compounds, sold in sealed ten-vial packs and
+        shipped direct from our manufacturing partner. We hold no analytical documentation for
+        any of it — no purity result, no identity confirmation, no certificate of analysis.
+        Treat what arrives as uncharacterised material.</p>
       <div class="hero-cta">
         <a href="#catalogue" class="btn btn-primary">Browse the catalogue</a>
-        <a href="#coa" class="btn btn-ghost">View a sample COA</a>
+        {% comment %} Second button offered "View a sample COA". We cannot produce one, on
+           request or otherwise, so it now points at the disclosure section. {% endcomment %}
+        <a href="#coa" class="btn btn-ghost">Read what we don't hold</a>
       </div>
+      {% comment %} The three stat tiles read "≥99% Release purity", "HPLC/MS Plainly
+         stated" and "100% Lots third-party tested". All three were performance
+         claims resting on testing that was never done and documents we do not
+         have. Same three tiles, now showing counts we can check ourselves. {% endcomment %}
       <div class="hero-stats">
-        <div class="s"><b>≥99%</b><span>Release purity</span></div>
-        <div class="s"><b>HPLC/MS</b><span>Verified identity</span></div>
-        <div class="s"><b>100%</b><span>Lots third-party tested</span></div>
+        <div class="s"><b>73</b><span>Compounds listed</span></div>
+        <div class="s"><b>10</b><span>Vials per sealed pack</span></div>
+        <div class="s"><b>{{ site.shipping_window }}</b><span>Delivery window</span></div>
       </div>
     </div>
     <div class="hero-visual">
       <div class="hero-figure">
       <div class="hero-vid-frame" data-hero-video="/static/hero/hero-v2.mp4?v={{ asset_v }}">{% include "partials/_hero_vial.html" %}</div>
+      {% comment %} This floating panel was a mock certificate of analysis: a 99.4% figure,
+         a "meets release specification" pass chip, an RP-HPLC method line and an
+         ESI-MS identity line. None of those results exist. The panel keeps its
+         markup but now states the pack facts we can stand behind, and the
+         chromatogram trace beneath it has been flattened to a plain rule so it
+         no longer reads as instrument output we never produced. {% endcomment %}
       <div class="assay-card hero-card-float">
         <svg class="molecule" width="180" height="180" viewBox="0 0 180 180" fill="none" stroke="#2b5cd9" stroke-width="1.2" aria-hidden="true">
           <circle cx="60" cy="50" r="5"/><circle cx="110" cy="40" r="5"/><circle cx="140" cy="80" r="5"/><circle cx="100" cy="95" r="5"/><circle cx="70" cy="110" r="5"/><circle cx="130" cy="130" r="5"/>
           <path d="M65 52l40-9M113 44l24 32M137 84l-33 9M96 97l-24 11M74 112l52 16M104 92l24 34"/>
         </svg>
-        <h4>Certificate of Analysis</h4>
-        <div class="big">99.4%</div>
-        <span class="chip-pass"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Meets release specification</span>
-        <div class="assay-row"><span class="k">Method</span><span class="v">RP-HPLC / UV 214nm</span></div>
-        <div class="assay-row"><span class="k">Identity</span><span class="v">ESI-MS confirmed</span></div>
-        <div class="assay-row"><span class="k">Appearance</span><span class="v">White lyophilate</span></div>
+        <h4>What Ships To You</h4>
+        <div class="big">10</div>
+        <span class="chip-pass"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Vials, sealed, in one pack</span>
+        <div class="assay-row"><span class="k">Packaging</span><span class="v">Plain, tracked</span></div>
+        <div class="assay-row"><span class="k">Shipped by</span><span class="v">Our manufacturing partner</span></div>
+        <div class="assay-row"><span class="k">Analytical file</span><span class="v">None held</span></div>
         <div class="trace">
           <svg width="100%" height="56" viewBox="0 0 320 56" preserveAspectRatio="none" aria-hidden="true">
             <line x1="0" y1="52" x2="320" y2="52" stroke="#e2e7ef"/>
-            <path d="M0 50 L70 50 L86 48 L120 50 L150 50 L160 8 L172 50 L230 50 L246 40 L262 50 L320 50" fill="none" stroke="#2b5cd9" stroke-width="1.8"/>
+            <path d="M0 50 L320 50" fill="none" stroke="#2b5cd9" stroke-width="1.8"/>
           </svg>
         </div>
       </div>
@@ -68,45 +98,65 @@
 {% endblock %}
 
 {% block catalogue_head %}
+{% comment %} Heading read "Research compounds, fully documented." and the sub-heading said
+   every vial is released against a batch-specific certificate of analysis. There
+   is no documentation and no certificate, so both are replaced with the pack
+   format and the price change, which are facts about our own business. {% endcomment %}
 <div class="section-head">
   <p class="eyebrow">The Catalogue</p>
-  <h2>Research compounds, fully documented.</h2>
-  <p class="sec-sub">Every vial is lyophilized, sealed, and released against a batch-specific
-    certificate of analysis. Filter by research category below.</p>
+  <h2>Seventy-three research compounds, plainly listed.</h2>
+  <p class="sec-sub">Each one is sold as a sealed ten-vial pack, at prices reduced by 30%
+    against our old list. No analytical documentation accompanies any of it. Filter by
+    research category below.</p>
 </div>
 {% endblock %}
 
 {% block after_catalogue %}
+{% comment %} This whole section was built around a certificate of analysis: a headline
+   telling buyers to verify every lot, a four-point list of the analytical
+   records supposedly supplied (RP-HPLC chromatogram, ESI-MS identity, lot and
+   fill record, storage parameters), and a specimen document showing 99.42%
+   purity, a confirmed identity, water content, endotoxin and a release date.
+   We hold none of those records and never did. The section keeps its markup and
+   now discloses the absence instead of advertising the document. The CSS class
+   names below still contain "coa" because the stylesheet keys off them; the
+   words shown to a reader no longer claim a certificate exists. {% endcomment %}
 <section id="coa" class="coa-section">
   <div class="wrap">
     <div class="coa">
       <div class="coa-copy">
-        <span class="eyebrow">Certificate of Analysis</span>
-        <h2>Verify every lot before you open the vial.</h2>
-        <p>Transparency is the product. Each {{ site.brand_name }} lot is released with analytical
-          documentation you can cross-reference against the sealed vial in your hand.</p>
+        <span class="eyebrow">What We Don't Have</span>
+        <h2>There is no analytical file behind this catalogue.</h2>
+        <p>We hold no certificate of analysis, no purity result and no identity confirmation
+          from our manufacturing partner, for any compound listed on this page. We publish
+          documentation only where we actually hold it, and today we hold none. Here is what
+          {{ site.brand_name }} can put its name to instead.</p>
         <ul>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> RP-HPLC purity chromatogram with integration report</li>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> ESI-MS identity confirmation and expected mass</li>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Lot number, fill weight, and appearance record</li>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Recommended storage and handling parameters</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 73 compounds, each sold as a sealed ten-vial pack</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Prices cut by 30% against our previous list</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> {{ site.shipping_window }} delivery, stated before you order, not after</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Plain, tracked packaging, sent direct from our manufacturing partner</li>
         </ul>
       </div>
+      {% comment %} The specimen document panel is kept as a disclosure card: same rows, but
+         each one now records that the result does not exist rather than
+         inventing a number. The peak trace is flattened for the same reason as
+         the hero trace — it depicted chromatography we never ran. {% endcomment %}
       <div class="coa-doc">
         <div class="top">
-          <b>COA · Lot SFB-2607</b>
-          <span class="doc-pass">PASS</span>
+          <b>Documentation status</b>
+          <span class="doc-pass">NONE HELD</span>
         </div>
-        <div class="rowd"><span>Compound</span><b>BPC-157 (10mg)</b></div>
-        <div class="rowd"><span>Purity (HPLC)</span><b>99.42%</b></div>
-        <div class="rowd"><span>Identity (MS)</span><b>Confirmed</b></div>
-        <div class="rowd"><span>Water content</span><b>3.1%</b></div>
-        <div class="rowd"><span>Endotoxin</span><b>&lt; 0.5 EU/mg</b></div>
-        <div class="rowd"><span>Released</span><b>2026-06-11</b></div>
+        <div class="rowd"><span>Applies to</span><b>Every listed compound</b></div>
+        <div class="rowd"><span>Purity result</span><b>Not held</b></div>
+        <div class="rowd"><span>Identity result</span><b>Not held</b></div>
+        <div class="rowd"><span>Certificate of analysis</span><b>Not held</b></div>
+        <div class="rowd"><span>Testing laboratory</span><b>None</b></div>
+        <div class="rowd"><span>Sold as</span><b>Uncharacterised material</b></div>
         <div class="peak">
           <svg width="100%" height="100%" viewBox="0 0 320 60" preserveAspectRatio="none" aria-hidden="true">
             <line x1="0" y1="54" x2="320" y2="54" stroke="#26324a"/>
-            <path d="M0 52 L90 52 L104 46 L150 52 L188 52 L200 6 L214 52 L260 52 L276 42 L292 52 L320 52" fill="none" stroke="#5b8dff" stroke-width="1.8"/>
+            <path d="M0 52 L320 52" fill="none" stroke="#5b8dff" stroke-width="1.8"/>
           </svg>
         </div>
       </div>
@@ -119,32 +169,51 @@
 <section id="quality" class="quality">
   {% include "partials/_molecule_bg.html" %}
   <div class="wrap">
+    {% comment %} Section head read "Reference-grade material, released against a written
+       specification", under the eyebrow "Analytical Specification", and claimed
+       four controls sat between a synthesis lot and a listing. No specification
+       and no controls exist on our side. Rewritten to describe how we actually
+       operate. {% endcomment %}
     <div class="section-head">
-      <p class="eyebrow">Analytical Specification</p>
-      <h2>Reference-grade material, released against a written specification.</h2>
-      <p class="sec-sub">Four controls stand between a synthesis lot and a listing on this page.
-        Each one leaves a record you can read.</p>
+      <p class="eyebrow">How We Operate</p>
+      <h2>Uncharacterised material, sold at a price that reflects it.</h2>
+      <p class="sec-sub">Four things sit behind a listing on this page. None of them is a
+        test result, and each one can be checked against what arrives.</p>
     </div>
     <div class="quality-grid">
+      {% comment %} First two cards described a ≥99% RP-HPLC release threshold with an
+         integration report, and ESI mass-spectrometry identity matching. We have
+         never held a chromatogram or a mass spectrum for this material, so both
+         descriptions are replaced with the position we can defend. {% endcomment %}
       <div class="q-item">
-        <h3>Purity specification</h3>
-        <p>Release requires ≥99% by RP-HPLC area. The integration report — not a rounded
-          marketing figure — is what the release decision is made against.</p>
+        <h3>No analytical file</h3>
+        <p>We hold nothing from our manufacturing partner: no chromatogram, no mass spectrum,
+          no release document. This page used to describe all three in detail. None of it was
+          ours to describe, so it is gone rather than softened.</p>
       </div>
       <div class="q-item">
-        <h3>Identity confirmation</h3>
-        <p>ESI mass spectrometry matches observed mass to the expected mass for the sequence.
-          A purity number without an identity result is an incomplete assay.</p>
+        <h3>What that means at the bench</h3>
+        <p>Identity and purity are unconfirmed. Assume nothing about the contents of the vial
+          beyond the label our partner applied. If your work turns on either figure, run your
+          own analysis before you use the material, and budget for it.</p>
       </div>
+      {% comment %} Third card promised a per-lot certificate of analysis keyed to the vial.
+         There is no certificate to key to anything, and we will not offer one
+         "on request" because we cannot produce it. {% endcomment %}
       <div class="q-item">
-        <h3>Assay documentation</h3>
-        <p>Each lot carries a certificate of analysis: method, purity, identity, appearance,
-          fill weight, water content and release date, keyed to the vial's lot number.</p>
+        <h3>Documentation, if it ever exists</h3>
+        <p>We publish testing documentation only where we hold it, against the specific
+          compound it covers. Should our manufacturing partner ever supply such records, they
+          will appear here. Until then this page will keep saying we have none.</p>
       </div>
+      {% comment %} Fulfilment card retained; the geographic reference was dropped so the
+         copy makes no statement, in either direction, about where goods come
+         from. {% endcomment %}
       <div class="q-item">
         <h3>Fulfilment terms</h3>
-        <p>{{ site.shipping_window }} delivery to laboratories across the United States, sent
-          direct from our manufacturing partner in plain, tracked packaging.</p>
+        <p>{{ site.shipping_window }} delivery, stated up front rather than after payment,
+          sent direct from our manufacturing partner in plain, tracked packaging. Supplied for
+          laboratory research only — not for human or veterinary use.</p>
       </div>
     </div>
   </div>
@@ -157,12 +226,19 @@
        alt="Analytical instrumentation and sealed research-compound vials in a laboratory" loading="lazy">
   <div class="lab-band-scrim"></div>
   <div class="wrap lab-band-inner">
-    <p class="eyebrow">Documented to specification</p>
-    <h2>Every figure on the label has an instrument trace behind it.</h2>
-    <p>Independent HPLC and mass-spectrometry data are generated per lot, reviewed against the
-      release specification and archived with the batch record. Request the current lot's
-      certificate before you order, then compare it to the vial you receive.
-      {{ site.shipping_notice }}</p>
+    {% comment %} This band claimed an instrument trace stood behind every figure on the
+       label, that independent HPLC and mass-spectrometry data were generated per
+       lot and archived with the batch record, and invited buyers to request the
+       current lot's certificate before ordering. No such data was ever
+       generated for us and no certificate can be produced, so the invitation is
+       withdrawn along with the claims. {% endcomment %}
+    <p class="eyebrow">Plainly stated</p>
+    <h2>We publish documentation only where we hold it. Here we hold none.</h2>
+    <p>No test result, no purity figure and no certificate appears anywhere on this site,
+      because the documents that would support them are not in our hands. What is left is the
+      part we can stand behind: seventy-three compounds, sealed ten-vial packs, a 30% price
+      reduction, and plain tracked packaging. Treat the material as uncharacterised and for
+      research use only. {{ site.shipping_notice }}</p>
   </div>
 </section>
 {% endblock %}

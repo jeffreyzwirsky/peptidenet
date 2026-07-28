@@ -10,11 +10,18 @@
     <div class="hero-copy">
       <div class="kicker"><span class="pulse"></span> {{ site.tagline }}</div>
       <h1 class="hero-title">{{ site.brand_name }}<span class="hero-slash">.</span></h1>
-      <p class="hero-sub">High-purity <b>metabolic research compounds</b> — third-party HPLC/MS
-        verified, <b>&ge;99% release purity</b>, shipped discreetly in plain, tracked packaging.</p>
+      {% comment %} Rewritten: the old subheading claimed "high-purity", "verified" and ">=99% release purity".
+         We hold no analytical documentation of any kind from our manufacturing partner, so there is no
+         testing behind those words and they have been dropped. What is left is what we can actually
+         stand behind: what we sell, how it ships, and the fact that the material is uncharacterised. {% endcomment %}
+      <p class="hero-sub">Uncharacterised <b>metabolic research compounds</b> — shipped direct from our
+        manufacturing partner in sealed 10-vial packs, 30% off, in plain, tracked packaging.
+        <b>No analytical data. No claims.</b></p>
       <div class="hero-cta">
         <a href="#catalogue" class="btn btn-primary">Shop the bench &rarr;</a>
-        <a href="#quality" class="btn btn-ghost">See the COAs</a>
+        {% comment %} CTA relabelled: it used to say "See the COAs" — there are no COAs to see. It still points at
+           #quality, which now explains plainly what we do and do not know about this material. {% endcomment %}
+        <a href="#quality" class="btn btn-ghost">What we don't know</a>
       </div>
     </div>
     <div class="hero-figure hero-figure-neon" data-hero-video="/static/hero/hero-neon2.mp4?v={{ asset_v }}">
@@ -25,13 +32,16 @@
                alt="Glowing research-compound vials under neon laboratory light" fetchpriority="high">
         </picture>
       </div>
+      {% comment %} The floating stat used to read "99%" / "Minimum release purity". No purity has ever been measured
+         for this stock, so that number was unsupported. Swapped for the price reduction, which is a fact
+         about our own pricing, and a chip that states the documentation position instead of faking one. {% endcomment %}
       <div class="hero-stat hero-stat-float">
         <div class="hero-stat-slash"></div>
-        <div class="hero-big">99<small>%</small></div>
-        <div class="hero-cap">Minimum release purity — every lot, every vial</div>
+        <div class="hero-big">30<small>%</small></div>
+        <div class="hero-cap">Off the old list price — 73 compounds, sealed 10-vial packs</div>
         <div class="hero-chiprow">
-          <span class="hchip"><span class="d"></span> HPLC + MS Tested</span>
-          <span class="hchip"><span class="d"></span> COA On File</span>
+          <span class="hchip"><span class="d"></span> Research use only</span>
+          <span class="hchip"><span class="d"></span> No analytical data held</span>
         </div>
       </div>
     </div>
@@ -42,12 +52,15 @@
 {% block before_catalogue %}
 <div class="strip">
   <div class="strip-track">
+    {% comment %} Marquee chips rewritten. The loop below prints the same six chips twice, so every repetition of
+       the old ">=99% PURITY", "COA ON FILE" and "BATCH-TESTED" claims is gone with this one edit.
+       Nothing here has been tested, so the chips now carry only catalogue, pack and shipping facts. {% endcomment %}
     {% for i in "12" %}
-    <span>&ge;99% PURITY <b class="star">&#10022;</b></span>
-    <span>HPLC + MS VERIFIED <b class="star">&#10022;</b></span>
-    <span>COA ON FILE <b class="star">&#10022;</b></span>
+    <span>73 COMPOUNDS <b class="star">&#10022;</b></span>
+    <span>RESEARCH USE ONLY <b class="star">&#10022;</b></span>
+    <span>NO ANALYTICAL DATA <b class="star">&#10022;</b></span>
     <span>{{ site.shipping_window|upper }} DELIVERY <b class="star">&#10022;</b></span>
-    <span>BATCH-TESTED <b class="star">&#10022;</b></span>
+    <span>SEALED 10-VIAL PACKS <b class="star">&#10022;</b></span>
     <span>DISCREET DELIVERY <b class="star">&#10022;</b></span>
     {% endfor %}
   </div>
@@ -74,27 +87,33 @@
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">The Standard</p>
-      <h2>Metabolic research, supplied like it matters.</h2>
+      <h2>Metabolic research, supplied without the story.</h2>
     </div>
+    {% comment %} All four tiles rewritten. Tile 1 asserted a >=99% release threshold, tile 2 asserted chromatography
+       and mass-spec testing by outside laboratories, and tile 4 asserted a batch-matched certificate on
+       file. We hold no such documents and no such testing was ever done for us, so under s.74.01(1)(b)
+       there was no adequate and proper test behind any of it. Same four tiles, honest content. {% endcomment %}
     <div class="quality-grid">
       <div class="q-item">
-        <h3>&ge;99% or it doesn't list</h3>
-        <p>One threshold, applied to every lot. Below it, the batch never reaches this page.</p>
+        <h3>No data, so no number</h3>
+        <p>We hold nothing analytical on this material — so we quote no purity figure at all.
+          Treat every vial as uncharacterised until your own bench says otherwise.</p>
       </div>
       <div class="q-item">
-        <h3>HPLC + MS, outside labs</h3>
-        <p>Purity measured by chromatography, identity confirmed by mass spec — both by
-          third parties, because self-graded homework isn't data.</p>
+        <h3>10–15 days, said up front</h3>
+        <p>The delivery window is on the page before you pay, not after. Plain, tracked
+          packaging, shipped direct from our manufacturing partner.</p>
       </div>
       <div class="q-item">
         <h3>Built around GLP-1 work</h3>
-        <p>The catalogue is weighted toward metabolic and GLP-1 research targets, with molecular
-          weight and sequence data listed for every compound. In-vitro research use only.</p>
+        <p>73 compounds, weighted toward metabolic and GLP-1 research targets. Listed molecular
+          weights and sequences are nominal reference values for the target, not measurements
+          taken from your vial. In-vitro research use only.</p>
       </div>
       <div class="q-item">
-        <h3>COA, then {{ site.shipping_window }}</h3>
-        <p>Batch-matched certificate on file for every lot. Orders leave our manufacturing
-          partner and arrive in plain, tracked packaging.</p>
+        <h3>Sealed packs, then {{ site.shipping_window }}</h3>
+        <p>Sold in sealed 10-vial packs at 30% off the old list price. We publish documentation
+          only where we actually hold it — and for this stock we hold none.</p>
       </div>
     </div>
   </div>
@@ -108,10 +127,15 @@
   <div class="lab-band-scrim"></div>
   <div class="wrap lab-band-inner">
     <p class="eyebrow">Bench-ready</p>
-    <h2>Loud branding. Quiet, boring paperwork.</h2>
-    <p>Behind the lime and the noise is a dull, repeatable process: synthesise, test by HPLC,
-      confirm by MS, release above ≥99%, file the COA against the lot. Eighteen compounds in the
-      catalogue, every one carrying its own numbers. {{ site.shipping_notice }}</p>
+    {% comment %} This band described a full analytical workflow — HPLC purity, MS identity confirmation, release
+       above >=99%, a COA filed against each lot. None of that happened on our side and we hold none of
+       those records, so the whole passage was an unsupported performance claim and has been replaced
+       with what is actually true about the offer. Compound count corrected to 73. {% endcomment %}
+    <h2>Loud branding. Empty paperwork drawer.</h2>
+    <p>Behind the lime and the noise, here is the boring part: we hold no certificate of analysis,
+      no purity data and no identity confirmation for this stock, and we are not going to pretend
+      otherwise. 73 compounds, sealed 10-vial packs, 30% off, research use only — not for human or
+      veterinary use. Assume the material is uncharacterised. {{ site.shipping_notice }}</p>
   </div>
 </section>
 {% endblock %}

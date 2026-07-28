@@ -121,7 +121,12 @@ class Product(models.Model):
                   "cannot be split. Set 1 for supplies (bacteriostatic water, "
                   "syringes) so they can still be bought singly.",
     )
-    purity = models.CharField(max_length=20, default="≥99%")
+    # Blank by default, and deliberately so. A purity figure on a product page
+    # reads as a measured result; we hold no analysis that would substantiate
+    # one, and Competition Act s.74.01(1)(b) puts the burden of adequate and
+    # proper testing on the advertiser BEFORE the claim is made. Set this only
+    # for a compound whose analysis is actually in hand.
+    purity = models.CharField(max_length=20, blank=True, default="")
     sizes = models.JSONField(default=list, help_text='e.g. ["10mg", "50mg"]')
     stock = models.CharField(
         max_length=3, choices=STOCK_CHOICES, default="in",
@@ -364,7 +369,7 @@ class Product(models.Model):
     def alt_text(self):
         return self.image_alt or (
             f"{self.name} — lyophilised research compound vial, "
-            f"{self.purity} purity, for laboratory research use only"
+            "for laboratory research use only"
         )
 
     @property

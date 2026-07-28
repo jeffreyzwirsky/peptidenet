@@ -11,18 +11,19 @@
   <div class="wrap hero-inner">
     <div class="hero-copy">
       <p class="eyebrow">Research Compounds · For Canadian laboratories</p>
-      <h1>Purity you can <span class="grad">prove.</span></h1>
-      <p class="lead">High-purity research compounds for serious scientific inquiry — every batch
-        independently third-party tested, with a certificate of analysis published for every product.</p>
+      <h1>We only claim what we can <span class="grad">show.</span></h1>
+      <p class="lead">A working catalogue of research compounds at honest prices. We hold no
+        third-party analysis for this material and don't pretend otherwise — read what that
+        means before you order.</p>
       <div class="hero-cta">
         <a href="#catalogue" class="btn btn-primary">Shop research compounds →</a>
         <a href="#quality" class="btn btn-ghost">Our standards</a>
       </div>
       {% if site.phone %}<p class="hero-phone">Questions? Call <a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% if site.phone_alt %} or <a href="tel:{{ site.phone_alt_tel_or_derived }}">{{ site.phone_alt }}</a>{% endif %}</p>{% endif %}
       <ul class="hero-trust">
-        <li><b>≥99%</b> HPLC-verified</li>
-        <li><b>3rd-party</b> tested</li>
-        <li><b>COA</b> every batch</li>
+        <li><b>73</b> compounds</li>
+        <li><b>No analysis</b> on file</li>
+        <li><b>10-vial</b> packs</li>
         <li><b>{{ site.shipping_window }}</b> delivery</li>
       </ul>
     </div>
@@ -40,19 +41,19 @@
     </div>
     <div class="quality-grid">
       <div class="q-item">
-        <h3>The release gate</h3>
-        <p>A lot either clears the ≥99% purity threshold or it never reaches the catalogue.
-          There is no second tier and no "close enough" grade.</p>
+        <h3>What we don't have</h3>
+        <p>No chromatogram, no mass-spec confirmation, no certificate of analysis. This page
+          previously described all three. None of it was ours to claim, so it's gone.</p>
       </div>
       <div class="q-item">
-        <h3>Two instruments, independently</h3>
-        <p>Reversed-phase HPLC produces the purity figure; mass spectrometry confirms the
-          molecule that figure belongs to. Both are run by third-party laboratories.</p>
+        <h3>What that means for your bench</h3>
+        <p>Treat everything here as uncharacterised. Identity and purity are unconfirmed. If an
+          experiment depends on either, run your own analysis before you use the material.</p>
       </div>
       <div class="q-item">
-        <h3>The lot file follows the vial</h3>
-        <p>A certificate of analysis tied to the exact lot number on your vial — chromatogram,
-          mass confirmation, appearance and fill weight. Ask for it before you order if you like.</p>
+        <h3>If that changes</h3>
+        <p>Where our manufacturing partner supplies analytical documentation we'll publish it
+          against the compound it belongs to — and only that compound.</p>
       </div>
       <div class="q-item">
         <h3>What we promise on delivery</h3>
@@ -72,9 +73,9 @@
   <div class="wrap lab-band-inner">
     <p class="eyebrow">The evidence file</p>
     <h2>If we can't show the chromatogram, we don't make the claim.</h2>
-    <p>Purity is a measurement, not an adjective. Every compound in this catalogue carries an
-      independent HPLC purity result and an MS identity confirmation recorded against its lot
-      number — the same file our own bench works from. {{ site.shipping_notice }}</p>
+    <p>Purity is a measurement, not an adjective — which is exactly why there is no purity figure
+      anywhere on this site. We have not measured it and neither has anyone on our behalf.
+      {{ site.shipping_notice }}</p>
   </div>
 </section>
 {% endblock %}

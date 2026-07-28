@@ -21,9 +21,12 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
           <img class="pdp-photo" data-pdp-photo
                src="{% if product.image %}{{ product.image }}{% else %}/static/hero/hero-vials.jpg{% endif %}"
                alt="{{ product.alt_text }}" width="1000" height="1000" loading="eager" fetchpriority="high">
+          {% comment %}Badge previously read "Third-party tested · ≥99%". Both halves were
+             claims we cannot evidence, sitting on the product photo where they
+             carried the most weight.{% endcomment %}
           <div class="pdp-media-badge">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-            Third-party tested · {{ product.purity }}
+            Research use only
           </div>
         </div>
         {% if product.has_gallery %}
@@ -88,7 +91,7 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
         {% endif %}
 
         <div class="pdp-attrs">
-          <span class="chip pur">{{ product.purity }} purity</span>
+          {% if product.purity %}<span class="chip pur">{{ product.purity }}</span>{% endif %}
           {% if not product.has_sizes %}
             {% for s in product.sizes %}<span class="chip">{{ s }}</span>{% endfor %}
           {% endif %}
@@ -146,9 +149,15 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
           </tbody>
         </table>
 
+        {% comment %} The two lines that used to head this list named a testing lab and
+           claimed HPLC/MS verified identity on every vial. We hold no analysis
+           substantiating either. Under Competition Act s.74.01(1)(b) a
+           performance claim has to rest on adequate and proper testing made
+           BEFORE the claim — the burden is ours, not a regulator's. What is
+           left here is only what we can actually show. {% endcomment %}
         <ul class="pdp-trust">
-          <li><b>COA</b> issued by {{ product.lab_name }}</li>
-          <li><b>HPLC + MS</b> verified identity</li>
+          <li><b>Research use only</b> — sold as a laboratory reference material</li>
+          <li><b>{{ site.shipping_window|default:"10–15 days" }}</b> delivery, stated up front</li>
           <li><b>Discreet</b> plain, tracked packaging</li>
           <li><b>{{ payment_methods_label|default:"Interac, crypto, Alipay &amp; Western Union" }}</b></li>
         </ul>
@@ -168,7 +177,9 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
               {% if product.molecular_formula %}<tr><th>Molecular formula</th><td>{{ product.molecular_formula }}</td></tr>{% endif %}
               {% if product.molecular_weight %}<tr><th>Molecular weight</th><td>{{ product.molecular_weight }} g/mol</td></tr>{% endif %}
               {% if product.sequence %}<tr><th>Sequence / structure</th><td class="mono">{{ product.sequence }}</td></tr>{% endif %}
-              {% if product.purity %}<tr><th>Purity</th><td>{{ product.purity }} (HPLC)</td></tr>{% endif %}
+              {% comment %}Purity is deliberately absent from this table. Stating a figure
+                 here reads as a measured result, and we have no analysis behind
+                 one.{% endcomment %}
               {% if product.half_life %}<tr><th>Reported half-life</th><td>{{ product.half_life }}</td></tr>{% endif %}
               {% if product.appearance %}<tr><th>Appearance</th><td>{{ product.appearance }}</td></tr>{% endif %}
               {% if product.solubility %}<tr><th>Solubility</th><td>{{ product.solubility }}</td></tr>{% endif %}
@@ -191,21 +202,29 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
         </section>
         {% endif %}
 
-        <section class="pdp-block" id="coa">
-          <h2>Certificate of Analysis</h2>
+        {% comment %} This section used to promise a batch-specific certificate of analysis
+           from a named laboratory for every lot, and invited the buyer to
+           request one. We cannot reliably produce that document, so the promise
+           came off. The honest version says what we hold and what we don't —
+           the same position the reviews block takes about testimonials we
+           haven't received. A researcher can act on that; they cannot act on a
+           certificate that may not arrive. {% endcomment %}
+        <section class="pdp-block" id="documentation">
+          <h2>Documentation</h2>
           {% if product.coa_url %}
-            <p>Every lot is released against a batch-specific certificate of analysis from an
-              independent laboratory ({{ product.lab_name }}).</p>
+            <p>A certificate of analysis has been supplied for this compound and is published
+              below. It covers the lot it names — check the lot number on your vial against it
+              before any assay work.</p>
             <a class="btn btn-ghost" href="{{ product.coa_url }}" target="_blank" rel="noopener">
-              View the batch COA (PDF) →</a>
+              View the certificate (PDF) →</a>
           {% else %}
-            <p>Each lot of {{ product.name }} is independently tested by {{ product.lab_name }} by
-              HPLC (purity) and mass spectrometry (identity), and released against a batch-specific
-              certificate of analysis. Request the COA for your lot number and we'll send the
-              matching certificate so you can verify vial-to-lot before any assay work.</p>
-            <a class="btn btn-ghost" href="/#contact">Request this batch's COA →</a>
+            <p>We hold no certificate of analysis for {{ product.name }} and do not claim one.
+              Where our manufacturing partner supplies analytical documentation we publish it on
+              the product it belongs to; where they don't, we say so rather than describing
+              testing we cannot evidence.</p>
+            <p>Treat this material as uncharacterised. If your work depends on verified identity
+              or purity, budget for your own analysis before use.</p>
           {% endif %}
-          <p class="pdp-fineprint"><a href="/blog/">New to COAs? Read our guide on how to read a peptide certificate of analysis.</a></p>
         </section>
 
         {% if faqs %}
@@ -248,7 +267,7 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
 
       {% comment %}The right half of .pdp-detail was empty on desktop — the wrapper
       was built for two columns and only ever got one. It now carries a sticky rail
-      so the price, the delivery promise and the COA stay in view while the buyer
+      so the price and the delivery promise stay in view while the buyer
       reads the spec table, instead of being scrolled away above.{% endcomment %}
       <aside class="pdp-rail">
         <div class="pdp-rail-inner">
@@ -276,16 +295,16 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
           </p>
 
           <dl class="pdp-rail-facts">
-            <div><dt>Purity</dt><dd>{{ product.purity }}</dd></div>
+            {# Purity omitted: no analysis stands behind a figure here. #}
             {% if product.sizes %}<div><dt>Size</dt><dd>{{ product.sizes|join:", " }}</dd></div>{% endif %}
             {% if product.cas_number %}<div><dt>CAS</dt><dd>{{ product.cas_number }}</dd></div>{% endif %}
-            <div><dt>Lab</dt><dd>{{ product.lab_name }}</dd></div>
+            {# No testing laboratory is named: none has analysed this material for us. #}
           </dl>
 
           {% if product.has_coa %}
-          <a class="btn btn-ghost" href="{{ product.coa_url }}" target="_blank" rel="noopener">View COA</a>
+          <a class="btn btn-ghost" href="{{ product.coa_url }}" target="_blank" rel="noopener">View certificate</a>
           {% else %}
-          <p class="pdp-rail-coa">A batch-specific COA is available on request.</p>
+          <p class="pdp-rail-coa">No certificate of analysis is held for this compound.</p>
           {% endif %}
 
           <p class="pdp-rail-ruo">Research use only. Not for human or veterinary use.</p>

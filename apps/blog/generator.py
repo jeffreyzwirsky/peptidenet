@@ -52,6 +52,14 @@ def build_system(site):
         "Do not invent customer quotes, review counts, ratings, or case studies.\n"
         "5. Do not claim certifications the business has not stated: no GMP, ISO, USP, "
         "'pharmaceutical grade', or regulatory registration of any kind.\n"
+        "5b. CRITICAL — we hold NO analytical documentation. Never state or imply that "
+        "products are third-party tested, HPLC or mass-spec verified, purity-tested, or "
+        "that a certificate of analysis exists, is issued per batch, or is available on "
+        "request. Never state a purity figure or threshold (no '≥99%', no 'high purity', "
+        "no 'release purity'). You may explain what a COA or an HPLC test IS as general "
+        "education, but never claim we provide one. Where documentation would naturally "
+        "be mentioned, say plainly that we hold none and the material should be treated "
+        "as uncharacterised.\n"
         "6. NEVER state or imply a country or region that products ship from, are stocked "
         "in, or are manufactured in — not Canada, not anywhere else. Do not write 'ships "
         "from', 'domestic stock', 'made in', or any equivalent. Say only that orders ship "
@@ -60,9 +68,8 @@ def build_system(site):
         f"7. The delivery window is {window} days. Never state any other window, and never "
         "promise same-day, next-day, overnight, or free express shipping.\n"
         "8. No superlatives or price claims — no 'cheapest', 'best', 'purest', 'number one'.\n"
-        "9. Write factually and neutrally about the compound's research context, purity "
-        "thresholds, third-party HPLC/MS testing, and certificates of analysis. "
-        "Educational, not promotional hype.\n"
+        "9. Write factually and neutrally about the compound's research context and the "
+        "published literature. Educational, not promotional hype.\n"
         "10. Naturally include the target keyword. End with a research-use-only disclaimer.\n"
         "Return Markdown: an H1 title, a 2–3 sentence intro, then 4–6 substantive sections "
         "with H2 headings, and a closing disclaimer. Aim for 900–1300 words of genuine "
@@ -80,17 +87,18 @@ def _stub_post(site, keyword):
     body = f"""# {title}
 
 Researchers searching for **{keyword}** should evaluate a supplier on documentation and
-transparency, not marketing language. This overview explains what {brand} publishes for
-every batch and how ordering works for laboratories in {market}.
+transparency, not marketing language. This overview explains what {brand} does and does not
+hold, and how ordering works for laboratories in {market}.
 
-## Purity and third-party testing
-Every compound is released above a documented ≥99% purity threshold and independently
-analyzed by HPLC and mass spectrometry. A batch-specific Certificate of Analysis (COA) is
-available on request so a lab can match the vial to its analysis.
+## What documentation exists
+{brand} holds no certificate of analysis, purity result or identity confirmation for the
+compounds it lists, and does not claim any. Material should be treated as uncharacterised.
+A researcher whose work depends on confirmed identity or purity should budget for their own
+analysis before use.
 
 ## Selection and availability
-The catalogue spans research categories such as {names}. Listings show the research category,
-size, and purity so a purchasing decision can be made on documented specifications.
+The catalogue spans research categories such as {names}. Listings show the research category
+and size. No purity figure is published, because no measurement stands behind one.
 
 ## Ordering
 Orders ship directly from our manufacturing partner in plain, tracked packaging. Allow
@@ -117,8 +125,8 @@ def generate(site, keyword):
         user=(f"Write an SEO blog post for {site.brand_name} targeting the keyword "
               f"\"{keyword}\" for the {market} research market.{lane}\n"
               "Write it so it stands on its own — a reader who found this page from "
-              "search should leave better informed about how to evaluate a supplier "
-              "and read a certificate of analysis. Follow all compliance rules."),
+              "search should leave better informed about how to evaluate a supplier. "
+              "Follow all compliance rules."),
         purpose="blog_post", site=site, stub=stub_body,
         max_tokens=2600,
     )

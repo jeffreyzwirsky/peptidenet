@@ -49,7 +49,7 @@
     {% endif %}
     <p class="pcard-desc">{{ product.description }}</p>
     <div class="pcard-chips">
-      <span class="chip pur">{{ product.purity }}</span>
+      {% if product.purity %}<span class="chip pur">{{ product.purity }}</span>{% endif %}
       {% if not product.has_sizes %}
         {% for s in product.sizes %}<span class="chip">{{ s }}</span>{% endfor %}
       {% endif %}

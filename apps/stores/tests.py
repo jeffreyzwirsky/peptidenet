@@ -545,3 +545,84 @@ class SizeFamilyTests(TestCase):
         item = r.json()["items"][0]
         self.assertEqual(item["id"], small.id)
         self.assertEqual(item["pack_price"], str(small.pack_price))
+
+
+class NoUnevidencedClaimsTests(TestCase):
+    """No storefront may claim testing, a COA, or a purity figure.
+
+    We hold no analytical documentation for anything in the catalogue. Under
+    Competition Act s.74.01(1)(b) — and the FTC Act on the .com sites — a
+    performance claim must rest on adequate and proper testing made BEFORE the
+    claim, and the burden of proving it sits with the advertiser. These claims
+    were live on all eight storefronts, in the hero, the trust badges, the
+    ticker, the FAQ, the policy pages, the JSON feeds and the AI assistant.
+    """
+
+    HOSTS = ("smashfatbiolabs.ca", "smashfatbiolabs.com", "smashfat.ca",
+             "smash-fat.ca", "smash-fat.com", "peptidesalberta.ca",
+             "where-do-i-get-peptides.ca", "where-do-i-get-peptides.com")
+
+    # Affirmative claims. Phrased so a negation ("we hold no certificate of
+    # analysis") does not match — it is the assertion that is banned, not the word.
+    BANNED = [
+        "COA on every", "COA available on request", "certificate of analysis is available",
+        "batch-specific certificate", "batch-matched certificate", "COA-backed",
+        "third-party tested", "third-party HPLC", "independently tested",
+        "HPLC + MS", "HPLC/MS tested", "mass-spec verified", "HPLC-verified",
+        "≥99% purity", "≥99% pure", "release purity", "High-purity", "high-purity",
+        "Reference-grade", "reference-grade", "Analytically certified",
+        "issued by Janoshik", "Janoshik",
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_no_claims_on_any_homepage(self):
+        for host in self.HOSTS:
+            html = self.client.get("/", HTTP_HOST=host).content.decode()
+            for phrase in self.BANNED:
+                self.assertNotIn(phrase, html, f"{phrase!r} still on {host}")
+
+    def test_no_claims_on_product_pages(self):
+        for host in self.HOSTS:
+            for slug in ("bpc-157", "tb-500", "ghk-cu"):
+                html = self.client.get(f"/product/{slug}/", HTTP_HOST=host).content.decode()
+                for phrase in self.BANNED:
+                    self.assertNotIn(phrase, html, f"{phrase!r} on {host}/product/{slug}/")
+
+    def test_no_claims_in_policies_or_regions(self):
+        paths = ["/policy/shipping/", "/policy/terms/", "/research-peptides/alberta/"]
+        for p in paths:
+            html = self.client.get(p, HTTP_HOST="peptidesalberta.ca").content.decode()
+            for phrase in self.BANNED:
+                self.assertNotIn(phrase, html, f"{phrase!r} on {p}")
+
+    def test_no_claims_in_machine_readable_feeds(self):
+        """llms.txt and the COA endpoint are read by agents, not people — an
+        unevidenced claim there is repeated verbatim by whatever consumes it."""
+        for path in ("/llms.txt", "/llms-full.txt"):
+            body = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca").content.decode()
+            for phrase in self.BANNED:
+                self.assertNotIn(phrase, body, f"{phrase!r} in {path}")
+
+    def test_no_purity_figure_is_rendered_anywhere(self):
+        """The purity field is blank by default; nothing should print one."""
+        from apps.catalog.models import Product
+        self.assertFalse(Product.objects.exclude(purity="").exists())
+        html = self.client.get("/product/bpc-157/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertNotIn("99%", html)
+
+    def test_no_template_comment_leaked_onto_a_page(self):
+        """Django's {# #} is single-line only.
+
+        The rewrite added explanatory notes at every removed claim. A multi-line
+        {# #} is not a comment — it renders — which would print the exact claims
+        being removed, quoted, onto the live page. Fifteen were found in one
+        theme during this change.
+        """
+        for host in self.HOSTS:
+            html = self.client.get("/", HTTP_HOST=host).content.decode()
+            for marker in ("{#", "#}", "{% comment", "endcomment"):
+                self.assertNotIn(marker, html, f"{marker!r} leaked on {host}")

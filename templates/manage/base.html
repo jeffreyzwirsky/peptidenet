@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}{% if is_admin_console %}Control{% else %}Staff Portal{% endif %}{% endblock %} · SmashFat BioLabs</title>
 <link rel="stylesheet" href="{% static 'manage/manage.css' %}?v={{ asset_v }}">
-{# Per-page stylesheets. Kept as a block so a page can add its own without
+{% comment %} Per-page stylesheets. Kept as a block so a page can add its own without
    growing the shared file — and, for pricing, without needing to write to
-   manage.css, which is not tracked in this repository. #}
+   manage.css, which is not tracked in this repository. {% endcomment %}
 {% block head %}{% endblock %}
 </head>
 <body>

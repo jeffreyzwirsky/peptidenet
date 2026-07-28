@@ -16,8 +16,8 @@
     not the supplier, not the catalogue code.</p>
 </div>
 
-{# The exchange rate underpins every CAD figure below, so its age is stated up
-   front rather than buried. Repricing stops by itself once this goes stale. #}
+{% comment %} The exchange rate underpins every CAD figure below, so its age is stated up
+   front rather than buried. Repricing stops by itself once this goes stale. {% endcomment %}
 <div class="card {% if not fx or fx.is_stale %}card-warn{% endif %}">
   <h2>Exchange rate</h2>
   {% if fx %}

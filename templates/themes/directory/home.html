@@ -24,28 +24,40 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow hero-eyebrow">● Documentation-verified research supplier</span>
+      {% comment %} Eyebrow said "Documentation-verified research supplier". We hold no
+         certificate of analysis, no HPLC purity data and no mass-spec identity
+         confirmation, so "documentation-verified" is an unsubstantiated performance
+         claim. Replaced with a description of what we actually sell. {% endcomment %}
+      <span class="eyebrow hero-eyebrow">● Research-use compounds, plainly described</span>
       <p class="hero-q">You searched: "where do I get peptides?"</p>
       <h1>The answer <span>is here.</span></h1>
       <p class="lead">{{ site.tagline }}</p>
       <div class="hero-cta">
         <a href="#catalogue" class="btn btn-primary">Browse the catalogue →</a>
-        <a href="#compare" class="btn btn-ghost">Why source from us</a>
+        <a href="#compare" class="btn btn-ghost">What we can and can't show you</a>
       </div>
+      {% comment %} These three tiles claimed a ≥99% release purity, a COA on 100% of
+         batches and third-party testing. None of that is substantiated, so the
+         tiles now carry facts we can stand behind: catalogue size, the delivery
+         window we publish up front, and the number of analytical reports we hold. {% endcomment %}
       <div class="hero-stats">
-        <div><b>≥99%</b><span>Release purity</span></div>
-        <div><b>100%</b><span>Batches with COA</span></div>
-        <div><b>3rd</b><span>Party tested</span></div>
+        <div><b>73</b><span>Compounds listed</span></div>
+        <div><b>{{ site.shipping_window }}</b><span>Delivery, stated up front</span></div>
+        <div><b>0</b><span>Analytical reports held</span></div>
       </div>
     </div>
     <div class="hero-figure">
       <div class="hero-vid-frame" data-hero-video="/static/hero/hero-v3.mp4?v={{ asset_v }}">{% include "partials/_hero_vial.html" %}</div>
+      {% comment %} The sub-heading claimed we "check every box" on the buyer's checklist.
+         We do not — we hold no analytical documentation at all. The checklist stays
+         because telling a buyer what to look for is honest and useful; the claim
+         that we satisfy it is gone, and the line we fail is marked as a failure. {% endcomment %}
       <aside class="hero-card">
         <h4>The buyer's checklist</h4>
-        <p class="hero-card-sub">What a legitimate source must give you — we check every box.</p>
-        <div class="checkline">✓ Third-party HPLC &amp; mass-spec verified</div>
-        <div class="checkline">✓ Certificate of Analysis on every batch</div>
-        <div class="checkline">✓ Discreet, tracked shipping</div>
+        <p class="hero-card-sub">What to demand from any source — and where we stand on each.</p>
+        <div class="checkline">✓ Sold as uncharacterised reference material</div>
+        <div class="checkline">✕ No analytical documentation held — none, on any batch</div>
+        <div class="checkline">✓ Plain, tracked shipping</div>
         <div class="checkline">✓ A published delivery window: {{ site.shipping_window }}</div>
       </aside>
     </div>
@@ -54,21 +66,33 @@
 {% endblock %}
 
 {% block catalogue_head %}
+{% comment %} Heading said "Every compound, fully documented" and the sub-line promised
+   each listing shows purity. We hold no purity data, so both claims are removed
+   and the sub-line now describes what the listings really carry. {% endcomment %}
 <div class="section-head">
   <p class="eyebrow">The full catalogue</p>
-  <h2>Every compound, fully documented.</h2>
-  <p class="head-sub">Filter by research category. Each listing shows purity, sizes and live stock status.</p>
+  <h2>73 compounds, plainly listed.</h2>
+  <p class="head-sub">Filter by research category. Each listing shows sizes and live stock status.
+    Everything ships in sealed 10-vial packs.</p>
 </div>
 {% endblock %}
 
 {% block after_catalogue %}
 <section id="compare" class="compare-section alt">
   <div class="wrap">
+    {% comment %} This table used to award ourselves a ✓ on verified ≥99% purity, a
+       batch-matched COA and independent third-party testing. We hold no
+       certificate of analysis, no HPLC data and no mass-spec confirmation, so
+       claiming to meet a standard we do not meet is the worst version of an
+       unsubstantiated claim. The checklist rows stay — they tell a buyer what to
+       ask for — but our column now shows honestly where we fail, and we claim no
+       advantage on any line we cannot evidence. {% endcomment %}
     <div class="section-head">
       <p class="eyebrow">The directory verdict</p>
-      <h2>Us vs. the mystery vendor.</h2>
+      <h2>The checklist, run against us too.</h2>
       <p class="head-sub">We built this like a buyer's guide because that's what the question deserves.
-        Here's how a legitimate source stacks up against the typical grey-market listing.</p>
+        So we ran the same criteria on ourselves. We fail the documentation rows, and we would
+        rather you read that here than assume otherwise.</p>
     </div>
     <div class="compare">
       <table class="cmp">
@@ -81,21 +105,28 @@
           </tr>
         </thead>
         <tbody>
+          {% comment %} Row 1 previously read "✓ Guaranteed" against a verified ≥99% purity
+             threshold. We publish no purity figure because we hold no purity data. {% endcomment %}
           <tr>
-            <td class="feat">Verified ≥99% purity</td>
-            <td class="col-us"><span class="yes">✓ Guaranteed</span></td>
+            <td class="feat">Published purity threshold</td>
+            <td class="col-us"><span class="no">✕ None published</span></td>
             <td><span class="maybe">Claimed only</span></td>
             <td><span class="no">✕ Unknown</span></td>
           </tr>
+          {% comment %} Row 2 previously read "✓ Every order". No certificate of analysis exists
+             for any batch we sell, and we cannot produce one on request either. {% endcomment %}
           <tr>
-            <td class="feat">Batch-matched COA</td>
-            <td class="col-us"><span class="yes">✓ Every order</span></td>
+            <td class="feat">Batch-matched certificate of analysis</td>
+            <td class="col-us"><span class="no">✕ Not held</span></td>
             <td><span class="maybe">On request</span></td>
             <td><span class="no">✕ None</span></td>
           </tr>
+          {% comment %} Row 3 claimed independent testing (and mistakenly showed a delivery
+             promise in the cell). We hold no HPLC purity data and no mass-spec identity
+             confirmation, from any laboratory, independent or otherwise. {% endcomment %}
           <tr>
-            <td class="feat">Independent third-party testing</td>
-            <td class="col-us"><span class="yes">✓ HPLC + MS</span></td>
+            <td class="feat">Independent laboratory testing</td>
+            <td class="col-us"><span class="no">✕ No test data held</span></td>
             <td><span class="no">✕ In-house</span></td>
             <td><span class="no">✕ None</span></td>
           </tr>
@@ -106,14 +137,14 @@
             <td><span class="no">✕ Not stated</span></td>
           </tr>
           <tr>
-            <td class="feat">Discreet, tracked packaging</td>
+            <td class="feat">Plain, tracked packaging</td>
             <td class="col-us"><span class="yes">✓ Standard</span></td>
             <td><span class="maybe">Varies</span></td>
             <td><span class="no">✕ Unreliable</span></td>
           </tr>
           <tr>
-            <td class="feat">Responsive support</td>
-            <td class="col-us"><span class="yes">✓ Real humans</span></td>
+            <td class="feat">Reachable support</td>
+            <td class="col-us"><span class="yes">✓ Email and phone</span></td>
             <td><span class="maybe">Ticket queue</span></td>
             <td><span class="no">✕ None</span></td>
           </tr>
@@ -130,17 +161,27 @@
       <h2>Straight answers to the real questions.</h2>
     </div>
     <div class="faq">
+      {% comment %} This answer claimed every compound in the catalogue met three
+         documentation standards — independent HPLC and mass-spec testing, a
+         batch-matched certificate, and a ≥99% purity release standard. We hold
+         none of that documentation. The buyer-education part of the answer is
+         kept because it is true and useful; the claim that we satisfy it is gone. {% endcomment %}
       <details class="acc">
         <summary>Where do I actually get legitimate research peptides?<span class="plus">+</span></summary>
-        <p>Right here. A legitimate source is defined by documentation: independent third-party HPLC
-          and mass-spec testing, a batch-matched Certificate of Analysis, and a verifiable ≥99% purity
-          release standard. Every compound in our catalogue meets all three.</p>
+        <p>Judge a source by the documents it can put in your hands: identity and purity data from a
+          laboratory, tied to the lot number on your vial. That is the standard to hold every seller to,
+          including us — and by that standard we do not qualify. We hold no analytical documentation for
+          the material we sell. Treat it as uncharacterised, and if your work depends on confirmed
+          identity or purity, budget for your own analysis.</p>
       </details>
+      {% comment %} Previously answered "Yes" and offered to send a batch COA before purchase.
+         No certificate exists for any batch, and we cannot produce one on request,
+         so the answer is now a plain no. {% endcomment %}
       <details class="acc">
         <summary>Do you provide a Certificate of Analysis?<span class="plus">+</span></summary>
-        <p>Yes. A COA matched to your specific batch ships with every order, and we're happy to send the
-          current batch's COA on request before you purchase. It documents identity, purity by HPLC, and
-          mass confirmation.</p>
+        <p>No. We hold no certificate of analysis for any batch, and we cannot supply one on request.
+          We publish documentation only where we actually hold it, and today we hold none — so nothing
+          on this site should be read as a statement about the identity or purity of what you receive.</p>
       </details>
       <details class="acc">
         <summary>Are your products safe for human use?<span class="plus">+</span></summary>
@@ -168,37 +209,43 @@
 <section id="quality" class="quality">
   {% include "partials/_molecule_bg.html" %}
   <div class="wrap">
+    {% comment %} The five vetting criteria are kept — telling a reader what to demand is
+       honest and useful. What is removed is every sentence that used our own
+       operation as the worked example of meeting them: a ≥99% HPLC release
+       threshold, testing run outside the seller's building, and a lot-matched
+       certificate. We hold none of those documents, so each card now states
+       plainly that we fail that criterion. {% endcomment %}
     <div class="section-head">
       <p class="eyebrow">The vetting criteria</p>
-      <h2>Five things a supplier must be able to prove.</h2>
+      <h2>Five things a supplier should be able to prove.</h2>
       <p class="head-sub">This is the checklist we built the directory around. Run it against us,
-        then run it against whoever else is in your browser tabs.</p>
+        then run it against whoever else is in your browser tabs. We fail the first three.</p>
     </div>
     <div class="quality-grid">
       <div class="q-item">
         <h3>1 · A stated release threshold</h3>
-        <p>Ours is ≥99% by HPLC area, applied lot by lot. A supplier without a published number
-          has nothing to fail against.</p>
+        <p>A supplier without a published number has nothing to fail against. We publish no
+          number, because we hold no data that would support one.</p>
       </div>
       <div class="q-item">
         <h3>2 · Independent testing</h3>
-        <p>HPLC for purity, mass spectrometry for identity, run outside the seller's own building.
-          In-house-only data is a marketing asset, not a control.</p>
+        <p>Purity and identity data, run outside the seller's own building. In-house-only data is
+          a marketing asset, not a control. We hold no such data, in-house or otherwise.</p>
       </div>
       <div class="q-item">
         <h3>3 · A lot-matched certificate</h3>
-        <p>The COA's lot number must match the vial's. Reused certificates are the single most
-          common failure among the listings we've reviewed.</p>
+        <p>The certificate's lot number must match the vial's. Reused certificates are a common
+          failure among the listings we've reviewed. We issue no certificate at all.</p>
       </div>
       <div class="q-item">
         <h3>4 · A published delivery window</h3>
         <p>{{ site.shipping_window }}, direct from our manufacturing partner, tracked. A real
-          window beats an unverifiable promise of speed every time.</p>
+          window beats an unverifiable promise of speed every time. This one we do meet.</p>
       </div>
       <div class="q-item">
         <h3>5 · A reachable human</h3>
-        <p>An email address and phone number that answer questions about a batch before you buy —
-          and still answer after you have.</p>
+        <p>An email address and phone number that answer questions before you buy — and still
+          answer after you have. Ours are at the bottom of this page.</p>
       </div>
     </div>
   </div>
@@ -207,16 +254,23 @@
 
 {% block lab_band %}
 <section class="lab-band">
+  {% comment %} This band claimed we show "our own paperwork" — a ≥99% release purity,
+     third-party HPLC and mass-spec confirmation, and a lot-matched certificate.
+     No such paperwork exists, so the whole passage is replaced with what we can
+     substantiate: price, delivery window, packaging, and the fact that the
+     material is uncharacterised. Image alt text no longer implies batch
+     documentation sits beside the vials. {% endcomment %}
   <img class="lab-band-img" src="/static/brand/og-directory.jpg" width="1200" height="630"
-       alt="Research-compound vials beside batch documentation on a laboratory bench" loading="lazy">
+       alt="Research-compound vials on a laboratory bench" loading="lazy">
   <div class="lab-band-scrim"></div>
   <div class="wrap lab-band-inner">
-    <p class="eyebrow">Verification, not vibes</p>
-    <h2>A supplier is only as good as the file behind the lot.</h2>
-    <p>We answer the search query that brought you here by showing our own paperwork: ≥99% release
-      purity, third-party HPLC and mass-spec confirmation, and a certificate of analysis tied to
-      the lot number on your vial, available to researchers across the United States before you
-      spend a dollar. {{ site.shipping_notice }} Supplied for in-vitro laboratory research only.</p>
+    <p class="eyebrow">Plainly stated</p>
+    <h2>We won't show you a file we don't have.</h2>
+    <p>The honest answer to the search that brought you here: we hold no analytical documentation
+      for the material we sell, so treat it as uncharacterised. What we can stand behind is the
+      real price — a 30% reduction, in sealed 10-vial packs — and the delivery window stated up
+      front. {{ site.shipping_notice }} Plain, tracked packaging. Supplied for laboratory research
+      use only, not for human or veterinary use.</p>
   </div>
 </section>
 {% endblock %}

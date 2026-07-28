@@ -172,7 +172,7 @@ REGIONS = [
         "timezone": "Pacific Time",
         "title": "British Columbia Research Peptides | Lab Use Only",
         "meta_description": (
-            "Research compounds for British Columbia labs. COA-backed purity, "
+            "Research compounds for British Columbia labs. Sold uncharacterised, "
             "CAD pricing, 10 to 15 day window. Coastal and interior handling "
             "notes. Research use only."
         ),
@@ -234,7 +234,7 @@ REGIONS = [
         ],
         "faqs": [
             {
-                "q": "Is a COA included with every batch?",
+                "q": "Do you provide a certificate of analysis?",
                 "a": (
                     "Purity documentation is tied to the batch, not to the "
                     "order. Ask support for the current batch document for a "
@@ -268,7 +268,7 @@ REGIONS = [
         "title": "Saskatchewan Research Peptides | Research Use Only",
         "meta_description": (
             "Research peptide supply for Saskatchewan. Prairie delivery notes, "
-            "CAD pricing, 10 to 15 day shipping window, COA-backed batches. "
+            "CAD pricing, 10 to 15 day shipping window, no analysis claimed. "
             "Not for human use."
         ),
         "h1": "Research Peptide Supply Across Saskatchewan",
@@ -355,7 +355,7 @@ REGIONS = [
         "title": "Manitoba Research Peptides | Lab Supply, CAD",
         "meta_description": (
             "Research compounds for Manitoba labs. Winnipeg and northern "
-            "delivery notes, CAD pricing, 10 to 15 day window, ≥99% HPLC "
+            "delivery notes, CAD pricing, 10 to 15 day window, no purity "
             "release. Research use only."
         ),
         "h1": "Manitoba Research Compound Supply",
@@ -429,7 +429,7 @@ REGIONS = [
                 ),
             },
             {
-                "q": "What purity are the compounds released at?",
+                "q": "What purity are the compounds?",
                 "a": (
                     "Most catalogue items carry a release threshold of 99 "
                     "percent or higher by HPLC. Supply items such as "
@@ -577,7 +577,7 @@ REGIONS = [
                     "size and a batch identifier, and it states that the "
                     "contents are for research use only. If you keep an internal "
                     "log, the batch identifier is the field worth recording — it "
-                    "is what ties a vial back to its purity document later."
+                    "is what you would need if a purity document ever existed for it."
                 ),
             },
             {
@@ -615,7 +615,7 @@ REGIONS = [
                 "q": "What identifier should I record on receipt?",
                 "a": (
                     "The batch identifier on the vial label. It is the field "
-                    "that links a vial to the purity document for that batch."
+                    "that any future analysis would have to reference."
                 ),
             },
             {
@@ -727,7 +727,7 @@ REGIONS = [
         "title": "Nova Scotia Research Peptides | Research Use Only",
         "meta_description": (
             "Research compounds for Nova Scotia. Halifax and provincial "
-            "coverage, coastal storage notes, COA-backed batches, CAD pricing, "
+            "coverage, coastal storage notes, no analysis claimed, CAD pricing, "
             "10 to 15 day window."
         ),
         "h1": "Research Compounds for Nova Scotia",
@@ -764,7 +764,7 @@ REGIONS = [
             {
                 "h2": "What a purity figure actually tells you",
                 "body": (
-                    "A release threshold of 99 percent or higher by HPLC "
+                    "A release threshold stated by a supplier "
                     "describes how much of the material in the vial is the "
                     "named compound, measured by that method on that batch. It "
                     "does not describe anything else about the material, and it "
@@ -1477,7 +1477,7 @@ REGIONS = [
         "title": "New York Research Peptides | Research Use Only",
         "meta_description": (
             "Research compounds for New York State. City and upstate coverage, "
-            "COA notes, USD pricing, 10 to 15 day window. Not for human or "
+            "documentation notes, USD pricing, 10 to 15 day window. Not for human or "
             "veterinary use."
         ),
         "h1": "Research Compounds for New York",
@@ -1527,7 +1527,7 @@ REGIONS = [
                     "A useful COA names the compound, names the batch, names "
                     "the analytical method and gives the purity figure that "
                     "method returned. Most catalogue items carry a release "
-                    "threshold of 99 percent or higher by HPLC. That figure "
+                    "threshold they have measured. That figure "
                     "describes composition and nothing else — it is not a claim "
                     "about what the material does."
                 ),

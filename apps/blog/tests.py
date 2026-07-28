@@ -20,10 +20,25 @@ class GuardrailTests(TestCase):
         self.assertEqual(r["status"], "flagged")
 
     def test_clean_research_copy_passes(self):
-        good = ("This article describes a research compound released at high purity with a "
-                "batch-specific certificate of analysis, available to laboratories in Canada.")
+        """Clean copy is copy with no unevidenced claim in it.
+
+        This test used to assert that "released at high purity with a
+        batch-specific certificate of analysis" PASSED. It encoded the old
+        policy. We hold no analysis for anything in the catalogue, so that
+        sentence is now exactly what the scanner exists to catch — the test
+        moves with the policy rather than being loosened around it.
+        """
+        good = ("This article describes a research compound supplied as a laboratory "
+                "reference material to laboratories in Canada. Orders ship directly "
+                "from our manufacturing partner.")
         r = guardrails.review(good)
-        self.assertEqual(r["status"], "pass")
+        self.assertEqual(r["status"], "pass", r["notes"])
+
+    def test_old_marketing_copy_is_now_flagged(self):
+        old = ("This article describes a research compound released at high purity with a "
+               "batch-specific certificate of analysis, available to laboratories in Canada.")
+        r = guardrails.review(old)
+        self.assertEqual(r["status"], "flagged")
 
     def test_disclaimer_always_added(self):
         r = guardrails.review("A short note with no disclaimer.")
@@ -329,3 +344,50 @@ class QuotedRedFlagTests(TestCase):
         hard, _ = self._scan('Our partner calls them "manufactured in China" '
                              'reference materials.')
         self.assertIn("shipping origin claim", hard)
+
+
+class UnevidencedAnalyticalClaimTests(TestCase):
+    """We hold no certificate of analysis, purity result or identity confirmation.
+
+    Every phrase below was live across all eight storefronts until it turned out
+    none of it could be evidenced. The scanner now treats them as hard failures
+    so a generated post cannot quietly reintroduce what was just removed by hand.
+    """
+
+    def _labels(self, text):
+        from . import guardrails
+        hard, _ = guardrails.scan(text)
+        return {label for label, _ in hard}
+
+    def test_testing_claims_blocked(self):
+        for t in ("Every batch is third-party tested by HPLC and mass spectrometry.",
+                  "Independently verified for identity.",
+                  "Batch-tested against a release purity threshold.",
+                  "Purity verified by chromatography."):
+            self.assertIn("unsupported testing claim", self._labels(t), t)
+
+    def test_coa_claims_blocked(self):
+        for t in ("A batch-specific certificate of analysis ships with every vial.",
+                  "COA available on request.",
+                  "Ask us for the batch-matched certificate."):
+            self.assertIn("unsupported COA claim", self._labels(t), t)
+
+    def test_purity_figures_blocked(self):
+        for t in ("Released at ≥99% purity.", "99.4% pure by area.",
+                  "High-purity research compounds.", "Reference-grade material."):
+            self.assertIn("unsupported purity figure", self._labels(t), t)
+
+    def test_the_honest_replacement_passes(self):
+        """The wording that replaced all of it must not trip the scanner.
+
+        If the disclaimer were flagged, every clean post would arrive red and
+        the reviewer would stop reading the queue — the same failure the
+        negation escape was built to prevent.
+        """
+        for t in ("We hold no certificate of analysis, no purity result and no identity "
+                  "confirmation for any compound in this catalogue.",
+                  "No purity figure is published, because no measurement stands behind one.",
+                  "Treat the material as uncharacterised and arrange your own analysis.",
+                  "Orders ship directly from our manufacturing partner in plain, tracked "
+                  "packaging. Allow 10–15 days for delivery."):
+            self.assertEqual(self._labels(t), set(), t)

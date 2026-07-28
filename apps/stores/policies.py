@@ -327,12 +327,14 @@ def _terms(site):
                 "and returns policies for the detail.",
             ]),
             ("Product information", [
-                "Purity thresholds, molecular data and handling notes are provided "
+                "Molecular data and handling notes are provided "
                 "as reference information compiled from public chemical databases "
                 "and the published literature. They describe the material; they are "
                 "not instructions for use.",
-                "A batch-specific certificate of analysis is available on request "
-                "for any product.",
+                "We hold no certificate of analysis, purity result or identity "
+                "confirmation for the compounds we list, and we do not claim any. "
+                "Treat the material as uncharacterised: if your work depends on "
+                "confirmed identity or purity, arrange your own analysis before use.",
             ]),
             ("Limits", [
                 "We supply materials, not outcomes. To the fullest extent the law "

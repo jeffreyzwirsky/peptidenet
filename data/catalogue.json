@@ -1,11 +1,11 @@
 {
- "note": "Shared research-compound catalogue for all SmashFat-family peptide sites. Prices in CAD per vial. 'was' is the pre-discount reference price; 'price' is the current sell price (30% network-wide reduction applied 2026-07-27). 'cost' is the PLACEHOLDER landed cost (35% of the pre-discount price) and must be replaced with the real per-vial supplier cost before margin figures mean anything. purity is the release threshold. Descriptions are research-framed. 'new' and stock ('in'|'low') are display flags. Products carrying `sup` are linked to a supplier catalogue code; their cost and price are maintained by `manage.py reprice` from the supplier price list and the live USD/CAD rate. Products sharing a `family` are strengths of one compound: they render as a single catalogue card with a size selector, but each remains its own SKU with its own price, URL and supplier code.",
+ "note": "Shared research-compound catalogue for all SmashFat-family peptide sites. Prices in CAD per vial. 'was' is the pre-discount reference price; 'price' is the current sell price (30% network-wide reduction applied 2026-07-27). 'cost' is the PLACEHOLDER landed cost (35% of the pre-discount price) and must be replaced with the real per-vial supplier cost before margin figures mean anything. purity is the release threshold. Descriptions are research-framed. 'new' and stock ('in'|'low') are display flags. Products carrying `sup` are linked to a supplier catalogue code; their cost and price are maintained by `manage.py reprice` from the supplier price list and the live USD/CAD rate. Products sharing a `family` are strengths of one compound: they render as a single catalogue card with a size selector, but each remains its own SKU with its own price, URL and supplier code. Purity is intentionally blank on every product: no analysis is held that would substantiate a figure, and a stated purity reads as a measured result.",
  "products": [
   {
    "n": "KLOW",
    "cat": "Metabolic",
    "price": 87.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "80mg"
    ],
@@ -20,7 +20,7 @@
    "n": "GLOW",
    "cat": "Metabolic",
    "price": 84.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "70mg"
    ],
@@ -35,7 +35,7 @@
    "n": "Retatrutide",
    "cat": "Metabolic",
    "price": 58.8,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -54,7 +54,7 @@
    "n": "MOTS-C",
    "cat": "Mitochondrial",
    "price": 42.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -73,7 +73,7 @@
    "n": "BPC-157",
    "cat": "Repair & Recovery",
    "price": 42.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -92,7 +92,7 @@
    "n": "GHK-Cu",
    "cat": "Growth Factors",
    "price": 35.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "50mg"
    ],
@@ -111,7 +111,7 @@
    "n": "TB-500",
    "cat": "Repair & Recovery",
    "price": 45.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -130,7 +130,7 @@
    "n": "Ipamorelin",
    "cat": "Growth Factors",
    "price": 28.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -149,7 +149,7 @@
    "n": "Selank",
    "cat": "Neuropeptides",
    "price": 35.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -168,7 +168,7 @@
    "n": "Semax",
    "cat": "Neuropeptides",
    "price": 37.1,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -187,7 +187,7 @@
    "n": "Tesamorelin",
    "cat": "Growth Factors",
    "price": 63.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -206,7 +206,7 @@
    "n": "SS-31",
    "cat": "Mitochondrial",
    "price": 49.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -225,7 +225,7 @@
    "n": "NAD+",
    "cat": "Mitochondrial",
    "price": 42.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "500mg"
    ],
@@ -244,7 +244,7 @@
    "n": "BPC-157 + TB-500",
    "cat": "Repair & Recovery",
    "price": 63.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -259,7 +259,7 @@
    "n": "Epithalon",
    "cat": "Repair & Recovery",
    "price": 38.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -278,7 +278,7 @@
    "n": "KPV",
    "cat": "Repair & Recovery",
    "price": 35.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -293,7 +293,7 @@
    "n": "Melanotan 2",
    "cat": "Melanocortin",
    "price": 38.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -308,7 +308,7 @@
    "n": "Bacteriostatic Water",
    "cat": "Supplies",
    "price": 17.5,
-   "pur": "USP Grade",
+   "pur": "",
    "sizes": [
     "30ml"
    ],
@@ -323,7 +323,7 @@
    "n": "CJC-1295 (no DAC)",
    "cat": "Growth Factors",
    "price": 74.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -343,7 +343,7 @@
    "n": "CJC-1295 with DAC",
    "cat": "Growth Factors",
    "price": 84.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -359,7 +359,7 @@
    "n": "Sermorelin",
    "cat": "Growth Factors",
    "price": 70.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -379,7 +379,7 @@
    "n": "Hexarelin",
    "cat": "Growth Factors",
    "price": 81.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -399,7 +399,7 @@
    "n": "GHRP-2",
    "cat": "Growth Factors",
    "price": 27.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -419,7 +419,7 @@
    "n": "GHRP-6",
    "cat": "Growth Factors",
    "price": 27.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -439,7 +439,7 @@
    "n": "IGF-1 LR3",
    "cat": "Growth Factors",
    "price": 96.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "1mg"
    ],
@@ -459,7 +459,7 @@
    "n": "Thymosin Alpha-1",
    "cat": "Repair & Recovery",
    "price": 84.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -479,7 +479,7 @@
    "n": "Thymalin",
    "cat": "Repair & Recovery",
    "price": 36.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -495,7 +495,7 @@
    "n": "PT-141",
    "cat": "Melanocortin",
    "price": 36.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -511,7 +511,7 @@
    "n": "Kisspeptin-10",
    "cat": "Neuropeptides",
    "price": 49.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -531,7 +531,7 @@
    "n": "DSIP",
    "cat": "Neuropeptides",
    "price": 45.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -551,7 +551,7 @@
    "n": "Oxytocin Acetate",
    "cat": "Neuropeptides",
    "price": 49.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -571,7 +571,7 @@
    "n": "AOD9604",
    "cat": "Metabolic",
    "price": 96.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -591,7 +591,7 @@
    "n": "5-amino-1MQ",
    "cat": "Metabolic",
    "price": 58.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "50mg"
    ],
@@ -611,7 +611,7 @@
    "n": "AICAR",
    "cat": "Metabolic",
    "price": 35.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "50mg"
    ],
@@ -627,7 +627,7 @@
    "n": "SLU-PP-332",
    "cat": "Metabolic",
    "price": 49.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -643,7 +643,7 @@
    "n": "LL-37",
    "cat": "Repair & Recovery",
    "price": 47.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -659,7 +659,7 @@
    "n": "Pinealon",
    "cat": "Neuropeptides",
    "price": 47.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "20mg"
    ],
@@ -679,7 +679,7 @@
    "n": "Dihexa",
    "cat": "Neuropeptides",
    "price": 64.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -695,7 +695,7 @@
    "n": "Cartalax",
    "cat": "Repair & Recovery",
    "price": 51.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "20mg"
    ],
@@ -711,7 +711,7 @@
    "n": "Adamax",
    "cat": "Neuropeptides",
    "price": 64.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -727,7 +727,7 @@
    "n": "VIP",
    "cat": "Neuropeptides",
    "price": 84.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -747,7 +747,7 @@
    "n": "Ara-290",
    "cat": "Repair & Recovery",
    "price": 40.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -763,7 +763,7 @@
    "n": "SNAP-8",
    "cat": "Repair & Recovery",
    "price": 23.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "2mg"
    ],
@@ -779,7 +779,7 @@
    "n": "AHK-Cu",
    "cat": "Repair & Recovery",
    "price": 26.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "50mg"
    ],
@@ -799,7 +799,7 @@
    "n": "MGF",
    "cat": "Growth Factors",
    "price": 21.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "2mg"
    ],
@@ -815,7 +815,7 @@
    "n": "PEG-MGF",
    "cat": "Growth Factors",
    "price": 45.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "2mg"
    ],
@@ -831,7 +831,7 @@
    "n": "FOXO4-DRI",
    "cat": "Repair & Recovery",
    "price": 180.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -847,7 +847,7 @@
    "n": "Adipotide",
    "cat": "Metabolic",
    "price": 90.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -868,7 +868,7 @@
    "slug": "retatrutide-5mg",
    "cat": "Metabolic",
    "price": 26.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -889,7 +889,7 @@
    "slug": "retatrutide-15mg",
    "cat": "Metabolic",
    "price": 57.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "15mg"
    ],
@@ -910,7 +910,7 @@
    "slug": "retatrutide-20mg",
    "cat": "Metabolic",
    "price": 69.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "20mg"
    ],
@@ -931,7 +931,7 @@
    "slug": "retatrutide-30mg",
    "cat": "Metabolic",
    "price": 93.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "30mg"
    ],
@@ -952,7 +952,7 @@
    "slug": "retatrutide-40mg",
    "cat": "Metabolic",
    "price": 119.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "40mg"
    ],
@@ -973,7 +973,7 @@
    "slug": "retatrutide-50mg",
    "cat": "Metabolic",
    "price": 132.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "50mg"
    ],
@@ -994,7 +994,7 @@
    "slug": "retatrutide-60mg",
    "cat": "Metabolic",
    "price": 159.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "60mg"
    ],
@@ -1015,7 +1015,7 @@
    "slug": "mots-c-40mg",
    "cat": "Mitochondrial",
    "price": 126.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "40mg"
    ],
@@ -1036,7 +1036,7 @@
    "slug": "bpc-157-5mg",
    "cat": "Repair & Recovery",
    "price": 22.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1057,7 +1057,7 @@
    "slug": "ghk-cu-100mg",
    "cat": "Growth Factors",
    "price": 22.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "100mg"
    ],
@@ -1078,7 +1078,7 @@
    "slug": "tb-500-5mg",
    "cat": "Repair & Recovery",
    "price": 40.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1099,7 +1099,7 @@
    "slug": "ipamorelin-5mg",
    "cat": "Growth Factors",
    "price": 22.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1120,7 +1120,7 @@
    "slug": "selank-5mg",
    "cat": "Neuropeptides",
    "price": 26.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1141,7 +1141,7 @@
    "slug": "semax-5mg",
    "cat": "Neuropeptides",
    "price": 30.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1162,7 +1162,7 @@
    "slug": "tesamorelin-5mg",
    "cat": "Growth Factors",
    "price": 53.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1183,7 +1183,7 @@
    "slug": "tesamorelin-20mg",
    "cat": "Growth Factors",
    "price": 185.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "20mg"
    ],
@@ -1204,7 +1204,7 @@
    "slug": "ss-31-50mg",
    "cat": "Mitochondrial",
    "price": 225.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "50mg"
    ],
@@ -1225,7 +1225,7 @@
    "slug": "nad-100mg",
    "cat": "Mitochondrial",
    "price": 18.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "100mg"
    ],
@@ -1246,7 +1246,7 @@
    "slug": "nad-1000mg",
    "cat": "Mitochondrial",
    "price": 73.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "1000mg"
    ],
@@ -1267,7 +1267,7 @@
    "slug": "epithalon-50mg",
    "cat": "Repair & Recovery",
    "price": 74.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "50mg"
    ],
@@ -1288,7 +1288,7 @@
    "slug": "cjc-1295-no-dac-5mg",
    "cat": "Growth Factors",
    "price": 48.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1309,7 +1309,7 @@
    "slug": "sermorelin-5mg",
    "cat": "Growth Factors",
    "price": 40.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1330,7 +1330,7 @@
    "slug": "hexarelin-2mg",
    "cat": "Growth Factors",
    "price": 29.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "2mg"
    ],
@@ -1351,7 +1351,7 @@
    "slug": "hexarelin-5mg",
    "cat": "Growth Factors",
    "price": 46.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1372,7 +1372,7 @@
    "slug": "ghrp-2-5mg",
    "cat": "Growth Factors",
    "price": 17.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1393,7 +1393,7 @@
    "slug": "ghrp-2-15mg",
    "cat": "Growth Factors",
    "price": 38.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "15mg"
    ],
@@ -1414,7 +1414,7 @@
    "slug": "ghrp-6-5mg",
    "cat": "Growth Factors",
    "price": 17.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1435,7 +1435,7 @@
    "slug": "igf-1-lr3-0-1mg",
    "cat": "Growth Factors",
    "price": 23.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "0.1mg"
    ],
@@ -1456,7 +1456,7 @@
    "slug": "thymosin-alpha-1-5mg",
    "cat": "Repair & Recovery",
    "price": 53.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1477,7 +1477,7 @@
    "slug": "kisspeptin-10-5mg",
    "cat": "Neuropeptides",
    "price": 29.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1498,7 +1498,7 @@
    "slug": "dsip-5mg",
    "cat": "Neuropeptides",
    "price": 21.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1519,7 +1519,7 @@
    "slug": "oxytocin-acetate-2mg",
    "cat": "Neuropeptides",
    "price": 16.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "2mg"
    ],
@@ -1540,7 +1540,7 @@
    "slug": "oxytocin-acetate-5mg",
    "cat": "Neuropeptides",
    "price": 26.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1561,7 +1561,7 @@
    "slug": "aod9604-5mg",
    "cat": "Metabolic",
    "price": 53.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1582,7 +1582,7 @@
    "slug": "5-amino-1mq-5mg",
    "cat": "Metabolic",
    "price": 26.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1603,7 +1603,7 @@
    "slug": "pinealon-10mg",
    "cat": "Neuropeptides",
    "price": 33.5,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "10mg"
    ],
@@ -1624,7 +1624,7 @@
    "slug": "vip-5mg",
    "cat": "Neuropeptides",
    "price": 44.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "5mg"
    ],
@@ -1645,7 +1645,7 @@
    "slug": "ahk-cu-100mg",
    "cat": "Repair & Recovery",
    "price": 50.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "100mg"
    ],
@@ -1666,7 +1666,7 @@
    "slug": "adipotide-2mg",
    "cat": "Metabolic",
    "price": 49.0,
-   "pur": "\u226599%",
+   "pur": "",
    "sizes": [
     "2mg"
    ],

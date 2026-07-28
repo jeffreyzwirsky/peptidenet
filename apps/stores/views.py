@@ -434,9 +434,11 @@ def coa(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
     return JsonResponse({
         "product": product.name,
-        "purity": product.purity,
         "coa_url": product.coa_url or "",
-        "message": "COA available on request." if not product.coa_url else "",
+        # No COA is promised. This endpoint used to answer "available on request",
+        # which is a commitment we cannot keep for any compound in the catalogue.
+        "message": ("No certificate of analysis is held for this product."
+                    if not product.coa_url else ""),
     })
 
 
@@ -521,8 +523,9 @@ def llms_txt(request):
         "",
         f"Research-compound (peptide) store serving "
         f"{site.country_name if site else 'Canada'}. All products are for laboratory "
-        "and in-vitro research use only — not for human or veterinary use. Every batch "
-        "is third-party HPLC/MS tested to ≥99% purity with a COA available.",
+        "and in-vitro research use only — not for human or veterinary use. We hold no "
+        "certificate of analysis, purity result or identity confirmation for these "
+        "compounds and make no testing claim; treat the material as uncharacterised.",
         "",
         "## Key pages",
         f"- [Home]({base}/): storefront and full catalogue",
@@ -540,7 +543,7 @@ def llms_txt(request):
     ]
     for p in Product.objects.filter(is_active=True).select_related("category")[:60]:
         out.append(f"- [{p.name}]({base}/product/{p.slug}/): {p.category.name}, "
-                   f"${p.price}/vial, {p.purity} purity — {p.description}")
+                   f"${p.price}/vial — {p.description}")
     # No origin claim: goods ship direct from the manufacturing partner, and the
     # "free express / free priority" promises were never true under dropship.
     window = f"{site.shipping_min_days}\u2013{site.shipping_max_days}" if site else "10\u201315"
@@ -572,8 +575,8 @@ def llms_full_txt(request):
         "veterinary use. All figures are laboratory reference data.",
         "",
         f"Orders ship directly from our manufacturing partner; allow {window} days for "
-        "delivery. Every batch is independently HPLC/MS tested; a batch-specific "
-        "certificate of analysis (COA) is available on request. Age 21+.",
+        "delivery. No analytical documentation is held for any compound: no certificate "
+        "of analysis, no purity result, no identity confirmation. Age 21+.",
         "",
         "## Catalogue",
     ]
@@ -583,7 +586,7 @@ def llms_full_txt(request):
             f"### {p.name}",
             f"- URL: {base}/product/{p.slug}/",
             f"- Category: {p.category.name}",
-            f"- Price: ${p.price} CAD per vial ({p.purity} purity, HPLC)",
+            f"- Price: ${p.price} CAD per vial ({p.pack_price} per {p.vials_per_pack}-vial pack)",
             f"- Sizes: {', '.join(p.sizes) if p.sizes else 'n/a'}",
             f"- Stock: {p.stock_state_label}",
         ]

@@ -239,3 +239,140 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return f"{self.qty}× {self.product_name}"
+
+
+class FxRate(models.Model):
+    """A foreign-exchange rate, with the time it was fetched.
+
+    Supplier costs are invoiced in USD; the .ca storefronts sell in CAD. Every
+    margin figure therefore depends on a rate, and a rate that silently goes
+    stale is worse than no rate at all — prices would keep recalculating from a
+    number nobody has checked. So the fetch time is stored alongside the rate
+    and `is_stale` is what the repricer refuses to run past.
+    """
+    STALE_AFTER_HOURS = 48
+
+    base = models.CharField(max_length=3, default="USD")
+    quote = models.CharField(max_length=3, default="CAD")
+    rate = models.DecimalField(max_digits=12, decimal_places=6)
+    source = models.CharField(max_length=60, blank=True)
+    fetched_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fetched_at"]
+        indexes = [models.Index(fields=["base", "quote", "-fetched_at"])]
+
+    @classmethod
+    def latest(cls, base="USD", quote="CAD"):
+        if base == quote:
+            return None
+        return cls.objects.filter(base=base, quote=quote).first()
+
+    @classmethod
+    def convert(cls, amount, base="USD", quote="CAD"):
+        """Convert, or return None when we have no rate. Never guesses."""
+        if base == quote:
+            return Decimal(amount)
+        row = cls.latest(base, quote)
+        if row is None:
+            return None
+        return (Decimal(amount) * row.rate).quantize(Decimal("0.01"))
+
+    @property
+    def age_hours(self):
+        from django.utils import timezone
+        return (timezone.now() - self.fetched_at).total_seconds() / 3600
+
+    @property
+    def is_stale(self):
+        return self.age_hours > self.STALE_AFTER_HOURS
+
+    def __str__(self):
+        return f"{self.base}/{self.quote} {self.rate} ({self.fetched_at:%Y-%m-%d %H:%M})"
+
+
+class SupplierPrice(models.Model):
+    """What the manufacturing partner charges, exactly as they quote it.
+
+    Held in the supplier's own currency and their own pack unit, so a new price
+    sheet can be reconciled line by line against what they sent. Converting on
+    import would destroy that — the next sheet would have to be compared against
+    numbers we had already altered.
+
+    STAFF ONLY. Nothing on this model is rendered on a storefront: not the cost,
+    not the supplier, not the catalogue code. The origin-silence rule that
+    governs the storefronts applies here too — this table is the one place the
+    supply chain is written down, and it stays behind the control-panel login.
+    """
+    RISK_CHOICES = [
+        ("standard", "Standard research compound"),
+        ("patented", "Patent-enforced GLP-1 — legal review required"),
+        ("hormone", "Regulated hormone — legal review required"),
+        ("consumable", "Consumable or hardware"),
+    ]
+
+    cat_no = models.CharField(max_length=20, unique=True,
+                              help_text="The supplier's own catalogue code, e.g. BC10.")
+    name = models.CharField(max_length=140)
+    size = models.CharField(max_length=20, help_text="e.g. 10mg, 10ml")
+    pack_size = models.PositiveIntegerField(
+        default=10, help_text="Vials per box. 1 for volumes and hardware.")
+    pack_price = models.DecimalField(max_digits=10, decimal_places=2,
+                                     help_text="Price of one box, in `currency`.")
+    currency = models.CharField(max_length=3, default="USD")
+    risk = models.CharField(max_length=12, choices=RISK_CHOICES, default="standard")
+    supplier = models.ForeignKey(Supplier, null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name="prices")
+    is_active = models.BooleanField(default=True)
+    notes = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name", "cat_no"]
+
+    @property
+    def unit_price(self):
+        """Cost of a single vial, still in the supplier's currency."""
+        return (self.pack_price / max(self.pack_size, 1)).quantize(Decimal("0.01"))
+
+    def unit_price_in(self, currency):
+        """Cost of one vial in `currency`, or None when no FX rate is available."""
+        return FxRate.convert(self.unit_price, self.currency, currency)
+
+    @property
+    def needs_legal_review(self):
+        return self.risk in ("patented", "hormone")
+
+    def __str__(self):
+        return f"{self.cat_no} {self.name} {self.size} — {self.currency} {self.pack_price}"
+
+
+class PriceChange(models.Model):
+    """Audit trail for every automatic retail price move.
+
+    Auto-repricing without a record is indefensible. Under the Competition Act
+    the ordinary selling price of a product is a question of fact, and "the
+    system worked it out from the exchange rate" is only an answer if the system
+    wrote down what it did and when.
+    """
+    product = models.ForeignKey("catalog.Product", on_delete=models.CASCADE,
+                                related_name="price_changes")
+    old_price = models.DecimalField(max_digits=8, decimal_places=2)
+    new_price = models.DecimalField(max_digits=8, decimal_places=2)
+    unit_cost = models.DecimalField(max_digits=8, decimal_places=2)
+    fx_rate = models.DecimalField(max_digits=12, decimal_places=6, null=True, blank=True)
+    reason = models.CharField(max_length=140, blank=True)
+    applied_by = models.CharField(max_length=80, default="reprice")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    @property
+    def pct(self):
+        if not self.old_price:
+            return 0
+        return round((self.new_price - self.old_price) / self.old_price * 100, 1)
+
+    def __str__(self):
+        return f"{self.product_id}: {self.old_price} → {self.new_price}"

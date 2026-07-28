@@ -1,0 +1,1135 @@
+{
+ "note": "Supplier pack prices, USD. STAFF ONLY. Supplier identity, country of origin and cost never appear on any storefront. `pack_price_usd` is the price of one box (10 vials) except where pack_size is 1 (volumes and hardware). `risk` flags SKUs that are not ordinary research peptides. risk=controlled marks compounds with controlled-substance exposure.",
+ "currency": "USD",
+ "source": "supplier price sheet, imported 2026-07-28",
+ "prices": [
+  {
+   "cat": "50AM",
+   "name": "5-amino-1MQ",
+   "size": "50mg",
+   "pack_size": 10,
+   "pack_price_usd": 106,
+   "risk": "standard"
+  },
+  {
+   "cat": "5AM",
+   "name": "5-amino-1MQ",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 47,
+   "risk": "standard"
+  },
+  {
+   "cat": "ACU100",
+   "name": "AHK-Cu",
+   "size": "100mg",
+   "pack_size": 10,
+   "pack_price_usd": 89,
+   "risk": "standard"
+  },
+  {
+   "cat": "ACU50",
+   "name": "AHK-Cu",
+   "size": "50mg",
+   "pack_size": 10,
+   "pack_price_usd": 47,
+   "risk": "standard"
+  },
+  {
+   "cat": "AR50",
+   "name": "AICAR",
+   "size": "50mg",
+   "pack_size": 10,
+   "pack_price_usd": 64,
+   "risk": "standard"
+  },
+  {
+   "cat": "10AD",
+   "name": "AOD9604",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 176,
+   "risk": "standard"
+  },
+  {
+   "cat": "5AD",
+   "name": "AOD9604",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 94,
+   "risk": "standard"
+  },
+  {
+   "cat": "AA10",
+   "name": "Acetic acid water",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 9,
+   "risk": "consumable"
+  },
+  {
+   "cat": "AA3",
+   "name": "Acetic acid water",
+   "size": "3ml",
+   "pack_size": 1,
+   "pack_price_usd": 7,
+   "risk": "consumable"
+  },
+  {
+   "cat": "ADA10",
+   "name": "Adamax",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 118,
+   "risk": "standard"
+  },
+  {
+   "cat": "AP2",
+   "name": "Adipotide",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 87,
+   "risk": "standard"
+  },
+  {
+   "cat": "AP5",
+   "name": "Adipotide",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 165,
+   "risk": "standard"
+  },
+  {
+   "cat": "BA10",
+   "name": "Antibacterial water (acidic)",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 9,
+   "risk": "consumable"
+  },
+  {
+   "cat": "BA3",
+   "name": "Antibacterial water (acidic)",
+   "size": "3ml",
+   "pack_size": 1,
+   "pack_price_usd": 7,
+   "risk": "consumable"
+  },
+  {
+   "cat": "RA10",
+   "name": "Ara-290",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 73,
+   "risk": "standard"
+  },
+  {
+   "cat": "BC10",
+   "name": "BPC-157",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 64,
+   "risk": "standard"
+  },
+  {
+   "cat": "BC5",
+   "name": "BPC-157",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 40,
+   "risk": "standard"
+  },
+  {
+   "cat": "BB20",
+   "name": "BPC-157 10 + TB-500 10",
+   "size": "20mg",
+   "pack_size": 10,
+   "pack_price_usd": 165,
+   "risk": "standard"
+  },
+  {
+   "cat": "BB10",
+   "name": "BPC-157 5 + TB-500 5",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 89,
+   "risk": "standard"
+  },
+  {
+   "cat": "WA10",
+   "name": "Bacteriostatic water",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 9,
+   "risk": "consumable"
+  },
+  {
+   "cat": "WA3",
+   "name": "Bacteriostatic water",
+   "size": "3ml",
+   "pack_size": 1,
+   "pack_price_usd": 7,
+   "risk": "consumable"
+  },
+  {
+   "cat": "CP10",
+   "name": "CJC-1295 no DAC 5 + Ipamorelin 5",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 106,
+   "risk": "standard"
+  },
+  {
+   "cat": "CD5",
+   "name": "CJC-1295 with DAC",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 153,
+   "risk": "standard"
+  },
+  {
+   "cat": "CND10",
+   "name": "CJC-1295 without DAC",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 136,
+   "risk": "standard"
+  },
+  {
+   "cat": "CND5",
+   "name": "CJC-1295 without DAC",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 85,
+   "risk": "standard"
+  },
+  {
+   "cat": "CGL10",
+   "name": "Cagrilintide",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 200,
+   "risk": "patented"
+  },
+  {
+   "cat": "CGL5",
+   "name": "Cagrilintide",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 106,
+   "risk": "patented"
+  },
+  {
+   "cat": "CS10",
+   "name": "Cagrilintide 5 + Semaglutide 5",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 165,
+   "risk": "patented"
+  },
+  {
+   "cat": "CTL20",
+   "name": "Cartalax",
+   "size": "20mg",
+   "pack_size": 10,
+   "pack_price_usd": 94,
+   "risk": "standard"
+  },
+  {
+   "cat": "CBL60",
+   "name": "Cerebrolysin",
+   "size": "60mg",
+   "pack_size": 10,
+   "pack_price_usd": 21,
+   "risk": "hormone"
+  },
+  {
+   "cat": "DS10",
+   "name": "DSIP",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 82,
+   "risk": "standard"
+  },
+  {
+   "cat": "DS5",
+   "name": "DSIP",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 38,
+   "risk": "standard"
+  },
+  {
+   "cat": "DR5",
+   "name": "Dermorphin",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 52,
+   "risk": "controlled"
+  },
+  {
+   "cat": "DH10",
+   "name": "Dihexa",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 118,
+   "risk": "standard"
+  },
+  {
+   "cat": "PEN",
+   "name": "Empty pen casing",
+   "size": "1",
+   "pack_size": 1,
+   "pack_price_usd": 11,
+   "risk": "consumable"
+  },
+  {
+   "cat": "ET10",
+   "name": "Epithalon",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 42,
+   "risk": "standard"
+  },
+  {
+   "cat": "ET50",
+   "name": "Epithalon",
+   "size": "50mg",
+   "pack_size": 10,
+   "pack_price_usd": 132,
+   "risk": "standard"
+  },
+  {
+   "cat": "F410",
+   "name": "FOXO4-DRI",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 329,
+   "risk": "standard"
+  },
+  {
+   "cat": "CU100",
+   "name": "GHK-Cu",
+   "size": "100mg",
+   "pack_size": 10,
+   "pack_price_usd": 40,
+   "risk": "standard"
+  },
+  {
+   "cat": "CU50",
+   "name": "GHK-Cu",
+   "size": "50mg",
+   "pack_size": 10,
+   "pack_price_usd": 24,
+   "risk": "standard"
+  },
+  {
+   "cat": "G210",
+   "name": "GHRP-2",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 49,
+   "risk": "standard"
+  },
+  {
+   "cat": "G215",
+   "name": "GHRP-2",
+   "size": "15mg",
+   "pack_size": 10,
+   "pack_price_usd": 68,
+   "risk": "standard"
+  },
+  {
+   "cat": "G25",
+   "name": "GHRP-2",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 31,
+   "risk": "standard"
+  },
+  {
+   "cat": "G610",
+   "name": "GHRP-6",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 49,
+   "risk": "standard"
+  },
+  {
+   "cat": "G65",
+   "name": "GHRP-6",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 31,
+   "risk": "standard"
+  },
+  {
+   "cat": "BBG70",
+   "name": "GLOW (BPC-157 10 + GHK-Cu 50 + TB-500 10)",
+   "size": "70mg",
+   "pack_size": 10,
+   "pack_price_usd": 162,
+   "risk": "standard"
+  },
+  {
+   "cat": "GTT",
+   "name": "Glutathione",
+   "size": "1500mg",
+   "pack_size": 10,
+   "pack_price_usd": 59,
+   "risk": "consumable"
+  },
+  {
+   "cat": "GND2",
+   "name": "Gonadorelin Acetate",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 35,
+   "risk": "standard"
+  },
+  {
+   "cat": "G10K",
+   "name": "HCG",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 148,
+   "risk": "hormone"
+  },
+  {
+   "cat": "G5K",
+   "name": "HCG",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 80,
+   "risk": "hormone"
+  },
+  {
+   "cat": "H10",
+   "name": "HGH",
+   "size": "10iu",
+   "pack_size": 10,
+   "pack_price_usd": 47,
+   "risk": "hormone"
+  },
+  {
+   "cat": "H15",
+   "name": "HGH",
+   "size": "15iu",
+   "pack_size": 10,
+   "pack_price_usd": 71,
+   "risk": "hormone"
+  },
+  {
+   "cat": "H24",
+   "name": "HGH",
+   "size": "24iu",
+   "pack_size": 10,
+   "pack_price_usd": 129,
+   "risk": "hormone"
+  },
+  {
+   "cat": "H36",
+   "name": "HGH",
+   "size": "36iu",
+   "pack_size": 10,
+   "pack_price_usd": 179,
+   "risk": "hormone"
+  },
+  {
+   "cat": "FR2",
+   "name": "HGH Fragment",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 68,
+   "risk": "standard"
+  },
+  {
+   "cat": "FR5",
+   "name": "HGH Fragment",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 106,
+   "risk": "standard"
+  },
+  {
+   "cat": "HHB",
+   "name": "HHB",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 80,
+   "risk": "consumable"
+  },
+  {
+   "cat": "G75",
+   "name": "HMG",
+   "size": "75iu",
+   "pack_size": 10,
+   "pack_price_usd": 64,
+   "risk": "hormone"
+  },
+  {
+   "cat": "HX10",
+   "name": "Hexarelin",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 148,
+   "risk": "standard"
+  },
+  {
+   "cat": "HX2",
+   "name": "Hexarelin",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 52,
+   "risk": "standard"
+  },
+  {
+   "cat": "HX5",
+   "name": "Hexarelin",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 82,
+   "risk": "standard"
+  },
+  {
+   "cat": "IG01",
+   "name": "IGF-1 LR3",
+   "size": "0.1mg",
+   "pack_size": 10,
+   "pack_price_usd": 42,
+   "risk": "standard"
+  },
+  {
+   "cat": "IG1",
+   "name": "IGF-1 LR3",
+   "size": "1mg",
+   "pack_size": 10,
+   "pack_price_usd": 176,
+   "risk": "standard"
+  },
+  {
+   "cat": "IGD",
+   "name": "IGF-DES (1-3)",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 47,
+   "risk": "standard"
+  },
+  {
+   "cat": "IP10",
+   "name": "Ipamorelin",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 71,
+   "risk": "standard"
+  },
+  {
+   "cat": "IP5",
+   "name": "Ipamorelin",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 40,
+   "risk": "standard"
+  },
+  {
+   "cat": "BBKG80",
+   "name": "KLOW (GHK-Cu 50 + TB-500 10 + BPC-157 10 + KPV 10)",
+   "size": "80mg",
+   "pack_size": 10,
+   "pack_price_usd": 212,
+   "risk": "standard"
+  },
+  {
+   "cat": "KPV10",
+   "name": "KPV",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 68,
+   "risk": "standard"
+  },
+  {
+   "cat": "KS10",
+   "name": "Kisspeptin-10",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 89,
+   "risk": "standard"
+  },
+  {
+   "cat": "KS5",
+   "name": "Kisspeptin-10",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 52,
+   "risk": "standard"
+  },
+  {
+   "cat": "LC120",
+   "name": "L-carnitine",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 47,
+   "risk": "consumable"
+  },
+  {
+   "cat": "LC216",
+   "name": "L-carnitine",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 47,
+   "risk": "consumable"
+  },
+  {
+   "cat": "LC526",
+   "name": "L-carnitine",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 80,
+   "risk": "consumable"
+  },
+  {
+   "cat": "LC600",
+   "name": "L-carnitine",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 47,
+   "risk": "consumable"
+  },
+  {
+   "cat": "375",
+   "name": "LL-37",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 87,
+   "risk": "standard"
+  },
+  {
+   "cat": "LB10",
+   "name": "Lemon Bottle",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 47,
+   "risk": "consumable"
+  },
+  {
+   "cat": "FM2",
+   "name": "MGF",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 38,
+   "risk": "standard"
+  },
+  {
+   "cat": "MS10",
+   "name": "MOTS-c",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 59,
+   "risk": "standard"
+  },
+  {
+   "cat": "MS40",
+   "name": "MOTS-c",
+   "size": "40mg",
+   "pack_size": 10,
+   "pack_price_usd": 224,
+   "risk": "standard"
+  },
+  {
+   "cat": "ML10",
+   "name": "Melanotan 2",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 47,
+   "risk": "standard"
+  },
+  {
+   "cat": "MT1",
+   "name": "Melatonin 1",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 42,
+   "risk": "standard"
+  },
+  {
+   "cat": "MT10(MT2)",
+   "name": "Melatonin 2",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 42,
+   "risk": "standard"
+  },
+  {
+   "cat": "NJ100",
+   "name": "NAD+",
+   "size": "100mg",
+   "pack_size": 10,
+   "pack_price_usd": 33,
+   "risk": "standard"
+  },
+  {
+   "cat": "NJ1000",
+   "name": "NAD+",
+   "size": "1000mg",
+   "pack_size": 10,
+   "pack_price_usd": 129,
+   "risk": "standard"
+  },
+  {
+   "cat": "NJ500",
+   "name": "NAD+",
+   "size": "500mg",
+   "pack_size": 10,
+   "pack_price_usd": 59,
+   "risk": "standard"
+  },
+  {
+   "cat": "OT10",
+   "name": "Oxytocin Acetate",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 89,
+   "risk": "standard"
+  },
+  {
+   "cat": "OT2",
+   "name": "Oxytocin Acetate",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 28,
+   "risk": "standard"
+  },
+  {
+   "cat": "OT5",
+   "name": "Oxytocin Acetate",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 47,
+   "risk": "standard"
+  },
+  {
+   "cat": "FMP2",
+   "name": "PEG-MGF",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 82,
+   "risk": "standard"
+  },
+  {
+   "cat": "P41",
+   "name": "PT-141",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 66,
+   "risk": "standard"
+  },
+  {
+   "cat": "PI10",
+   "name": "Pinealon",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 59,
+   "risk": "standard"
+  },
+  {
+   "cat": "PI20",
+   "name": "Pinealon",
+   "size": "20mg",
+   "pack_size": 10,
+   "pack_price_usd": 87,
+   "risk": "standard"
+  },
+  {
+   "cat": "RT10",
+   "name": "Retatrutide",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 71,
+   "risk": "standard"
+  },
+  {
+   "cat": "RT15",
+   "name": "Retatrutide",
+   "size": "15mg",
+   "pack_size": 10,
+   "pack_price_usd": 101,
+   "risk": "standard"
+  },
+  {
+   "cat": "RT20",
+   "name": "Retatrutide",
+   "size": "20mg",
+   "pack_size": 10,
+   "pack_price_usd": 122,
+   "risk": "standard"
+  },
+  {
+   "cat": "RT30",
+   "name": "Retatrutide",
+   "size": "30mg",
+   "pack_size": 10,
+   "pack_price_usd": 165,
+   "risk": "standard"
+  },
+  {
+   "cat": "RT40",
+   "name": "Retatrutide",
+   "size": "40mg",
+   "pack_size": 10,
+   "pack_price_usd": 212,
+   "risk": "standard"
+  },
+  {
+   "cat": "RT5",
+   "name": "Retatrutide",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 47,
+   "risk": "standard"
+  },
+  {
+   "cat": "RT50",
+   "name": "Retatrutide",
+   "size": "50mg",
+   "pack_size": 10,
+   "pack_price_usd": 235,
+   "risk": "standard"
+  },
+  {
+   "cat": "RT60",
+   "name": "Retatrutide",
+   "size": "60mg",
+   "pack_size": 10,
+   "pack_price_usd": 282,
+   "risk": "standard"
+  },
+  {
+   "cat": "322",
+   "name": "SLU-PP-332",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 89,
+   "risk": "standard"
+  },
+  {
+   "cat": "NP810",
+   "name": "SNAP-8",
+   "size": "2mg",
+   "pack_size": 10,
+   "pack_price_usd": 42,
+   "risk": "standard"
+  },
+  {
+   "cat": "2S10",
+   "name": "SS-31",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 87,
+   "risk": "standard"
+  },
+  {
+   "cat": "2S50",
+   "name": "SS-31",
+   "size": "50mg",
+   "pack_size": 10,
+   "pack_price_usd": 400,
+   "risk": "standard"
+  },
+  {
+   "cat": "SK10",
+   "name": "Selank",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 82,
+   "risk": "standard"
+  },
+  {
+   "cat": "SK5",
+   "name": "Selank",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 47,
+   "risk": "standard"
+  },
+  {
+   "cat": "SM10",
+   "name": "Semaglutide",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 42,
+   "risk": "patented"
+  },
+  {
+   "cat": "SM15",
+   "name": "Semaglutide",
+   "size": "15mg",
+   "pack_size": 10,
+   "pack_price_usd": 54,
+   "risk": "patented"
+  },
+  {
+   "cat": "SM20",
+   "name": "Semaglutide",
+   "size": "20mg",
+   "pack_size": 10,
+   "pack_price_usd": 66,
+   "risk": "patented"
+  },
+  {
+   "cat": "SM30",
+   "name": "Semaglutide",
+   "size": "30mg",
+   "pack_size": 10,
+   "pack_price_usd": 82,
+   "risk": "patented"
+  },
+  {
+   "cat": "SM5",
+   "name": "Semaglutide",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 31,
+   "risk": "patented"
+  },
+  {
+   "cat": "XA10",
+   "name": "Semax",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 85,
+   "risk": "standard"
+  },
+  {
+   "cat": "XA5",
+   "name": "Semax",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 54,
+   "risk": "standard"
+  },
+  {
+   "cat": "SMO10",
+   "name": "Sermorelin Acetate",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 129,
+   "risk": "standard"
+  },
+  {
+   "cat": "SMO5",
+   "name": "Sermorelin Acetate",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 71,
+   "risk": "standard"
+  },
+  {
+   "cat": "SUR10",
+   "name": "Survodutide",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 353,
+   "risk": "patented"
+  },
+  {
+   "cat": "BT10",
+   "name": "TB-500",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 132,
+   "risk": "standard"
+  },
+  {
+   "cat": "BT5",
+   "name": "TB-500",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 71,
+   "risk": "standard"
+  },
+  {
+   "cat": "TSM10",
+   "name": "Tesamorelin",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 169,
+   "risk": "standard"
+  },
+  {
+   "cat": "TSM20",
+   "name": "Tesamorelin",
+   "size": "20mg",
+   "pack_size": 10,
+   "pack_price_usd": 329,
+   "risk": "standard"
+  },
+  {
+   "cat": "TSM5",
+   "name": "Tesamorelin",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 94,
+   "risk": "standard"
+  },
+  {
+   "cat": "TY10",
+   "name": "Thymalin",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 66,
+   "risk": "standard"
+  },
+  {
+   "cat": "TA10",
+   "name": "Thymosin Alpha-1",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 153,
+   "risk": "standard"
+  },
+  {
+   "cat": "TA5",
+   "name": "Thymosin Alpha-1",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 94,
+   "risk": "standard"
+  },
+  {
+   "cat": "TR10",
+   "name": "Tirzepatide",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 45,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR100",
+   "name": "Tirzepatide",
+   "size": "100mg",
+   "pack_size": 10,
+   "pack_price_usd": 282,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR110",
+   "name": "Tirzepatide",
+   "size": "110mg",
+   "pack_size": 10,
+   "pack_price_usd": 306,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR120",
+   "name": "Tirzepatide",
+   "size": "120mg",
+   "pack_size": 10,
+   "pack_price_usd": 329,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR15",
+   "name": "Tirzepatide",
+   "size": "15mg",
+   "pack_size": 10,
+   "pack_price_usd": 56,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR20",
+   "name": "Tirzepatide",
+   "size": "20mg",
+   "pack_size": 10,
+   "pack_price_usd": 71,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR30",
+   "name": "Tirzepatide",
+   "size": "30mg",
+   "pack_size": 10,
+   "pack_price_usd": 94,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR40",
+   "name": "Tirzepatide",
+   "size": "40mg",
+   "pack_size": 10,
+   "pack_price_usd": 111,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR5",
+   "name": "Tirzepatide",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 33,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR50",
+   "name": "Tirzepatide",
+   "size": "50mg",
+   "pack_size": 10,
+   "pack_price_usd": 146,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR60",
+   "name": "Tirzepatide",
+   "size": "60mg",
+   "pack_size": 10,
+   "pack_price_usd": 165,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR70",
+   "name": "Tirzepatide",
+   "size": "70mg",
+   "pack_size": 10,
+   "pack_price_usd": 212,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR80",
+   "name": "Tirzepatide",
+   "size": "80mg",
+   "pack_size": 10,
+   "pack_price_usd": 235,
+   "risk": "patented"
+  },
+  {
+   "cat": "TR90",
+   "name": "Tirzepatide",
+   "size": "90mg",
+   "pack_size": 10,
+   "pack_price_usd": 259,
+   "risk": "patented"
+  },
+  {
+   "cat": "VIP10",
+   "name": "VIP",
+   "size": "10mg",
+   "pack_size": 10,
+   "pack_price_usd": 153,
+   "risk": "standard"
+  },
+  {
+   "cat": "VIP5",
+   "name": "VIP",
+   "size": "5mg",
+   "pack_size": 10,
+   "pack_price_usd": 78,
+   "risk": "standard"
+  },
+  {
+   "cat": "B12",
+   "name": "Vitamin B12",
+   "size": "10ml",
+   "pack_size": 1,
+   "pack_price_usd": 19,
+   "risk": "consumable"
+  }
+ ]
+}

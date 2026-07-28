@@ -1,6 +1,8 @@
 from django.core.management import call_command
 from django.test import TestCase
 
+from apps.catalog.models import Product
+
 
 class StorefrontTests(TestCase):
     @classmethod
@@ -26,9 +28,17 @@ class StorefrontTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_shared_catalogue_on_every_site(self):
+        """One catalogue, rendered identically everywhere.
+
+        Counted against the database rather than a literal, so adding products
+        doesn't fail this test for the wrong reason — what's being asserted is
+        that no site shows a different set, not that there are exactly N.
+        """
+        expected = Product.objects.filter(is_active=True).count()
+        self.assertGreater(expected, 0)
         for host in ("smashfatbiolabs.ca", "smash-fat.com"):
             r = self.client.get("/", HTTP_HOST=host)
-            self.assertEqual(r.content.decode().count('class="pcard"'), 18, host)
+            self.assertEqual(r.content.decode().count('class="pcard"'), expected, host)
 
     def test_cart_and_checkout_flow(self):
         self.client.get("/", HTTP_HOST="smashfat.ca")  # set csrf cookie

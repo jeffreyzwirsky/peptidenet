@@ -1,0 +1,144 @@
+{% extends "manage/base.html" %}
+{% load static %}
+{% block title %}Pricing{% endblock %}
+{% block heading %}Pricing &amp; cost{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'manage/pricing.css' %}?v={{ asset_v }}">
+{% endblock %}
+
+{% block body %}
+<div class="page-intro">
+  <p class="sub">Supplier costs, margins and the automatic pricing rules. Costs are quoted
+    in <b>USD per box of 10 vials</b>; retail is <b>per vial</b>. Every conversion is shown
+    rather than just the answer, because that is where a pricing error hides.</p>
+  <p class="sub"><b>Staff only.</b> Nothing on this page reaches a storefront — not the cost,
+    not the supplier, not the catalogue code.</p>
+</div>
+
+{# The exchange rate underpins every CAD figure below, so its age is stated up
+   front rather than buried. Repricing stops by itself once this goes stale. #}
+<div class="card {% if not fx or fx.is_stale %}card-warn{% endif %}">
+  <h2>Exchange rate</h2>
+  {% if fx %}
+    <p><b>USD/CAD {{ fx.rate }}</b> — {{ fx.source }}, fetched {{ fx.fetched_at|date:"M j, H:i" }}
+      ({{ fx.age_hours|floatformat:0 }}h ago).</p>
+    {% if fx.is_stale %}
+      <p><b>This rate is stale.</b> Automatic repricing has stopped until it refreshes —
+        that is deliberate: prices should not keep recalculating from a number nobody
+        has checked. Fix the daily fetch, or set a rate by hand below.</p>
+    {% endif %}
+  {% else %}
+    <p><b>No rate stored.</b> Costs cannot be converted to CAD and nothing will reprice.
+      Run <code>manage.py fetch_fx</code>, or set one by hand.</p>
+  {% endif %}
+  <form method="post" class="inline-form">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="set_fx">
+    <label>Set by hand <input name="rate" type="text" inputmode="decimal" placeholder="1.37" size="8"></label>
+    <button class="btn btn-ghost" type="submit">Save rate</button>
+  </form>
+</div>
+
+{% if flagged %}
+<div class="card card-warn">
+  <h2>Not for listing without a decision ({{ flagged|length }})</h2>
+  <p>These are on the supplier's sheet and costed here, but they are not ordinary
+    research compounds. Each needs a deliberate call before it goes near a storefront:</p>
+  <ul class="plain">
+    {% for sp in flagged %}
+      <li><b>{{ sp.name }}</b> {{ sp.size }} —
+        {% if sp.risk == "patented" %}patent-enforced GLP-1; the originators actively litigate against sellers
+        {% elif sp.risk == "hormone" %}regulated hormone or prescription drug in most markets
+        {% else %}controlled-substance exposure{% endif %}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Price list — {{ rows|length }} products</h2>
+  <p class="sub">{{ linked }} linked to a supplier cost · {{ auto }} on automatic pricing.
+    <b>Margin</b> is what the current price actually earns. <b>Drift</b> is how far the
+    price sits from its target — anything under 3% is left alone so the daily exchange-rate
+    wobble doesn't nudge public prices every night.</p>
+  <table class="tbl">
+    <thead><tr>
+      <th>Product</th><th>Code</th><th>Box USD</th><th>Cost/vial CAD</th>
+      <th>Price</th><th>Pack of 10</th><th>Margin</th><th>Target</th><th>Drift</th><th>Auto</th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr {% if r.underwater %}class="row-bad"{% endif %}>
+        <td>{{ r.p.name }}<br><small class="sub">{{ r.p.category.name }}</small></td>
+        <td>{% if r.sp %}<code>{{ r.sp.cat_no }}</code><br><small class="sub">{{ r.sp.size }}</small>
+            {% else %}<span class="sub">—</span>{% endif %}</td>
+        <td>{% if r.sp %}${{ r.sp.pack_price }}{% else %}<span class="sub">—</span>{% endif %}</td>
+        <td>{% if r.cost %}${{ r.cost }}{% else %}<span class="sub">no rate</span>{% endif %}</td>
+        <td><b>${{ r.p.price }}</b></td>
+        <td>${{ r.p.pack_price }}</td>
+        <td>{% if r.margin %}{{ r.margin|floatformat:0 }}%{% else %}—{% endif %}
+            {% if r.underwater %}<br><b>AT OR BELOW COST</b>{% endif %}</td>
+        <td>{{ r.p.target_margin_pct|floatformat:0 }}%</td>
+        <td>{% if r.drift %}{{ r.drift|floatformat:0 }}%{% else %}—{% endif %}</td>
+        <td>{% if r.p.auto_price %}on{% else %}<span class="sub">off</span>{% endif %}</td>
+      </tr>
+      <tr class="row-edit">
+        <td colspan="10">
+          <form method="post" class="inline-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_margin">
+            <input type="hidden" name="product_id" value="{{ r.p.id }}">
+            <label>Supplier code <input name="supplier_cat_no" value="{{ r.p.supplier_cat_no }}" size="8"></label>
+            <label>Target margin % <input name="target_margin_pct" value="{{ r.p.target_margin_pct|floatformat:2 }}" size="6"></label>
+            <label><input type="checkbox" name="auto_price" {% if r.p.auto_price %}checked{% endif %}> auto-price</label>
+            <button class="btn btn-ghost" type="submit">Save</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if recent_changes %}
+<div class="card">
+  <h2>Recent automatic price changes</h2>
+  <p class="sub">Every automatic move is recorded. Under the Competition Act the ordinary
+    selling price of a product is a question of fact — "the system worked it out" is only
+    an answer if the system wrote down what it did.</p>
+  <table class="tbl">
+    <thead><tr><th>When</th><th>Product</th><th>From</th><th>To</th><th>Move</th><th>Cost</th><th>FX</th><th>Why</th></tr></thead>
+    <tbody>
+    {% for c in recent_changes %}
+      <tr>
+        <td>{{ c.created_at|date:"M j, H:i" }}</td>
+        <td>{{ c.product.name }}</td>
+        <td>${{ c.old_price }}</td><td>${{ c.new_price }}</td>
+        <td>{{ c.pct }}%</td><td>${{ c.unit_cost }}</td><td>{{ c.fx_rate|floatformat:4 }}</td>
+        <td class="sub">{{ c.reason }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Costed but not listed ({{ unlisted|length }})</h2>
+  <p class="sub">Everything else on the supplier's sheet, priced and ready to consider.
+    Nothing here appears on any storefront until you add it to the catalogue.</p>
+  <table class="tbl">
+    <thead><tr><th>Compound</th><th>Code</th><th>Size</th><th>Box USD</th><th>Per vial USD</th><th>Class</th></tr></thead>
+    <tbody>
+    {% for sp in unlisted %}
+      <tr {% if sp.needs_legal_review %}class="row-warn"{% endif %}>
+        <td>{{ sp.name }}</td><td><code>{{ sp.cat_no }}</code></td><td>{{ sp.size }}</td>
+        <td>${{ sp.pack_price }}</td><td>${{ sp.unit_price }}</td>
+        <td>{{ sp.get_risk_display }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

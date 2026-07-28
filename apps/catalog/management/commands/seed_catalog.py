@@ -80,7 +80,16 @@ class Command(BaseCommand):
                 # Driven off the catalogue's own "pack" key where present so a
                 # future exception doesn't need a code change.
                 "pack_size": p.get("pack", 1 if p["cat"] == "Supplies" else 10),
+                # Cost-plus wiring. `sup` is the supplier's catalogue code; when
+                # present the product opts into automatic repricing, so a new
+                # supplier price sheet flows through to cost, margin and retail
+                # without anyone retyping figures.
+                "supplier_cat_no": p.get("sup", ""),
+                "target_margin_pct": p.get("margin", 75),
+                "auto_price": bool(p.get("sup")) and p["cat"] != "Supplies",
             }
+            if p.get("area"):
+                defaults["research_area"] = p["area"]
             # Point at the generated product renders when they exist on disk, so
             # a fresh deploy gets real photography without a second command.
             slug = slugify(p["n"])

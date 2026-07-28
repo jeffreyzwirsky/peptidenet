@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}{% if is_admin_console %}Control{% else %}Staff Portal{% endif %}{% endblock %} · SmashFat BioLabs</title>
 <link rel="stylesheet" href="{% static 'manage/manage.css' %}?v={{ asset_v }}">
+{# Per-page stylesheets. Kept as a block so a page can add its own without
+   growing the shared file — and, for pricing, without needing to write to
+   manage.css, which is not tracked in this repository. #}
+{% block head %}{% endblock %}
 </head>
 <body>
 <div class="topbar">
@@ -24,6 +28,7 @@
       <a href="{% url cns|add:':orders' %}" class="{% if nav == 'orders' %}on{% endif %}">Orders</a>
       <a href="{% url cns|add:':inventory' %}" class="{% if nav == 'inventory' %}on{% endif %}">Inventory</a>
       <a href="{% url cns|add:':purchasing' %}" class="{% if nav == 'purchasing' %}on{% endif %}">Purchasing</a>
+      <a href="{% url cns|add:':pricing' %}" class="{% if nav == 'pricing' %}on{% endif %}">Pricing &amp; cost</a>
       <a href="{% url cns|add:':leads' %}" class="{% if nav == 'leads' %}on{% endif %}">Leads</a>
       <div class="nav-group">Comms</div>
       <a href="{% url cns|add:':messages' %}" class="{% if nav == 'messages' %}on{% endif %}">Messages</a>

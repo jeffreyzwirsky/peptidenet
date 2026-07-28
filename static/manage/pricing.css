@@ -1,0 +1,63 @@
+/* Pricing & cost — additions to the control panel stylesheet.
+ *
+ * Deliberately a separate file. `manage/manage.css` exists on the production
+ * droplet but is not tracked in this repository, so creating anything at that
+ * path would overwrite the real stylesheet on the next collectstatic. This
+ * loads alongside it instead and inherits its variables.
+ *
+ * Three states have to be legible at a glance on a long table: a product
+ * selling at or below cost, a supplier SKU that needs a legal decision before
+ * listing, and the inline row for editing a pricing rule. Colour alone isn't
+ * enough on a dense financial table, so the underwater row also spells out
+ * "AT OR BELOW COST" in the margin cell — the styling reinforces the message
+ * rather than carrying it.
+ */
+
+.tbl tr.row-bad > td { background: rgba(220, 38, 38, .12); }
+.tbl tr.row-bad { box-shadow: inset 3px 0 0 #dc2626; }
+.tbl tr.row-warn > td { background: rgba(217, 119, 6, .10); }
+.tbl tr.row-warn { box-shadow: inset 3px 0 0 #d97706; }
+
+/* The edit row hangs off the row above it, so it loses the top border and sits
+   very slightly recessed — it reads as part of the same record, not a new one. */
+.tbl tr.row-edit > td {
+  padding-top: 0;
+  border-top: 0;
+  background: rgba(255, 255, 255, .02);
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  font-size: .85rem;
+}
+.inline-form label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mut, #8496b4);
+}
+.inline-form input[type="text"],
+.inline-form input:not([type]) {
+  padding: 5px 8px;
+  min-width: 0;
+}
+
+/* Catalogue codes are compared against a supplier's sheet character by
+   character, so they get a mono face and tabular figures. */
+.tbl code {
+  font-family: ui-monospace, "IBM Plex Mono", "SFMono-Regular", monospace;
+  font-size: .85em;
+  font-variant-numeric: tabular-nums;
+}
+.tbl td { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 60rem) {
+  /* The inline editor is genuinely unusable at phone width — four controls in
+     a table cell. Hidden rather than reflowed: the read-only figures above it
+     are what's worth checking on a phone, and editing a pricing rule is a
+     desk job. */
+  .tbl tr.row-edit { display: none; }
+}

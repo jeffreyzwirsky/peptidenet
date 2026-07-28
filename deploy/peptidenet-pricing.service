@@ -1,0 +1,34 @@
+[Unit]
+Description=PeptideNet — refresh FX rate and reprice from supplier cost
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/peptidenet
+EnvironmentFile=/var/www/peptidenet/.env
+
+# Two steps, in this order, and the second depends on the first having worked.
+# `reprice` reads the stored rate and refuses to act on one older than 48h, so
+# if fetch_fx fails today nothing is repriced from a number nobody checked —
+# the catalogue simply holds until the feed comes back.
+#
+# `-` on the fetch means a failed fetch does not mark the unit failed: it is an
+# expected transient, and reprice handles the consequence itself. A genuinely
+# dead feed shows up as prices that stop tracking, and on the pricing page as a
+# stale-rate banner.
+ExecStart=-/var/www/peptidenet/venv/bin/python manage.py fetch_fx
+ExecStart=/var/www/peptidenet/venv/bin/python manage.py reprice
+
+Nice=10
+TimeoutStartSec=600
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from .access import console_required
@@ -628,4 +628,80 @@ def purchasing(request):
         "suppliers": Supplier.objects.filter(is_active=True),
         "payment_methods": Order.PAYMENT_METHODS,
         "channels": Supplier.CHANNELS,
+    })
+
+
+@console_required
+def pricing(request):
+    """
+    Cost, margin and the supplier price list, in one staff-only place.
+
+    This page is where cost-plus pricing becomes legible. Costs arrive from the
+    supplier in USD per box of ten; retail is per vial in CAD or USD depending
+    on the storefront. Those three conversions are exactly where a pricing error
+    hides, so the table shows every step rather than just the answer.
+
+    Nothing here is public. Supplier identity, catalogue codes, costs and
+    country of origin stay behind this login — the same silence the storefronts
+    keep, kept here too.
+    """
+    from apps.catalog.models import Product
+    from apps.suppliers.models import FxRate, PriceChange, SupplierPrice
+
+    fx = FxRate.latest("USD", "CAD")
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "save_margin":
+            p = get_object_or_404(Product, pk=request.POST.get("product_id"))
+            try:
+                p.target_margin_pct = Decimal(request.POST.get("target_margin_pct") or 0)
+            except (InvalidOperation, TypeError):
+                messages.error(request, "That margin isn't a number.")
+                return redirect(request.path)
+            p.auto_price = request.POST.get("auto_price") == "on"
+            p.supplier_cat_no = (request.POST.get("supplier_cat_no") or "").strip()
+            p.save(update_fields=["target_margin_pct", "auto_price", "supplier_cat_no"])
+            messages.success(request, f"{p.name} pricing rule updated.")
+        elif action == "set_fx":
+            try:
+                rate = Decimal(request.POST.get("rate") or 0)
+            except (InvalidOperation, TypeError):
+                rate = Decimal(0)
+            if Decimal("0.5") < rate < Decimal("5"):
+                FxRate.objects.create(base="USD", quote="CAD", rate=rate, source="manual")
+                messages.success(request, f"USD/CAD set to {rate} by hand.")
+            else:
+                messages.error(request, "Refused: that rate is outside the plausible range.")
+        return redirect(request.path)
+
+    rows = []
+    for p in (Product.objects.select_related("category")
+              .order_by("category__order", "name")):
+        sp = p.supplier_price
+        cost = p.cost_from_supplier("CAD")
+        target = p.target_price("CAD")
+        margin = ((p.price - cost) / p.price * 100) if (cost and p.price) else None
+        drift = ((target - p.price) / p.price * 100) if (target and p.price) else None
+        rows.append({
+            "p": p, "sp": sp, "cost": cost, "target": target,
+            "margin": margin, "drift": drift,
+            # Below cost is the one state that must be impossible to miss.
+            "underwater": bool(cost and p.price and p.price <= cost),
+        })
+
+    unlisted = (SupplierPrice.objects
+                .filter(is_active=True)
+                .exclude(cat_no__in=[r["p"].supplier_cat_no for r in rows if r["p"].supplier_cat_no])
+                .order_by("risk", "name"))
+
+    return render(request, "manage/pricing.html", {
+        "nav": "pricing",
+        "rows": rows,
+        "fx": fx,
+        "unlisted": unlisted,
+        "flagged": unlisted.filter(risk__in=("patented", "hormone", "controlled")),
+        "recent_changes": PriceChange.objects.select_related("product")[:15],
+        "linked": sum(1 for r in rows if r["sp"]),
+        "auto": sum(1 for r in rows if r["p"].auto_price),
     })

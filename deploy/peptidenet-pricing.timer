@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily FX refresh and cost-plus repricing
+
+[Timer]
+# 05:20 local — after the ECB publishes and after the blog job at 04:12, so the
+# two never contend for the single vCPU.
+OnCalendar=*-*-* 05:20:00
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

@@ -65,6 +65,27 @@ class Product(models.Model):
         max_digits=8, decimal_places=2, default=0,
         help_text="Your landed cost per vial (CAD) — used for margin, COGS and inventory value.",
     )
+    # --- cost-plus pricing ---------------------------------------------------
+    # `unit_cost` above stays a stored field, not a derived one, because order
+    # lines snapshot it at checkout and must not move afterwards. `reprice`
+    # writes it from the linked supplier price; these three fields say where it
+    # comes from and what to do with it.
+    supplier_cat_no = models.CharField(
+        max_length=20, blank=True,
+        help_text="Supplier catalogue code this product is bought as, e.g. BC10. "
+                  "Links cost and retail price to the supplier price list.",
+    )
+    target_margin_pct = models.DecimalField(
+        max_digits=5, decimal_places=2, default=Decimal("75.00"),
+        help_text="Gross margin to hold when prices are recalculated from cost.",
+    )
+    auto_price = models.BooleanField(
+        default=False,
+        help_text="Recalculate the retail price from cost automatically. "
+                  "Off means the price is whatever a human last set.",
+    )
+    price_updated_at = models.DateTimeField(null=True, blank=True, editable=False)
+
     pack_size = models.PositiveIntegerField(
         default=DEFAULT_PACK_SIZE,
         help_text="Vials per sellable unit. Compounds ship in packs of 10 and "
@@ -221,6 +242,37 @@ class Product(models.Model):
         if not self.is_discounted:
             return 0
         return int(round(self.savings / self.list_price * 100))
+
+    # --- cost-plus derivation ------------------------------------------------
+    @property
+    def supplier_price(self):
+        """The supplier price row this product is bought as, or None."""
+        if not self.supplier_cat_no:
+            return None
+        from apps.suppliers.models import SupplierPrice
+        return SupplierPrice.objects.filter(cat_no=self.supplier_cat_no).first()
+
+    def cost_from_supplier(self, currency="CAD"):
+        """Landed cost per vial in `currency`, from the supplier price list.
+
+        Returns None rather than a guess when the supplier row is missing or no
+        FX rate is available — a silently wrong cost would propagate into the
+        retail price, which is the whole risk of automatic repricing.
+        """
+        sp = self.supplier_price
+        if sp is None:
+            return None
+        return sp.unit_price_in(currency)
+
+    def target_price(self, currency="CAD"):
+        """Retail price per vial that holds `target_margin_pct` on cost."""
+        cost = self.cost_from_supplier(currency)
+        if cost is None:
+            return None
+        margin = Decimal(self.target_margin_pct or 0)
+        if margin >= 100:
+            return None
+        return (cost / ((Decimal(100) - margin) / Decimal(100))).quantize(Decimal("0.01"))
 
     # --- cost / margin economics ---
     @property

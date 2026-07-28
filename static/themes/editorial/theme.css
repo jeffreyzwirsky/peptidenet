@@ -1,116 +1,287 @@
-/* Theme: editorial — dark charcoal magazine, magenta→violet gradient, issue-numbered sections */
+/* ============================================================================
+   Theme: editorial — dark charcoal magazine, US market.
+   Direction: clinical precision applied to a magazine. The identity stays a
+   masthead — issue numbers, a serif display voice, an italic accent word — but
+   the craft is severe: hairlines instead of borders, mono for every number,
+   macro whitespace, one restrained colour move per screen.
+
+   MOBILE FIRST. Every rule below is the phone layout; four min-width steps
+   (36 / 48 / 64 / 80rem, matching base.css) add columns and scale on top.
+   Nothing here uses max-width.
+
+   Typography — the display voice is NEW. A magazine needs a headline face, not
+   a heavier weight of the body:
+     Instrument Serif  → H1, section numbers, pull quotes, big numerals
+     Space Grotesk     → body, UI, buttons
+     IBM Plex Mono     → every technical figure (purity, methods, lots, specs)
+   ========================================================================== */
 .theme-editorial{
   --bg:#141216; --fg:#f5f4f6; --muted:#a1a1aa; --accent:#e0409a; --accent-ink:#141216;
   --card:#1c1a20; --line:rgba(255,255,255,.09); --radius:16px;
   --font:'Space Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  /* Display voice. Only weight 400 exists in Instrument Serif — a large 400
+     serif is the whole point, so nothing here ever asks for bold. */
+  --font-display:'Instrument Serif',Georgia,'Times New Roman',serif;
   --mag:#e0409a; --vio:#8b5cf6;
   --grad:linear-gradient(115deg,#e0409a 0%,#8b5cf6 100%);
   --line-2:rgba(255,255,255,.16); --bg-3:#26242b;
+  /* Masthead scale — one step beyond base's --fs-4xl, because the H1 is the
+     only element on the page allowed to be this loud. */
+  --fs-masthead:clamp(46px, 21.4px + 10.9vw, 118px);
 }
 
 /* gradient + accent helpers */
 .theme-editorial .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .theme-editorial ::selection{background:var(--mag);color:#fff}
-.theme-editorial .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 34px -12px rgba(224,64,154,.6)}
-.theme-editorial .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 42px -12px rgba(139,92,246,.7)}
-.theme-editorial .btn-ghost{border-color:var(--line-2);color:var(--fg)}
-.theme-editorial .btn-ghost:hover{border-color:var(--fg);background:var(--card)}
-.theme-editorial .eyebrow{color:var(--mag)}
-.theme-editorial .chip.pur{color:var(--mag);border-color:rgba(224,64,154,.35)}
+.theme-editorial .btn-primary{background:var(--grad);color:#fff;
+  box-shadow:0 1px 2px rgba(6,10,22,.2), 0 14px 34px -16px rgba(224,64,154,.7)}
+.theme-editorial .btn-primary:hover{transform:translateY(-2px);filter:none;
+  box-shadow:0 2px 4px rgba(6,10,22,.24), 0 20px 44px -16px rgba(139,92,246,.75)}
+.theme-editorial .btn-ghost{border-color:var(--hairline);color:var(--fg);background:var(--tint-1)}
+.theme-editorial .btn-ghost:hover{border-color:var(--line-2);background:var(--tint-2)}
+.theme-editorial .eyebrow{color:var(--mag);font-family:var(--font-mono);font-weight:500}
+.theme-editorial .chip{background:var(--tint-2);border-color:var(--hairline)}
+.theme-editorial .chip.pur{font-family:var(--font-mono);color:var(--mag);
+  border-color:color-mix(in srgb,var(--mag) 34%,var(--line))}
 .theme-editorial .cart-count{background:var(--grad);color:#fff}
 .theme-editorial .cat-chip.is-active,.theme-editorial .cat-chip:hover{background:#fff;color:#141216;border-color:#fff}
 
-/* header brand — loud grotesk */
+/* header brand — the masthead logotype */
 .theme-editorial .brand .brand-name{letter-spacing:-.03em;font-weight:700}
+/* Nav rail: base centres the inline links, which means an overflowing rail is
+   clipped at BOTH ends and the first label reads as a fragment. Start-aligned
+   between 48 and 80rem so the rail degrades into an honest scroll strip; it
+   fits and re-centres at 80rem. */
+@media (min-width:48rem){ .theme-editorial .nav-links{justify-content:flex-start} }
+@media (min-width:80rem){ .theme-editorial .nav-links{justify-content:center} }
 
-/* ===== Hero — big editorial ===== */
-.theme-editorial .hero{position:relative;overflow:hidden;padding:78px 0 84px;border-bottom:1px solid var(--line)}
-.theme-editorial .hero-glow{position:absolute;width:760px;height:760px;border-radius:50%;pointer-events:none;filter:blur(30px);
-  background:radial-gradient(circle,rgba(139,92,246,.32),transparent 62%);top:-260px;right:-160px}
-.theme-editorial .hero-glow.two{background:radial-gradient(circle,rgba(224,64,154,.26),transparent 62%);left:-260px;top:180px;right:auto}
-.theme-editorial .hero-inner{position:relative;z-index:2;max-width:900px}
-.theme-editorial .hero-kicker{display:inline-flex;align-items:center;gap:12px;font-size:12px;letter-spacing:.28em;
-  text-transform:uppercase;color:var(--muted);margin-bottom:26px;font-weight:500}
-.theme-editorial .hero-kicker .ln{width:44px;height:1px;background:var(--line-2)}
-.theme-editorial .hero h1{font-size:clamp(52px,9vw,116px);line-height:.9;font-weight:700;letter-spacing:-.045em;margin-bottom:26px}
+
+/* ============================================================
+   HERO — the masthead
+   Phone: kicker rule → serif masthead → lead → CTAs → stat ledger → plate.
+   ≥64rem it becomes an asymmetric two-column spread with the figure hung to
+   the right, plate label and purity reading pinned to its bezel.
+   ============================================================ */
+.theme-editorial .hero{position:relative;overflow:hidden;
+  padding-block:calc(var(--sp-section) * .82) var(--sp-section);
+  border-bottom:1px solid var(--hairline)}
+
+/* Ambient wash, not glowing orbs. No blur filter: a 760px blurred layer is a
+   real GPU cost on a phone and the gradient alone reads the same. */
+.theme-editorial .hero-glow{position:absolute;pointer-events:none;
+  width:min(120vw,900px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(139,92,246,.20),transparent 64%);
+  top:-42%;right:-28%}
+.theme-editorial .hero-glow.two{background:radial-gradient(circle,rgba(224,64,154,.14),transparent 64%);
+  left:-42%;top:36%;right:auto}
+
+.theme-editorial .hero-shell{position:relative;z-index:2;
+  display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-6);align-items:start}
+.theme-editorial .hero-inner{position:relative;z-index:2;max-width:none;min-width:0}
+
+/* Issue line — set in mono so it reads as a record, not a tagline. */
+.theme-editorial .hero-kicker{display:flex;align-items:center;gap:var(--sp-2);
+  font-family:var(--font-mono);font-size:var(--fs-3xs);letter-spacing:.26em;
+  text-transform:uppercase;color:var(--muted);font-weight:500;
+  margin-bottom:var(--sp-4)}
+.theme-editorial .hero-kicker .ln{flex:none;width:34px;height:1px;background:var(--line-2)}
+
+.theme-editorial .hero h1{font-family:var(--font-display);font-weight:400;
+  font-size:var(--fs-masthead);line-height:.94;letter-spacing:-.018em;
+  margin-bottom:var(--sp-4);text-wrap:balance}
 .theme-editorial .hero h1 .it{font-style:italic;font-weight:400}
-/* Italic gradient word ("loud"): the slanted final glyph overflowed the
-   background-clip:text paint box and lost its tail (read as "loua"). Extend the
-   paint box to the right so the gradient covers the full italic glyph. */
-.theme-editorial .hero h1 .grad{padding-right:.22em}
-.theme-editorial .hero .lead{font-size:18px;color:var(--muted);max-width:520px;margin-bottom:34px;line-height:1.6}
-.theme-editorial .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.theme-editorial .hero-stats{display:flex;gap:40px;margin-top:52px;flex-wrap:wrap}
-.theme-editorial .hero-stats .n{font-size:30px;font-weight:700;letter-spacing:-.03em}
-.theme-editorial .hero-stats .l{font-size:11.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+/* Italic gradient word ("loud"): the slanted final glyph overflows the
+   background-clip:text paint box and loses its tail (reads as "loua"). Extend
+   the paint box to the right so the gradient covers the full italic glyph. */
+.theme-editorial .hero h1 .grad{padding-right:.14em}
 
-/* ===== Hero product illustration — asymmetric magazine plate ===== */
-.theme-editorial .hero-shell{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
-  gap:56px;align-items:center;max-width:1200px}
-.theme-editorial .hero-inner{max-width:640px}
-.theme-editorial .hero-figure-ed{position:relative;justify-content:flex-end}
-.theme-editorial .hero-figure-ed .hero-vial{max-width:440px;transform:rotate(4deg);
-  filter:drop-shadow(0 40px 70px rgba(139,92,246,.4)) drop-shadow(0 8px 20px rgba(224,64,154,.3))}
-/* editorial "plate" tag, top-left of figure */
-.theme-editorial .hero-plate{position:absolute;top:0;left:2%;z-index:3;font-size:12px;letter-spacing:.28em;
-  text-transform:uppercase;color:var(--mag);font-weight:600;border:1px solid rgba(224,64,154,.4);
-  border-radius:999px;padding:6px 14px;background:color-mix(in srgb,var(--card) 80%,transparent);backdrop-filter:blur(6px)}
-/* purity badge floated over the vial, bottom-left for asymmetry */
-.theme-editorial .hero-figure-ed .purity-float{right:auto;left:0;bottom:8%;
-  box-shadow:0 24px 50px -20px rgba(139,92,246,.6)}
-.theme-editorial .hero-figure-ed .purity-float .pf-big{background:var(--grad);-webkit-background-clip:text;
-  background-clip:text;color:transparent}
+.theme-editorial .hero .lead{font-size:var(--fs-lg);color:var(--muted);
+  max-width:40ch;margin-bottom:var(--sp-5);line-height:1.55}
+.theme-editorial .hero-cta{display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:center}
 
-/* ===== Issue-numbered section heads ===== */
-.theme-editorial .sec-num{display:block;font-size:13px;letter-spacing:.3em;color:var(--mag);font-weight:600;margin-bottom:14px}
-.theme-editorial .catalogue .section-head.ed-head{text-align:left;max-width:none;margin:0 0 32px}
-.theme-editorial .ed-head h2{font-size:clamp(30px,4.4vw,52px);letter-spacing:-.035em;font-weight:600}
-.theme-editorial .ed-head .eyebrow{color:var(--muted);letter-spacing:normal;text-transform:none;font-weight:400;font-size:15px;margin-top:16px;max-width:520px}
+/* Stat ledger. One column of hairline-separated rows on a phone; a shared-rule
+   three-up from 36rem. Figures in mono, labels tracked out. */
+.theme-editorial .hero-stats{display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+  margin-top:var(--sp-5);border-top:1px solid var(--hairline)}
+.theme-editorial .hero-stats .st{padding:var(--sp-3) 0;border-bottom:1px solid var(--hairline-soft)}
+.theme-editorial .hero-stats .n{font-family:var(--font-mono);font-size:var(--fs-lg);
+  font-weight:500;letter-spacing:-.01em;line-height:1.1}
+.theme-editorial .hero-stats .n.grad{font-weight:600}
+.theme-editorial .hero-stats .l{font-size:var(--fs-3xs);color:var(--muted);
+  letter-spacing:var(--track-label);text-transform:uppercase;margin-top:6px;font-weight:600}
+
+/* ---- Hero plate: a true double bezel, so the composition holds even when the
+   photograph is missing. Outer shell = hairline tray, inner core = the frame. */
+.theme-editorial .hero-figure-ed{position:relative;display:block;
+  padding:var(--bezel);border:1px solid var(--hairline);
+  border-radius:calc(var(--radius) + 10px);background:var(--tint-1);
+  box-shadow:var(--elev-2)}
+.theme-editorial .hero-figure-ed .hero-vid-frame{max-width:none;
+  border-radius:calc(var(--radius) + 4px);
+  box-shadow:inset 0 0 0 1px var(--hairline), inset 0 1px 0 var(--sheen)}
+.theme-editorial .hero-figure-ed .hero-vial{filter:none;transform:none;box-shadow:none}
+
+/* Figure label — a printed plate caption, not a glass pill. No backdrop-filter:
+   this scrolls, and blur on scrolling content is a mobile frame-rate tax. */
+.theme-editorial .hero-plate{position:absolute;top:calc(var(--sp-2) * -1);left:var(--sp-3);z-index:3;
+  font-family:var(--font-mono);font-size:var(--fs-3xs);letter-spacing:.26em;
+  text-transform:uppercase;color:var(--mag);font-weight:500;
+  border:1px solid color-mix(in srgb,var(--mag) 38%,var(--line));
+  border-radius:var(--radius-pill);padding:5px 13px;background:var(--bg)}
+
+/* Purity reading. Inside the bezel on a phone — the hero clips its overflow,
+   so a plate hung off the left edge there would simply lose its left half —
+   and hung outside only once the figure has a column of its own. */
+.theme-editorial .hero-figure-ed .purity-float{right:auto;left:var(--sp-3);bottom:var(--sp-4);
+  background:var(--card);border:1px solid var(--hairline);border-radius:calc(var(--radius) - 2px);
+  padding:var(--sp-2) var(--sp-3);
+  box-shadow:var(--elev-3), inset 0 1px 0 var(--sheen)}
+.theme-editorial .hero-figure-ed .purity-float .pf-big{font-family:var(--font-mono);
+  font-weight:600;font-size:var(--fs-xl);
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.theme-editorial .hero-figure-ed .purity-float .pf-sub{font-family:var(--font-mono);
+  font-size:var(--fs-3xs);letter-spacing:.14em}
+
+@media (min-width:36rem){
+  .theme-editorial .hero-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
+    background:var(--hairline-soft);border-bottom:1px solid var(--hairline)}
+  .theme-editorial .hero-stats .st{background:var(--bg);border-bottom:0;
+    padding:var(--sp-3) var(--sp-3) var(--sp-3) 0}
+  .theme-editorial .hero-stats .st+.st{padding-left:var(--sp-3)}
+}
+@media (min-width:48rem){
+  .theme-editorial .hero-kicker{margin-bottom:var(--sp-5)}
+  .theme-editorial .hero-shell{gap:var(--sp-6)}
+}
+@media (min-width:64rem){
+  /* The magazine spread. Copy carries the measure; the plate hangs right and
+     sits slightly lower than the masthead's optical baseline. */
+  .theme-editorial .hero-shell{grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);
+    gap:clamp(40px,5vw,80px);align-items:center}
+  .theme-editorial .hero-inner{max-width:none}
+  .theme-editorial .hero .lead{max-width:44ch}
+  .theme-editorial .hero-figure-ed{margin-top:var(--sp-4);justify-self:end;width:100%;max-width:460px}
+  .theme-editorial .hero-figure-ed .purity-float{left:calc(var(--sp-5) * -1);bottom:var(--sp-5)}
+}
+@media (min-width:80rem){
+  .theme-editorial .hero-shell{gap:96px}
+}
+
+/* ============================================================
+   Issue-numbered section heads
+   ============================================================ */
+.theme-editorial .sec-num{display:flex;align-items:center;gap:var(--sp-2);
+  font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:var(--fs-lg);letter-spacing:0;color:var(--mag);margin-bottom:var(--sp-2)}
+.theme-editorial .sec-num::after{content:"";flex:1 1 auto;height:1px;background:var(--hairline);max-width:120px}
+.theme-editorial .catalogue .section-head.ed-head{text-align:left;max-width:none;margin:0 0 var(--sp-block)}
+.theme-editorial .ed-head h2{font-family:var(--font-display);font-weight:400;
+  font-size:clamp(32px, 17.6px + 4vw, 68px);line-height:1.02;letter-spacing:-.015em}
+.theme-editorial .ed-head .eyebrow{font-family:var(--font);color:var(--muted);letter-spacing:0;
+  text-transform:none;font-weight:400;font-size:var(--fs-md);margin-top:var(--sp-3);
+  max-width:56ch;line-height:1.6}
+.theme-editorial .section-head h2{font-family:var(--font-display);font-weight:400;letter-spacing:-.015em}
 .theme-editorial .cat-filter{justify-content:flex-start}
 
-/* ===== Product cards — gallery / asymmetric feel ===== */
-.theme-editorial .pcard{background:linear-gradient(170deg,#1f1d24,#161419);border:1px solid var(--line);
-  transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .28s,box-shadow .28s}
-.theme-editorial .pcard:hover{transform:translateY(-6px);border-color:var(--line-2);box-shadow:0 30px 60px -30px rgba(139,92,246,.55)}
+/* ============================================================
+   Product cards — gallery plates
+   ============================================================ */
+.theme-editorial .pcard{background:linear-gradient(170deg,#1f1d24,#161419);border-color:var(--hairline)}
+.theme-editorial .pcard:hover{transform:translateY(-6px);border-color:var(--line-2);
+  box-shadow:var(--elev-2), 0 34px 64px -34px rgba(139,92,246,.5)}
 .theme-editorial .pcard-media{background:
   radial-gradient(circle at 50% 30%,rgba(139,92,246,.16),transparent 60%),
-  repeating-linear-gradient(45deg,rgba(255,255,255,.015) 0 12px,transparent 12px 24px),#18161c;
-  border-bottom:1px solid var(--line)}
-.theme-editorial .pcard-media .vial{transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+  repeating-linear-gradient(45deg,rgba(255,255,255,.015) 0 12px,transparent 12px 24px),#18161c}
+.theme-editorial .pcard-media .vial{transition:transform var(--dur-slow) var(--ease-spring)}
 .theme-editorial .pcard:hover .pcard-media .vial{transform:translateY(-6px) rotate(-3deg) scale(1.04)}
-.theme-editorial .pcard-new{background:var(--grad);color:#fff}
-.theme-editorial .pcard-name{font-size:18px;letter-spacing:-.02em}
-.theme-editorial .pcard-price{letter-spacing:-.02em}
-.theme-editorial .chip{background:var(--bg-3)}
+.theme-editorial .pcard-new{background:var(--grad);color:#fff;font-family:var(--font-mono);font-weight:600}
+.theme-editorial .pcard-cat{font-family:var(--font-mono);font-weight:500;letter-spacing:.16em}
+.theme-editorial .pcard-name{letter-spacing:-.02em}
+.theme-editorial .pcard-price{font-family:var(--font-mono);font-weight:600;letter-spacing:-.02em}
+.theme-editorial .pcard-stock{font-family:var(--font-mono);font-weight:500}
 .theme-editorial .pcard-actions .btn-ghost:hover{background:var(--grad);border-color:transparent;color:#fff}
 
-/* ===== Editorial split banner (block 02) ===== */
-.theme-editorial .editorial{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:0}
+/* ============================================================
+   Editorial split banner (block 02)
+   Full-bleed by design — the inner halves carry their own fluid padding, so
+   the band keeps the page rhythm without a fixed section override.
+   ============================================================ */
+.theme-editorial .editorial{border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);padding:0}
 .theme-editorial .editorial .wrap{padding:0;max-width:none}
-.theme-editorial .editorial-inner{display:grid;grid-template-columns:1fr 1fr;min-height:360px}
-.theme-editorial .ed-l{padding:64px 56px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--line)}
-.theme-editorial .ed-l .big-num{font-size:96px;font-weight:700;line-height:.8;letter-spacing:-.05em;margin-bottom:22px}
-.theme-editorial .ed-l h3{font-size:30px;letter-spacing:-.03em;font-weight:600;margin-bottom:16px;max-width:400px}
-.theme-editorial .ed-l p{color:var(--muted);font-size:15px;line-height:1.65;max-width:440px}
-.theme-editorial .ed-l p b{color:var(--mag);letter-spacing:.06em;border:1px dashed rgba(224,64,154,.5);padding:2px 8px;border-radius:6px}
-.theme-editorial .ed-r{position:relative;display:grid;place-items:center;padding:48px;background:
-  radial-gradient(circle at 70% 40%,rgba(224,64,154,.22),transparent 55%),
-  radial-gradient(circle at 30% 70%,rgba(139,92,246,.22),transparent 55%),#161419}
-.theme-editorial .ed-r .quote{font-size:26px;font-weight:500;letter-spacing:-.02em;line-height:1.35;max-width:440px;text-align:center}
+.theme-editorial .editorial-inner{display:grid;grid-template-columns:minmax(0,1fr)}
+.theme-editorial .ed-l{padding:var(--sp-section) var(--sp-gutter);
+  display:flex;flex-direction:column;justify-content:center;
+  border-bottom:1px solid var(--hairline)}
+.theme-editorial .ed-l .big-num{font-family:var(--font-display);font-weight:400;
+  font-size:clamp(64px, 30.6px + 9.3vw, 148px);line-height:.78;letter-spacing:-.03em;
+  margin-bottom:var(--sp-4)}
+.theme-editorial .ed-l h3{font-family:var(--font-display);font-weight:400;
+  font-size:clamp(26px, 15.2px + 3vw, 44px);line-height:1.08;letter-spacing:-.015em;
+  margin-bottom:var(--sp-3);max-width:18ch}
+.theme-editorial .ed-l p{color:var(--muted);font-size:var(--fs-sm);line-height:1.7;max-width:52ch}
+.theme-editorial .ed-l p b{font-family:var(--font-mono);color:var(--mag);letter-spacing:.06em;
+  font-weight:500;border:1px solid color-mix(in srgb,var(--mag) 40%,var(--line));
+  padding:2px 9px;border-radius:6px;white-space:nowrap}
+.theme-editorial .ed-r{position:relative;display:grid;place-items:center;
+  padding:var(--sp-section) var(--sp-gutter);background:
+  radial-gradient(circle at 70% 40%,rgba(224,64,154,.16),transparent 58%),
+  radial-gradient(circle at 30% 70%,rgba(139,92,246,.16),transparent 58%),#161419}
+.theme-editorial .ed-r .quote{font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:clamp(22px, 14.8px + 2vw, 34px);letter-spacing:-.01em;line-height:1.28;
+  max-width:22ch;text-align:center;text-wrap:balance}
+@media (min-width:64rem){
+  .theme-editorial .editorial-inner{grid-template-columns:1fr 1fr;min-height:420px}
+  .theme-editorial .ed-l{border-bottom:0;border-right:1px solid var(--hairline);
+    padding-inline:clamp(40px,4.4vw,72px)}
+  .theme-editorial .ed-r{padding-inline:clamp(40px,4.4vw,72px)}
+}
 
-/* ===== Quality / reviews accents ===== */
-.theme-editorial .q-item{background:var(--card);transition:border-color .25s,transform .25s}
-.theme-editorial .q-item:hover{border-color:var(--line-2);transform:translateY(-4px)}
+/* ============================================================
+   Quality / reviews / long-form — the reference-library voice
+   ============================================================ */
+.theme-editorial .q-item h3{letter-spacing:-.015em}
+.theme-editorial .q-item:hover{border-color:var(--line-2)}
 .theme-editorial .review .stars{color:var(--mag)}
+.theme-editorial .review blockquote{font-size:var(--fs-md);line-height:1.6}
 
-@media(max-width:860px){
-  .theme-editorial .editorial-inner{grid-template-columns:1fr}
-  .theme-editorial .ed-l{border-right:none;border-bottom:1px solid var(--line);padding:48px 32px}
-  .theme-editorial .hero-stats{gap:28px}
-  .theme-editorial .hero-shell{grid-template-columns:1fr;gap:40px}
-  .theme-editorial .hero-inner{max-width:640px}
-  .theme-editorial .hero-figure-ed{justify-content:center;margin-top:8px}
-  .theme-editorial .hero-figure-ed .hero-vial{max-width:300px;transform:rotate(3deg)}
-  .theme-editorial .hero-plate{left:auto;right:2%}
-  .theme-editorial .hero-figure-ed .purity-float{left:auto;right:0}
+/* Long-form and detail pages inherit the display voice, so a product entry
+   reads like a catalogue entry rather than a shop listing. */
+.theme-editorial .pdp-name,
+.theme-editorial .policy-head h1,
+.theme-editorial .region-head h1,
+.theme-editorial .blog-content h1{font-family:var(--font-display);font-weight:400;letter-spacing:-.015em}
+.theme-editorial .pdp-block h2,
+.theme-editorial .policy-block h2,
+.theme-editorial .region-block h2,
+.theme-editorial .blog-content h2{font-family:var(--font-display);font-weight:400;letter-spacing:-.01em}
+.theme-editorial .blog-content h1{line-height:1.02}
+/* Every technical figure in the same engineered mono. */
+.theme-editorial .pdp-price,
+.theme-editorial .pdp-rail-price,
+.theme-editorial .cart-subtotal,
+.theme-editorial .ostatus-total,
+.theme-editorial .calc-v,
+.theme-editorial .region-facts b,
+.theme-editorial .pdp-bulk,
+.theme-editorial .pdp-rail-facts dd{font-family:var(--font-mono);font-weight:500;letter-spacing:-.01em}
+.theme-editorial .pdp-cat,.theme-editorial .pdp-syn{font-family:var(--font-mono);font-weight:500}
+.theme-editorial .lab-band .eyebrow{font-family:var(--font-mono)}
+.theme-editorial .lab-band .lab-band-inner h2{font-family:var(--font-display);font-weight:400}
+.theme-editorial .faq-item summary{letter-spacing:-.01em}
+.theme-editorial .footer-grid .brand-name{letter-spacing:-.03em}
+.theme-editorial .foot-bottom{font-family:var(--font-mono);letter-spacing:.06em}
+
+/* ============================================================
+   Motion — the masthead sets, then the plate arrives.
+   transform / opacity only, and entirely opt-in via no-preference.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference){
+  .theme-editorial .hero-inner{animation:ed-rise .78s var(--ease-out) both}
+  .theme-editorial .hero-kicker{animation:ed-rise .6s var(--ease-out) both}
+  .theme-editorial .hero-stats{animation:ed-rise .8s .22s var(--ease-out) both}
+  .theme-editorial .hero-figure-ed{animation:ed-plate .9s .12s var(--ease-spring) both}
+  .theme-editorial .hero-plate{animation:ed-rise .6s .5s var(--ease-out) both}
+  .theme-editorial .hero-figure-ed .purity-float{animation:ed-rise .7s .58s var(--ease-spring) both}
+  @keyframes ed-rise{from{opacity:0;transform:translate3d(0,16px,0)}to{opacity:1;transform:none}}
+  @keyframes ed-plate{from{opacity:0;transform:translate3d(0,26px,0) scale(.985)}to{opacity:1;transform:none}}
 }

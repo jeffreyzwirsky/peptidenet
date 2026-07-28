@@ -1,178 +1,354 @@
-/* Theme: prairie — deep prairie blue + wheat/gold, light body.
-   Regional Alberta trust look: skyline motif, warm, "dispatched from Alberta". */
+/* ============================================================================
+   Theme: prairie — deep prairie blue + wheat/gold on a light body.
+   Regional Alberta trust look, held to a clinical standard: the region is
+   expressed through palette, language and a restrained horizon, not through
+   illustration. Precise, not folksy.
+
+   MOBILE FIRST. Every rule below is the phone layout; min-width steps at
+   36 / 48 / 64 / 80rem (base.css) add columns and scale. No max-width queries.
+
+   Typeface: Instrument Sans (replaces Inter) — precise but a shade warmer than
+   a pure engineering grotesk, which is right for a regional brand. IBM Plex
+   Mono carries every figure: purity, lot codes, delivery windows, promo codes.
+   ========================================================================== */
 .theme-prairie{
   --bg:#ffffff; --fg:#0e2338; --muted:#4a5c6f;
   --accent:#0b3d6b; --accent-ink:#ffffff;
-  --card:#ffffff; --line:#e2e8f0; --radius:14px;
-  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  --card:#ffffff; --line:#dbe3ec; --radius:14px;
+  --font:'Instrument Sans',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
   /* prairie palette */
   --blue-900:#0b3d6b; --blue-800:#10456f; --blue-700:#155a8a; --blue-600:#1d6ca5;
-  --gold:#e6b422; --gold-dark:#c99811; --wheat:#f6ecd2;
+  --gold:#e6b422; --gold-dark:#b8860b; --wheat:#f6ecd2;
   --mist:#f4f7fb; --sky:#eaf2f9;
-  --shadow-sm:0 1px 3px rgba(11,61,107,.08);
-  --shadow-md:0 8px 24px rgba(11,61,107,.12);
-  --shadow-lg:0 20px 50px rgba(11,61,107,.20);
+  /* Two-layer elevation, same discipline as base: a tight contact shadow plus
+     a wide, very low-alpha ambient. Tinted with the brand blue rather than
+     black so it reads as light in a room, not a dropped rectangle. */
+  --shadow-sm:0 1px 2px rgba(11,61,107,.06), 0 6px 16px -8px rgba(11,61,107,.14);
+  --shadow-md:0 2px 5px rgba(11,61,107,.07), 0 20px 40px -22px rgba(11,61,107,.26);
+  --shadow-lg:0 4px 12px rgba(11,61,107,.09), 0 44px 84px -38px rgba(11,61,107,.42);
+  /* Hairlines for use INSIDE the dark blue bands, where the light-theme
+     --hairline (derived from a pale --line) would be invisible. */
+  --pr-rule:rgba(255,255,255,.17);
+  --pr-rule-soft:rgba(255,255,255,.10);
+  /* Horizon band height — the skyline is squashed to this, and the hero pads
+     itself by the same amount so nothing ever sits on it. */
+  --pr-horizon:26px;
 }
 .theme-prairie{background:var(--bg);color:var(--fg)}
-.theme-prairie h1,.theme-prairie h2,.theme-prairie h3,.theme-prairie h4{font-weight:800;letter-spacing:-.02em;color:var(--fg)}
-.theme-prairie .eyebrow{color:var(--gold-dark)}
+.theme-prairie h1,.theme-prairie h2,.theme-prairie h3,.theme-prairie h4{
+  font-weight:700;letter-spacing:-.022em;color:var(--fg)}
+.theme-prairie .eyebrow{color:var(--gold-dark);font-family:var(--font-mono);font-weight:500}
 .theme-prairie .eyebrow.gold{color:var(--gold)}
 
 /* buttons: gold primary (warm CTA), blue-outline ghost */
-.theme-prairie .btn{border-radius:10px;font-weight:700}
-.theme-prairie .btn-primary{background:var(--gold);color:var(--blue-900)}
-.theme-prairie .btn-primary:hover{background:var(--gold-dark);box-shadow:0 8px 18px rgba(230,180,34,.35);filter:none}
-.theme-prairie .btn-ghost{background:transparent;color:var(--blue-900);border:1.5px solid var(--line)}
-.theme-prairie .btn-ghost:hover{border-color:var(--blue-600);color:var(--blue-900)}
+.theme-prairie .btn{border-radius:10px;font-weight:600;letter-spacing:.005em}
+.theme-prairie .btn-primary{background:var(--gold);color:#3d2a00;
+  box-shadow:0 1px 2px rgba(11,61,107,.10), 0 12px 26px -14px rgba(230,180,34,.75)}
+.theme-prairie .btn-primary:hover{background:#f0c33d;filter:none;transform:translateY(-1px);
+  box-shadow:0 2px 4px rgba(11,61,107,.12), 0 18px 34px -16px rgba(230,180,34,.8)}
+.theme-prairie .btn-ghost{background:transparent;color:var(--blue-900);border:1px solid var(--field-line)}
+.theme-prairie .btn-ghost:hover{border-color:var(--blue-600);color:var(--blue-900);background:var(--mist)}
 
-/* ===== Header (light, sticky, gold-accented cart) ===== */
-.theme-prairie .site-header{background:rgba(255,255,255,.94);border-bottom:1px solid var(--line)}
-.theme-prairie .pr-brand{display:inline-flex;align-items:center;gap:11px}
-.theme-prairie .pr-brand-txt{display:flex;flex-direction:column;line-height:1.05}
-.theme-prairie .brand .brand-name{font-weight:900;font-size:20px;color:var(--blue-900);letter-spacing:-.03em}
-.theme-prairie .pr-brand-txt small{font-size:10.5px;font-weight:700;letter-spacing:.13em;color:var(--gold-dark);text-transform:uppercase}
-.theme-prairie .nav-links a{color:var(--muted);font-weight:600;font-size:14.5px}
+/* ===== Header ===== */
+.theme-prairie .site-header{background:color-mix(in srgb,#fff 88%,transparent);border-bottom:1px solid var(--hairline)}
+.theme-prairie .pr-brand{display:inline-flex;align-items:center;gap:11px;min-width:0}
+.theme-prairie .pr-brand-txt{display:flex;flex-direction:column;line-height:1.08;min-width:0}
+.theme-prairie .brand .brand-name{font-weight:700;font-size:var(--fs-md);color:var(--blue-900);letter-spacing:-.03em}
+.theme-prairie .pr-brand-txt small{font-size:var(--fs-3xs);font-weight:700;
+  letter-spacing:.11em;color:var(--gold-dark);text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-prairie .nav-links a{color:var(--muted);font-weight:600}
 .theme-prairie .nav-links a:hover{color:var(--blue-800)}
-.theme-prairie .cart-btn{background:var(--mist);border:1px solid var(--line);width:46px;height:46px;border-radius:12px;color:var(--blue-800);font-size:18px}
+/* Prairie's brandmark carries a two-line lockup and the CTA reads "Shop
+   Peptides", so the inline nav has ~75px less room than the base assumes.
+   Tightening the rail here keeps every label whole instead of letting the
+   scroll container clip one mid-word. */
+@media (min-width:48rem){
+  .theme-prairie .nav-links{gap:0}
+  .theme-prairie .nav-links a{padding:0 5px;font-size:var(--fs-xs);letter-spacing:0}
+  .theme-prairie .nav-actions .btn{padding:11px 16px}
+}
+.theme-prairie .cart-btn{background:var(--mist);border:1px solid var(--hairline);border-radius:12px;color:var(--blue-800)}
 .theme-prairie .cart-btn:hover{background:var(--sky);border-color:var(--blue-600)}
-.theme-prairie .cart-count{background:var(--gold);color:var(--blue-900);font-weight:800;border:2px solid #fff}
+.theme-prairie .cart-count{background:var(--gold);color:#3d2a00;font-weight:700;box-shadow:0 0 0 2px #fff}
+/* Nav rail: base centres the inline links, which means an overflowing rail is
+   clipped at BOTH ends and the first label reads as a fragment. Start-aligned
+   between 48 and 80rem so the rail degrades into an honest scroll strip; it
+   fits and re-centres at 80rem. */
+@media (min-width:48rem){ .theme-prairie .nav-links{justify-content:flex-start} }
+@media (min-width:80rem){ .theme-prairie .nav-links{justify-content:center} }
+/* Base opens the nav row to --sp-4 at 64rem; this brandmark + CTA pair needs
+   the density one step tighter for every label to survive. */
+@media (min-width:64rem){ .theme-prairie .nav{gap:var(--sp-3)} }
+
+@media (min-width:36rem){
+  .theme-prairie .brand .brand-name{font-size:var(--fs-lg)}
+}
 
 /* ===== Announcement bar (blue band) ===== */
-.theme-prairie .announcement{background:var(--blue-900);border-bottom:none;color:#fff}
-.theme-prairie .announcement .ann-track span{border-right:1px solid rgba(255,255,255,.18)}
+.theme-prairie .announcement{background:var(--blue-900);border-bottom:none;color:#c9dcec}
+.theme-prairie .announcement .ann-track span{border-right:1px solid var(--pr-rule)}
 .theme-prairie .announcement b{color:var(--gold)}
 
-/* ===== Hero (blue band + prairie skyline) ===== */
+/* ============================================================
+   HERO — type and structure lead; the horizon is a whisper.
+   The sun and skyline are hand-rolled SVG in the template. They are not
+   removable, so they are re-tuned here rather than decorated around:
+     · the hard-edged sun disc is dropped; only the soft light wash survives
+     · the two jagged skyline paths are squashed to a low horizon band and
+       repainted to near-zero contrast, so they read as a landform edge and a
+       transition into the wheat strip below, not as clip art
+   ============================================================ */
 .theme-prairie .hero{position:relative;overflow:hidden;padding:0;
-  background:linear-gradient(160deg,#0b3d6b 0%,#10456f 45%,#155a8a 100%);color:#fff}
-.theme-prairie .hero-sky{position:absolute;inset:0;z-index:0}
+  background:linear-gradient(168deg,#0a3358 0%,#0e4472 48%,#155a8a 100%);color:#fff}
+.theme-prairie .hero-sky{position:absolute;inset:0;z-index:0;opacity:.8}
+/* CSS beats an SVG presentation attribute, so the disc can simply go. */
+.theme-prairie .hero-sky circle{display:none}
 .theme-prairie .hero .wrap{position:relative;z-index:2}
-.theme-prairie .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding:64px 0 130px}
-.theme-prairie .pr-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(230,180,34,.16);border:1px solid rgba(230,180,34,.4);color:var(--gold);font-size:12.5px;font-weight:700;padding:7px 15px;border-radius:22px;letter-spacing:.04em;margin-bottom:22px}
-.theme-prairie .hero h1{font-size:clamp(34px,5vw,56px);color:#fff;font-weight:900;letter-spacing:-.03em}
-.theme-prairie .hero .grad{color:var(--gold);-webkit-text-fill-color:var(--gold);background:none}
-.theme-prairie .hero .lead{font-size:18px;color:#d6e6f3;margin:20px 0 28px;max-width:560px}
-.theme-prairie .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
-.theme-prairie .hero .btn-ghost{color:#fff;border-color:rgba(255,255,255,.4)}
-.theme-prairie .hero .btn-ghost:hover{background:rgba(255,255,255,.12);border-color:#fff;color:#fff}
-.theme-prairie .trust-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:10px}
-.theme-prairie .trust-item{display:flex;align-items:center;gap:9px;font-size:13.5px;color:#cfe1f1;font-weight:600}
-.theme-prairie .hero-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:26px;backdrop-filter:blur(8px);box-shadow:var(--shadow-lg)}
-.theme-prairie .hero-card h3{color:#fff;font-size:17px;margin-bottom:4px}
-.theme-prairie .hero-card .pr-sub{color:#bcd4e8;font-size:13px;margin-bottom:18px}
-.theme-prairie .promo-tile{background:linear-gradient(135deg,var(--gold),var(--gold-dark));border-radius:14px;padding:18px 20px;color:var(--blue-900);display:flex;align-items:center;justify-content:space-between;gap:12px}
-.theme-prairie .promo-tile .code{font-size:22px;font-weight:900;letter-spacing:.04em}
-.theme-prairie .promo-tile .pct{font-size:26px;font-weight:900}
-.theme-prairie .promo-tile .lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.8}
-.theme-prairie .hero-card .fineprint{font-size:11.5px;color:#a9c6dd;margin-top:16px;text-align:center}
-.theme-prairie .skyline{position:absolute;left:0;right:0;bottom:-1px;z-index:1;width:100%;height:auto}
 
-/* Hero product vial: blue-tinted vial sits on a light wheat/mist panel so it
-   reads against the deep-blue band; the launch-offer card floats at the corner. */
-.theme-prairie .hero-figure{position:relative;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(160deg,#ffffff 0%,var(--sky) 62%,var(--wheat) 100%);
-  border:1px solid rgba(255,255,255,.55);border-radius:24px;padding:34px 34px 44px;
-  box-shadow:var(--shadow-lg)}
-.theme-prairie .hero-figure .hero-vial{max-width:280px;filter:drop-shadow(0 22px 40px rgba(11,61,107,.35))}
-.theme-prairie .hero-figure .hero-card{position:absolute;right:-16px;bottom:-22px;width:250px;max-width:66%;
-  background:linear-gradient(150deg,var(--blue-800),var(--blue-900));
-  border:1px solid rgba(230,180,34,.4);border-radius:18px;padding:18px 18px;backdrop-filter:none}
-.theme-prairie .hero-figure .hero-card h3{font-size:15.5px}
-.theme-prairie .hero-figure .hero-card .pr-sub{font-size:12px;margin-bottom:14px}
-.theme-prairie .hero-figure .promo-tile{padding:14px 16px}
-.theme-prairie .hero-figure .promo-tile .code{font-size:19px}
-.theme-prairie .hero-figure .promo-tile .pct{font-size:22px}
-@media(max-width:860px){.theme-prairie .hero-grid{grid-template-columns:1fr;gap:30px;padding:44px 0 120px}
-  .theme-prairie .hero-figure{max-width:440px;margin:0 auto;padding:28px 24px 34px}
-  .theme-prairie .hero-figure .hero-card{position:static;width:100%;max-width:none;margin-top:20px}}
+.theme-prairie .hero-grid{display:grid;grid-template-columns:minmax(0,1fr);
+  gap:var(--sp-6);align-items:center;
+  padding-block:var(--sp-section) calc(var(--sp-section) + var(--pr-horizon))}
+
+.theme-prairie .pr-badge{display:inline-flex;align-items:center;gap:9px;
+  background:transparent;border:1px solid color-mix(in srgb,var(--gold) 42%,transparent);
+  color:var(--gold);font-family:var(--font-mono);font-size:var(--fs-3xs);font-weight:500;
+  padding:7px 14px;border-radius:var(--radius-pill);letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:var(--sp-4)}
+.theme-prairie .pr-badge svg{flex:none}
+
+.theme-prairie .hero h1{font-size:var(--fs-4xl);line-height:1.02;color:#fff;font-weight:700;
+  letter-spacing:-.032em;max-width:15ch}
+.theme-prairie .hero .grad{color:var(--gold);-webkit-text-fill-color:var(--gold);background:none}
+.theme-prairie .hero .lead{font-size:var(--fs-lg);color:#c6dcee;line-height:1.55;
+  margin:var(--sp-3) 0 var(--sp-5);max-width:46ch}
+.theme-prairie .hero-cta{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-5)}
+.theme-prairie .hero .btn-ghost{color:#fff;border-color:var(--pr-rule);background:rgba(255,255,255,.04)}
+.theme-prairie .hero .btn-ghost:hover{background:rgba(255,255,255,.11);border-color:#fff;color:#fff}
+
+/* Trust ledger — hairline-ruled rows on a phone, a shared-rule three-up above.
+   Small, tracked, confident: a spec list, not a badge row. */
+.theme-prairie .trust-row{display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+  margin-top:var(--sp-2);border-top:1px solid var(--pr-rule)}
+.theme-prairie .trust-item{display:flex;align-items:center;gap:10px;
+  padding:11px 0;border-bottom:1px solid var(--pr-rule-soft);
+  font-size:var(--fs-2xs);color:#cfe1f1;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase}
+.theme-prairie .trust-item svg{flex:none}
+
+/* ---- Hero plate. Double bezel: a near-white tray with a hairline, holding the
+   framed figure. Reads as an object on the bench even with no photograph. */
+.theme-prairie .hero-figure{position:relative;display:block;
+  background:linear-gradient(166deg,#ffffff 0%,#eef4fa 100%);
+  border:1px solid rgba(255,255,255,.6);border-radius:calc(var(--radius) + 8px);
+  padding:var(--bezel);box-shadow:var(--shadow-lg)}
+.theme-prairie .hero-figure .hero-vid-frame{max-width:none;border-radius:var(--radius);
+  /* Landscape on a phone: base's 43/54 portrait puts a 430px-tall plate under
+     the fold before the visitor reaches anything else. The portrait crop is
+     restored at 64rem, where the figure has its own column to fill. */
+  aspect-ratio:16/11;
+  background:#dfe9f2;box-shadow:inset 0 0 0 1px rgba(11,61,107,.10)}
+.theme-prairie .hero-figure .hero-vial{filter:none;box-shadow:none}
+
+/* Launch-offer card: in flow beneath the plate on a phone, floated at the
+   corner from 64rem. Solid gold tile — no gradient, no glass. */
+.theme-prairie .hero-card{position:relative;margin-top:var(--sp-3);
+  background:linear-gradient(160deg,var(--blue-800),var(--blue-900));
+  border:1px solid rgba(230,180,34,.34);border-radius:var(--radius);
+  padding:var(--sp-3);box-shadow:var(--shadow-md);backdrop-filter:none}
+.theme-prairie .hero-card h3{color:#fff;font-size:var(--fs-sm);letter-spacing:-.01em;margin-bottom:3px}
+.theme-prairie .hero-card .pr-sub{color:#a9c6dd;font-size:var(--fs-2xs);margin-bottom:var(--sp-3);line-height:1.5}
+.theme-prairie .promo-tile{background:var(--gold);border-radius:calc(var(--radius) - 4px);
+  padding:var(--sp-2) var(--sp-3);color:#3d2a00;display:flex;align-items:center;
+  justify-content:space-between;gap:var(--sp-2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.theme-prairie .promo-tile .code{font-family:var(--font-mono);font-size:var(--fs-lg);font-weight:600;letter-spacing:.04em}
+.theme-prairie .promo-tile .pct{font-family:var(--font-mono);font-size:var(--fs-xl);font-weight:600;line-height:1}
+.theme-prairie .promo-tile .lbl{font-size:var(--fs-3xs);font-weight:700;text-transform:uppercase;
+  letter-spacing:.12em;opacity:.72}
+.theme-prairie .hero-card .fineprint{font-family:var(--font-mono);font-size:var(--fs-3xs);
+  color:#9dbdd6;margin-top:var(--sp-2);text-align:center;letter-spacing:.04em}
+
+/* ---- The horizon. Squashed to a low band and repainted: the upper landform
+   is a barely-there darker blue, the lower one is the wheat strip that follows,
+   so the hero dissolves into the next band instead of stopping at a zigzag. */
+.theme-prairie .skyline{position:absolute;left:0;right:0;bottom:-1px;z-index:1;
+  width:100%;height:var(--pr-horizon);display:block}
+.theme-prairie .skyline path:first-child{fill:#062843;opacity:.34}
+.theme-prairie .skyline path:last-child{fill:var(--wheat)}
+
+@media (min-width:36rem){
+  /* Vertical rules between cells rather than a painted gap, so the hero's
+     gradient stays continuous behind the ledger. */
+  .theme-prairie .trust-row{grid-template-columns:repeat(3,minmax(0,1fr));
+    border-bottom:1px solid var(--pr-rule)}
+  .theme-prairie .trust-item{border-bottom:0;padding:13px var(--sp-2) 13px 0}
+  .theme-prairie .trust-item+.trust-item{padding-left:var(--sp-3);
+    border-left:1px solid var(--pr-rule-soft)}
+}
+@media (min-width:48rem){
+  .theme-prairie{--pr-horizon:34px}
+  .theme-prairie .hero h1{max-width:13ch}
+}
+@media (min-width:64rem){
+  .theme-prairie{--pr-horizon:44px}
+  .theme-prairie .hero-grid{grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);
+    gap:clamp(36px,4.4vw,68px)}
+  /* justify-self, not an auto margin: an auto margin on a grid item switches
+     the item off `stretch` and it collapses to fit-content (a 12px-wide bezel
+     with nothing in it, which is exactly what happened). */
+  .theme-prairie .hero-figure{width:100%;max-width:420px;justify-self:end}
+  .theme-prairie .hero-figure .hero-vid-frame{aspect-ratio:43/54}
+  /* Corner-hung offer card, overlapping the plate's bottom-right bezel. */
+  .theme-prairie .hero-figure .hero-card{position:absolute;right:calc(var(--sp-4) * -1);
+    bottom:calc(var(--sp-5) * -1);width:255px;max-width:72%;margin-top:0;z-index:3}
+}
+@media (min-width:80rem){
+  .theme-prairie{--pr-horizon:52px}
+}
 
 /* ===== Value strip (wheat band) ===== */
-.theme-prairie .strip{background:var(--wheat);border-bottom:1px solid #eaddb8}
-.theme-prairie .strip-inner{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 40px;padding:16px 22px}
-.theme-prairie .strip-item{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;color:var(--blue-900)}
+.theme-prairie .strip{background:var(--wheat);border-bottom:1px solid #e6d5ab}
+.theme-prairie .strip-inner{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding:0}
+.theme-prairie .strip-item{display:flex;align-items:center;gap:10px;
+  padding:12px 0;border-bottom:1px solid rgba(11,61,107,.10);
+  font-size:var(--fs-3xs);font-weight:700;color:var(--blue-900);
+  letter-spacing:.12em;text-transform:uppercase}
+.theme-prairie .strip-item:last-child{border-bottom:0}
+.theme-prairie .strip-item svg{flex:none}
+@media (min-width:36rem){
+  .theme-prairie .strip-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--sp-4)}
+}
+@media (min-width:64rem){
+  .theme-prairie .strip-inner{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 var(--sp-3)}
+  .theme-prairie .strip-item{border-bottom:0;padding:16px 0;justify-content:center}
+}
 
-/* ===== Section heads on light body ===== */
-.theme-prairie .catalogue .section-head h2,.theme-prairie .quality .section-head h2,.theme-prairie .contact .section-head h2{color:var(--fg)}
+/* ===== Section heads on the light body ===== */
+.theme-prairie .catalogue .section-head h2,.theme-prairie .quality .section-head h2,
+.theme-prairie .contact .section-head h2{color:var(--fg)}
 .theme-prairie .catalogue{background:var(--bg)}
 
 /* ===== Category filter ===== */
-.theme-prairie .cat-chip{background:#fff;border:1.5px solid var(--line);color:var(--muted);font-weight:700;border-radius:22px}
-.theme-prairie .cat-chip:hover{border-color:var(--blue-600);color:var(--blue-800);background:#fff}
+.theme-prairie .cat-chip{background:#fff;border:1px solid var(--hairline);color:var(--muted);font-weight:700}
+.theme-prairie .cat-chip:hover{border-color:var(--blue-600);color:var(--blue-800);background:var(--mist)}
 .theme-prairie .cat-chip.is-active{background:var(--blue-800);border-color:var(--blue-800);color:#fff}
 
 /* ===== Product cards (light) ===== */
-.theme-prairie .pcard{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
-.theme-prairie .pcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:#cfe0ef}
-.theme-prairie .pcard-media{background:radial-gradient(circle at 50% 30%,#f3f8fd,#e7f0f8);border-bottom:1px solid var(--line)}
-.theme-prairie .pcard-new{background:var(--gold);color:var(--blue-900);font-weight:800}
-.theme-prairie .pcard-cat{color:var(--blue-600)}
+.theme-prairie .pcard{background:#fff;border:1px solid var(--hairline);box-shadow:var(--shadow-sm)}
+.theme-prairie .pcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:#c7dcee}
+.theme-prairie .pcard-media{background:linear-gradient(166deg,#f5f9fd,#e4eef7)}
+.theme-prairie .pcard-new{background:var(--gold);color:#3d2a00;font-weight:700}
+.theme-prairie .pcard-cat{color:var(--blue-600);font-family:var(--font-mono);font-weight:500}
 .theme-prairie .pcard-name{color:var(--fg)}
 .theme-prairie .pcard-desc{color:var(--muted)}
-.theme-prairie .pcard-price{color:var(--blue-900)}
-.theme-prairie .pcard-stock{border-color:var(--line)}
-.theme-prairie .pcard-stock.in{color:var(--green,#1f9d55)}
-.theme-prairie .chip{background:var(--mist);border:1px solid var(--line);color:var(--blue-800);border-radius:7px}
-.theme-prairie .chip.pur{background:var(--sky);color:var(--blue-700);border-color:#cfe0ef}
-.theme-prairie .pcard-actions .btn-primary{background:var(--blue-800);color:#fff}
-.theme-prairie .pcard-actions .btn-primary:hover{background:var(--gold);color:var(--blue-900)}
+.theme-prairie .pcard-price{color:var(--blue-900);font-family:var(--font-mono);font-weight:600}
+.theme-prairie .pcard-stock{border-color:var(--hairline);font-family:var(--font-mono);font-weight:500}
+.theme-prairie .pcard-stock.in{color:#1f8a52}
+.theme-prairie .chip{background:var(--mist);border:1px solid var(--hairline);color:var(--blue-800);border-radius:7px}
+.theme-prairie .chip.pur{background:var(--sky);color:var(--blue-700);border-color:#cbdeee;font-family:var(--font-mono)}
+.theme-prairie .pcard-actions .btn-primary{background:var(--blue-800);color:#fff;box-shadow:var(--shadow-sm)}
+.theme-prairie .pcard-actions .btn-primary:hover{background:var(--gold);color:#3d2a00}
 
 /* ===== Quality (mist band) ===== */
-.theme-prairie .quality{background:var(--mist);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.theme-prairie .q-item{background:#fff;border:1px solid var(--line);padding:26px 22px}
-.theme-prairie .q-item:hover{box-shadow:var(--shadow-sm);border-color:#cfe0ef}
+.theme-prairie .quality{background:var(--mist);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
+.theme-prairie .q-item{background:#fff;border:1px solid var(--hairline)}
+.theme-prairie .q-item::before{background:var(--mist)}
+.theme-prairie .q-item:hover{box-shadow:var(--shadow-sm);border-color:#c7dcee}
 .theme-prairie .q-item h3{color:var(--blue-900)}
 .theme-prairie .q-item p{color:var(--muted)}
 
 /* ===== Reviews (light) ===== */
 .theme-prairie .reviews{background:var(--bg)}
-.theme-prairie .review{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
-.theme-prairie .review .stars{color:var(--gold)}
+.theme-prairie .review{background:#fff;border:1px solid var(--hairline);box-shadow:var(--shadow-sm)}
+.theme-prairie .review::before{background:var(--mist)}
+.theme-prairie .review .stars{color:var(--gold-dark)}
 .theme-prairie .review blockquote{color:var(--fg)}
 .theme-prairie .review figcaption{color:var(--muted)}
 
-/* ===== Local / prairie band (blue + skyline) ===== */
-.theme-prairie .local{position:relative;overflow:hidden;background:linear-gradient(150deg,#0b3d6b,#10456f);color:#fff}
-.theme-prairie .local-sky{position:absolute;left:0;right:0;top:-1px;width:100%;height:auto;z-index:1;transform:rotate(180deg)}
-.theme-prairie .local-inner{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-.theme-prairie .local h2{color:#fff;font-size:clamp(26px,3.4vw,36px)}
-.theme-prairie .local p{color:#cfe1f1;font-size:16px;margin-top:14px}
-.theme-prairie .cities{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
-.theme-prairie .city-pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:22px;padding:8px 16px;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
-.theme-prairie .city-pill svg{color:var(--gold)}
-.theme-prairie .local-stats{display:grid;grid-template-columns:1fr 1fr;gap:26px 30px}
-.theme-prairie .lstat b{display:block;font-size:32px;font-weight:900;color:var(--gold)}
-.theme-prairie .lstat span{font-size:12.5px;color:#bcd4e8;font-weight:600}
-@media(max-width:860px){.theme-prairie .local-inner{grid-template-columns:1fr;gap:28px}}
+/* ============================================================
+   Local / prairie band — blue, with the same restrained horizon on top
+   ============================================================ */
+.theme-prairie .local{position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#0a3358,#10456f);color:#fff;
+  padding-block:calc(var(--sp-section) + var(--pr-horizon)) var(--sp-section)}
+.theme-prairie .local-sky{position:absolute;left:0;right:0;top:-1px;z-index:1;
+  width:100%;height:var(--pr-horizon);transform:rotate(180deg);display:block}
+.theme-prairie .local-sky path{fill:#fff;opacity:.045}
+.theme-prairie .local-inner{position:relative;z-index:2;
+  display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-6);align-items:start}
+.theme-prairie .local h2{color:#fff;font-size:var(--fs-2xl);max-width:18ch}
+.theme-prairie .local p{color:#c6dcee;font-size:var(--fs-sm);line-height:1.75;margin-top:var(--sp-3);max-width:62ch}
+.theme-prairie .cities{display:flex;flex-wrap:wrap;gap:var(--sp-1);margin-top:var(--sp-4)}
+.theme-prairie .city-pill{background:rgba(255,255,255,.06);border:1px solid var(--pr-rule);
+  border-radius:var(--radius-pill);padding:8px 15px;font-size:var(--fs-2xs);font-weight:600;
+  letter-spacing:.06em;display:inline-flex;align-items:center;gap:8px}
+.theme-prairie .city-pill svg{color:var(--gold);flex:none}
+/* Stat ledger — 1px grid gap over a rule colour paints shared dividers. */
+.theme-prairie .local-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+  background:var(--pr-rule-soft);border:1px solid var(--pr-rule);border-radius:var(--radius);overflow:hidden}
+.theme-prairie .lstat{padding:var(--sp-3);background:#0c3b62}
+.theme-prairie .lstat b{display:block;font-family:var(--font-mono);font-size:var(--fs-xl);
+  font-weight:600;color:var(--gold);line-height:1.1;letter-spacing:-.01em}
+.theme-prairie .lstat span{display:block;margin-top:6px;font-size:var(--fs-3xs);color:#a9c6dd;
+  font-weight:700;letter-spacing:var(--track-label);text-transform:uppercase}
+@media (min-width:64rem){
+  .theme-prairie .local-inner{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+    gap:clamp(36px,4.4vw,64px);align-items:center}
+}
 
 /* ===== Contact (light) ===== */
-.theme-prairie .contact{background:var(--mist);border-top:1px solid var(--line)}
-.theme-prairie .contact-form input,.theme-prairie .contact-form textarea{background:#fff;border:1px solid var(--line);color:var(--fg)}
-.theme-prairie .contact-form input::placeholder,.theme-prairie .contact-form textarea::placeholder{color:#9aa9ba}
+.theme-prairie .contact{background:var(--mist);border-top:1px solid var(--hairline)}
+.theme-prairie .contact-form input,.theme-prairie .contact-form textarea{background:#fff;color:var(--fg)}
+.theme-prairie .contact-form input::placeholder,.theme-prairie .contact-form textarea::placeholder{color:#8fa1b4}
+
+/* ===== Long-form / detail pages ===== */
+.theme-prairie .pdp-price,.theme-prairie .pdp-rail-price,.theme-prairie .cart-subtotal,
+.theme-prairie .ostatus-total,.theme-prairie .calc-v,.theme-prairie .region-facts b,
+.theme-prairie .pdp-bulk,.theme-prairie .pdp-rail-facts dd{font-family:var(--font-mono);font-weight:600}
+.theme-prairie .pdp-cat{font-family:var(--font-mono);color:var(--blue-600)}
+.theme-prairie .rw-code{font-family:var(--font-mono)}
 
 /* ===== Footer (deep blue) ===== */
-.theme-prairie .site-footer{background:var(--blue-900);border-top:none;color:#cfe1f1}
+.theme-prairie .site-footer{background:var(--blue-900);border-top:none;color:#c6dcee}
 .theme-prairie .site-footer .brand-name{color:#fff}
+.theme-prairie .site-footer .footer-grid strong{color:#fff}
 .theme-prairie .footer-grid p,.theme-prairie .foot-fruo{color:#a9c6dd}
+.theme-prairie .foot-policies a{color:#a9c6dd}
+.theme-prairie .foot-policies a:hover{color:var(--gold)}
 .theme-prairie .foot-contact{color:var(--gold)}
-.theme-prairie .foot-bottom{border-top:1px solid rgba(255,255,255,.14);color:#8fafc9}
+.theme-prairie .foot-customs{color:#8fafc9}
+.theme-prairie .site-footer .ship-notice{border-color:rgba(230,180,34,.3);
+  border-left-color:var(--gold);background:rgba(230,180,34,.08);color:#e7f0f8}
+.theme-prairie .foot-bottom{border-top:1px solid var(--pr-rule);color:#8fafc9;font-family:var(--font-mono)}
 
 /* ===== Age gate (blue overlay, white card) ===== */
-.theme-prairie .age-gate{background:linear-gradient(160deg,#0b3d6b,#10456f 60%,#155a8a);backdrop-filter:none}
-.theme-prairie .age-box{background:#fff;border:none;box-shadow:var(--shadow-lg)}
+.theme-prairie .age-gate{background:linear-gradient(160deg,#0a3358,#10456f 60%,#155a8a);backdrop-filter:none}
+.theme-prairie .age-box{background:#fff;border:1px solid var(--hairline);box-shadow:var(--shadow-lg)}
 .theme-prairie .age-box h2{color:var(--blue-900)}
 .theme-prairie .age-copy,.theme-prairie .age-check{color:var(--muted)}
 .theme-prairie .age-exit{color:var(--muted)}
 
 /* ===== Cart drawer (light) ===== */
-.theme-prairie .cart-drawer{background:#fff;border-left:1px solid var(--line)}
-.theme-prairie .cart-head,.theme-prairie .cart-item,.theme-prairie .cart-foot{border-color:var(--line)}
+.theme-prairie .cart-drawer{background:#fff;border-left:1px solid var(--hairline)}
+.theme-prairie .cart-head,.theme-prairie .cart-item,.theme-prairie .cart-foot{border-color:var(--hairline)}
 .theme-prairie .cart-close{color:var(--muted)}
-.theme-prairie .ci-qty button{background:var(--mist);border:1px solid var(--line);color:var(--blue-800)}
-.theme-prairie .cart-foot input{background:#fff;border:1px solid var(--line);color:var(--fg)}
-.theme-prairie .btn-checkout{background:var(--gold);color:var(--blue-900)}
+.theme-prairie .ci-qty button{background:var(--mist);color:var(--blue-800)}
+.theme-prairie .cart-foot{background:var(--mist)}
+.theme-prairie .cart-foot input{background:#fff;color:var(--fg)}
+.theme-prairie .btn-checkout{background:var(--gold);color:#3d2a00}
 
 /* ===== Cookie + toast ===== */
-.theme-prairie .cookie{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-lg)}
+.theme-prairie .cookie{background:#fff;border:1px solid var(--hairline);box-shadow:var(--shadow-lg)}
 .theme-prairie .cookie p{color:var(--muted)}
 .theme-prairie .toast{background:var(--blue-900);border:1px solid var(--blue-900);color:#fff}
 .theme-prairie .toast.show{opacity:1}
+
+/* ===== Motion ===== */
+@media (prefers-reduced-motion: no-preference){
+  .theme-prairie .hero-figure{animation:pr-plate .85s .1s var(--ease-spring) both}
+  .theme-prairie .hero-figure .hero-card{animation:pr-rise .7s .42s var(--ease-spring) both}
+  .theme-prairie .trust-row{animation:pr-rise .7s .26s var(--ease-out) both}
+  @keyframes pr-rise{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:none}}
+  @keyframes pr-plate{from{opacity:0;transform:translate3d(0,22px,0) scale(.99)}to{opacity:1;transform:none}}
+}

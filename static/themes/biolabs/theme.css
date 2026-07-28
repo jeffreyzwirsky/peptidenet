@@ -1,73 +1,239 @@
-/* Theme: biolabs — dark navy, blue→teal gradient (the SmashFat BioLabs flagship look) */
-.theme-biolabs{
-  --bg:#080c17; --fg:#eaf0fb; --muted:#93a2bd; --accent:#4f8ff7; --accent-ink:#04121a;
-  --card:#0f1728; --line:rgba(255,255,255,.09); --radius:16px;
-  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-}
-.theme-biolabs .btn-primary{background:linear-gradient(120deg,#4f8ff7,#37e0a6);box-shadow:0 8px 30px rgba(79,143,247,.25)}
-.theme-biolabs .grad{background:linear-gradient(120deg,#4f8ff7,#37e0a6);-webkit-background-clip:text;background-clip:text;color:transparent}
-.theme-biolabs .chip.pur{color:#37e0a6}
-.theme-biolabs .cat-chip.is-active,.theme-biolabs .cat-chip:hover{background:linear-gradient(120deg,#4f8ff7,#37e0a6);border-color:transparent}
+/* ============================================================================
+   Theme: biolabs — the SmashFat BioLabs flagship.
+   Near-black navy, blue→teal signal, IBM Plex Sans.
 
-/* --- Product card media on a near-black canvas ---
+   Direction: CLINICAL PRECISION. This is an instrument panel, not a landing
+   page. Character comes from hairlines, tabular mono data, macro whitespace and
+   one restrained gradient used as a signal — never as decoration.
+
+   Mobile-first: every rule here is the phone layout; the four min-width steps
+   (36/48/64/80rem) match base.css and only ever add. No max-width queries.
+   Motion: transform / opacity only, all inside prefers-reduced-motion.
+   ========================================================================== */
+
+.theme-biolabs{
+  --bg:#080c17; --fg:#eaf0fb; --muted:#8ea0bd; --accent:#4f8ff7; --accent-ink:#04121a;
+  --card:#0e1524; --line:rgba(174,203,255,.14); --radius:12px;
+  --font:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+
+  /* Theme-local palette. The teal is the second half of the signal gradient and
+     is the only colour allowed to compete with --accent. */
+  --teal:#37e0a6;
+  --ink-2:#b9c8e2;                                   /* body copy over dark    */
+  --plinth:#101a2e;                                  /* raised inner surface   */
+  --signal:linear-gradient(114deg,#4f8ff7 6%,#37e0a6 96%);
+  /* Hero display step. One step above --fs-4xl because the flagship's first
+     screen is allowed to be louder than any section head that follows it. */
+  --hero-display:clamp(41px, 26px + 4.4vw, 86px);
+}
+
+/* ---- Type ---------------------------------------------------------------- */
+.theme-biolabs h1,.theme-biolabs h2,.theme-biolabs h3{font-weight:600}
+.theme-biolabs .section-head h2{font-size:var(--fs-3xl);max-width:20ch}
+.theme-biolabs .section-head .sec-sub{color:var(--muted);font-size:var(--fs-sm);
+  margin-top:var(--sp-2);max-width:58ch;line-height:1.65}
+.theme-biolabs .eyebrow{color:var(--teal);font-weight:600;font-size:var(--fs-3xs)}
+/* The one gradient. Used on a single word in the H1 and nowhere else. */
+.theme-biolabs .grad{background:var(--signal);-webkit-background-clip:text;background-clip:text;
+  color:transparent}
+/* Technical data is set in the engineered mono — the cheapest credibility a
+   research-compound catalogue can buy. */
+.theme-biolabs .chip.pur,.theme-biolabs .pdp-attrs .chip.pur,
+.theme-biolabs .pdp-rail-facts dd,.theme-biolabs .pcard-price,
+.theme-biolabs .pdp-price,.theme-biolabs .region-facts b{
+  font-family:var(--font-mono);font-weight:600;letter-spacing:-.02em}
+.theme-biolabs .pcard-price span,.theme-biolabs .pdp-price span{font-family:var(--font)}
+
+/* ---- Buttons — signal fill, machined edge, no bloom ----------------------- */
+.theme-biolabs .btn-primary{
+  background:var(--signal);color:var(--accent-ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),
+             0 1px 2px rgba(2,6,14,.5),
+             0 10px 22px -14px rgba(79,143,247,.9);
+}
+.theme-biolabs .btn-primary:hover{filter:none;transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34),
+             0 2px 4px rgba(2,6,14,.5),
+             0 16px 30px -16px rgba(55,224,166,.85)}
+.theme-biolabs .btn-ghost{background:var(--tint-1);border-color:var(--hairline)}
+.theme-biolabs .btn-ghost:hover{border-color:color-mix(in srgb,var(--teal) 50%,var(--line));
+  background:var(--tint-2);color:var(--fg)}
+
+/* ---- Header + rails ------------------------------------------------------ */
+.theme-biolabs .site-header{background:color-mix(in srgb,var(--bg) 80%,transparent)}
+.theme-biolabs .brand-name{font-weight:600;letter-spacing:-.025em}
+.theme-biolabs .nav-links a{font-weight:500}
+.theme-biolabs .nav-links a:hover{color:var(--teal)}
+.theme-biolabs .announcement{background:color-mix(in srgb,#0b1322 88%,var(--bg))}
+.theme-biolabs .cat-chip.is-active,.theme-biolabs .cat-chip:hover{
+  background:var(--signal);color:var(--accent-ink);border-color:transparent}
+
+/* ============================================================
+   HERO — full-bleed photographic plate, copy anchored to its base.
+
+   The photograph is a layer, not the layout: the scrim, the rules and the
+   spec panel below carry the composition on their own, so a missing or
+   slow image degrades to a deliberate graded plate rather than a hole.
+   ============================================================ */
+.theme-biolabs .hero-photo{
+  position:relative;overflow:hidden;padding:0;
+  display:flex;align-items:flex-end;
+  min-height:clamp(520px, 82vh, 700px);
+  min-height:clamp(520px, 82svh, 700px);
+  /* Painted on the section itself so it exists with or without the photo. */
+  background:
+    radial-gradient(120% 78% at 82% 6%, rgba(79,143,247,.16), transparent 62%),
+    radial-gradient(96% 62% at 6% 96%, rgba(55,224,166,.10), transparent 60%),
+    var(--bg);
+}
+.theme-biolabs .hero-photo::before{display:none}
+/* A failed image must not dump 16px of alt text over the header. The alt
+   attribute is untouched, so assistive tech still reads it. */
+.theme-biolabs .hero-photo .hero-bg{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:64% 46%;z-index:0;font-size:0;color:transparent}
+.theme-biolabs .hero-photo .hero-scrim{position:absolute;inset:0;z-index:1;background:
+  linear-gradient(0deg,#080c17 6%,rgba(8,12,23,.92) 34%,rgba(8,12,23,.58) 66%,rgba(8,12,23,.34) 100%)}
+.theme-biolabs .hero-photo .hero-inner{position:relative;z-index:2;width:100%;
+  padding-block:var(--sp-section) var(--sp-6)}
+.theme-biolabs .hero-photo .hero-copy{max-width:34rem}
+
+.theme-biolabs .hero-photo .eyebrow{
+  display:inline-flex;align-items:center;gap:10px;margin:0;
+  letter-spacing:var(--track-label);text-transform:uppercase}
+.theme-biolabs .hero-photo .eyebrow::before{content:"";width:20px;height:1px;
+  background:currentColor;opacity:.55;flex:none}
+.theme-biolabs .hero-photo h1{
+  font-size:var(--hero-display);line-height:.98;letter-spacing:-.035em;font-weight:600;
+  margin:var(--sp-3) 0 0;max-width:13ch}
+.theme-biolabs .hero-photo .lead{
+  font-size:var(--fs-md);line-height:1.62;color:var(--ink-2);
+  max-width:46ch;margin:var(--sp-3) 0 0}
+.theme-biolabs .hero-photo .hero-cta{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-2);
+  margin:var(--sp-5) 0 0;max-width:24rem}
+.theme-biolabs .hero-photo .hero-cta .btn{width:100%}
+.theme-biolabs .hero-photo .hero-phone{margin:var(--sp-3) 0 0;font-size:var(--fs-xs)}
+.theme-biolabs .hero-photo .hero-phone a{color:var(--teal);font-weight:600;
+  font-family:var(--font-mono);letter-spacing:-.02em}
+
+/* The trust row is the hero's instrument panel: four cells sharing one border
+   box via a 1px grid gap, figures set in mono, labels tracked out small. It
+   holds the bottom of the composition whether or not the photo arrives. */
+.theme-biolabs .hero-photo .hero-trust{
+  list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1px;margin:var(--sp-5) 0 0;padding:0;border:0;max-width:34rem;
+  background:var(--hairline);
+  border-radius:calc(var(--radius) - 4px);overflow:hidden;
+  box-shadow:0 0 0 1px var(--hairline);
+}
+.theme-biolabs .hero-photo .hero-trust li{
+  display:flex;flex-direction:column;gap:3px;
+  padding:var(--sp-2) var(--sp-3) 13px;
+  background:color-mix(in srgb, var(--plinth) 76%, transparent);
+  font-size:var(--fs-3xs);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--muted);font-weight:600;line-height:1.3;
+}
+.theme-biolabs .hero-photo .hero-trust b{
+  font-family:var(--font-mono);font-size:var(--fs-md);font-weight:600;
+  letter-spacing:-.03em;color:var(--fg);text-transform:none}
+
+@media (min-width:36rem){
+  .theme-biolabs .hero-photo .hero-cta{grid-template-columns:repeat(2,auto);
+    justify-content:start;max-width:none}
+  .theme-biolabs .hero-photo .hero-cta .btn{width:auto}
+}
+@media (min-width:48rem){
+  .theme-biolabs .hero-photo{align-items:center;min-height:clamp(580px, 78svh, 720px)}
+  .theme-biolabs .hero-photo .hero-inner{padding-block:var(--sp-section)}
+  .theme-biolabs .hero-photo .hero-copy{max-width:40rem}
+  .theme-biolabs .hero-photo .hero-bg{object-position:74% 58%}
+  .theme-biolabs .hero-photo .hero-scrim{background:
+    linear-gradient(90deg,#080c17 0%,rgba(8,12,23,.95) 30%,rgba(8,12,23,.62) 56%,rgba(8,12,23,.14) 84%,transparent 100%),
+    linear-gradient(0deg,#080c17 2%,transparent 44%)}
+  .theme-biolabs .hero-photo .hero-trust{grid-template-columns:repeat(4,minmax(0,1fr));
+    max-width:44rem}
+  .theme-biolabs .hero-photo .lead{font-size:var(--fs-lg)}
+}
+@media (min-width:64rem){
+  .theme-biolabs .hero-photo{min-height:min(760px, 88svh)}
+  .theme-biolabs .hero-photo .hero-copy{max-width:44rem}
+  .theme-biolabs .hero-photo .hero-trust{margin-top:var(--sp-6)}
+}
+
+/* ---- Secondary hero (non-photographic pages) ----------------------------- */
+.theme-biolabs .hero{position:relative;overflow:hidden}
+.theme-biolabs .hero-grid{display:grid;grid-template-columns:minmax(0,1fr);
+  gap:var(--sp-5);align-items:center;position:relative}
+.theme-biolabs .hero h1{font-size:var(--fs-4xl);font-weight:600;letter-spacing:-.03em}
+.theme-biolabs .hero .lead{font-size:var(--fs-md);color:var(--ink-2);
+  margin:var(--sp-3) 0 var(--sp-5);max-width:46ch}
+.theme-biolabs .hero-cta{display:flex;gap:var(--sp-2);flex-wrap:wrap}
+@media (min-width:64rem){
+  .theme-biolabs .hero-grid{grid-template-columns:1.15fr .85fr;gap:var(--sp-6)}
+}
+
+/* ============================================================
+   Product card — dark plinth, machined edge
    base.css ships .pcard-media as a light-silver gradient, which suits the pale
    themes but turned this #080c17 catalogue into a grid of bright grey tiles.
-   Rebuild it as a dark plinth: a top hairline highlight so the tile reads as a
-   lit surface, then the brand blue/teal bloom behind the product. Gradients
-   only — no blur or filter on a surface this large. */
+   ============================================================ */
+.theme-biolabs .pcard{box-shadow:var(--elev-1), inset 0 1px 0 rgba(255,255,255,.05)}
+.theme-biolabs .pcard:hover{border-color:color-mix(in srgb,var(--teal) 40%,var(--line));
+  box-shadow:var(--elev-2), inset 0 1px 0 rgba(255,255,255,.08)}
 .theme-biolabs .pcard-media{
   background:
-    linear-gradient(180deg,rgba(255,255,255,.07),transparent 34%),
-    radial-gradient(120% 92% at 50% 10%,rgba(79,143,247,.20),transparent 62%),
+    linear-gradient(180deg,rgba(255,255,255,.06),transparent 32%),
+    radial-gradient(120% 92% at 50% 8%,rgba(79,143,247,.20),transparent 62%),
     radial-gradient(92% 72% at 78% 96%,rgba(55,224,166,.13),transparent 60%),
-    linear-gradient(165deg,#121d33,#0b1120 60%,#070b14);
-  border-bottom:1px solid rgba(255,255,255,.07);
+    linear-gradient(165deg,#12203a,#0b1120 60%,#070b14);
+  box-shadow:inset 0 0 0 1px var(--hairline-soft), inset 0 1px 0 rgba(255,255,255,.06);
 }
-/* Grounds the vial so it sits on the plinth instead of floating on it.
-   Small element, so the drop-shadow costs nothing measurable. */
-.theme-biolabs .pcard-media .vial{filter:drop-shadow(0 16px 22px rgba(0,0,0,.55))}
+/* The product renders are shot on a light silver sweep, which on a #080c17 page
+   reads as a grid of glowing tiles. A vignette gradient (paint only — no filter,
+   no blur) settles them into the card without touching the product itself. */
+.theme-biolabs .pcard-media::after,
+.theme-biolabs .pdp-media::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  border-radius:inherit;
+  background:
+    radial-gradient(120% 96% at 50% 30%, transparent 26%, rgba(8,12,23,.58) 100%),
+    linear-gradient(180deg, rgba(8,12,23,.12), rgba(8,12,23,.38));
+}
+/* Grounds the vial so it sits on the plinth instead of floating on it. */
+.theme-biolabs .pcard-media .vial{filter:drop-shadow(0 14px 20px rgba(0,0,0,.55))}
 /* Photography needs less bloom behind it than the illustrated vial does. */
-.theme-biolabs .pcard-media:has(.pcard-photo){background:linear-gradient(165deg,#121d33,#070b14)}
-/* Inner top highlight gives the card a machined edge rather than a flat panel. */
-.theme-biolabs .pcard{box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}
-.theme-biolabs .pcard:hover{box-shadow:var(--elev-2),inset 0 1px 0 rgba(255,255,255,.07)}
+.theme-biolabs .pcard-media:has(.pcard-photo){background:linear-gradient(165deg,#12203a,#070b14)}
+.theme-biolabs .pcard-name{font-weight:600;letter-spacing:-.025em}
+.theme-biolabs .chip.pur{color:var(--teal);
+  border-color:color-mix(in srgb,var(--teal) 34%,var(--line))}
+.theme-biolabs .pcard-new{background:var(--signal);color:var(--accent-ink)}
 
-.hero{padding:90px 0 70px;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 340px at 12% 10%,rgba(79,143,247,.16),transparent 60%),radial-gradient(560px 380px at 92% 30%,rgba(55,224,166,.12),transparent 60%)}
-.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;position:relative}
-.hero h1{font-size:clamp(42px,6vw,80px);font-weight:900}
-.hero .lead{font-size:18px;color:var(--muted);margin:22px 0 30px;max-width:520px}
-.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
-.purity-card{background:linear-gradient(160deg,rgba(20,30,52,.9),rgba(12,20,36,.9));border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:32px;position:relative;overflow:hidden}
-.pc-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.pc-big{font-size:60px;font-weight:900;line-height:1;margin:10px 0 4px;background:linear-gradient(120deg,#4f8ff7,#37e0a6);-webkit-background-clip:text;background-clip:text;color:transparent}
-.pc-sub{color:var(--muted);font-size:14px;margin-bottom:22px}
-.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid var(--line);padding-top:20px}
-.pc-num{font-size:22px;font-weight:800}
-.pc-cap{font-size:12px;color:var(--muted)}
-.theme-biolabs .hero-figure{min-height:440px}
-.theme-biolabs .hero-card-float{position:absolute;right:-6px;bottom:6px;width:230px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
-@media(max-width:860px){.hero-grid{grid-template-columns:1fr}.theme-biolabs .hero-card-float{position:static;width:auto;margin-top:18px}}
+/* ---- Quality / reviews / forms ------------------------------------------- */
+.theme-biolabs .quality{background:linear-gradient(180deg,
+  color-mix(in srgb,#0b1322 70%,var(--bg)), var(--bg));
+  border-block:1px solid var(--hairline)}
+.theme-biolabs .q-item h3{font-weight:600;letter-spacing:-.02em}
+.theme-biolabs .review blockquote{color:var(--ink-2)}
+.theme-biolabs .contact-form input:focus,.theme-biolabs .contact-form textarea:focus{
+  border-color:color-mix(in srgb,var(--accent) 70%,transparent)}
+.theme-biolabs .site-footer{background:linear-gradient(180deg,var(--bg),
+  color-mix(in srgb,#0b1322 78%,var(--bg)))}
+.theme-biolabs .foot-contact a{color:var(--teal);font-family:var(--font-mono);
+  letter-spacing:-.02em}
 
-/* --- Photo hero (real amber-vial product imagery) --- */
-.theme-biolabs .hero-photo{padding:0;min-height:660px;display:flex;align-items:center;overflow:hidden}
-.theme-biolabs .hero-photo::before{display:none}
-.hero-photo .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:74% 62%;z-index:0}
-.hero-photo .hero-scrim{position:absolute;inset:0;z-index:1;background:
-  linear-gradient(90deg,#080c17 0%,rgba(8,12,23,.94) 28%,rgba(8,12,23,.6) 54%,rgba(8,12,23,.12) 82%,transparent 100%),
-  linear-gradient(0deg,#080c17 1%,transparent 42%),
-  radial-gradient(680px 360px at 16% 26%,rgba(79,143,247,.18),transparent 60%)}
-.hero-photo .hero-inner{position:relative;z-index:2;width:100%}
-.hero-photo .hero-copy{max-width:600px}
-.hero-photo .eyebrow{color:#37e0a6;font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-size:13px;margin:0}
-.hero-photo h1{font-size:clamp(46px,6.6vw,88px);line-height:1.02;letter-spacing:-.02em;margin:14px 0 0}
-.hero-photo .lead{max-width:544px;margin:20px 0 30px}
-.hero-photo .hero-trust{list-style:none;display:flex;flex-wrap:wrap;gap:12px 26px;margin:32px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
-.hero-photo .hero-trust li{color:var(--muted);font-size:14px}
-.hero-photo .hero-trust b{color:var(--fg);font-weight:800}
-@media(max-width:860px){
-  .theme-biolabs .hero-photo{min-height:580px}
-  .hero-photo .hero-bg{object-position:68% 42%}
-  .hero-photo .hero-scrim{background:linear-gradient(0deg,#080c17 16%,rgba(8,12,23,.72) 52%,rgba(8,12,23,.5) 100%)}
-  .hero-photo .hero-trust{gap:8px 18px}
+/* ---- Motion — staggered hero entrance, transform/opacity only ------------- */
+@media (prefers-reduced-motion: no-preference){
+  /* base.css rises .hero-copy and .hero-trust as whole blocks. Here the copy is
+     choreographed line by line instead, so those two are stood down to stop the
+     translations compounding on nested elements. */
+  .theme-biolabs .hero-photo .hero-copy,
+  .theme-biolabs .hero-photo .hero-trust{animation:none}
+  .theme-biolabs .hero-photo .eyebrow{animation:pn-risen .62s var(--ease-out) both}
+  .theme-biolabs .hero-photo h1{animation:pn-risen .72s .06s var(--ease-out) both}
+  .theme-biolabs .hero-photo .lead{animation:pn-risen .72s .14s var(--ease-out) both}
+  .theme-biolabs .hero-photo .hero-trust li{animation:pn-risen .6s var(--ease-out) both}
+  .theme-biolabs .hero-photo .hero-trust li:nth-child(1){animation-delay:.26s}
+  .theme-biolabs .hero-photo .hero-trust li:nth-child(2){animation-delay:.32s}
+  .theme-biolabs .hero-photo .hero-trust li:nth-child(3){animation-delay:.38s}
+  .theme-biolabs .hero-photo .hero-trust li:nth-child(4){animation-delay:.44s}
 }

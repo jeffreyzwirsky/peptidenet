@@ -86,11 +86,51 @@ SOFT_PATTERNS = {
 }
 
 
+# Negation cues that turn a prohibited phrase into the disclaimer we require.
+#
+# Without this, the scanner flagged its own compliance language: the mandated
+# "not approved for human consumption" and "not intended to diagnose, treat,
+# cure, or prevent any disease" tripped the human-use and medical-claim rules
+# on every single post. Eight of eight flagged is the same as none flagged —
+# a reviewer facing an all-red queue stops reading it, and that is exactly how
+# a real violation gets waved through.
+_NEGATION = re.compile(
+    r"\b(not|never|no|cannot|can't|nor|without|neither|"
+    r"prohibited|forbidden|unlawful|illegal)\b", re.I,
+)
+# How far back to look for the negation. Long enough to span "They are not
+# intended for human consumption, veterinary use, medical diagnosis, treatment
+# …" where the cue sits well ahead of the match, short enough not to reach
+# into a previous sentence.
+_LOOKBACK = 140
+
+
+def _is_negated(text, start):
+    """True when the match at `start` sits inside a negated clause.
+
+    Sentence boundaries end the scope: a full stop between the cue and the
+    match means the negation belonged to a different sentence and the match
+    stands on its own.
+    """
+    window = text[max(0, start - _LOOKBACK):start]
+    cue = None
+    for m in _NEGATION.finditer(window):
+        cue = m.end()
+    if cue is None:
+        return False
+    return not re.search(r"[.!?]\s", window[cue:])
+
+
 def scan(text):
     """Return (hard_issues, soft_issues) — lists of (label, matched_snippet)."""
     hard, soft = [], []
     for label, pat in HARD_PATTERNS.items():
         for m in re.finditer(pat, text, re.I):
+            # Origin claims are checked WITHOUT the negation escape. "We don't
+            # ship from China" still puts a country on the page next to this
+            # business, and the standing rule is silence on origin, not denial.
+            if label != "shipping origin claim" and _is_negated(text, m.start()):
+                continue
             hard.append((label, m.group(0)))
     for label, pat in SOFT_PATTERNS.items():
         hits = len(re.findall(pat, text, re.I))

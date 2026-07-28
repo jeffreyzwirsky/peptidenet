@@ -235,3 +235,55 @@ class BlogMarketTargetingTests(TestCase):
         angles = [keywords.angle_for(s) for s in Site.objects.all()]
         self.assertTrue(all(angles), "a site with no angle writes the same post as its twin")
         self.assertEqual(len(set(angles)), len(angles), "two sites share an angle")
+
+
+class DisclaimerNotFlaggedTests(TestCase):
+    """The mandated disclaimer must not read as a violation of itself.
+
+    Every one of these is real text produced by the live generator. Before
+    negation-awareness they flagged 8 posts out of 8 — an all-red queue that a
+    reviewer learns to ignore, which is how a genuine claim gets waved through.
+    """
+
+    def _labels(self, text):
+        from . import guardrails
+        hard, _ = guardrails.scan(text)
+        return {label for label, _ in hard}
+
+    def test_research_use_disclaimer_passes(self):
+        for text in (
+            "Compounds supplied by SmashFat BioLabs are intended for laboratory "
+            "research use only and are not approved for human consumption, "
+            "veterinary use, or any therapeutic, diagnostic, or clinical purpose.",
+            "They are not intended for human consumption, veterinary use, medical "
+            "diagnosis, treatment, or the prevention of any disease.",
+            "This article makes no claim that any compound can diagnose, treat, "
+            "cure, or prevent any condition.",
+            "These materials are not for human use and carry no guarantee of "
+            "efficacy.",
+        ):
+            self.assertEqual(self._labels(text), set(), text)
+
+    def test_the_actual_claim_still_trips(self):
+        """Negation-awareness must not become a blanket amnesty."""
+        for text in ("This compound treats inflammation and prevents scarring.",
+                     "Approved for human consumption.",
+                     "Clinically proven to cure tendon injury."):
+            self.assertTrue(self._labels(text), text)
+
+    def test_negation_does_not_leak_across_a_sentence_boundary(self):
+        """A full stop ends the negation's scope."""
+        text = ("The compound is not a supplement. It treats inflammation "
+                "and prevents scarring.")
+        self.assertIn("medical/therapeutic claim", self._labels(text))
+
+    def test_origin_claims_get_no_negation_escape(self):
+        """Denying an origin still names a country next to this business.
+
+        The standing position is silence on origin, not denial, so the negation
+        escape deliberately does not apply to this rule.
+        """
+        self.assertIn("shipping origin claim",
+                      self._labels("We do not ship from China."))
+        self.assertIn("shipping origin claim",
+                      self._labels("Our products are not manufactured in Canada."))

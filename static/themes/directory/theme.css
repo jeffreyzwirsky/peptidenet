@@ -115,7 +115,7 @@
   border:1px solid var(--hairline);border-radius:calc(var(--radius) + 2px);
   padding:var(--sp-4) var(--sp-3);box-shadow:var(--elev-2)}
 /* Card header reads as a document header: tracked label, then a rule. */
-.theme-directory .hero-card h4{margin:0;font-size:var(--fs-md);letter-spacing:-.024em}
+.theme-directory .hero-card h4,.theme-directory .hero-card h2{margin:0;font-size:var(--fs-md);letter-spacing:-.024em}
 .theme-directory .hero-card-sub{font-size:var(--fs-2xs);color:var(--muted2);line-height:1.55;
   margin:5px 0 0;padding-bottom:var(--sp-3);border-bottom:1px solid var(--hairline)}
 .theme-directory .checkline{display:flex;align-items:flex-start;gap:10px;
@@ -252,7 +252,7 @@
 .theme-directory .review blockquote{font-size:var(--fs-sm)}
 .theme-directory .pdp-name,.theme-directory .policy-head h1,
 .theme-directory .region-head h1,.theme-directory .blog-content h1,
-.theme-directory .blog-card-body h3{font-family:var(--font-display)}
+.theme-directory .blog-card-body h3,.theme-directory .blog-card-body h2{font-family:var(--font-display)}
 .theme-directory .pdp-price,.theme-directory .pdp-rail-price,.theme-directory .cart-subtotal,
 .theme-directory .ostatus-total,.theme-directory .calc-v,.theme-directory .region-facts b,
 .theme-directory .pdp-bulk,.theme-directory .pdp-rail-facts dd{font-family:var(--font-mono);font-weight:600}

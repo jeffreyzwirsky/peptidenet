@@ -66,6 +66,16 @@ class BlogPost(models.Model):
         return self.status == "published"
 
     @property
+    def body_sans_title(self):
+        """Body with a leading markdown H1 stripped. The detail template renders
+        the title as a real <h1> itself; AI-generated bodies start with '# Title',
+        which would otherwise put two h1s on the page."""
+        lines = self.body.lstrip().splitlines()
+        if lines and lines[0].lstrip().startswith("# "):
+            return "\n".join(lines[1:]).lstrip("\n")
+        return self.body
+
+    @property
     def can_publish(self):
         # Guardrail: a flagged post cannot be published until fixed + re-scanned.
         return self.compliance_status == "pass"

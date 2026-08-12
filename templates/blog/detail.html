@@ -27,7 +27,7 @@
   <div class="blog-hero">{% if post.hero_image %}<img class="blog-hero-img" src="{{ post.hero_image }}" width="1200" height="480" alt="{{ post.title }}">{% else %}{{ post.hero_svg|safe }}{% endif %}</div>
   <div class="wrap blog-narrow">
     <a href="/blog/" class="blog-back">← All research notes</a>
-    <div class="blog-content">{{ post.body|markdown }}</div>
+    <div class="blog-content"><h1>{{ post.title }}</h1>{{ post.body_sans_title|markdown }}</div>
     {% if more %}
     <div class="blog-more">
       <h3>More notes</h3>

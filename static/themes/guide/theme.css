@@ -44,7 +44,7 @@
 .theme-guide h1,.theme-guide h2,.theme-guide h3,.theme-guide h4{font-weight:800;letter-spacing:-.024em}
 .theme-guide .lede{color:var(--muted);font-size:var(--fs-md);line-height:1.65;
   margin-top:var(--sp-3);max-width:62ch}
-.theme-guide .section-head h2{font-size:var(--fs-2xl);margin-top:var(--sp-3)}
+.theme-guide .section-head h2,.theme-guide .section-head h1{font-size:var(--fs-2xl);margin-top:var(--sp-3)}
 
 /* Eyebrow: a hairline tag, not a filled lozenge. Tracked out, teal ink. */
 .theme-guide .eyebrow{
@@ -163,7 +163,7 @@
   background:var(--sun);color:#4d3800;font-weight:800;
   font-size:var(--fs-3xs);letter-spacing:.1em;text-transform:uppercase;
   padding:5px 12px;border-radius:var(--radius-pill);box-shadow:var(--shadow-sm)}
-.theme-guide .hero-card h3{font-size:var(--fs-lg);margin:var(--sp-1) 0 5px;letter-spacing:-.024em}
+.theme-guide .hero-card h3,.theme-guide .hero-card h2{font-size:var(--fs-lg);margin:var(--sp-1) 0 5px;letter-spacing:-.024em}
 .theme-guide .hero-card-sub{font-size:var(--fs-xs);color:var(--muted);line-height:1.55}
 /* Checklist as a ruled list: shared hairlines, no bullets, nothing decorative. */
 .theme-guide .hero-checklist{list-style:none;margin-top:var(--sp-3);display:grid;gap:0;
@@ -240,7 +240,7 @@
 .theme-guide .check-item .ic{width:38px;height:38px;border-radius:11px;
   background:var(--teal-tint);box-shadow:inset 0 0 0 1px var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
-.theme-guide .check-item h4{font-size:var(--fs-sm);margin-bottom:4px;letter-spacing:-.02em}
+.theme-guide .check-item h4,.theme-guide .check-item h3{font-size:var(--fs-sm);margin-bottom:4px;letter-spacing:-.02em}
 .theme-guide .check-item p{font-size:var(--fs-xs);color:var(--muted);line-height:1.6}
 
 /* Glossary panel — dark ink, mono terms. The one high-contrast object on the

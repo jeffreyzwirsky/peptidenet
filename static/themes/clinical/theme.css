@@ -30,7 +30,7 @@
 .theme-clinical h1,.theme-clinical h2,.theme-clinical h3,.theme-clinical h4{
   font-family:var(--serif);font-weight:500;letter-spacing:-.015em;color:var(--fg)}
 .theme-clinical .eyebrow{color:var(--accent);font-weight:600;letter-spacing:var(--track-label)}
-.theme-clinical .section-head h2{font-size:var(--fs-3xl)}
+.theme-clinical .section-head h2,.theme-clinical .section-head h1{font-size:var(--fs-3xl)}
 .theme-clinical .section-head .sec-sub{color:var(--ink-2);font-size:var(--fs-md);
   margin-top:var(--sp-2);max-width:60ch;line-height:1.65}
 .theme-clinical .catalogue .section-head .sec-sub,
@@ -150,7 +150,7 @@
   position:relative;right:auto;bottom:auto;width:100%;max-width:none;
   margin-top:calc(var(--sp-4) * -1);margin-inline:var(--sp-3) 0}
 .theme-clinical .assay-card .molecule{position:absolute;right:-34px;top:-34px;opacity:.24;z-index:-1}
-.theme-clinical .assay-card h4{font-family:var(--font);font-size:var(--fs-3xs);
+.theme-clinical .assay-card h4,.theme-clinical .assay-card h2{font-family:var(--font);font-size:var(--fs-3xs);
   letter-spacing:var(--track-label);text-transform:uppercase;color:var(--muted);
   font-weight:600;margin-bottom:2px}
 .theme-clinical .assay-card .big{font-family:var(--serif);font-size:var(--fs-2xl);

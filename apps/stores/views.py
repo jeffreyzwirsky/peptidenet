@@ -485,7 +485,7 @@ def robots_txt(request):
         f"# LLM guide: {base}/llms.txt",
         f"# LLM full map: {base}/llms-full.txt",
     ]
-    return HttpResponse("\n".join(lines), content_type="text/plain")
+    return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
 
 
 @require_GET
@@ -509,7 +509,7 @@ def security_txt(request):
         "Preferred-Languages: en",
         f"Policy: {base}/terms/",
     ]
-    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain; charset=utf-8")
 
 
 @require_GET

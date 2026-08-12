@@ -180,7 +180,7 @@
 .theme-editorial .ed-head .eyebrow{font-family:var(--font);color:var(--muted);letter-spacing:0;
   text-transform:none;font-weight:400;font-size:var(--fs-md);margin-top:var(--sp-3);
   max-width:56ch;line-height:1.6}
-.theme-editorial .section-head h2{font-family:var(--font-display);font-weight:400;letter-spacing:-.015em}
+.theme-editorial .section-head h2,.theme-editorial .section-head h1{font-family:var(--font-display);font-weight:400;letter-spacing:-.015em}
 .theme-editorial .cat-filter{justify-content:flex-start}
 
 /* ============================================================

@@ -156,7 +156,7 @@
   background:linear-gradient(160deg,var(--blue-800),var(--blue-900));
   border:1px solid rgba(230,180,34,.34);border-radius:var(--radius);
   padding:var(--sp-3);box-shadow:var(--shadow-md);backdrop-filter:none}
-.theme-prairie .hero-card h3{color:#fff;font-size:var(--fs-sm);letter-spacing:-.01em;margin-bottom:3px}
+.theme-prairie .hero-card h3,.theme-prairie .hero-card h2{color:#fff;font-size:var(--fs-sm);letter-spacing:-.01em;margin-bottom:3px}
 .theme-prairie .hero-card .pr-sub{color:#a9c6dd;font-size:var(--fs-2xs);margin-bottom:var(--sp-3);line-height:1.5}
 .theme-prairie .promo-tile{background:var(--gold);border-radius:calc(var(--radius) - 4px);
   padding:var(--sp-2) var(--sp-3);color:#3d2a00;display:flex;align-items:center;

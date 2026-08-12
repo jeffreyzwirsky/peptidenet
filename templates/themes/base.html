@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}{{ site.brand_name }} — Research Compounds{% endblock %}</title>
 <meta name="description" content="{{ site.meta_description }}">
-<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+<link rel="canonical" href="{{ request.scheme }}://{{ site.domain|default:request.get_host }}{{ request.path }}">
 <link rel="alternate" type="application/rss+xml" title="{{ site.brand_name }} — Research Notes" href="{{ request.scheme }}://{{ request.get_host }}/blog/feed/">
 {% comment %} hreflang — the fix for our biggest SEO problem. Three brands each run a .ca
    and a .com serving the same catalogue; without these tags Google reads them
@@ -19,7 +19,7 @@
 <meta property="og:site_name" content="{{ site.brand_name }}">
 <meta property="og:title" content="{% block og_title %}{{ site.brand_name }} — Research Compounds{% endblock %}">
 <meta property="og:description" content="{{ site.meta_description }}">
-<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+<meta property="og:url" content="{{ request.scheme }}://{{ site.domain|default:request.get_host }}{{ request.path }}">
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">

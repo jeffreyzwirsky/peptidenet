@@ -238,10 +238,15 @@ CONTENT_SECURITY_POLICY = env(
 # exist (Windows dev) unless PEPTIDENET_CACHE_DIR points somewhere explicit.
 # Deploy note: the directory must exist and be writable by www-data:
 #   mkdir -p /var/tmp/peptidenet-cache && chown www-data:www-data /var/tmp/peptidenet-cache
-CACHE_DIR = os.environ.get(
+import sys as _sys
+
+_TESTING = "test" in _sys.argv
+CACHE_DIR = "" if _TESTING else os.environ.get(
     "PEPTIDENET_CACHE_DIR",
     "/var/tmp/peptidenet-cache" if os.path.isdir("/var/tmp") else "",
 )
+# Tests always get LocMem: a file cache would persist rate-limit counters
+# between runs and 429 the suite on the second run.
 if CACHE_DIR:
     CACHES = {"default": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",

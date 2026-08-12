@@ -5,7 +5,7 @@
   <div class="wrap">
     <div class="section-head" style="text-align:center;max-width:640px;margin:0 auto 34px">
       <p class="eyebrow">Research Notes</p>
-      <h2>{{ site.brand_name }} blog</h2>
+      <h1>{{ site.brand_name }} blog</h1>
       <p class="muted">Educational notes on research compounds, purity and sourcing in Canada. For research use only.</p>
     </div>
     <div class="blog-grid">
@@ -13,7 +13,7 @@
       <a class="blog-card" href="/blog/{{ p.slug }}/">
         <div class="blog-card-img">{% if p.hero_image %}<img src="{{ p.hero_image }}" loading="lazy" alt="{{ p.title }}">{% else %}{{ p.hero_svg|safe }}{% endif %}</div>
         <div class="blog-card-body">
-          <h3>{{ p.title }}</h3>
+          <h2>{{ p.title }}</h2>
           <p>{{ p.excerpt|truncatechars:130 }}</p>
           <span class="blog-date">{{ p.published_at|date:"M j, Y" }}</span>
         </div>

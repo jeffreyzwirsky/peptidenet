@@ -60,4 +60,17 @@ class SiteMiddleware:
         if site is not None:
             request.site = site
             request.theme = site.theme or settings.DEFAULT_THEME
+            # Canonical-host redirect: an alias (www.<domain>, or anything in
+            # Site.aliases) 301s to the canonical domain instead of serving a
+            # duplicate of the whole site. Only fires when the request host is
+            # an explicit alias — the dev fallback (localhost picking a site)
+            # never matches, so local dev is unaffected.
+            host = request.get_host().split(":")[0].lower()
+            if host != site.domain.lower() and \
+                    host in [h.lower() for h in site.all_hostnames()]:
+                from django.http import HttpResponsePermanentRedirect
+                qs = request.META.get("QUERY_STRING", "")
+                dest = (f"{request.scheme}://{site.domain}{request.path}"
+                        + (f"?{qs}" if qs else ""))
+                return HttpResponsePermanentRedirect(dest)
         return self.get_response(request)

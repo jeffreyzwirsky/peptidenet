@@ -162,7 +162,7 @@ h1,h2,h3{line-height:1.12;letter-spacing:var(--track-tight);text-wrap:balance}
 p{text-wrap:pretty}
 
 .section-head{margin-bottom:var(--sp-block)}
-.section-head h2{font-size:var(--fs-2xl)}
+.section-head h2,.section-head h1{font-size:var(--fs-2xl)}
 
 section{padding:var(--sp-section) 0}
 .catalogue .section-head{text-align:center;max-width:640px;margin:0 auto var(--sp-block)}
@@ -528,7 +528,7 @@ section{padding:var(--sp-section) 0}
 .cart-head{display:flex;justify-content:space-between;align-items:center;
   padding:var(--sp-2) var(--sp-3);min-height:60px;border-bottom:1px solid var(--hairline);
   position:sticky;top:0;z-index:2;background:inherit;flex:none}
-.cart-head h3{font-size:var(--fs-md);letter-spacing:var(--track-tight)}
+.cart-head h3,.cart-head h2{font-size:var(--fs-md);letter-spacing:var(--track-tight)}
 .cart-close{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
   margin-right:-8px;background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;
   line-height:1;border-radius:var(--radius-pill);
@@ -606,7 +606,7 @@ section{padding:var(--sp-section) 0}
 .blog-card-img svg{display:block;width:100%;height:auto}
 .blog-card-img img{display:block;width:100%;height:190px;object-fit:cover}
 .blog-card-body{padding:var(--sp-3) calc(var(--sp-3) - var(--bezel)) calc(var(--sp-3) - var(--bezel))}
-.blog-card-body h3{font-size:var(--fs-lg);margin-bottom:8px;letter-spacing:var(--track-tight)}
+.blog-card-body h3,.blog-card-body h2{font-size:var(--fs-lg);margin-bottom:8px;letter-spacing:var(--track-tight)}
 .blog-card-body p{font-size:var(--fs-sm);color:var(--muted);line-height:1.6}
 .blog-date{display:block;font-size:var(--fs-3xs);color:var(--muted);margin-top:var(--sp-2);
   letter-spacing:var(--track-label);text-transform:uppercase;font-weight:700}
@@ -926,7 +926,7 @@ section{padding:var(--sp-section) 0}
 .rw-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-3);margin:var(--sp-4) 0 var(--sp-5)}
 .rw-card{background:var(--card);border:1px solid var(--hairline);
   border-radius:calc(var(--radius) + 2px);padding:var(--sp-4);box-shadow:var(--elev-1)}
-.rw-card h3{font-size:var(--fs-lg);font-weight:800;margin:var(--sp-2) 0 var(--sp-1);
+.rw-card h3,.rw-card h2{font-size:var(--fs-lg);font-weight:800;margin:var(--sp-2) 0 var(--sp-1);
   letter-spacing:var(--track-tight)}
 .rw-card p{color:var(--muted);line-height:1.6;font-size:var(--fs-sm)}
 .rw-sub{font-size:var(--fs-xs);margin:var(--sp-1) 0 0}

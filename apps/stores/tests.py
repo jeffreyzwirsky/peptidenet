@@ -25,8 +25,11 @@ class StorefrontTests(TestCase):
             self.assertContains(r, f"themes/{theme}/theme.css")
 
     def test_www_alias_resolves(self):
+        # Changed 2026-08-12: aliases now 301 to the canonical domain instead
+        # of serving a duplicate of the whole site under a second hostname.
         r = self.client.get("/", HTTP_HOST="www.smashfat.ca")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(r["Location"], "http://smashfat.ca/")
 
     def test_shared_catalogue_on_every_site(self):
         """One catalogue, rendered identically everywhere.
@@ -691,3 +694,70 @@ class DiscoveryFileTests(TestCase):
         for host in ("smashfatbiolabs.ca", "smashfat.ca", "peptidesalberta.ca"):
             html = self.client.get("/", HTTP_HOST=host).content.decode()
             self.assertIn('type="application/rss+xml"', html, host)
+
+
+class SeoHygieneTests(TestCase):
+    """On-page SEO invariants Jeff asked for (2026-08-12): every page has
+    exactly one h1, heading levels never skip, canonicals pin to the canonical
+    domain, aliases 301, twinned sites emit a full hreflang block."""
+
+    PATHS = ["/", "/product/bpc-157/", "/calculator/", "/rewards/", "/blog/",
+             "/shipping/", "/privacy/"]
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+        from django.utils import timezone
+
+        from apps.blog.models import BlogPost
+        from apps.stores.models import Site
+        for s in Site.objects.filter(is_active=True):
+            BlogPost.objects.create(
+                site=s, slug="seo-post", title="SEO Post",
+                body="# SEO Post\n\n## A section\nresearch use only",
+                status="published", published_at=timezone.now(),
+                excerpt="x", meta_description="x")
+
+    @staticmethod
+    def _headings(html):
+        import re
+        return [int(m.group(1)) for m in re.finditer(r"<h([1-6])[\s>]", html)]
+
+    def test_one_h1_and_no_heading_skips_everywhere(self):
+        from apps.stores.models import Site
+        for s in Site.objects.filter(is_active=True):
+            for path in self.PATHS + ["/blog/seo-post/"]:
+                html = self.client.get(path, HTTP_HOST=s.domain).content.decode()
+                hs = self._headings(html)
+                self.assertEqual(hs.count(1), 1, f"{s.domain}{path}: h1 x{hs.count(1)}")
+                prev = 0
+                for lvl in hs:
+                    self.assertLessEqual(
+                        lvl, prev + 1 if prev else 6,
+                        f"{s.domain}{path}: heading skip h{prev}->h{lvl}")
+                    prev = lvl
+
+    def test_canonical_pins_to_canonical_domain_even_on_alias(self):
+        html = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertIn('rel="canonical" href="http://smashfatbiolabs.ca/"', html)
+
+    def test_alias_host_redirects_301_to_canonical_domain(self):
+        r = self.client.get("/calculator/?x=1", HTTP_HOST="www.smashfatbiolabs.ca")
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(r["Location"], "http://smashfatbiolabs.ca/calculator/?x=1")
+
+    def test_hreflang_block_on_twinned_sites(self):
+        html = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertIn('hreflang="en-ca" href="http://smashfatbiolabs.ca/"', html)
+        self.assertIn('hreflang="en-us" href="http://smashfatbiolabs.com/"', html)
+        self.assertIn('hreflang="x-default"', html)
+        # standalone site emits none (hreflang pointing at nothing is worse)
+        alone = self.client.get("/", HTTP_HOST="peptidesalberta.ca").content.decode()
+        self.assertNotIn("hreflang", alone)
+
+    def test_blog_detail_title_not_duplicated_from_markdown(self):
+        html = self.client.get("/blog/seo-post/",
+                               HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertEqual(html.count("<h1"), 1)
+        self.assertIn("<h1>SEO Post</h1>", html)

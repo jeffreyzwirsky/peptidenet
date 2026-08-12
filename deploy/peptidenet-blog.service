@@ -1,5 +1,5 @@
 [Unit]
-Description=PeptideNet — generate one draft SEO blog post per site
+Description=PeptideNet — blog scheduler (cadence-aware generate + auto-publish)
 After=network-online.target
 Wants=network-online.target
 
@@ -14,11 +14,13 @@ WorkingDirectory=/var/www/peptidenet
 # is what keeps the unit honest if the file is ever moved out of BASE_DIR.
 EnvironmentFile=/var/www/peptidenet/.env
 
-ExecStart=/var/www/peptidenet/venv/bin/python manage.py generate_daily_posts
+# blog_tick (policy change 2026-08-12, approved by Jeff): guardrail-PASSING
+# posts auto-publish on each site's 3-days-a-week cadence — backlog drafts
+# first, fresh generation only when the backlog is empty. Posts that trip a
+# hard guardrail still stop in needs_review for a human. The compliance
+# guardrails remain the gate; do not weaken them to make a post publish.
+ExecStart=/var/www/peptidenet/venv/bin/python manage.py blog_tick
 
-# Drafts only. The command never publishes; a human approves in the control
-# panel. Nothing here should ever be changed to auto-publish without the
-# compliance guardrails being re-reviewed first.
 Nice=10
 TimeoutStartSec=900
 

@@ -11,8 +11,14 @@ BLOG_HERO_POOL = [
 
 
 class BlogPost(models.Model):
-    """A per-site SEO blog post. Never auto-published — created as needs_review,
-    scanned by guardrails, and only a human can publish."""
+    """A per-site SEO blog post.
+
+    Publishing policy (updated 2026-08-12, per Jeff): every post is created as
+    `needs_review` and scanned by guardrails. Posts whose scan PASSES may be
+    auto-published by the `blog_tick` scheduler on the site's cadence; posts
+    that trip a hard guardrail stay in `needs_review` until a human fixes and
+    approves them in the control panel. The guardrails are still the gate —
+    nothing flagged ever publishes itself."""
 
     STATUS = [
         ("needs_review", "Needs review"),
@@ -63,6 +69,15 @@ class BlogPost(models.Model):
     def can_publish(self):
         # Guardrail: a flagged post cannot be published until fixed + re-scanned.
         return self.compliance_status == "pass"
+
+    def publish(self, when=None):
+        """Publish a guardrail-passing post. Refuses a flagged one."""
+        if not self.can_publish:
+            raise ValueError(f"Post {self.pk} is flagged — cannot publish.")
+        from django.utils import timezone
+        self.status = "published"
+        self.published_at = self.published_at or when or timezone.now()
+        self.save(update_fields=["status", "published_at", "updated_at"])
 
     def __str__(self):
         return f"{self.title} ({self.site.domain})"

@@ -644,3 +644,50 @@ class NoUnevidencedClaimsTests(TestCase):
             html = self.client.get("/", HTTP_HOST=host).content.decode()
             for marker in ("{#", "#}", "{% comment", "endcomment"):
                 self.assertNotIn(marker, html, f"{marker!r} leaked on {host}")
+
+
+class DiscoveryFileTests(TestCase):
+    """Per-site discovery/SEO files: every domain must serve its OWN robots,
+    sitemap and security.txt — unique per site, not one network-wide copy."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_security_txt_serves_per_site(self):
+        for host in ("smashfatbiolabs.ca", "smashfat.ca"):
+            for path in ("/.well-known/security.txt", "/security.txt"):
+                r = self.client.get(path, HTTP_HOST=host)
+                self.assertEqual(r.status_code, 200, f"{host}{path}")
+                body = r.content.decode()
+                self.assertIn("Contact: mailto:", body)
+                self.assertIn("Expires: ", body)
+                self.assertIn(f"//{host}/.well-known/security.txt",
+                              body)  # canonical is per-host
+
+    def test_robots_is_unique_per_site(self):
+        a = self.client.get("/robots.txt", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        b = self.client.get("/robots.txt", HTTP_HOST="smashfat.ca").content.decode()
+        self.assertNotEqual(a, b)
+        self.assertIn("smashfatbiolabs.ca", a)
+        self.assertIn("/blog/feed/", a)
+        self.assertIn("security.txt", a)
+
+    def test_sitemap_carries_lastmod_for_posts(self):
+        from django.utils import timezone
+
+        from apps.blog.models import BlogPost
+        from apps.stores.models import Site
+        site = Site.objects.get(domain="smashfat.ca")
+        BlogPost.objects.create(site=site, title="SM post", slug="sm-post",
+                                body="research use only", status="published",
+                                published_at=timezone.now())
+        sm = self.client.get("/sitemap.xml", HTTP_HOST="smashfat.ca").content.decode()
+        self.assertIn("/blog/sm-post/", sm)
+        self.assertIn("<lastmod>", sm)
+
+    def test_rss_autodiscovery_link_on_every_theme(self):
+        for host in ("smashfatbiolabs.ca", "smashfat.ca", "peptidesalberta.ca"):
+            html = self.client.get("/", HTTP_HOST=host).content.decode()
+            self.assertIn('type="application/rss+xml"', html, host)

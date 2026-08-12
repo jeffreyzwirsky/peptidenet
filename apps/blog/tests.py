@@ -89,6 +89,98 @@ class GeneratorTests(TestCase):
         self.assertFalse(posts.filter(status="published").exists())
 
 
+class BlogTickTests(TestCase):
+    """The auto-publish scheduler (policy change 2026-08-12, Jeff-approved):
+    guardrail-PASSING posts publish on cadence; flagged posts never do."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_publishes_oldest_passing_backlog_draft(self):
+        from .models import BLOG_HERO_POOL
+        site = Site.objects.get(domain="smashfat.ca")
+        old = BlogPost.objects.create(site=site, title="Old draft", slug="old-draft",
+                                      body="research use only", compliance_status="pass")
+        BlogPost.objects.create(site=site, title="New draft", slug="new-draft",
+                                body="research use only", compliance_status="pass")
+        call_command("blog_tick", "--site", "smashfat.ca", "--force")
+        old.refresh_from_db()
+        self.assertEqual(old.status, "published")
+        self.assertIsNotNone(old.published_at)
+        self.assertIn(old.hero_image, BLOG_HERO_POOL)  # image guaranteed
+        # only one per posting day
+        self.assertEqual(BlogPost.objects.filter(site=site, status="published").count(), 1)
+
+    def test_flagged_draft_never_publishes(self):
+        site = Site.objects.get(domain="smashfat.ca")
+        BlogPost.objects.create(site=site, title="Bad", slug="bad",
+                                body="we cure cancer", compliance_status="flagged")
+        call_command("blog_tick", "--site", "smashfat.ca", "--force")
+        # the flagged draft is skipped; a fresh (stub, clean) post publishes instead
+        self.assertEqual(BlogPost.objects.get(slug="bad").status, "needs_review")
+        pub = BlogPost.objects.filter(site=site, status="published")
+        self.assertEqual(pub.count(), 1)
+        self.assertEqual(pub.first().compliance_status, "pass")
+
+    def test_generates_and_publishes_when_no_backlog(self):
+        call_command("blog_tick", "--site", "smashfat.ca", "--force")
+        pub = BlogPost.objects.filter(site__domain="smashfat.ca", status="published")
+        self.assertEqual(pub.count(), 1)
+        self.assertTrue(pub.first().hero_image)
+
+    def test_publish_refuses_flagged_post(self):
+        site = Site.objects.get(domain="smashfat.ca")
+        p = BlogPost.objects.create(site=site, title="x", body="cure",
+                                    compliance_status="flagged")
+        with self.assertRaises(ValueError):
+            p.publish()
+
+    def test_cadence_is_three_days_and_staggered(self):
+        from .management.commands.blog_tick import posting_days
+        for s in Site.objects.filter(is_active=True):
+            days = posting_days(s.domain)
+            self.assertEqual(len(days), 3, s.domain)
+            self.assertTrue(all(0 <= d <= 6 for d in days), s.domain)
+
+    def test_off_day_publishes_nothing(self):
+        from unittest import mock
+        site = Site.objects.get(domain="smashfat.ca")
+        BlogPost.objects.create(site=site, title="Ready", slug="ready",
+                                body="research use only", compliance_status="pass")
+        from .management.commands import blog_tick as bt
+        with mock.patch.object(bt, "posting_days", return_value=[]):
+            call_command("blog_tick", "--site", "smashfat.ca")
+        self.assertFalse(BlogPost.objects.filter(status="published").exists())
+
+
+class BlogFeedTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_feed_serves_only_this_sites_posts(self):
+        from django.utils import timezone
+        a = Site.objects.get(domain="smashfat.ca")
+        b = Site.objects.get(domain="smashfatbiolabs.ca")
+        BlogPost.objects.create(site=a, title="Feed A", slug="feed-a",
+                                body="research use only", status="published",
+                                published_at=timezone.now())
+        BlogPost.objects.create(site=b, title="Feed B", slug="feed-b",
+                                body="research use only", status="published",
+                                published_at=timezone.now())
+        r = self.client.get("/blog/feed/", HTTP_HOST="smashfat.ca")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("application/rss+xml", r["Content-Type"])
+        body = r.content.decode()
+        self.assertIn("Feed A", body)
+        self.assertNotIn("Feed B", body)
+        self.assertIn("https://smashfat.ca/blog/feed-a/",
+                      body.replace("http://", "https://"))
+
+
 class BlogStorefrontTests(TestCase):
     @classmethod
     def setUpTestData(cls):

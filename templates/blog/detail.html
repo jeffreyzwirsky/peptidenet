@@ -6,12 +6,17 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="{{ post.seo_title }}">
 <meta property="og:description" content="{{ post.meta_description }}">
-{% if post.hero_image %}<meta property="og:image" content="{{ post.hero_image }}">{% endif %}
+{% if post.hero_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.hero_image }}">
+<meta property="og:image:alt" content="{{ post.title }}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.hero_image }}">{% endif %}
 <script type="application/ld+json" nonce="{{ request.csp_nonce }}">
 {"@context":"https://schema.org","@type":"Article",
 "headline":"{{ post.seo_title|escapejs }}",
 "description":"{{ post.meta_description|escapejs }}",
 "datePublished":"{{ post.published_at|date:'c' }}",
+"dateModified":"{{ post.updated_at|date:'c' }}",
+"mainEntityOfPage":{"@type":"WebPage","@id":"{{ request.scheme }}://{{ request.get_host }}/blog/{{ post.slug }}/"},
+{% if post.hero_image %}"image":"{{ request.scheme }}://{{ request.get_host }}{{ post.hero_image }}",{% endif %}
 "author":{"@type":"Organization","name":"{{ site.brand_name }}"},
 "publisher":{"@type":"Organization","name":"{{ site.brand_name }}"},
 "keywords":"{{ post.keyword|escapejs }}"}

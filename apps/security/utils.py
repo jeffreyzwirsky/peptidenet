@@ -14,9 +14,23 @@ HONEYPOT_FIELD = "company_website"
 
 
 def client_ip(request):
-    """Real client IP. When behind N trusted proxies, take the (N+1)-th-from-right
-    XFF entry so a spoofed left-most header can't win. Mirrors the SMASH consent-IP
-    fix (record the customer's real IP, spoof-resistant)."""
+    """Real client IP, spoof-resistant.
+
+    nginx sets X-Real-IP from $remote_addr, and nginx's realip module only
+    rewrites $remote_addr when the connection actually came from a verified
+    Cloudflare range (/etc/nginx/conf.d/01-cloudflare-realip.conf on the box).
+    A client therefore cannot forge this value, even by hitting the origin IP
+    directly. CF-Connecting-IP is deliberately NOT trusted here: it is an
+    ordinary request header any caller can set, which previously allowed
+    rate-limit bypass and audit-trail poisoning (found + fixed live in the
+    2026-08-10 production audit; this is the backport).
+
+    Fallback: when behind N trusted proxies, take the (N+1)-th-from-right XFF
+    entry so a spoofed left-most header can't win.
+    """
+    real = request.META.get("HTTP_X_REAL_IP")
+    if real:
+        return real.strip().split(",")[0].strip()
     trusted = int(getattr(settings, "TRUSTED_PROXY_COUNT", 0) or 0)
     xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
     if trusted and xff:

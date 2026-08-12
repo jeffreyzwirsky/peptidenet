@@ -25,6 +25,10 @@ urlpatterns = [
     path("blog/", include("apps.blog.urls")),
     # SEO / discovery (per-site, host-aware).
     path("robots.txt", views.robots_txt, name="robots_txt"),
+    # RFC 9116 security contact. Canonical path is /.well-known/; the bare
+    # /security.txt alias is served too because scanners try both.
+    path(".well-known/security.txt", views.security_txt, name="security_txt"),
+    path("security.txt", views.security_txt, name="security_txt_alias"),
     path("sitemap.xml", views.sitemap_xml, name="sitemap_xml"),
     path("llms.txt", views.llms_txt, name="llms_txt"),
     path("llms-full.txt", views.llms_full_txt, name="llms_full_txt"),

@@ -455,7 +455,16 @@ def _base_url(request):
 @require_GET
 def robots_txt(request):
     base = _base_url(request)
+    site = getattr(request, "site", None)
+    brand = site.brand_name if site else "Research Compounds"
+    host = request.get_host()
     lines = [
+        # Per-site header — every domain serves its own robots file, not one
+        # network-wide copy.
+        f"# robots.txt — {brand} ({host})",
+        f"# RSS: {base}/blog/feed/",
+        f"# Security contact: {base}/.well-known/security.txt",
+        "",
         "User-agent: *",
         "Allow: /",
         "Disallow: /manage/",
@@ -480,31 +489,67 @@ def robots_txt(request):
 
 
 @require_GET
+def security_txt(request):
+    """RFC 9116 /.well-known/security.txt — per-site contact for security
+    researchers. Expires is dynamic (regenerated per request) so the file can
+    never quietly go stale, which is the classic security.txt failure."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    base = _base_url(request)
+    site = getattr(request, "site", None)
+    contact = (site.contact_email if site and site.contact_email
+               else "jeff@smashscrap.ca")
+    expires = (timezone.now() + timedelta(days=180)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    lines = [
+        f"Contact: mailto:{contact}",
+        f"Expires: {expires}",
+        f"Canonical: {base}/.well-known/security.txt",
+        "Preferred-Languages: en",
+        f"Policy: {base}/terms/",
+    ]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
+
+
+@require_GET
 def sitemap_xml(request):
     base = _base_url(request)
     from apps.blog.models import BlogPost
     from . import policies, regions
-    urls = [(base + "/", "daily", "1.0"), (base + "/blog/", "daily", "0.7"),
-            (base + "/calculator/", "monthly", "0.6"),
-            (base + "/rewards/", "monthly", "0.5")]
-    for c in Category.objects.all():
-        urls.append((f"{base}/category/{c.slug}/", "weekly", "0.7"))
-    for p in Product.objects.filter(is_active=True):
-        urls.append((f"{base}/product/{p.slug}/", "weekly", "0.8"))
     site = getattr(request, "site", None)
+    # (loc, changefreq, priority, lastmod-or-None). lastmod is what actually
+    # gets a changed page recrawled — Google largely ignores changefreq/priority
+    # but trusts an accurate lastmod.
+    posts = (list(BlogPost.objects.filter(site=site, status="published"))
+             if site else [])
+    latest_post = max((p.updated_at for p in posts), default=None)
+    urls = [(base + "/", "daily", "1.0", latest_post),
+            (base + "/blog/", "daily", "0.7", latest_post),
+            (base + "/calculator/", "monthly", "0.6", None),
+            (base + "/rewards/", "monthly", "0.5", None)]
+    for c in Category.objects.all():
+        urls.append((f"{base}/category/{c.slug}/", "weekly", "0.7", None))
+    for p in Product.objects.filter(is_active=True):
+        urls.append((f"{base}/product/{p.slug}/", "weekly", "0.8",
+                     p.price_updated_at))
     if site:
         # Only this site's own market. A .com listing Canadian provinces would
         # be the doorway pattern these pages are written to avoid.
         for r in regions.by_market(site.country):
-            urls.append((f"{base}/research-peptides/{r['slug']}/", "monthly", "0.6"))
-        for post in BlogPost.objects.filter(site=site, status="published"):
-            urls.append((f"{base}/blog/{post.slug}/", "monthly", "0.6"))
+            urls.append((f"{base}/research-peptides/{r['slug']}/", "monthly",
+                         "0.6", None))
+        for post in posts:
+            urls.append((f"{base}/blog/{post.slug}/", "monthly", "0.6",
+                         post.updated_at))
     for slug in policies.POLICY_SLUGS:
-        urls.append((f"{base}/{slug}/", "yearly", "0.3"))
+        urls.append((f"{base}/{slug}/", "yearly", "0.3", None))
     body = ['<?xml version="1.0" encoding="UTF-8"?>',
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    for loc, freq, pri in urls:
-        body.append(f"<url><loc>{loc}</loc><changefreq>{freq}</changefreq>"
+    for loc, freq, pri, lastmod in urls:
+        lm = (f"<lastmod>{lastmod.strftime('%Y-%m-%d')}</lastmod>"
+              if lastmod else "")
+        body.append(f"<url><loc>{loc}</loc>{lm}<changefreq>{freq}</changefreq>"
                     f"<priority>{pri}</priority></url>")
     body.append("</urlset>")
     return HttpResponse("\n".join(body), content_type="application/xml")

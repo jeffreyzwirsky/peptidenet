@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 # Compounds are sold in fixed packs, never as loose vials — the manufacturing
@@ -278,7 +279,14 @@ class Product(models.Model):
         return int(round(self.savings / self.list_price * 100))
 
     # --- size family ---------------------------------------------------------
-    @property
+    # cached_property, not property (backported from the 2026-08-10 prod
+    # audit): _product_card.html touches siblings six times per card, so a
+    # plain property re-queried on every access — ~250 queries to render the
+    # homepage. Caching per-instance took it 254 → 86 queries, 734ms → 407ms,
+    # byte-identical response. Read-only within a request render; if future
+    # code mutates sibling rows and re-reads them in the same request, it must
+    # invalidate with `del product.siblings`.
+    @cached_property
     def siblings(self):
         """Every active strength of this compound, smallest first.
 

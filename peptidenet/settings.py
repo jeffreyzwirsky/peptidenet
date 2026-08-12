@@ -231,7 +231,24 @@ CONTENT_SECURITY_POLICY = env(
 )
 # In-process cache backs the rate limiter (fine for dev/single worker). Use Redis
 # in production so limits are shared across gunicorn workers.
-CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+# FileBased, not LocMem (backported from the 2026-08-10 prod audit): gunicorn
+# runs 3 workers, and LocMemCache is per-process, so per-IP rate limits were
+# effectively 3x the intended ceiling and reset on every restart. A shared
+# file cache makes them real. Falls back to LocMem where /var/tmp doesn't
+# exist (Windows dev) unless PEPTIDENET_CACHE_DIR points somewhere explicit.
+# Deploy note: the directory must exist and be writable by www-data:
+#   mkdir -p /var/tmp/peptidenet-cache && chown www-data:www-data /var/tmp/peptidenet-cache
+CACHE_DIR = os.environ.get(
+    "PEPTIDENET_CACHE_DIR",
+    "/var/tmp/peptidenet-cache" if os.path.isdir("/var/tmp") else "",
+)
+if CACHE_DIR:
+    CACHES = {"default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": CACHE_DIR,
+    }}
+else:
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = env_bool("PEPTIDENET_SSL_REDIRECT", True)

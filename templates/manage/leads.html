@@ -1,19 +1,108 @@
 {% extends "manage/base.html" %}
 {% block title %}Leads{% endblock %}
 {% block heading %}Leads &amp; feedback{% endblock %}
+{% block head_right %}
+  {% if counts.new %}<span class="pill warn">{{ counts.new }} new</span>{% endif %}
+  <span class="pill">{{ count }} shown</span>
+{% endblock %}
 {% block body %}
+
+<div class="kpis">
+  <div class="kpi {% if counts.new %}warn{% endif %}"><div class="kpi-label">Awaiting review</div><div class="kpi-num">{{ counts.open }}</div><span class="kpi-sub">{{ counts.new }} untouched</span></div>
+  <div class="kpi"><div class="kpi-label">Last 7 days</div><div class="kpi-num">{{ counts.week }}</div></div>
+  <div class="kpi good"><div class="kpi-label">Replied</div><div class="kpi-num">{{ counts.replied }}</div></div>
+  <div class="kpi"><div class="kpi-label">All time</div><div class="kpi-num">{{ counts.total }}</div><span class="kpi-sub">{{ counts.spam }} marked spam</span></div>
+</div>
+
+<form method="get" class="filters">
+  <select name="status" onchange="this.form.submit()">
+    <option value="open" {% if f.status == "open" %}selected{% endif %}>Queue (new + reviewed)</option>
+    {% for s, label in statuses %}
+    <option value="{{ s }}" {% if f.status == s %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+    <option value="all" {% if f.status == "all" %}selected{% endif %}>All (except spam)</option>
+  </select>
+  <select name="kind" onchange="this.form.submit()">
+    <option value="">All types</option>
+    {% for k, label in kinds %}<option value="{{ k }}" {% if f.kind == k %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <select name="site" onchange="this.form.submit()">
+    <option value="">All sites</option>
+    {% for s in sites %}<option value="{{ s.domain }}" {% if f.site == s.domain %}selected{% endif %}>{{ s.domain }}</option>{% endfor %}
+  </select>
+  <input name="q" value="{{ f.q }}" placeholder="Search name, email, phone, message…">
+  <button class="btn ghost">Filter</button>
+</form>
+
 <section class="card">
-  <table class="tbl">
-    <thead><tr><th>When</th><th>Type</th><th>Name</th><th>Email</th><th>Site</th><th>Rating</th><th>Message</th></tr></thead>
+  <table class="tbl leads-tbl">
+    <thead><tr><th>When</th><th>Status</th><th>Type</th><th>Who</th><th>Site</th><th class="r">Rating</th><th>Customer</th><th>Message</th></tr></thead>
     <tbody>
       {% for l in leads %}
-      <tr><td class="sub">{{ l.created_at|date:"M j, H:i" }}</td>
+      <tr class="clickable lead-row" data-lead="{{ l.pk }}">
+        <td class="sub nowrap">{{ l.created_at|date:"M j, H:i" }}</td>
+        <td><span class="badge s-{{ l.status }}">{{ l.get_status_display }}</span></td>
         <td><span class="tag">{{ l.get_kind_display }}</span></td>
-        <td>{{ l.name|default:"—" }}</td><td>{{ l.email|default:"—" }}</td>
-        <td class="sub">{{ l.site.domain }}</td><td class="r">{{ l.rating|default:"—" }}</td>
-        <td class="msg-cell">{{ l.message|truncatechars:80 }}</td></tr>
-      {% empty %}<tr><td colspan="7" class="empty">No leads yet.</td></tr>{% endfor %}
+        <td>
+          <b>{{ l.name|default:"—" }}</b>
+          <span class="sub" style="display:block">{{ l.email|default:"" }}{% if l.phone %} · {{ l.phone }}{% endif %}</span>
+        </td>
+        <td class="sub">{{ l.site.domain }}</td>
+        <td class="r">{{ l.rating|default:"—" }}</td>
+        <td>{% if l.customer %}<span class="badge in">{{ l.customer.n }} order{{ l.customer.n|pluralize }} · ${{ l.customer.total|floatformat:0 }}</span>{% else %}<span class="sub">—</span>{% endif %}</td>
+        <td class="msg-cell">{{ l.message|truncatechars:60 }}{% if l.notes %} <span class="tag">📝</span>{% endif %}</td>
+      </tr>
+      <tr class="lead-panel" id="panel-{{ l.pk }}" hidden>
+        <td colspan="8">
+          <div class="lp-grid">
+            <div class="lp-msg">
+              <div class="lp-label">Full message</div>
+              <p>{{ l.message|default:"(no message)"|linebreaksbr }}</p>
+              {% if l.reviewed_at %}<div class="sub">Last touched by {{ l.reviewed_by|default:"—" }} · {{ l.reviewed_at|date:"M j, H:i" }}</div>{% endif %}
+              <div class="lp-actions">
+                <form method="post">{% csrf_token %}
+                  <input type="hidden" name="lead_id" value="{{ l.pk }}"><input type="hidden" name="qs" value="{{ qs_string }}">
+                  {% for s, label in statuses %}{% if s != l.status %}
+                    <button class="btn sm {% if s == 'spam' %}ghost{% elif s == 'closed' %}ghost{% endif %}" name="action" value="set_status" onclick="this.form.status.value='{{ s }}'">{{ label }}</button>
+                  {% endif %}{% endfor %}
+                  <input type="hidden" name="status" value="">
+                </form>
+              </div>
+              <form method="post" class="lp-note">{% csrf_token %}
+                <input type="hidden" name="lead_id" value="{{ l.pk }}"><input type="hidden" name="qs" value="{{ qs_string }}">
+                <div class="lp-label">Internal note</div>
+                <textarea name="notes" placeholder="Notes for the team — the customer never sees this.">{{ l.notes }}</textarea>
+                <button class="btn sm ghost" name="action" value="save_note">Save note</button>
+              </form>
+            </div>
+            <div class="lp-reply">
+              {% if l.email %}
+              <form method="post" class="composer" style="border-top:none;padding:0">{% csrf_token %}
+                <input type="hidden" name="lead_id" value="{{ l.pk }}"><input type="hidden" name="qs" value="{{ qs_string }}">
+                <div class="lp-label">✉ Reply to {{ l.email }}</div>
+                <input name="subject" placeholder="Re: your message to {{ l.site.brand_name }}" class="lp-subject">
+                <textarea name="body" placeholder="Write a reply — sends from the site's address and marks this lead Replied."></textarea>
+                <div class="composer-row"><button class="btn" name="action" value="reply">Send reply</button></div>
+              </form>
+              {% else %}
+              <div class="lp-label">No email left</div>
+              <p class="sub">This lead didn't leave an email address{% if l.phone %} — try the phone number via <a href="{% url cns|add:':messages' %}" style="color:var(--accent)">Messages</a>{% endif %}.</p>
+              {% endif %}
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="8" class="empty">Nothing in this queue. 🎉</td></tr>{% endfor %}
     </tbody>
   </table>
 </section>
+
+<script>
+document.querySelectorAll('.lead-row').forEach(function(r){
+  r.addEventListener('click', function(){
+    var p = document.getElementById('panel-' + r.dataset.lead);
+    if (p) p.hidden = !p.hidden;
+  });
+});
+</script>
 {% endblock %}

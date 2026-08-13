@@ -172,3 +172,20 @@ code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12px}
   .inv-totals{flex-wrap:wrap;gap:12px}
   .status-form,.filters{flex-wrap:wrap}
 }
+
+/* --- lead review queue --- */
+.badge.s-new{color:var(--amber)}
+.badge.s-reviewed{color:var(--accent)}
+.badge.s-replied{color:var(--green)}
+.badge.s-closed{color:var(--mut)}
+.badge.s-spam{color:var(--red)}
+.lead-panel td{background:var(--panel2);border-bottom:1px solid var(--line)}
+.lp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:6px 4px}
+@media(max-width:900px){.lp-grid{grid-template-columns:1fr}}
+.lp-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-bottom:6px}
+.lp-msg p{margin:0 0 10px;white-space:pre-wrap}
+.lp-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.lp-actions form{display:flex;gap:8px;flex-wrap:wrap}
+.lp-note textarea{width:100%;min-height:54px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--fg);font-family:inherit;font-size:13px;resize:vertical;margin-bottom:8px}
+.lp-subject{width:100%;box-sizing:border-box;margin-bottom:8px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg);font-size:14px}
+.lp-reply textarea{background:var(--panel)}

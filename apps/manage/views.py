@@ -72,6 +72,7 @@ def dashboard(request):
             "sites": Site.objects.filter(is_active=True).count(),
             "low_stock": low_stock.count(),
             "leads": Lead.objects.count(),
+            "leads_new": Lead.objects.filter(status="new").count(),
         },
         "per_site": per_site,
         "recent_orders": orders.select_related("site")[:8],
@@ -168,9 +169,109 @@ def inventory(request):
 
 @console_required
 def leads(request):
+    """The lead review queue.
+
+    Not just a log: every lead carries a status (new -> reviewed / replied /
+    closed / spam), internal notes, and a reply-by-email composer. The list
+    joins against Orders by email so the operator can see at a glance whether
+    the person writing in is already a customer.
+    """
+    from django.utils import timezone as _tz
+
+    if request.method == "POST":
+        lead = get_object_or_404(Lead, pk=request.POST.get("lead_id"))
+        action = request.POST.get("action")
+        back = f"{request.path}?{request.POST.get('qs', '')}"
+
+        if action == "set_status":
+            try:
+                lead.set_status(request.POST.get("status", ""),
+                                by=request.user.get_username())
+                messages.success(request, f"Lead #{lead.pk} → {lead.get_status_display()}.")
+            except ValueError:
+                messages.error(request, "That isn't a valid lead status.")
+
+        elif action == "save_note":
+            lead.notes = request.POST.get("notes", "")[:5000]
+            lead.save(update_fields=["notes"])
+            messages.success(request, f"Note saved on lead #{lead.pk}.")
+
+        elif action == "reply":
+            body = request.POST.get("body", "").strip()
+            subject = (request.POST.get("subject", "").strip()
+                       or f"Re: your message to {lead.site.brand_name}")
+            if not lead.email:
+                messages.error(request, "This lead left no email address to reply to.")
+            elif not body:
+                messages.error(request, "Write a reply before sending.")
+            else:
+                from apps.mailer import mailer
+                mailer.customer_message(lead.email, subject, body, site=lead.site)
+                lead.set_status("replied", by=request.user.get_username())
+                messages.success(request, f"Reply sent to {lead.email}.")
+
+        return redirect(back)
+
+    qs = Lead.objects.select_related("site")
+    status = request.GET.get("status", "open")
+    site = request.GET.get("site", "")
+    kind = request.GET.get("kind", "")
+    q = request.GET.get("q", "").strip()
+
+    if status == "open":                # the default queue: still needs a human
+        qs = qs.filter(status__in=Lead.OPEN_STATUSES)
+    elif status in dict(Lead.STATUS):
+        qs = qs.filter(status=status)
+    # status == "all" (or anything else): no status filter — but never surprise-
+    # include spam in "all"; it has its own tab.
+    elif status != "all":
+        status = "open"
+        qs = qs.filter(status__in=Lead.OPEN_STATUSES)
+    if status == "all":
+        qs = qs.exclude(status="spam")
+    if site:
+        qs = qs.filter(site__domain=site)
+    if kind:
+        qs = qs.filter(kind=kind)
+    if q:
+        qs = qs.filter(Q(name__icontains=q) | Q(email__icontains=q)
+                       | Q(phone__icontains=q) | Q(message__icontains=q)
+                       | Q(notes__icontains=q))
+
+    rows = list(qs[:300])
+
+    # Is this lead already a customer? One grouped query over the page's emails.
+    emails = {r.email.lower() for r in rows if r.email}
+    by_email = {}
+    if emails:
+        for o in (Order.objects.filter(email__in=emails)
+                  .values("email")
+                  .annotate(n=Count("id"), total=Coalesce(
+                      Sum("total"), Decimal("0"), output_field=DecimalField()))):
+            by_email[o["email"].lower()] = o
+    for r in rows:
+        r.customer = by_email.get(r.email.lower()) if r.email else None
+
+    week_ago = _tz.now() - _tz.timedelta(days=7)
+    counts = {
+        "new": Lead.objects.filter(status="new").count(),
+        "open": Lead.objects.filter(status__in=Lead.OPEN_STATUSES).count(),
+        "week": Lead.objects.filter(created_at__gte=week_ago).count(),
+        "replied": Lead.objects.filter(status="replied").count(),
+        "spam": Lead.objects.filter(status="spam").count(),
+        "total": Lead.objects.count(),
+    }
+
     return render(request, "manage/leads.html", {
         "nav": "leads",
-        "leads": Lead.objects.select_related("site")[:300],
+        "leads": rows,
+        "counts": counts,
+        "statuses": Lead.STATUS,
+        "sites": Site.objects.all(),
+        "kinds": Lead.KIND,
+        "f": {"status": status, "site": site, "kind": kind, "q": q},
+        "qs_string": request.GET.urlencode(),
+        "count": qs.count(),
     })
 
 

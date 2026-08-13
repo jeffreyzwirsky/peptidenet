@@ -11,7 +11,7 @@
   <div class="kpi"><div class="kpi-label">Orders</div><div class="kpi-num">{{ kpi.orders }}<span class="kpi-sub">{{ kpi.pending }} pending</span></div></div>
   <div class="kpi"><div class="kpi-label">Inventory @ cost</div><div class="kpi-num">${{ kpi.inv_cost|floatformat:2 }}<span class="kpi-sub">${{ kpi.inv_retail|floatformat:2 }} retail</span></div></div>
   <div class="kpi {% if kpi.low_stock %}warn{% endif %}"><div class="kpi-label">Low / out of stock</div><div class="kpi-num">{{ kpi.low_stock }}</div></div>
-  <div class="kpi"><div class="kpi-label">Leads</div><div class="kpi-num">{{ kpi.leads }}</div></div>
+  <div class="kpi{% if kpi.leads_new %} warn{% endif %}"><div class="kpi-label">Leads</div><div class="kpi-num">{{ kpi.leads }}</div><span class="kpi-sub">{{ kpi.leads_new }} awaiting review</span></div>
 </div>
 
 <div class="cols">

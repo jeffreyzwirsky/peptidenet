@@ -397,6 +397,7 @@ def contact(request):
         site=request.site,
         name=data.get("name", ""),
         email=data.get("email", ""),
+        phone=(data.get("phone") or "").strip()[:20],
         message=data.get("message", ""),
         rating=data.get("rating") or None,
         kind=data.get("kind", "contact"),

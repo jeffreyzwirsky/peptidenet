@@ -21,8 +21,8 @@ DEFAULT_CA = [
     "research peptides Canada",
     "buy research peptides Canada",
     "Canadian peptide supplier",
-    "third-party tested peptides Canada",
-    "peptide COA Canada",
+    "peptide research news Canada",
+    "peptide research studies",
     "research compounds Canada",
 ]
 
@@ -30,8 +30,8 @@ DEFAULT_US = [
     "research peptides USA",
     "buy research peptides online USA",
     "US research peptide supplier",
-    "third-party tested research peptides",
-    "peptide certificate of analysis",
+    "peptide research news",
+    "new peptide research findings",
     "research compounds for laboratory use",
 ]
 
@@ -40,10 +40,10 @@ DEFAULT = DEFAULT_CA  # back-compat for callers that predate the split
 BY_DOMAIN = {
     # ---------------- Canada (.ca) ----------------
     "smashfatbiolabs.ca": [
-        "research peptides Canada", "high purity peptides Canada",
-        "HPLC tested peptides Canada", "buy BPC-157 Canada research",
-        "TB-500 research Canada", "peptide COA Canada",
-        "lab verified peptides Canada",
+        "peptide research news", "BPC-157 research studies",
+        "TB-500 preclinical research", "GLP-1 peptide research findings",
+        "new peptide research 2026", "peptide science news Canada",
+        "peptide research review Canada",
     ],
     "smashfat.ca": [
         "metabolic research peptides Canada", "GLP-1 research compounds Canada",
@@ -62,15 +62,15 @@ BY_DOMAIN = {
     ],
     "where-do-i-get-peptides.ca": [
         "where to buy research peptides Canada", "how to choose a peptide supplier",
-        "how to read a peptide COA", "research peptide buying guide Canada",
-        "what is a certificate of analysis peptide",
+        "research peptide buying guide Canada", "research peptide red flags",
+        "questions to ask a peptide supplier",
     ],
 
     # ---------------- United States (.com) ----------------
     "smashfatbiolabs.com": [
-        "reference grade research peptides", "certified research peptides USA",
-        "research peptide supplier United States", "mass-spec verified peptides",
-        "HPLC purity testing peptides", "research peptides shipped to USA",
+        "peptide research news USA", "peptide clinical trial results",
+        "BPC-157 animal study findings", "retatrutide trial research news",
+        "peptide research breakthroughs", "new peptide studies 2026",
     ],
     "smash-fat.com": [
         "research peptide library", "documented research peptides",
@@ -79,7 +79,7 @@ BY_DOMAIN = {
     ],
     "where-do-i-get-peptides.com": [
         "where to buy research peptides", "trusted research peptide source",
-        "research peptide supplier checklist", "how to verify peptide purity",
+        "research peptide supplier checklist", "research peptide scam warning signs",
         "how to vet a peptide vendor", "research peptide supplier comparison",
     ],
 }
@@ -109,9 +109,10 @@ MARKET_BY_DOMAIN = {
 # and it is the whole reason the network runs eight sites instead of one.
 ANGLE_BY_DOMAIN = {
     "smashfatbiolabs.ca":
-        "Analytical rigour. Lead with methodology — how HPLC and mass spectrometry "
-        "establish identity and purity, what a release threshold means, how to read "
-        "a chromatogram. Technical register, for a reader with bench experience.",
+        "Research news desk. Report what published, peer-reviewed studies of a "
+        "compound actually found — model, methods, result — with every finding "
+        "attributed and hedged, and a standing not-medical-advice / do-your-own-"
+        "research note. Science journalism register, never promotion.",
     "smashfat.ca":
         "Metabolic research context. Explain what class of compound is being studied "
         "and why, at the level of mechanism and research literature. Never touch "
@@ -130,8 +131,10 @@ ANGLE_BY_DOMAIN = {
         "and what it does not. Guide voice, genuinely useful even to someone who buys "
         "elsewhere.",
     "smashfatbiolabs.com":
-        "Reference-grade documentation for US laboratories. Specification, traceability, "
-        "batch records, what 'reference grade' means and what it doesn't.",
+        "US research news desk. Summarize new preclinical and clinical literature on "
+        "research compounds — what was studied, in what model, what was reported — "
+        "attributed, hedged, with a not-medical-advice / do-your-own-research note. "
+        "Reads like a lab newsletter, not a store.",
     "smash-fat.com":
         "Reference library. Structural and physicochemical data — sequence, molecular "
         "weight, formula, solubility — presented as a factual entry a researcher cites. "

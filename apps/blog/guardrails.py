@@ -18,7 +18,9 @@ import re
 
 DISCLAIMER = ("For research use only. Not for human or veterinary use. This content is "
               "informational and describes laboratory research — it is not medical advice, "
-              "and makes no therapeutic, diagnostic, or health claims.")
+              "and makes no therapeutic, diagnostic, or health claims. Research summaries "
+              "report published findings as-is: always do your own research and consult "
+              "the primary literature.")
 
 # Hard-prohibited: presence flags the post for mandatory human fix. Word-boundary,
 # case-insensitive. Kept conservative and research-context aware.
@@ -163,6 +165,33 @@ def _is_negated(text, start):
     return not re.search(r"[.!?]\s", window[cue:])
 
 
+# Research-news attribution. A finding that is *reported* — pinned to a study,
+# a trial, an animal model, the literature — is science journalism, not a claim
+# by this business. "A 2023 rodent study reported accelerated tendon repair"
+# must be writable; "BPC-157 heals tendons" must not. Only the labels below get
+# this escape: dosing/human-use, regulatory, origin, certification, testing/COA,
+# superlative and delivery claims stay hard no matter how they are attributed,
+# because attribution does not make them lawful for the advertiser.
+_ATTRIBUTION = re.compile(
+    r"\b(stud(?:y|ies)|trials?|researchers?|scientists?|investigators?|"
+    r"paper|publication|preprint|meta[- ]analys[ie]s|systematic review|"
+    r"literature|according to|reported(?:ly)?|was (?:reported|observed|shown)|"
+    r"findings?|in (?:mice|rats|rodents|cell(?:s| lines?)?|vitro|vivo)|"
+    r"animal (?:model|study|studies)|rodent|preclinical|clinical trial)\b", re.I)
+
+REPORTABLE = {"medical/therapeutic claim", "weight-loss / body promise"}
+
+
+def _is_attributed(text, start, end):
+    """True when the match's own sentence carries a research-attribution cue."""
+    s = max(text.rfind(".", 0, start), text.rfind("!", 0, start),
+            text.rfind("?", 0, start), text.rfind("\n", 0, start)) + 1
+    e_candidates = [i for i in (text.find(".", end), text.find("!", end),
+                                text.find("?", end), text.find("\n", end)) if i != -1]
+    e = min(e_candidates) if e_candidates else len(text)
+    return bool(_ATTRIBUTION.search(text[s:e]))
+
+
 def scan(text):
     """Return (hard_issues, soft_issues) — lists of (label, matched_snippet)."""
     hard, soft = [], []
@@ -182,6 +211,12 @@ def scan(text):
                 # Surfaced, not blocking — the reviewer still sees it, but the
                 # post is not painted red for teaching a reader what to avoid.
                 soft.append((f"quoted example — {label}", m.group(0)))
+                continue
+            if label in REPORTABLE and _is_attributed(text, m.start(), m.end()):
+                # Reported research finding — surfaced for the reviewer, not
+                # blocking. The disclaimer's do-your-own-research note is the
+                # standing companion to every such summary.
+                soft.append((f"reported research finding — {label}", m.group(0)))
                 continue
             hard.append((label, m.group(0)))
     for label, pat in SOFT_PATTERNS.items():

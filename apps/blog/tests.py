@@ -483,3 +483,60 @@ class UnevidencedAnalyticalClaimTests(TestCase):
                   "Orders ship directly from our manufacturing partner in plain, tracked "
                   "packaging. Allow 10–15 days for delivery."):
             self.assertEqual(self._labels(t), set(), t)
+
+
+class ResearchNewsGuardrailTests(TestCase):
+    """Attributed research reporting passes; the same words as a bare brand
+    claim still block. Attribution never rescues dosing/regulatory/testing."""
+
+    def test_attributed_finding_is_reported_not_blocked(self):
+        from apps.blog import guardrails
+        r = guardrails.review(
+            "A 2023 rodent study reported accelerated tendon healing in rats "
+            "given BPC-157, though human relevance remains unknown."
+        )
+        self.assertEqual(r["status"], "pass")
+        self.assertIn("reported research finding", r["notes"])
+
+    def test_trial_weight_finding_is_reported_not_blocked(self):
+        from apps.blog import guardrails
+        r = guardrails.review(
+            "In the phase 2 trial, researchers observed that participants "
+            "on retatrutide were reported to lose weight relative to placebo."
+        )
+        self.assertEqual(r["status"], "pass")
+
+    def test_same_claim_unattributed_still_blocks(self):
+        from apps.blog import guardrails
+        r = guardrails.review("BPC-157 supports healing and helps you lose weight.")
+        self.assertEqual(r["status"], "flagged")
+
+    def test_attribution_never_rescues_dosing(self):
+        from apps.blog import guardrails
+        r = guardrails.review(
+            "The study protocol used a dosage of 10 mg per day in participants."
+        )
+        self.assertEqual(r["status"], "flagged")
+
+    def test_attribution_never_rescues_testing_claims(self):
+        from apps.blog import guardrails
+        r = guardrails.review(
+            "A study confirmed our products are third-party tested."
+        )
+        self.assertEqual(r["status"], "flagged")
+
+    def test_disclaimer_carries_do_your_own_research_note(self):
+        from apps.blog import guardrails
+        r = guardrails.review("A short note on peptide research.")
+        self.assertIn("do your own research", r["text"].lower())
+        self.assertIn("not medical advice", r["text"].lower())
+
+    def test_news_lane_keywords_generate_passing_drafts(self):
+        from django.core.management import call_command
+
+        from apps.blog import generator
+        from apps.stores.models import Site
+        call_command("seed_catalog"); call_command("seed_sites")
+        site = Site.objects.get(domain="smashfatbiolabs.ca")
+        p = generator.generate(site, "peptide research news")
+        self.assertEqual(p.compliance_status, "pass")

@@ -9,7 +9,12 @@
 # underneath itself mid-run.)
 #
 set -euo pipefail
-CERT_EMAIL="${1:-}"
+# Default the cert email rather than allowing empty: update.sh regenerates the
+# nginx config from emit_nginx (port-80 blocks only), and it is the certbot loop
+# below that re-injects every 443 server block. Run with the email omitted and
+# the loop is skipped — which took all eight sites down (Cloudflare 520s) for
+# ~35 minutes on 2026-08-14 until re-run with the email. Never again.
+CERT_EMAIL="${1:-jeff@smashscrap.ca}"
 APP=/var/www/peptidenet
 cd "$APP"
 

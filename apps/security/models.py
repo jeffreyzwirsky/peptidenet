@@ -19,6 +19,12 @@ class SecurityEvent(models.Model):
     path = models.CharField(max_length=300, blank=True)
     detail = models.CharField(max_length=300, blank=True)
     user_agent = models.CharField(max_length=300, blank=True)
+    # Two-letter ISO code from Cloudflare's CF-IPCountry header. This column has
+    # existed in the production database (NOT NULL varchar(2)) since ~2026-08-11
+    # but was never in the model, so every SecurityEvent insert raised
+    # IntegrityError — and log_event swallowed it. The entire security audit
+    # trail was dead for three days and nothing said so.
+    country = models.CharField(max_length=2, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

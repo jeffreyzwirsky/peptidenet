@@ -241,3 +241,41 @@ class RecordingUrlTests(TestCase):
                  "RecordingDuration": "3"})
         vm = Voicemail.objects.latest("pk")
         self.assertEqual(vm.recording_url, "", "javascript: URL was stored")
+
+
+class AuditTrailIsActuallyWritingTests(TestCase):
+    """Regression for the three-day silent outage: production had a NOT NULL
+    `country` column the model didn't know about, every insert raised
+    IntegrityError, and `except: pass` hid it completely."""
+
+    def test_event_is_written_and_country_captured(self):
+        from django.test import RequestFactory
+
+        from apps.security.models import SecurityEvent
+        from apps.security.utils import log_event
+        req = RequestFactory().post("/checkout/", HTTP_CF_IPCOUNTRY="ca")
+        log_event(req, "honeypot", detail="probe")
+        e = SecurityEvent.objects.latest("pk")
+        self.assertEqual(e.kind, "honeypot")
+        self.assertEqual(e.country, "CA")
+
+    def test_missing_cloudflare_header_is_fine(self):
+        from django.test import RequestFactory
+
+        from apps.security.models import SecurityEvent
+        from apps.security.utils import log_event
+        log_event(RequestFactory().get("/"), "bot_trap", detail="no cf header")
+        self.assertEqual(SecurityEvent.objects.latest("pk").country, "")
+
+    def test_audit_failure_is_logged_not_swallowed(self):
+        """If the write ever breaks again it must scream, not vanish."""
+        from unittest.mock import patch
+
+        from django.test import RequestFactory
+
+        from apps.security.utils import log_event
+        with patch("apps.security.utils.SecurityEvent.objects.create",
+                   side_effect=Exception("db exploded")):
+            with self.assertLogs("security", level="ERROR") as cm:
+                log_event(RequestFactory().get("/"), "honeypot")
+        self.assertTrue(any("AUDIT WRITE FAILED" in m for m in cm.output))

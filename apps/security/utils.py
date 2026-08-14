@@ -1,6 +1,7 @@
 """Security helpers: spoof-resistant client IP, honeypot, rate limiting, audit."""
 import functools
 import json
+import logging
 import time
 
 from django.conf import settings
@@ -8,6 +9,8 @@ from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 
 from .models import SecurityEvent
+
+log = logging.getLogger("security")
 
 # Hidden form field name. A real user never fills it; bots that fill every input do.
 HONEYPOT_FIELD = "company_website"
@@ -42,14 +45,27 @@ def client_ip(request):
 
 
 def log_event(request, kind, detail="", ip=None):
+    """Write a security audit row.
+
+    Still never raises into the request — an audit failure must not take a page
+    down — but it no longer fails *silently*. A bare `except: pass` here is how
+    the whole trail went dead for three days without a single symptom: a column
+    added to the production table by hand (`country`, NOT NULL) made every
+    insert raise, and nobody could have known. Now the failure is logged loudly
+    enough to be found.
+    """
     try:
         SecurityEvent.objects.create(
             kind=kind, ip=ip or client_ip(request),
             path=request.path[:300], detail=detail[:300],
             user_agent=request.META.get("HTTP_USER_AGENT", "")[:300],
+            # Cloudflare gives us the origin country for free; it is the single
+            # most useful field for reading a wall of bot-trap hits.
+            country=(request.META.get("HTTP_CF_IPCOUNTRY", "") or "")[:2].upper(),
         )
-    except Exception:  # never let auditing break a request
-        pass
+    except Exception:  # never let auditing break a request — but never hide it
+        log.exception("SECURITY AUDIT WRITE FAILED (kind=%s) — the audit trail "
+                      "is not recording", kind)
 
 
 def is_bot_honeypot(request):

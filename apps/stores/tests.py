@@ -818,6 +818,23 @@ class AlbertaCityPageTests(TestCase):
     CITIES = ["calgary", "edmonton", "red-deer", "lethbridge",
               "medicine-hat", "grande-prairie"]
 
+    def test_vancouver_is_a_bc_city_page_on_its_own_owner(self):
+        self.assertEqual(
+            self.client.get("/research-peptides/vancouver/",
+                            HTTP_HOST="smashfatbiolabs.ca").status_code, 200)
+        for other in ("peptidesalberta.ca", "smashfat.ca", "smashfatbiolabs.com"):
+            self.assertEqual(
+                self.client.get("/research-peptides/vancouver/",
+                                HTTP_HOST=other).status_code, 404, other)
+
+    def test_bc_page_links_to_vancouver_and_back(self):
+        bc = self.client.get("/research-peptides/british-columbia/",
+                             HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertIn("/research-peptides/vancouver/", bc)
+        van = self.client.get("/research-peptides/vancouver/",
+                              HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        self.assertIn("/research-peptides/british-columbia/", van)
+
     def test_city_pages_serve_only_on_peptidesalberta(self):
         for slug in self.CITIES:
             self.assertEqual(
@@ -884,3 +901,102 @@ class AlbertaCityPageTests(TestCase):
             for phrase in banned:
                 self.assertNotIn(phrase, html, f"{phrase!r} on {slug}")
             self.assertIn("Research Use Only", html)
+
+
+class SeoHygieneTests(TestCase):
+    """Cheap, high-value checks that catch the SEO defects that actually recur."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_region_titles_and_metas_fit_in_a_serp(self):
+        """A title over ~60 chars or a description over ~158 gets truncated.
+        Five of the first six city pages written for this project blew both."""
+        from apps.stores import regions
+        for r in regions.REGIONS:
+            self.assertLessEqual(len(r["title"]), 60,
+                                 f"{r['slug']} title is {len(r['title'])} chars")
+            self.assertLessEqual(len(r["meta_description"]), 158,
+                                 f"{r['slug']} meta is {len(r['meta_description'])} chars")
+            self.assertGreaterEqual(len(r["meta_description"]), 110,
+                                    f"{r['slug']} meta is only {len(r['meta_description'])} chars")
+
+    def test_region_pages_are_reachable_from_the_storefront(self):
+        """Region pages were orphans — linked only from each other, so the sole
+        route in was the sitemap. Internal links are how crawl priority gets
+        there."""
+        from apps.stores import regions
+        from apps.stores.models import Site
+        for site in Site.objects.filter(is_active=True):
+            html = self.client.get("/", HTTP_HOST=site.domain).content.decode()
+            owned = [r for r in regions.for_site(site) if not r.get("parent")]
+            self.assertTrue(owned, f"{site.domain} owns no regions")
+            for r in owned:
+                self.assertIn(f"/research-peptides/{r['slug']}/", html,
+                              f"{site.domain} home page does not link {r['slug']}")
+
+    def test_a_site_never_links_a_region_it_does_not_serve(self):
+        from apps.stores import regions
+        from apps.stores.models import Site
+        import re as _re
+        for site in Site.objects.filter(is_active=True):
+            html = self.client.get("/", HTTP_HOST=site.domain).content.decode()
+            for slug in set(_re.findall(r'/research-peptides/([a-z\-]+)/', html)):
+                self.assertEqual(regions.owner_of(slug), site.domain,
+                                 f"{site.domain} links {slug}, owned by {regions.owner_of(slug)}")
+
+    def test_every_region_page_self_canonicalises(self):
+        from apps.stores import regions
+        import re as _re
+        for r in regions.REGIONS:
+            html = self.client.get(f"/research-peptides/{r['slug']}/",
+                                   HTTP_HOST=r["owner"], secure=True).content.decode()
+            canon = _re.findall(r'<link rel="canonical" href="([^"]+)"', html)
+            self.assertEqual(len(canon), 1, f"{r['slug']} has {len(canon)} canonicals")
+            self.assertTrue(canon[0].endswith(f"/research-peptides/{r['slug']}/"),
+                            f"{r['slug']} canonical points at {canon[0]}")
+
+
+class RegionAnalyticalClaimTests(TestCase):
+    """Commit 17cdb66 stripped testing/COA/purity claims from the storefronts,
+    but the region pages were missed — eight of them were still telling buyers
+    the catalogue is 'released at a threshold of 99 percent or higher by HPLC'
+    for a business that holds no analytical documentation at all. The existing
+    claim test only looked for shipping and medical phrases, so nothing caught
+    it. These tokens are now banned outright: none of them is needed even to
+    deny the claim."""
+
+    BANNED = [
+        "HPLC", "USP", "high-performance liquid chromatography",
+        "mass spec", "mass-spec", "release threshold", "released at a threshold",
+        "third-party tested", "third party tested", "pharmaceutical grade",
+        "pharmaceutical-grade", "GMP", "99%", "99 percent",
+    ]
+
+    def test_no_region_asserts_testing_purity_or_a_grade(self):
+        from apps.stores import regions
+        for r in regions.REGIONS:
+            blob = " ".join(
+                [r["title"], r["meta_description"], r["intro"]]
+                + [s["h2"] + " " + s["body"] for s in r["sections"]]
+                + [f["q"] + " " + f["a"] for f in r["faqs"]]
+            ).lower()
+            for token in self.BANNED:
+                self.assertNotIn(token.lower(), blob,
+                                 f"{r['slug']} asserts {token!r} — we hold no analytical data")
+
+    def test_pages_that_discuss_documentation_say_we_have_none(self):
+        """Explaining what a COA is remains fine. Implying we issue one is not."""
+        from apps.stores import regions
+        for r in regions.REGIONS:
+            blob = " ".join([s["h2"] + " " + s["body"] for s in r["sections"]]
+                            + [f["q"] + " " + f["a"] for f in r["faqs"]]).lower()
+            if "certificate of analysis" not in blob:
+                continue
+            self.assertTrue(
+                any(p in blob for p in ("no certificate of analysis", "none is issued",
+                                        "nothing of that kind exists", "no purity figure",
+                                        "none is quoted", "none is published")),
+                f"{r['slug']} discusses a COA without stating we hold none")

@@ -202,16 +202,16 @@ REGIONS = [
         ),
         "sections": [
             {
-                "h2": "Reading the certificate of analysis before you buy",
+                "h2": "What documentation exists, and what does not",
                 "body": (
-                    "Most compounds in the catalogue are released at a "
-                    "threshold of 99 percent or higher by HPLC. A certificate "
-                    "of analysis should show you the identity of the material, "
-                    "the batch it belongs to, the analytical method used and "
-                    "the purity figure that method produced. Supplies such as "
-                    "bacteriostatic water carry a USP grade instead of an HPLC "
-                    "figure. If a document does not name its method, it is not "
-                    "telling you much."
+                    "No certificate of analysis is held for anything in "
+                    "the catalogue, and no purity figure is published for "
+                    "any of it. Nothing listed has been characterised "
+                    "here, so identity and content are open questions "
+                    "when the vial arrives. A laboratory that needs "
+                    "either one settled should budget for its own "
+                    "analysis before the material is used, and record the "
+                    "result in its own file."
                 ),
             },
             {
@@ -252,9 +252,10 @@ REGIONS = [
             {
                 "q": "Do you provide a certificate of analysis?",
                 "a": (
-                    "Purity documentation is tied to the batch, not to the "
-                    "order. Ask support for the current batch document for a "
-                    "specific compound and we will send what we hold."
+                    "No. Nothing of that kind exists here to send, and "
+                    "asking will not produce one. If an approval process "
+                    "treats analytical documentation as a precondition, "
+                    "this supply will not satisfy it."
                 ),
             },
             {
@@ -345,7 +346,7 @@ REGIONS = [
             {
                 "q": "Can I add bacteriostatic water to an order?",
                 "a": (
-                    "Yes. USP-grade bacteriostatic water is listed in the "
+                    "Yes. Bacteriostatic water is listed in the "
                     "catalogue as a supply item and ships in the same parcel."
                 ),
             },
@@ -449,9 +450,10 @@ REGIONS = [
             {
                 "q": "What purity are the compounds?",
                 "a": (
-                    "Most catalogue items carry a release threshold of 99 "
-                    "percent or higher by HPLC. Supply items such as "
-                    "bacteriostatic water carry a USP grade instead."
+                    "No purity figure is published, because none has been "
+                    "measured here. Treat what arrives as material of "
+                    "unconfirmed content and establish whatever your "
+                    "protocol depends on at your own bench."
                 ),
             },
         ],
@@ -592,7 +594,7 @@ REGIONS = [
             {
                 "h2": "Documentation and labelling",
                 "body": (
-                    "Vial labels and the batch documents we hold are written in "
+                    "Vial labels are written in "
                     "English. Each label carries the compound name, the vial "
                     "size and a batch identifier, and it states that the "
                     "contents are for research use only. If you keep an internal "
@@ -626,9 +628,9 @@ REGIONS = [
             {
                 "q": "Are labels available in French?",
                 "a": (
-                    "Vial labels and batch documents are supplied in English. "
-                    "Support can answer written questions about what a label "
-                    "field means."
+                    "Vial labels are printed in English. Support can "
+                    "answer written questions about what a label field "
+                    "means."
                 ),
             },
             {
@@ -784,15 +786,16 @@ REGIONS = [
                 ),
             },
             {
-                "h2": "What a purity figure actually tells you",
+                "h2": "What a purity number would mean, and why none appears",
                 "body": (
-                    "A release threshold stated by a supplier "
-                    "describes how much of the material in the vial is the "
-                    "named compound, measured by that method on that batch. It "
-                    "does not describe anything else about the material, and it "
-                    "is not a claim about what the compound does. A number "
-                    "without a named method and a batch reference beside it is "
-                    "not worth much."
+                    "A purity number quoted by any supplier describes how "
+                    "much of the material in the vial is the named "
+                    "compound, measured by one method on one batch. It "
+                    "describes nothing else, and it is not a claim about "
+                    "what the compound does. A figure offered without a "
+                    "named method and a batch reference beside it is not "
+                    "worth much. None is quoted here, for any item, "
+                    "because no such measurement has been made."
                 ),
             },
             {
@@ -808,11 +811,13 @@ REGIONS = [
         ],
         "faqs": [
             {
-                "q": "Can I get the batch document for a compound?",
+                "q": "Is there any documentation for a specific batch?",
                 "a": (
-                    "Ask support for the current batch document for the "
-                    "specific item. Documents are tied to batches, so the one "
-                    "you want depends on what is in stock."
+                    "No. Batch-level paperwork is not produced or held "
+                    "here, so there is none to request for any item. "
+                    "Anything your own records need about a specific vial "
+                    "has to be established at your bench and written down "
+                    "there."
                 ),
             },
             {
@@ -875,7 +880,7 @@ REGIONS = [
             {
                 "h2": "Reconstitution supplies",
                 "body": (
-                    "Compounds ship as dry lyophilised powder. USP-grade "
+                    "Compounds ship as dry lyophilised powder.  "
                     "bacteriostatic water is listed separately in the catalogue "
                     "as a supply item, in a 30 ml size, for reconstituting that "
                     "powder in laboratory work. If you do not already hold it, "
@@ -902,7 +907,7 @@ REGIONS = [
             {
                 "q": "Do you sell bacteriostatic water?",
                 "a": (
-                    "Yes, as a USP-grade supply item in a 30 ml size, for "
+                    "Yes, as a supply item in a 30 ml size, for "
                     "reconstituting lyophilised research compounds."
                 ),
             },
@@ -1260,7 +1265,7 @@ REGIONS = [
                     "Where supply is slow, good record keeping is worth more. "
                     "Log the compound name, vial size, batch identifier and "
                     "arrival date for everything you receive, and keep the "
-                    "batch document alongside it. That way an audit or a "
+                    "record alongside it. That way an audit or a "
                     "question about a specific vial can be answered from your "
                     "own file rather than by waiting on correspondence."
                 ),
@@ -1294,7 +1299,7 @@ REGIONS = [
                 "q": "What records should I keep on receipt?",
                 "a": (
                     "Compound name, vial size, batch identifier and arrival "
-                    "date, kept with the batch document."
+                    "date, kept in your own receiving record."
                 ),
             },
         ],
@@ -1328,13 +1333,10 @@ REGIONS = [
         "short": "Calgary",
         "cities": ["Calgary"],
         "timezone": "Mountain Time",
-        "title": (
-            "Ordering Research Peptides to a Calgary Address | Quadrant "
-            "and Bay Detail"
-        ),
+        "title": "Research Peptides in Calgary | Addressing and Receiving",
         "meta_description": (
-            "A Calgary label needs the quadrant suffix, the bay number "
-            "and the tenant name or a driver is guessing. Addressing and "
+            "A Calgary label needs the quadrant, the bay number and the "
+            "tenant name, or a driver is guessing. Addressing and "
             "receiving notes for research-use material."
         ),
         "h1": (
@@ -1632,14 +1634,11 @@ REGIONS = [
         "short": "Red Deer",
         "cities": ["Red Deer"],
         "timezone": "Mountain Time",
-        "title": (
-            "Red Deer Research Peptides | Corridor Routing, Research Use "
-            "Only"
-        ),
+        "title": "Research Peptides for Red Deer and Central Alberta",
         "meta_description": (
-            "Central Alberta corridor routing explained for Red Deer "
-            "research buyers: why a parcel scans elsewhere first, the 10 "
-            "to 15 day window, CAD prices, research use only."
+            "Why a Red Deer parcel scans in a larger centre before it "
+            "reaches you, what the final leg looks like at an address "
+            "this size, and how to order around it."
         ),
         "h1": "Research Peptides for Red Deer and Central Alberta",
         "intro": (
@@ -1791,14 +1790,11 @@ REGIONS = [
         "short": "Lethbridge",
         "cities": ["Lethbridge"],
         "timezone": "Mountain Time",
-        "title": (
-            "Research Peptides for Lethbridge, Alberta Benches — Delivery "
-            "and Handling"
-        ),
+        "title": "Research Peptides in Lethbridge | Delivery and Handling",
         "meta_description": (
-            "A parcel left at a Lethbridge door meets the wind. Pick a "
-            "receiving address that gets it indoors; delivery moves "
-            "inside a 10 to 15 day window. Research use only."
+            "A parcel left at a Lethbridge door meets the wind. Choosing "
+            "a receiving address that gets it indoors, and ordering "
+            "around the plot season."
         ),
         "h1": "Research Peptides for Lethbridge, Alberta",
         "intro": (
@@ -1962,14 +1958,11 @@ REGIONS = [
         "short": "Medicine Hat",
         "cities": ["Medicine Hat"],
         "timezone": "Mountain Time",
-        "title": (
-            "Ordering Research Peptides in Medicine Hat: Summer Delivery "
-            "Notes"
-        ),
+        "title": "Research Peptides in Medicine Hat | Summer Delivery",
         "meta_description": (
             "A July box left on a sunny step is the real Medicine Hat "
-            "delivery problem. Planning collection, the 10 to 15 day "
-            "span, CAD pricing. Research material only."
+            "delivery problem. Planning who collects it, and ordering "
+            "around a lab that empties in August."
         ),
         "h1": (
             "Research peptide orders arriving in Medicine Hat during a "
@@ -2132,11 +2125,11 @@ REGIONS = [
         "short": "Grande Prairie",
         "cities": ["Grande Prairie"],
         "timezone": "Mountain Time",
-        "title": "Research Peptides for Grande Prairie and Peace Country Sites",
+        "title": "Research Peptides in Grande Prairie and the Peace",
         "meta_description": (
-            "Research peptides to Peace Country site addresses near "
-            "Grande Prairie: how to write a lease-road location into the "
-            "checkout fields. Laboratory use only; 10 to 15 day window."
+            "How to write a Peace Country site address into the checkout "
+            "fields so a driver can find it, and why the last stretch is "
+            "already inside the quoted window."
         ),
         "h1": (
             "Ordering Research Peptides to Grande Prairie and the Peace "
@@ -2298,6 +2291,181 @@ REGIONS = [
                     "fifteenth day and place the order far enough ahead "
                     "of your milestone that the whole range fits in front "
                     "of it."
+                ),
+            },
+        ],
+    },
+    # ------------------------------------------------------------------
+    # BRITISH COLUMBIA CITY PAGE — smashfatbiolabs.ca only.
+    #
+    # One, not five. Drafts for Surrey, Burnaby, Victoria and Kelowna were
+    # written and rejected: an audit claim-mapped them and found the same
+    # four arguments (order against the window; be present for it; name a
+    # person not a department; central receiving adds an internal leg)
+    # recurring on every page, and three of the five reproduced Alberta
+    # framings. City logistics pages have a finite argument space, and
+    # eleven of them across one network is past what can be genuinely
+    # differentiated. Vancouver earns its page because sustained coastal
+    # rain does something to a carton that no prairie page describes.
+    # The other centres are served by the British Columbia page.
+    # ------------------------------------------------------------------
+    {
+        "slug": "vancouver",
+        "market": "CA",
+        "owner": "smashfatbiolabs.ca",
+        "parent": "british-columbia",
+        "name": "Vancouver",
+        "short": "Vancouver",
+        "cities": ["Vancouver"],
+        "timezone": "Pacific Time",
+        "title": "Research Peptides in Vancouver, BC | Receiving Notes",
+        "meta_description": (
+            "Notes for researchers ordering to a Vancouver address, where "
+            "rain, downtown loading zones and an early-closing receiving "
+            "desk decide when a box lands."
+        ),
+        "h1": "Research Peptides in Vancouver, British Columbia",
+        "intro": (
+            "Rain is the local variable. Not weather that arrives and "
+            "passes, but days of it in a row off the water — fine enough "
+            "that nobody calls it a storm, steady enough to keep a "
+            "doorstep dark from morning until dusk. Cardboard left out in "
+            "that is a different problem from cardboard left out in cold. "
+            "Everything below is about the last hundred metres of a "
+            "Vancouver delivery: the step, the lobby, the lane door, the "
+            "desk that shuts before you do. These are laboratory "
+            "reference materials sold for research use only, never for "
+            "use in humans or animals."
+        ),
+        "sections": [
+            {
+                "h2": "Rain gets to the box before you do",
+                "body": (
+                    "The failure mode on the coast is not a frozen "
+                    "parcel. It is a soft one. Corrugate wicks. An hour "
+                    "of drizzle darkens the bottom flap, an afternoon of "
+                    "it takes the stiffness out of the corners, and a box "
+                    "that has gone soft is a box that tears when you lift "
+                    "it by the wrong edge. Most of that happens after the "
+                    "driver has gone. So choose a drop point with "
+                    "something over it. A recessed entry, an awning, a "
+                    "covered stair, the alcove behind the glass — "
+                    "anything that is not open sky. Write it into the "
+                    "address notes in plain words: leave under the "
+                    "awning, left side. If the only unattended spot is "
+                    "open to the weather and the sky looks committed, "
+                    "don't gamble on it; ask for a signature and let the "
+                    "box come back rather than sit. When one does arrive "
+                    "wet, get it off the ground and out of the wet before "
+                    "you open it. Cutting into a saturated lid drags "
+                    "water and street grit inward, and tape on damp liner "
+                    "peels rather than releases."
+                ),
+            },
+            {
+                "h2": "Downtown, the driver stops at the lobby",
+                "body": (
+                    "On the peninsula the geometry runs against the "
+                    "courier. Loading zones are short and usually "
+                    "occupied. Curb space thins out as the afternoon "
+                    "fills up. One-way blocks and separated bike lanes "
+                    "narrow the options further, and a driver who finds a "
+                    "legal stop is often most of a block from your door "
+                    "with a hand cart and several stops in the same "
+                    "tower. That driver is not reaching your floor. "
+                    "Fobbed elevators, secured floors and a concierge who "
+                    "signs on behalf of the building mean the parcel ends "
+                    "at a desk in the lobby or a room off P1 — and the "
+                    "trip from desk to bench is yours. Plan for it. "
+                    "Somebody has to know the box exists and go collect "
+                    "it. Two things shorten that trip: a phone number a "
+                    "person actually answers that day, and a named "
+                    "receiving contact on the label instead of a "
+                    "department. Write the real municipality too. Plenty "
+                    "of addresses people call Vancouver sort as Burnaby, "
+                    "Richmond or North Vancouver, and the courier reads "
+                    "the postal code, not the habit."
+                ),
+            },
+            {
+                "h2": "A unit, not a floor",
+                "body": (
+                    "Much of the bench space in this city was never in a "
+                    "tower. It is a converted warehouse with a loading "
+                    "door somebody bricked up years ago, a strata unit "
+                    "sitting over a ground-floor retail bay, a light- "
+                    "industrial block near the Flats or off Main with six "
+                    "tenants and one buzzer panel. Good rooms. Awkward "
+                    "addresses. What changes at the door: no concierge, "
+                    "no mailroom, so no default person to receive. The "
+                    "street entrance is glass, locked and unlabelled. The "
+                    "unit number is on the door inside, not on the "
+                    "facade. The way in is around the side or off the "
+                    "lane. The buzzer still lists a tenant who left two "
+                    "leases ago. The fixes are small ones. Put a current "
+                    "name on the buzzer and use that same name on the "
+                    "order. Say which entrance in the notes — lane door, "
+                    "north side, up the ramp. Decide in advance who signs "
+                    "when the person who ordered is out, because in a "
+                    "six-unit building the driver's fallback is a "
+                    "neighbour or a notice card, and a notice card costs "
+                    "you a day."
+                ),
+            },
+        ],
+        "faqs": [
+            {
+                "q": (
+                    "The parcel sat out in the rain before I got to it. "
+                    "What should I do with it?"
+                ),
+                "a": (
+                    "Bring it inside, set it on a dry surface off the "
+                    "floor, and let the outside dry before you cut "
+                    "anything. Opening a saturated box pulls water and "
+                    "street grit inward, and wet tape lifts the liner "
+                    "instead of releasing cleanly. If the outer packaging "
+                    "has actually failed — split corner, sagging base, a "
+                    "lid you can push a thumb through — photograph it "
+                    "before you go further, then send us the order number "
+                    "with those photos and we will take it from there."
+                ),
+            },
+            {
+                "q": (
+                    "Our building makes couriers book the loading bay and "
+                    "hand everything to concierge. Does that cause a "
+                    "problem?"
+                ),
+                "a": (
+                    "No. That is ordinary downtown and the delivering "
+                    "carrier works with it every day. Put the instruction "
+                    "where a driver will read it — concierge accepts, or "
+                    "dock booking required — along with a number someone "
+                    "answers. Expect the signature to be the building's "
+                    "rather than yours, and expect the box to wait at the "
+                    "desk until you go down for it. The one thing we "
+                    "cannot do is book the slot; that arrangement sits "
+                    "between your building and the carrier, and it is "
+                    "usually a single phone call from your side."
+                ),
+            },
+            {
+                "q": (
+                    "How should I write the address for a unit in a "
+                    "mixed-use building?"
+                ),
+                "a": (
+                    "Two short lines beat one long one. Put the unit "
+                    "first, hyphenated to the civic number the way strata "
+                    "addresses are written here, then the street. Use the "
+                    "second line for what a driver needs at street level: "
+                    "which entrance, and the name showing on the buzzer. "
+                    "Keep each to a few words, since long labels get "
+                    "truncated. And use the municipality the postal code "
+                    "belongs to rather than the one people say out loud — "
+                    "a unit written as Vancouver that is really in "
+                    "Burnaby adds a handling step it does not need."
                 ),
             },
         ],
@@ -2554,14 +2722,15 @@ REGIONS = [
                 ),
             },
             {
-                "h2": "Reading a certificate of analysis",
+                "h2": "Why no analytical paperwork accompanies an order",
                 "body": (
-                    "A useful COA names the compound, names the batch, names "
-                    "the analytical method and gives the purity figure that "
-                    "method returned. Most catalogue items carry a release "
-                    "threshold they have measured. That figure "
-                    "describes composition and nothing else — it is not a claim "
-                    "about what the material does."
+                    "A complete analytical document would name the "
+                    "compound, the batch, the method and the figure that "
+                    "method returned. None is issued here, for any item, "
+                    "and no figure is published to stand behind. That is "
+                    "the position rather than an omission: work that "
+                    "depends on confirmed identity or content needs its "
+                    "own determination, made on its own instruments."
                 ),
             },
         ],
@@ -2581,11 +2750,11 @@ REGIONS = [
                 ),
             },
             {
-                "q": "What does ≥99% by HPLC mean?",
+                "q": "Is there a purity figure for the catalogue?",
                 "a": (
-                    "That the batch met a purity threshold of 99 percent or "
-                    "higher when measured by high-performance liquid "
-                    "chromatography. It describes composition only."
+                    "None is published. No analytical work is carried out "
+                    "here and no figure is quoted, so there is nothing to "
+                    "cite in a specification."
                 ),
             },
         ],
@@ -2705,15 +2874,19 @@ REGIONS = [
         ),
         "sections": [
             {
-                "h2": "What ≥99% by HPLC does and does not tell you",
+                "h2": (
+                "What a purity figure would tell you, and why none is "
+                "quoted"
+            ),
                 "body": (
-                    "Most catalogue items carry a release threshold of 99 "
-                    "percent or higher by high-performance liquid "
-                    "chromatography. That is a statement about composition on a "
-                    "specific batch, measured by a specific method. It is not a "
-                    "statement about biological activity, and it is not a claim "
-                    "about what the compound does. A purity number with no "
-                    "method and no batch reference beside it is incomplete."
+                    "A purity figure describes composition on one batch, "
+                    "measured by one named method. It says nothing about "
+                    "biological activity. It is worth understanding "
+                    "because it is quoted so freely elsewhere — and worth "
+                    "saying plainly that none is quoted here, for any "
+                    "item, because no such measurement has been made. A "
+                    "number with no method and no batch beside it would "
+                    "be incomplete anyway."
                 ),
             },
             {
@@ -2749,11 +2922,11 @@ REGIONS = [
         ],
         "faqs": [
             {
-                "q": "Can I see the batch document before ordering?",
+                "q": "Is batch paperwork available before ordering?",
                 "a": (
-                    "Ask support for the current batch document for the "
-                    "specific compound. Documents are tied to batches, so which "
-                    "one applies depends on current stock."
+                    "There is none to see. No batch-level documentation "
+                    "is generated for any catalogue item, so nothing can "
+                    "be sent ahead of an order or after one."
                 ),
             },
             {
@@ -3269,7 +3442,7 @@ REGIONS = [
                 "body": (
                     "Nothing in the compound range arrives wet. If your protocol "
                     "calls for reconstituting the powder at the bench, the "
-                    "USP-grade bacteriostatic water listed under supplies "
+                    "Bacteriostatic water listed under supplies "
                     "covers that, and ordering it alongside the compounds saves "
                     "waiting out a whole second window for one bottle."
                 ),
@@ -3295,7 +3468,7 @@ REGIONS = [
                 "q": "Do I need bacteriostatic water?",
                 "a": (
                     "Only if you intend to reconstitute the powder in "
-                    "laboratory work and do not already hold a USP-grade "
+                    "laboratory work and do not already hold a  "
                     "supply. It is listed as a separate catalogue item."
                 ),
             },
@@ -3432,7 +3605,11 @@ def for_site(site):
     This is the function views and sitemaps should use. A region belongs to
     exactly one domain, so exactly one canonical URL exists for each page.
     """
-    domain = (getattr(site, "domain", "") or "").lower().lstrip("www.")
+    # removeprefix, not lstrip: lstrip("www.") strips any leading w/./ character,
+    # so "where-do-i-get-peptides.ca" became "here-do-i-get-peptides.ca" and
+    # matched no owner at all. The site silently owned nothing.
+    domain = (getattr(site, "domain", "") or "").lower()
+    domain = domain.removeprefix("www.")
     return [r for r in REGIONS if r.get("owner", "").lower() == domain]
 
 

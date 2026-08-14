@@ -32,6 +32,19 @@ def _payment_methods():
     ]
 
 
+def _footer_regions(site):
+    """Top-level regions this storefront owns, for the footer.
+
+    Province and state pages only — city pages are reached from their province
+    page, which keeps the footer readable and the hierarchy meaningful rather
+    than dumping every URL into every page.
+    """
+    if not site:
+        return []
+    from . import regions
+    return [r for r in regions.for_site(site) if not r.get("parent")]
+
+
 def storefront(request):
     """Inject the shared catalogue, the resolved site, and cart summary
     into every template so themes stay purely presentational."""
@@ -53,6 +66,11 @@ def storefront(request):
         "products": (Product.objects.filter(is_active=True)
                      .filter(Q(family="") | Q(is_family_default=True))
                      .select_related("category")),
+        # Region pages were orphans: nothing on the site linked to them except
+        # other region pages, so the only route in was the sitemap. Internal
+        # links are how crawl priority and link equity actually reach a page,
+        # and a location page nobody links to is a location page nobody ranks.
+        "footer_regions": _footer_regions(site),
         "cart_count": cart.count(),
         "cart_total": cart.total(),
         "cart_items": cart.items(),

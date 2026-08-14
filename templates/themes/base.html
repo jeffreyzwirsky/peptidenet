@@ -172,6 +172,14 @@
       <p class="ship-notice ship-notice--inline">{{ site.shipping_notice }}</p>
       <p class="foot-customs">{{ site.customs_notice }}</p>
     </div>
+    {% if footer_regions %}
+    <div class="foot-regions">
+      <strong>Where we ship</strong>
+      <ul>
+        {% for r in footer_regions %}<li><a href="/research-peptides/{{ r.slug }}/">{{ r.name }}</a></li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
     <div class="foot-policies">
       <strong>Policies</strong>
       <ul>

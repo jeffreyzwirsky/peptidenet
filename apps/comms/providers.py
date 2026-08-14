@@ -33,6 +33,26 @@ def send_sms(from_number, to_number, body):
         return ("", str(e)[:200])
 
 
+def place_call(to_number, from_number, twiml):
+    """Originate a call that plays `twiml` when answered. Returns (sid, error).
+
+    Used for click-to-call: we ring the OPERATOR first, and the TwiML then dials
+    the customer — so the operator is already on the line when the customer's
+    phone rings, and the customer sees the business number.
+    """
+    if not sms_live():
+        log.info("[stub] CALL %s -> %s", from_number, to_number)
+        return ("STUB-CALL", "")
+    try:  # pragma: no cover - only runs with real creds
+        from twilio.rest import Client
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+        call = client.calls.create(to=to_number, from_=from_number, twiml=twiml)
+        return (call.sid, "")
+    except Exception as e:  # pragma: no cover
+        log.exception("twilio call failed")
+        return ("", str(e)[:200])
+
+
 def validate_twilio_signature(request):
     """Verify X-Twilio-Signature. Skipped when no auth token (dev)."""
     token = settings.TWILIO_AUTH_TOKEN

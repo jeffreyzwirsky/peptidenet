@@ -4,7 +4,7 @@ from django.test import TestCase
 from apps.stores.models import Site
 
 from . import phone, sms
-from .models import Contact, Message, OptOut, PhoneNumber, Voicemail
+from .models import Call, Contact, Message, OptOut, PhoneNumber, Voicemail
 
 
 class PhoneNormalizeTests(TestCase):
@@ -257,3 +257,89 @@ class VoiceAgentTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertIn(b"<Record", r.content)                       # straight to voicemail
         self.assertNotIn(b"qualified professional", r.content)     # agent was skipped
+
+
+class VoicemailCaptureTests(TestCase):
+    """The recording callback must survive Twilio's actual payload, which
+    carries Recording* + CallSid and NOT From/To."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog"); call_command("seed_sites")
+        from apps.stores.models import Site
+        cls.num = PhoneNumber.objects.create(
+            e164="+13252465227", label="test", site=Site.objects.first(),
+            voice_enabled=True, sms_enabled=True, ai_intake=True,
+            greeting="Leave a message.")
+
+    def test_record_tag_pins_caller_and_sets_action(self):
+        from apps.comms import voice as voicelib
+        rf = self.client.post("/webhooks/twilio/voice/", {
+            "To": self.num.e164, "From": "+12045551234", "CallSid": "CA1",
+            "CallStatus": "ringing"})
+        xml = rf.content.decode()
+        self.assertIn("<Gather", xml)               # AI intake answers
+        # ...and the fallback Record carries the caller + an action to hang up on
+        self.assertIn("from=%2B12045551234", xml)
+        self.assertIn("recording-done", xml)
+
+    def test_recording_callback_without_From_still_captures_caller(self):
+        """The exact bug: all 5 production voicemails had a blank caller."""
+        Call.objects.create(direction="in", twilio_sid="CA9",
+                            from_number="+12045559999", to_number=self.num.e164)
+        r = self.client.post(
+            f"/webhooks/twilio/recording/?number={self.num.e164}&from=%2B12045559999&call_sid=CA9",
+            {"RecordingUrl": "https://api.twilio.com/rec1", "RecordingDuration": "12",
+             "CallSid": "CA9"})
+        self.assertEqual(r.status_code, 200)
+        vm = Voicemail.objects.latest("pk")
+        self.assertEqual(vm.from_number, "+12045559999")
+        self.assertIsNotNone(vm.contact)
+
+    def test_recording_callback_falls_back_to_the_call_row(self):
+        Call.objects.create(direction="in", twilio_sid="CA7",
+                            from_number="+12045558888", to_number=self.num.e164)
+        self.client.post(
+            f"/webhooks/twilio/recording/?number={self.num.e164}&call_sid=CA7",
+            {"RecordingUrl": "https://api.twilio.com/rec2", "RecordingDuration": "5",
+             "CallSid": "CA7"})
+        self.assertEqual(Voicemail.objects.latest("pk").from_number, "+12045558888")
+
+    def test_recording_done_hangs_up_instead_of_looping(self):
+        r = self.client.post(f"/webhooks/twilio/recording-done/?number={self.num.e164}", {})
+        xml = r.content.decode()
+        self.assertIn("<Hangup/>", xml)
+        self.assertNotIn("<Gather", xml)
+
+
+class OutboundCallingTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog"); call_command("seed_sites")
+        from apps.stores.models import Site
+        cls.num = PhoneNumber.objects.create(
+            e164="+13252465227", label="biz", site=Site.objects.first(),
+            voice_enabled=True, sms_enabled=True)
+
+    def test_bridge_requires_an_operator_number(self):
+        from apps.comms import calling
+        with self.assertRaises(ValueError):
+            calling.place_bridge_call("+12045551234")
+
+    def test_bridge_logs_an_outbound_call(self):
+        from apps.comms import calling
+        from apps.comms.models import ComplianceConfig
+        cfg = ComplianceConfig.get_solo()
+        cfg.operator_callback_e164 = "+12045550000"; cfg.save()
+        call = calling.place_bridge_call("204-555-1234")
+        self.assertEqual(call.direction, "out")
+        self.assertEqual(call.to_number, "+12045551234")
+        self.assertEqual(call.from_number, self.num.e164)
+        self.assertNotEqual(call.status, "failed")
+
+    def test_bridge_twiml_dials_customer_with_business_caller_id(self):
+        from apps.comms import voice as voicelib
+        xml = voicelib.bridge_twiml("+12045551234", "+13252465227")
+        self.assertIn('callerId="+13252465227"', xml)
+        self.assertIn("<Dial", xml)
+        self.assertIn("+12045551234", xml)

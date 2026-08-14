@@ -276,6 +276,8 @@ def leads(request):
 
 
 # ---- Communications (SMS / calls / voicemail) ----
+from django.conf import settings as _settings_mod  # noqa: E402
+
 from apps.comms import phone as _phone  # noqa: E402
 from apps.comms import providers as _providers  # noqa: E402
 from apps.comms import sms as _sms  # noqa: E402
@@ -286,6 +288,16 @@ from apps.comms.models import (  # noqa: E402
 
 @console_required
 def messages_inbox(request):
+    """SMS inbox + composer.
+
+    The composer is the point. Before it, this page could only *reply* inside an
+    existing thread — and with no inbound texts there were no threads, so there
+    was literally no way to send a message from the panel. "We can't text out"
+    was a missing form, not a broken carrier.
+    """
+    from apps.comms import calling as _calling
+    from apps.comms.models import ComplianceConfig as _CC
+
     # Threads = contacts that have any message, most-recent first.
     contacts = list(
         Contact.objects.filter(messages__isnull=False).distinct()
@@ -293,6 +305,43 @@ def messages_inbox(request):
     )
     contacts.sort(key=lambda c: c.messages.last().created_at if c.messages.exists() else c.created_at,
                   reverse=True)
+    # --- compose to any number, and click-to-call — both work with no thread ---
+    if request.method == "POST" and request.POST.get("action") in ("compose", "call"):
+        action = request.POST["action"]
+        to_raw = (request.POST.get("to_number") or "").strip()
+        if action == "call":
+            try:
+                call = _calling.place_bridge_call(
+                    to_raw or (get_object_or_404(Contact, pk=request.POST["contact_id"]).e164
+                               if request.POST.get("contact_id") else ""),
+                    site=None)
+                if call.status == "failed":
+                    messages.error(request, f"Call failed: {call.transcript}")
+                else:
+                    messages.success(
+                        request, f"Calling you now at {_calling.operator_number()} — "
+                                 f"answer and we'll dial {call.to_number}.")
+            except ValueError as exc:
+                messages.error(request, str(exc))
+            return redirect(request.get_full_path())
+        body = (request.POST.get("body") or "").strip()
+        if not to_raw or not body:
+            messages.error(request, "A number and a message are both required.")
+            return redirect(request.path)
+        e164 = _phone.normalize(to_raw)
+        if not e164:
+            messages.error(request, f"“{to_raw}” isn't a phone number I can dial.")
+            return redirect(request.path)
+        msg = _sms.send_sms(e164, body,
+                            category=request.POST.get("category", "transactional"))
+        if msg.status == "failed":
+            messages.error(request, f"Send failed: {msg.error}")
+        elif msg.status == "blocked":
+            messages.error(request, f"Blocked: {msg.error}")
+        else:
+            messages.success(request, f"Message sent to {msg.to_number}.")
+        return redirect(f"{request.path}?contact={msg.contact.pk}")
+
     sel_id = request.GET.get("contact")
     selected = None
     thread = []
@@ -323,6 +372,8 @@ def messages_inbox(request):
     return render(request, "manage/messages.html", {
         "nav": "messages", "contacts": contacts, "selected": selected,
         "thread": thread, "draft": draft,
+        "operator_number": _calling.operator_number(),
+        "live": _settings_mod.COMMS_LIVE,
     })
 
 
@@ -348,7 +399,21 @@ def calls(request):
 def numbers(request):
     from django.conf import settings as _settings
 
+    from apps.comms.models import ComplianceConfig as _CC
     from apps.comms.models import PhoneNumber as _PN
+    cfg = _CC.get_solo()
+    if request.method == "POST" and request.POST.get("action") == "save_callback":
+        raw = (request.POST.get("operator_callback_e164") or "").strip()
+        e164 = _phone.normalize(raw) if raw else ""
+        if raw and not e164:
+            messages.error(request, f"“{raw}” isn't a phone number I can dial.")
+        else:
+            cfg.operator_callback_e164 = e164
+            cfg.save(update_fields=["operator_callback_e164"])
+            messages.success(
+                request,
+                f"Click-to-call will ring {e164}." if e164 else "Click-to-call disabled.")
+        return redirect(request.path)
     if request.method == "POST":
         n = get_object_or_404(_PN, pk=request.POST.get("number_id"))
         old_greeting = n.greeting
@@ -372,6 +437,7 @@ def numbers(request):
         return redirect(request.path)
     return render(request, "manage/numbers.html", {
         "nav": "numbers",
+        "cfg": cfg,
         "numbers": PhoneNumber.objects.select_related("site").all(),
         "optouts": OptOut.objects.filter(action="opt_out")[:100],
         "live": _settings.COMMS_LIVE,

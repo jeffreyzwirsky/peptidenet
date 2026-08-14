@@ -120,6 +120,19 @@ def gather(request):
 
 @csrf_exempt
 @require_POST
+def recording_done(request):
+    """``action`` target of <Record>. Thanks the caller and hangs up.
+
+    Without this Twilio re-requests the current document when the recording
+    ends, which put the caller back at the top of the AI greeting instead of
+    ending the call."""
+    if not _guard(request):
+        return HttpResponseForbidden("bad signature")
+    return HttpResponse(voicelib.recording_done_twiml(), content_type=XML)
+
+
+@csrf_exempt
+@require_POST
 def recording(request):
     """Recording-complete callback: create the Voicemail + transcribe (Whisper)."""
     if not _guard(request):
@@ -127,7 +140,16 @@ def recording(request):
     number = _lookup_number(request)
     site = number.site if number else None
     rec_url = request.POST.get("RecordingUrl", "")
-    frm = request.POST.get("From", "")
+    # Twilio's recordingStatusCallback does NOT send From/To — only Recording*
+    # and CallSid. Reading POST["From"] here is what left every stored voicemail
+    # with a blank caller (and therefore no callback number). Prefer the number
+    # we pinned into the callback URL when building the TwiML; fall back to the
+    # Call row we logged when the call came in.
+    frm = (request.GET.get("from") or request.POST.get("From") or "").strip()
+    call_sid = request.GET.get("call_sid") or request.POST.get("CallSid", "")
+    call = Call.objects.filter(twilio_sid=call_sid).first() if call_sid else None
+    if not frm and call:
+        frm = call.from_number
     duration = int(request.POST.get("RecordingDuration", 0) or 0)
     contact = sms.resolve_contact(frm, site=site) if frm else None
     text, source = providers.transcribe(rec_url) if rec_url else ("", "")
@@ -138,6 +160,15 @@ def recording(request):
         recording_url=rec_url, duration_sec=duration, transcript=text,
         transcript_source=source,
     )
+    if call and rec_url and not call.recording_url:
+        call.recording_url = rec_url
+        call.duration_sec = call.duration_sec or duration
+        if text and not call.transcript:
+            call.transcript, call.transcript_source = text, source
+        call.contact = call.contact or contact
+        call.save(update_fields=["recording_url", "duration_sec", "transcript",
+                                 "transcript_source", "contact"])
+
     try:  # AI triage: intent tier + urgency (heuristic when AI offline)
         from . import triage
         triage.classify_voicemail(vm)

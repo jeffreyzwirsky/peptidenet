@@ -281,6 +281,9 @@ class ComplianceConfig(models.Model):
     start_reply = models.CharField(
         max_length=300,
         default="You're re-subscribed. Reply STOP to opt out at any time.")
+    operator_callback_e164 = models.CharField(
+        max_length=20, blank=True,
+        help_text="Mobile that click-to-call rings first before dialling the customer.")
     updated_at = models.DateTimeField(auto_now=True)
 
     @classmethod

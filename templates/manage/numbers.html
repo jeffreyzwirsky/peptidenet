@@ -3,6 +3,19 @@
 {% block heading %}Phone Numbers{% endblock %}
 {% block head_right %}<span class="pill {% if not live %}warn{% endif %}">{% if live %}Comms LIVE{% else %}Stub mode (not sending){% endif %}</span>{% endblock %}
 {% block body %}
+<section class="card" style="padding:14px 16px">
+  <form method="post">{% csrf_token %}
+    <div class="lp-label">📞 Click-to-call callback number</div>
+    <p class="sub" style="margin-bottom:8px">Outbound calls ring this mobile first, then dial
+      the customer — so they see the business number, not your personal one.</p>
+    <div class="compose-row">
+      <input name="operator_callback_e164" value="{{ cfg.operator_callback_e164 }}"
+             placeholder="+1 204 555 1234">
+      <button class="btn" name="action" value="save_callback">Save</button>
+    </div>
+  </form>
+</section>
+
 {% if not live %}<p class="note">Providers are stubbed — nothing sends or charges. Set <code>PEPTIDENET_COMMS_LIVE=1</code> plus Twilio/OpenAI/ElevenLabs keys to go live, and point each number's Twilio SMS webhook at <code>/webhooks/twilio/sms/</code> and voice webhook at <code>/webhooks/twilio/voice/?number=&lt;e164&gt;</code>.</p>{% endif %}
 {% for n in numbers %}
 <section class="card" style="padding:16px 18px">

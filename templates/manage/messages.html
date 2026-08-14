@@ -1,8 +1,36 @@
 {% extends "manage/base.html" %}
 {% block title %}Messages{% endblock %}
 {% block heading %}Messages{% endblock %}
-{% block head_right %}<span class="pill">{{ contacts|length }} threads</span>{% endblock %}
+{% block head_right %}
+  {% if not live %}<span class="pill warn">stub mode — nothing sends</span>{% endif %}
+  <span class="pill">{{ contacts|length }} threads</span>
+{% endblock %}
 {% block body %}
+<section class="card compose-new">
+  <form method="post">{% csrf_token %}
+    <div class="lp-label">✉ New message — any number, no thread needed</div>
+    <div class="compose-row">
+      <input name="to_number" placeholder="+1 204 555 1234" required>
+      <select name="category">
+        <option value="transactional">Transactional</option>
+        <option value="marketing">Marketing</option>
+      </select>
+      <button class="btn" name="action" value="compose">Send SMS</button>
+      <button class="btn ghost" name="action" value="call"
+              title="Rings your mobile first, then dials them from the business line"
+              {% if not operator_number %}disabled{% endif %}>📞 Call</button>
+    </div>
+    <textarea name="body" placeholder="Type the message…"></textarea>
+  </form>
+  {% if operator_number %}
+    <p class="sub">Click-to-call rings <b>{{ operator_number }}</b> first, then dials them —
+      they see the business number.</p>
+  {% else %}
+    <p class="sub">📞 Call is off until you set a callback mobile under
+      <a href="{% url cns|add:':numbers' %}" style="color:var(--accent)">Phone Numbers</a>.</p>
+  {% endif %}
+</section>
+
 <div class="inbox">
   <aside class="thread-list">
     {% for c in contacts %}
@@ -16,12 +44,24 @@
 
   <section class="thread-pane">
     {% if selected %}
-      <div class="tp-head"><b>{{ selected.name|default:selected.display_phone }}</b><span class="sub">{{ selected.display_phone }}</span></div>
+      <div class="tp-head">
+        <b>{{ selected.name|default:selected.display_phone }}</b>
+        <span class="sub">{{ selected.display_phone }}</span>
+        <span class="tp-actions">
+          <a class="btn sm ghost" href="tel:{{ selected.e164 }}">Tap to dial</a>
+          <form method="post" style="display:inline">{% csrf_token %}
+            <input type="hidden" name="contact_id" value="{{ selected.pk }}">
+            <input type="hidden" name="to_number" value="{{ selected.e164 }}">
+            <button class="btn sm" name="action" value="call"
+                    {% if not operator_number %}disabled title="Set a callback mobile first"{% endif %}>📞 Call</button>
+          </form>
+        </span>
+      </div>
       <div class="bubbles">
         {% for m in thread %}
         <div class="bubble {{ m.direction }}">
           <div class="b-body">{{ m.body }}</div>
-          <div class="b-meta">{{ m.get_status_display }} · {{ m.category }}{% if m.ai_generated %} · AI{% endif %} · {{ m.created_at|date:"M j H:i" }}</div>
+          <div class="b-meta">{{ m.get_status_display }} · {{ m.category }}{% if m.ai_generated %} · AI{% endif %} · {{ m.created_at|date:"M j H:i" }}{% if m.error %}<br><span style="color:var(--red)">⚠ {{ m.error }}</span>{% endif %}</div>
         </div>
         {% endfor %}
       </div>

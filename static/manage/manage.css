@@ -189,3 +189,13 @@ code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12px}
 .lp-note textarea{width:100%;min-height:54px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--fg);font-family:inherit;font-size:13px;resize:vertical;margin-bottom:8px}
 .lp-subject{width:100%;box-sizing:border-box;margin-bottom:8px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg);font-size:14px}
 .lp-reply textarea{background:var(--panel)}
+
+
+/* --- SMS composer (send to any number, no thread required) --- */
+.compose-new{padding:14px 16px}
+.compose-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.compose-row input[name=to_number]{flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:9px;padding:9px 12px}
+.compose-new textarea{width:100%;min-height:60px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;color:var(--fg);font-family:inherit;font-size:14px;resize:vertical}
+.compose-new .sub{margin-top:8px}
+.tp-actions{float:right;display:flex;gap:8px;align-items:center}
+@media(max-width:859px){.tp-actions{float:none;margin-top:8px}}

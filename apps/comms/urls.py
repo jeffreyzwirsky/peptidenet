@@ -11,4 +11,5 @@ urlpatterns = [
     path("voice/", webhooks.voice, name="voice"),
     path("gather/", webhooks.gather, name="gather"),
     path("recording/", webhooks.recording, name="recording"),
+    path("recording-done/", webhooks.recording_done, name="recording_done"),
 ]

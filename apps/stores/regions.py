@@ -4,9 +4,23 @@ Regional landing-page content for the storefront network.
 WHAT THESE PAGES ARE
 --------------------
 Each entry in ``REGIONS`` backs one landing page for a province, territory or
-state. The ``.ca`` storefronts render the ``CA`` entries; the ``.com``
-storefronts render the ``US`` entries. Views, URLs and templates live
-elsewhere — this module is content only.
+state. Views, URLs and templates live elsewhere — this module is content only.
+
+ONE REGION, ONE DOMAIN
+----------------------
+Every entry carries an ``owner``: the single storefront that serves it. Market
+alone is not enough. Filtering only by ``CA``/``US`` meant all five ``.ca``
+sites served all thirteen Canadian pages and all three ``.com`` sites served all
+twelve American ones — the same Alberta page live at five domains, 65 Canadian
+URLs for 13 pages of content. That is precisely the cross-domain duplication the
+rest of this file is written to avoid, and it is worse than the within-file
+sameness the docstring below warns about, because no amount of distinct writing
+fixes it.
+
+Canada is split so each ``.ca`` storefront owns three provinces, except
+peptidesalberta.ca, which owns Alberta and its city pages — the province is in
+its name, so concentrating Alberta there is the one assignment that is not
+arbitrary. The United States is split four states per ``.com`` storefront.
 
 The pages exist to answer the questions a researcher in a given place actually
 has before ordering: which centres we serve, what the local time zone means for
@@ -56,6 +70,7 @@ REGIONS = [
     {
         "slug": "alberta",
         "market": "CA",
+        "owner": "peptidesalberta.ca",
         "name": "Alberta",
         "short": "AB",
         "cities": ["Calgary", "Edmonton", "Red Deer", "Lethbridge", "Grande Prairie"],
@@ -166,6 +181,7 @@ REGIONS = [
     {
         "slug": "british-columbia",
         "market": "CA",
+        "owner": "smashfatbiolabs.ca",
         "name": "British Columbia",
         "short": "BC",
         "cities": ["Vancouver", "Victoria", "Surrey", "Kelowna", "Kamloops", "Prince George"],
@@ -261,6 +277,7 @@ REGIONS = [
     {
         "slug": "saskatchewan",
         "market": "CA",
+        "owner": "smash-fat.ca",
         "name": "Saskatchewan",
         "short": "SK",
         "cities": ["Saskatoon", "Regina", "Prince Albert", "Moose Jaw", "Swift Current"],
@@ -348,6 +365,7 @@ REGIONS = [
     {
         "slug": "manitoba",
         "market": "CA",
+        "owner": "smashfat.ca",
         "name": "Manitoba",
         "short": "MB",
         "cities": ["Winnipeg", "Brandon", "Steinbach", "Portage la Prairie", "Thompson"],
@@ -441,6 +459,7 @@ REGIONS = [
     {
         "slug": "ontario",
         "market": "CA",
+        "owner": "smashfat.ca",
         "name": "Ontario",
         "short": "ON",
         "cities": ["Toronto", "Ottawa", "Hamilton", "London", "Waterloo", "Kingston", "Windsor"],
@@ -539,6 +558,7 @@ REGIONS = [
     {
         "slug": "quebec",
         "market": "CA",
+        "owner": "smash-fat.ca",
         "name": "Quebec",
         "short": "QC",
         "cities": ["Montreal", "Quebec City", "Laval", "Sherbrooke", "Gatineau", "Trois-Rivieres"],
@@ -630,6 +650,7 @@ REGIONS = [
     {
         "slug": "new-brunswick",
         "market": "CA",
+        "owner": "where-do-i-get-peptides.ca",
         "name": "New Brunswick",
         "short": "NB",
         "cities": ["Moncton", "Saint John", "Fredericton", "Bathurst", "Miramichi"],
@@ -720,6 +741,7 @@ REGIONS = [
     {
         "slug": "nova-scotia",
         "market": "CA",
+        "owner": "smashfatbiolabs.ca",
         "name": "Nova Scotia",
         "short": "NS",
         "cities": ["Halifax", "Dartmouth", "Sydney", "Truro", "New Glasgow"],
@@ -809,6 +831,7 @@ REGIONS = [
     {
         "slug": "prince-edward-island",
         "market": "CA",
+        "owner": "smashfat.ca",
         "name": "Prince Edward Island",
         "short": "PE",
         "cities": ["Charlottetown", "Summerside", "Stratford", "Montague", "Cornwall"],
@@ -895,6 +918,7 @@ REGIONS = [
     {
         "slug": "newfoundland-and-labrador",
         "market": "CA",
+        "owner": "where-do-i-get-peptides.ca",
         "name": "Newfoundland and Labrador",
         "short": "NL",
         "cities": ["St. John's", "Mount Pearl", "Corner Brook", "Gander", "Happy Valley-Goose Bay"],
@@ -991,6 +1015,7 @@ REGIONS = [
     {
         "slug": "yukon",
         "market": "CA",
+        "owner": "smash-fat.ca",
         "name": "Yukon",
         "short": "YT",
         "cities": ["Whitehorse", "Dawson City", "Watson Lake", "Haines Junction"],
@@ -1084,6 +1109,7 @@ REGIONS = [
     {
         "slug": "northwest-territories",
         "market": "CA",
+        "owner": "smashfatbiolabs.ca",
         "name": "Northwest Territories",
         "short": "NT",
         "cities": ["Yellowknife", "Hay River", "Inuvik", "Fort Smith", "Norman Wells"],
@@ -1175,6 +1201,7 @@ REGIONS = [
     {
         "slug": "nunavut",
         "market": "CA",
+        "owner": "where-do-i-get-peptides.ca",
         "name": "Nunavut",
         "short": "NU",
         "cities": ["Iqaluit", "Rankin Inlet", "Cambridge Bay", "Arviat", "Baker Lake"],
@@ -1274,11 +1301,1014 @@ REGIONS = [
     },
 
     # ------------------------------------------------------------------
+    # ALBERTA CITY PAGES — peptidesalberta.ca only.
+    #
+    # These hang off the Alberta province page via "parent". They carry NO
+    # compliance boilerplate section and no "do you have premises here" or
+    # "can you send a COA" FAQ, even though every one of them was drafted
+    # with both. Two independent distinctness audits found the same thing:
+    # the local reasoning was genuinely different city to city, but the
+    # policy paragraph was one sentence run through a thesaurus six times,
+    # and that repetition — not the local copy — was the doorway-page
+    # signature. Rewriting boilerplate six ways does not fix it; not
+    # repeating it does. The research-use notice, the delivery window and
+    # the currency are rendered on every region page by
+    # templates/partials/_region.html, and the province page answers the
+    # premises and documentation questions once, for all of Alberta.
+    #
+    # Section and FAQ counts differ per page on purpose (4/3/3/4/3/4 and
+    # 2/2/3/2/3/2). A uniform shape is itself a fingerprint.
+    # ------------------------------------------------------------------
+    {
+        "slug": "calgary",
+        "market": "CA",
+        "owner": "peptidesalberta.ca",
+        "parent": "alberta",
+        "name": "Calgary",
+        "short": "Calgary",
+        "cities": ["Calgary"],
+        "timezone": "Mountain Time",
+        "title": (
+            "Ordering Research Peptides to a Calgary Address | Quadrant "
+            "and Bay Detail"
+        ),
+        "meta_description": (
+            "A Calgary label needs the quadrant suffix, the bay number "
+            "and the tenant name or a driver is guessing. Addressing and "
+            "receiving notes for research-use material."
+        ),
+        "h1": (
+            "Research Peptides in Calgary, Alberta: Addressing and "
+            "Receiving"
+        ),
+        "intro": (
+            "A Calgary parcel goes astray for ordinary reasons: the label "
+            "names a building nobody at the bench works in, or the door "
+            "it reaches has nobody behind it that afternoon. Both are "
+            "cheap to prevent at checkout and awkward to unpick "
+            "afterwards. Everything listed on peptidesalberta.ca is bench "
+            "reference material for in vitro and analytical work, is not "
+            "for use in humans or animals, and carries no claim about "
+            "what it does. What follows is the receiving procedure for "
+            "this city: how to write the address, what happens at a tower "
+            "mailroom or an industrial dock, and what to log when the box "
+            "lands."
+        ),
+        "sections": [
+            {
+                "h2": (
+                    "The suite that pays and the bay that receives are "
+                    "rarely the same door"
+                ),
+                "body": (
+                    "Plenty of bench work in this city sits behind a "
+                    "company door rather than a public one, and "
+                    "organisations built that way often run a split "
+                    "footprint: registered office and purchasing in one "
+                    "part of town, benches in leased space somewhere else "
+                    "entirely. That split produces one specific failure, "
+                    "and it repeats. Purchasing types the head-office "
+                    "suite into the delivery field out of habit, because "
+                    "that is the address on every other form they fill in "
+                    "that week. The parcel then lands in a tower mailroom "
+                    "on the far side of the river from the bench that "
+                    "ordered it. Procedure: if billing and receiving are "
+                    "different addresses, enter them as different "
+                    "addresses. Nothing is rerouted once a parcel is "
+                    "moving, and a driver holding an ambiguous label does "
+                    "not resolve it in your favour."
+                ),
+            },
+            {
+                "h2": (
+                    "Quadrant, street versus avenue, bay number: three "
+                    "checks before you submit"
+                ),
+                "body": (
+                    "Every Calgary civic address ends in a quadrant, NE, "
+                    "NW, SE or SW, and the same street number on the same "
+                    "street name genuinely exists in more than one of "
+                    "them. Drop the suffix and the label is ambiguous. "
+                    "The ambiguity usually gets resolved by a driver "
+                    "standing at the wrong end of the city. Second check: "
+                    "streets run north to south, avenues east to west. "
+                    "Transposing them produces a real address in the "
+                    "wrong place, which is harder to catch than an "
+                    "address that simply fails validation. Third check: "
+                    "the bay or unit. In the industrial parks one civic "
+                    "address can front a long row of tenants, and the bay "
+                    "number is the only field separating yours from the "
+                    "shop four doors down. Put the tenant name on as "
+                    "well, spelled the way the building directory or the "
+                    "gate list spells it, not the way the letterhead "
+                    "does."
+                ),
+            },
+            {
+                "h2": (
+                    "Mailrooms, dock hours and who is standing there to "
+                    "sign"
+                ),
+                "body": (
+                    "Downtown towers: couriers deliver to a central "
+                    "mailroom or to a dock off the lane, not to a suite "
+                    "door. Internal handling then adds a leg you do not "
+                    "control and occasionally a day you did not budget. "
+                    "If the building matches parcels against its own "
+                    "directory, the directory name is the name that "
+                    "belongs on the order. Industrial parks: shipping and "
+                    "receiving offices frequently close hours before the "
+                    "rest of the site does. A driver arriving after the "
+                    "receiving door is locked has no one to hand to, "
+                    "because the front of a building designed around "
+                    "trucks is not staffed for walk-ins. Some sites also "
+                    "check drivers in at a gate, which spends time out of "
+                    "an already narrow window. Signatures: a person has "
+                    "to be present to give one. Name an individual and a "
+                    "direct phone number on the order rather than a "
+                    "department, put your receiving hours and any gate "
+                    "procedure in the order notes, and state plainly if "
+                    "the site has no attended receiving at all. That "
+                    "information does work before dispatch. After a first "
+                    "attempt has failed it does almost none."
+                ),
+            },
+            {
+                "h2": (
+                    "Chinook swings and the thermal history nobody wrote "
+                    "down"
+                ),
+                "body": (
+                    "Chinooks are ordinary Calgary weather, not a turn of "
+                    "phrase. A warm westerly comes over the mountains, "
+                    "the air warms hard across a few hours, then cools "
+                    "back once the wind quits. A single day can run from "
+                    "thaw to hard cold and back again. Nothing in a "
+                    "delivery chain is climate controlled, and a doorstep "
+                    "least of all. Material travels as a sealed "
+                    "lyophilised vial. A vial that sits through a warm "
+                    "afternoon and the cold night behind it has been "
+                    "through a thermal cycle no instrument watched. We "
+                    "cannot reconstruct that cycle afterwards, and we "
+                    "make no representation about the condition of "
+                    "anything once it has left our hands. So write it "
+                    "down. Time of receipt. Whether the parcel was "
+                    "outdoors, and for how long. Conditions across that "
+                    "interval. Visible state of the outer box, the vial "
+                    "and the seal before any of it goes into your own "
+                    "storage. That log is the only thermal history the "
+                    "vial has, so file it with the material's paperwork. "
+                    "One scheduling note: an unattended site heading into "
+                    "a weekend means two nights outdoors before anyone "
+                    "looks at the box. Which day inside the window a "
+                    "driver turns up is not something either of us sets, "
+                    "so the answer is coverage rather than timing: have "
+                    "somebody available across the whole window, or "
+                    "nominate an address that is attended on every "
+                    "working day."
+                ),
+            },
+        ],
+        "faqs": [
+            {
+                "q": (
+                    "What exactly goes in the address fields for a "
+                    "Calgary delivery?"
+                ),
+                "a": (
+                    "All of it: street number, street or avenue name, the "
+                    "quadrant suffix, the bay or unit, and the tenant "
+                    "name as the building directory or gate list carries "
+                    "it. Add a named contact with a direct line rather "
+                    "than a switchboard. A missing quadrant and a swapped "
+                    "street-for-avenue are the two errors that send a "
+                    "driver across the city, and both cost nothing to "
+                    "catch before you submit."
+                ),
+            },
+            {
+                "q": (
+                    "A parcel sat outside our door through a chinook "
+                    "swing. What goes in the log?"
+                ),
+                "a": (
+                    "Delivery time, hours spent outdoors, conditions "
+                    "across that interval, and the state of the outer "
+                    "packaging, the vial and the seal at opening. We "
+                    "cannot tell you what that cycling did to the "
+                    "contents. Nothing was characterised on our end to "
+                    "begin with, so the log is not a comparison against a "
+                    "baseline; it is the handling record your own file "
+                    "needs in order to be honest about provenance."
+                ),
+            },
+        ],
+    },
+    {
+        "slug": "edmonton",
+        "market": "CA",
+        "owner": "peptidesalberta.ca",
+        "parent": "alberta",
+        "name": "Edmonton",
+        "short": "Edmonton",
+        "cities": ["Edmonton"],
+        "timezone": "Mountain Time",
+        "title": "Edmonton Research Peptides: Ordering and Winter Receiving",
+        "meta_description": (
+            "Receiving research peptides at an Edmonton address in "
+            "winter: after-hours cold at the door, river valley delivery "
+            "notes, and a 10 to 15 day window."
+        ),
+        "h1": "Edmonton: Research Peptide Orders and Winter Receiving",
+        "intro": (
+            "Cold is the first thing to plan for on an Edmonton order. "
+            "Everything listed is laboratory reference material, intended "
+            "for research work at the bench. It is not for human use and "
+            "not for veterinary use, and none of it belongs anywhere near "
+            "a living subject. The rest of this page is practical. It "
+            "covers deep cold at the receiving end, orders that carry on "
+            "north, addresses on both banks of the river valley, and what "
+            "to write down when a box lands."
+        ),
+        "sections": [
+            {
+                "h2": "When the cold does not let up",
+                "body": (
+                    "Edmonton's issue is not one cold night. It is the "
+                    "run of them. A midwinter thaw is not something to "
+                    "build a plan around this far north. A cold spell can "
+                    "hold for days, from one end to the other, with no "
+                    "real recovery in between. That matters at the door "
+                    "more than on the road. A parcel lands late in the "
+                    "afternoon. It waits in an unheated vestibule. Nobody "
+                    "is back until morning. That is twelve hours or more "
+                    "at whatever the outside air is doing, and in a "
+                    "stretch like this the air is not doing anything "
+                    "kind. A mailroom that empties at five gives you the "
+                    "same result. So assume the material may sit at "
+                    "ambient temperature at some point before it reaches "
+                    "your bench. It can go either way, warm or cold. "
+                    "Design the receiving end around that assumption "
+                    "rather than around a best case."
+                ),
+            },
+            {
+                "h2": "When Edmonton is a stop, not the end of the trip",
+                "body": (
+                    "A fair share of Edmonton delivery addresses are not "
+                    "where the work happens. The box arrives in the city, "
+                    "waits a few days, then travels north with whoever is "
+                    "driving or flying up. If that is your setup, read "
+                    "our 10 to 15 day window as covering the trip to the "
+                    "address written on the order. Nothing beyond it. The "
+                    "second leg is yours to schedule, and it is usually "
+                    "the leg with the least slack in it. We keep no "
+                    "facility in Edmonton. We cannot hold a parcel, stage "
+                    "one, or consolidate several on your behalf. Groups "
+                    "that need a holding point set one up themselves. A "
+                    "colleague's office works. So does a receiving desk, "
+                    "or a private address where somebody is reliably in."
+                ),
+            },
+            {
+                "h2": "Addresses on both banks of the river valley",
+                "body": (
+                    "The North Saskatchewan splits the city. An address "
+                    "on either bank is ordinary. The side makes no "
+                    "difference to an order. It makes a difference to a "
+                    "driver's day. Two addresses can look close on a map "
+                    "and still sit across the valley from one another. In "
+                    "winter the crossing is where a route slows down. So "
+                    "write a real delivery note. Name the nearest "
+                    "crossing, the building entrance, and the door that "
+                    "is actually unlocked in January. A postal code by "
+                    "itself says very little. Where you have a choice, "
+                    "take the building with a staffed reception over a "
+                    "residential vestibule or an after-hours dock. The "
+                    "reason is in the first section."
+                ),
+            },
+        ],
+        "faqs": [
+            {
+                "q": (
+                    "Our loading dock is unheated and the mailroom shuts "
+                    "at five. What do you suggest for a January delivery?"
+                ),
+                "a": (
+                    "Send it to an address where somebody is there "
+                    "through the afternoon, or to a building with a "
+                    "staffed reception rather than an unattended dock or "
+                    "vestibule. A long stretch at ambient between drop- "
+                    "off and pickup is the main thing worth designing "
+                    "around in an Edmonton winter. Add a clear delivery "
+                    "note with the entrance and any access instructions. "
+                    "Then move the parcel into your intended storage as "
+                    "soon as it is in hand, and log the state it arrived "
+                    "in."
+                ),
+            },
+            {
+                "q": (
+                    "The address is in Edmonton but the work happens "
+                    "further north. Is that a problem?"
+                ),
+                "a": (
+                    "No. A delivery address is just a delivery address, "
+                    "and we do not need to know what happens after it. We "
+                    "do not arrange or quote the onward leg, so the drive "
+                    "or flight north sits outside our window entirely. "
+                    "Schedule it separately in your own planning."
+                ),
+            },
+        ],
+    },
+    {
+        "slug": "red-deer",
+        "market": "CA",
+        "owner": "peptidesalberta.ca",
+        "parent": "alberta",
+        "name": "Red Deer",
+        "short": "Red Deer",
+        "cities": ["Red Deer"],
+        "timezone": "Mountain Time",
+        "title": (
+            "Red Deer Research Peptides | Corridor Routing, Research Use "
+            "Only"
+        ),
+        "meta_description": (
+            "Central Alberta corridor routing explained for Red Deer "
+            "research buyers: why a parcel scans elsewhere first, the 10 "
+            "to 15 day window, CAD prices, research use only."
+        ),
+        "h1": "Research Peptides for Red Deer and Central Alberta",
+        "intro": (
+            "There is a moment in a Red Deer delivery when the tracking "
+            "page stops making sense: it shows a city that is not Red "
+            "Deer, the last scan has not moved since yesterday, and there "
+            "is no obvious way to tell whether the parcel is fine or "
+            "stuck. Usually it is fine, and the reason has far more to do "
+            "with how freight moves along the central Alberta corridor "
+            "than with anything about the order itself. What follows "
+            "explains that, and sets out the plain limits on what we "
+            "sell: reference material for controlled laboratory research "
+            "by qualified personnel, never for human or veterinary use, "
+            "and never to be given to a living subject of any kind."
+        ),
+        "sections": [
+            {
+                "h2": "A scan in a bigger city is the route, not a hold-up",
+                "body": (
+                    "Red Deer sits near the middle of the run between "
+                    "Calgary and Edmonton, and that position shapes an "
+                    "order more than anything else about the address. "
+                    "Carrier networks in this province are built around "
+                    "the two large centres, so once a parcel is inside "
+                    "the provincial network on its way to a central "
+                    "Alberta address, it is normally sorted at one of "
+                    "them and then carried up or down the corridor on a "
+                    "line-haul leg. What you are watching on the tracking "
+                    "page is that structure doing exactly what it was "
+                    "designed to do. A scan in a larger centre appearing "
+                    "a day or two ahead of the Red Deer scan is the "
+                    "ordinary shape of the final leg, not a detour and "
+                    "not a stall. Plan on a span of 10 to 15 days between "
+                    "placing an order and having the box in front of you. "
+                    "That span is the honest unit of measurement here; we "
+                    "cannot narrow it to a particular day on a calendar, "
+                    "and a scan that sits still for a day inside it is "
+                    "not yet evidence of anything. Let the range finish "
+                    "running before you read a quiet tracking page as a "
+                    "fault."
+                ),
+            },
+            {
+                "h2": (
+                    "What the final leg tends to look like at an address "
+                    "this size"
+                ),
+                "body": (
+                    "An address in a centre this size usually has a final "
+                    "leg with few stages in it. A parcel headed for Red "
+                    "Deer commonly arrives at a door or a dock on a "
+                    "single daily run and stays in one set of hands the "
+                    "whole way, rather than moving through a tower "
+                    "mailroom, a security desk, a booked freight elevator "
+                    "and a floor reception before it reaches the person "
+                    "waiting on it. That simplicity is worth protecting, "
+                    "and it takes almost no effort to protect. Put a "
+                    "named person on the address line together with a "
+                    "room or bay number rather than a company name on its "
+                    "own, and let whoever signs at the door know a box is "
+                    "due inside the window. A short chain only helps if "
+                    "the last link knows what it is holding. When "
+                    "something does go sideways in a place this size, the "
+                    "usual reason is that the parcel landed with someone "
+                    "who had no idea it was coming."
+                ),
+            },
+            {
+                "h2": (
+                    "Ordering at the pace applied and agricultural work "
+                    "actually moves"
+                ),
+                "body": (
+                    "Applied and agricultural science is the everyday "
+                    "backdrop across central Alberta, and purchasing in "
+                    "those settings runs on paperwork rather than "
+                    "impulse: a budget line, a purchase order number, an "
+                    "itemised invoice, a receiving log at the door. That "
+                    "pace suits us fine. Nobody here will press you to "
+                    "move ahead of your own approvals, and an order "
+                    "placed the day your process clears it is an order "
+                    "placed on time. The surrounding programme changes "
+                    "nothing about the boundary, and the boundary is "
+                    "firm. What we supply is reference material for in- "
+                    "vitro and analytical work by qualified personnel in "
+                    "a controlled setting. It is not a human product and "
+                    "not a veterinary one, and it has no place on a "
+                    "field, in a feed line, or in any animal. Nothing on "
+                    "this site describes such use, supports it, or should "
+                    "be read as an invitation to attempt it."
+                ),
+            },
+        ],
+        "faqs": [
+            {
+                "q": (
+                    "Why did tracking show my parcel in Calgary before it "
+                    "showed anything in Red Deer?"
+                ),
+                "a": (
+                    "Because that is the route. Provincial carrier "
+                    "networks run through the two large centres, so a "
+                    "parcel bound for a central Alberta address is "
+                    "normally sorted at one of them and then moved along "
+                    "the corridor on a line-haul leg. Seeing Calgary or "
+                    "Edmonton a day or two before the Red Deer scan is "
+                    "the expected sequence rather than a sign of a "
+                    "misdirected box. Let the 10 to 15 day span play out "
+                    "before you treat a static scan as trouble."
+                ),
+            },
+            {
+                "q": (
+                    "Can you invoice against a purchase order number, in "
+                    "Canadian dollars?"
+                ),
+                "a": (
+                    "Yes. Pricing is in Canadian dollars, and the invoice "
+                    "can carry your purchase order number and cost centre "
+                    "so it drops straight into a receiving file. If your "
+                    "approval process also needs supporting documentation "
+                    "attached to the vendor record before a PO is raised, "
+                    "read the documentation note on the Alberta page first "
+                    "— it will tell you whether this clears your process."
+                ),
+            },
+            {
+                "q": (
+                    "We run an agricultural operation. Could any of this "
+                    "be used on livestock?"
+                ),
+                "a": (
+                    "No. Nothing sold here is a veterinary or human "
+                    "product, and none of it may be administered to an "
+                    "animal, on a farm or anywhere else. It is reference "
+                    "material for in-vitro and analytical research "
+                    "conducted by qualified personnel, and that is the "
+                    "only basis on which it is offered."
+                ),
+            },
+        ],
+    },
+    {
+        "slug": "lethbridge",
+        "market": "CA",
+        "owner": "peptidesalberta.ca",
+        "parent": "alberta",
+        "name": "Lethbridge",
+        "short": "Lethbridge",
+        "cities": ["Lethbridge"],
+        "timezone": "Mountain Time",
+        "title": (
+            "Research Peptides for Lethbridge, Alberta Benches — Delivery "
+            "and Handling"
+        ),
+        "meta_description": (
+            "A parcel left at a Lethbridge door meets the wind. Pick a "
+            "receiving address that gets it indoors; delivery moves "
+            "inside a 10 to 15 day window. Research use only."
+        ),
+        "h1": "Research Peptides for Lethbridge, Alberta",
+        "intro": (
+            "Set a light parcel on a concrete step in Lethbridge and the "
+            "wind starts working on it before anyone comes out to collect "
+            "it. That is the practical shape of ordering here. "
+            "peptidesalberta.ca sends research stock by mail to people "
+            "working in Lethbridge and the irrigation districts around "
+            "it, and the leg of the trip that goes wrong is usually the "
+            "last two metres. Below: where a box should land, when to "
+            "send an order when the calendar is built around field work, "
+            "and what this material is not — bench reference stock for "
+            "research work, never for human or veterinary use."
+        ),
+        "sections": [
+            {
+                "h2": "What the wind does to a box on a step",
+                "body": (
+                    "Wind in this corner of the province is load-bearing, "
+                    "not a line in a forecast. It runs long and steady "
+                    "across open ground, it picks up speed through the "
+                    "coulees when a chinook is on, and it goes to work on "
+                    "anything left in the open. A parcel put down at an "
+                    "exposed door is an object with a large flat side and "
+                    "almost no weight holding it there. It tips. It "
+                    "slides off the step and wedges against a railing or "
+                    "a fence. It rotates until one corner is taking "
+                    "everything, and wind-carried grit sands that corner "
+                    "while the box waits. Tape lifts at the edge. A seam "
+                    "that was square when the driver walked away has gone "
+                    "soft by the time somebody notices the delivery. None "
+                    "of that is exotic and none of it is anyone's fault. "
+                    "It is simply what happens to light cardboard sitting "
+                    "outdoors here, and it is why the address you choose "
+                    "does more for a shipment than the packaging around "
+                    "it does."
+                ),
+            },
+            {
+                "h2": "Plot season decides when the order goes in",
+                "body": (
+                    "Lethbridge sits in dry country organised around "
+                    "canals and the crops they feed, and much of the "
+                    "applied science follows from that: agronomy trials "
+                    "and plot work, soil chemistry, weed and insect work "
+                    "tied to field crops, water sampling that runs with "
+                    "the canal season. Peptide reagents are not the "
+                    "centre of a programme like that. But benches "
+                    "attached to field research still run assay work and "
+                    "still buy consumables, and this page is written for "
+                    "whoever fills the order and whoever signs off on it. "
+                    "Delivery moves inside a span of 10 to 15 days. No "
+                    "particular day inside that span is committed to, and "
+                    "nothing here will be written down as a calendar "
+                    "date, because that would be a guess dressed up as a "
+                    "promise. From the start of plot work through harvest "
+                    "the building thins out, and a box that arrives on a "
+                    "day when nobody is inside is a box on a step in the "
+                    "wind. So fix the week the vial has to be sitting on "
+                    "the bench, lay the 10 to 15 days in front of that "
+                    "week, and add whatever days the receiving door is "
+                    "unattended. Place the order while somebody is still "
+                    "reliably in the building rather than in the middle "
+                    "of a field push. Every figure on the product pages "
+                    "is a Canadian dollar amount, which is the currency "
+                    "the requisition gets written in anyway."
+                ),
+            },
+            {
+                "h2": "Dry air goes after the labelling",
+                "body": (
+                    "Southern Alberta air is dry for most of the year, "
+                    "and dryness gets blamed for a great deal. How the "
+                    "contents of a vial behave in it is not something we "
+                    "have any basis to describe, and we do not describe "
+                    "it. What can be said is that the closure, rather "
+                    "than the room, is the boundary the contents sit "
+                    "behind, so an intact seal is the thing worth "
+                    "checking. Where dry air shows up plainly is in the "
+                    "small physical business around the vial. Static "
+                    "jumps to weigh paper and to plastic. Adhesive labels "
+                    "curl at one corner over a winter and then let go. "
+                    "Marker ink on a cap goes brittle and flakes off "
+                    "under a gloved thumb. That is labelling and handling "
+                    "rather than anything we can tell you about what is "
+                    "inside; all of it decides whether anyone can still "
+                    "name what they are holding six months from now. The "
+                    "stresses worth watching are ordinary ones: a room "
+                    "that bakes in July and runs cold in January, direct "
+                    "light lying across a south-facing bench through an "
+                    "afternoon, and whether a container has been opened. "
+                    "Leaving stock out on an open bench because the air "
+                    "is dry is the habit to break — not on account of "
+                    "humidity, but because an open bench sits exposed to "
+                    "whatever the room happens to be doing."
+                ),
+            },
+            {
+                "h2": "Choosing the door the box arrives at",
+                "body": (
+                    "We print the address that comes in with the order. "
+                    "Past that point the final leg belongs to the "
+                    "courier, and nothing we write on a label decides "
+                    "where a driver sets a package down. So the address "
+                    "carries the load. A staffed reception, a "
+                    "departmental mailroom, a bay on the sheltered side "
+                    "of the building — anywhere the box gets picked up "
+                    "and carried inside within minutes instead of "
+                    "standing outdoors for an afternoon. A unit number, a "
+                    "building name, a bay number and a person's name on "
+                    "the line each cut a little more time off how long "
+                    "the parcel spends in the open. Once it is in hand, "
+                    "open it in front of whoever signed for it. Crushed "
+                    "corners, a sprung seam, a seal that has already been "
+                    "broken — write down what you can see while the box "
+                    "is still on the desk, alongside the date it came in, "
+                    "the way you would for any other incoming stock."
+                ),
+            },
+        ],
+        "faqs": [
+            {
+                "q": (
+                    "Our crew is out on plots from spring through "
+                    "harvest. When should we put an order in?"
+                ),
+                "a": (
+                    "Put the 10 to 15 day span in front of the week you "
+                    "need the material on the bench, then add the days "
+                    "the building is effectively empty. The order that "
+                    "goes badly is the one that lands while everyone is "
+                    "at a site and the box waits at a door. Product page "
+                    "figures are in Canadian dollars if a requisition has "
+                    "to be drafted before anything is ordered."
+                ),
+            },
+            {
+                "q": (
+                    "Our receiving door faces west and takes the full "
+                    "wind. Can the parcel be flagged for a sheltered "
+                    "spot?"
+                ),
+                "a": (
+                    "We can print whatever address you send us, but where "
+                    "a driver puts the box down is outside anything we "
+                    "control. Given what an exposed step does to "
+                    "cardboard here, the fix that holds is an address "
+                    "staffed through the working day, or a mailroom or "
+                    "bay tucked out of the prevailing wind, so the parcel "
+                    "gets carried in instead of left."
+                ),
+            },
+        ],
+    },
+    {
+        "slug": "medicine-hat",
+        "market": "CA",
+        "owner": "peptidesalberta.ca",
+        "parent": "alberta",
+        "name": "Medicine Hat",
+        "short": "Medicine Hat",
+        "cities": ["Medicine Hat"],
+        "timezone": "Mountain Time",
+        "title": (
+            "Ordering Research Peptides in Medicine Hat: Summer Delivery "
+            "Notes"
+        ),
+        "meta_description": (
+            "A July box left on a sunny step is the real Medicine Hat "
+            "delivery problem. Planning collection, the 10 to 15 day "
+            "span, CAD pricing. Research material only."
+        ),
+        "h1": (
+            "Research peptide orders arriving in Medicine Hat during a "
+            "hot week"
+        ),
+        "intro": (
+            "Order to a Medicine Hat address and the thing that tends to "
+            "complicate the last hundred metres is not frost. It is a "
+            "bright, still afternoon in July, a delivery that lands at "
+            "one o'clock, and nobody home until six. Everything listed on "
+            "the storefront is bench reference stock for laboratory work "
+            "only; it is not for people or animals, and nothing written "
+            "here describes putting it into anything alive. What follows "
+            "is mostly about the gap between the courier leaving and you "
+            "picking the box up."
+        ),
+        "sections": [
+            {
+                "h2": (
+                    "A hot step, a hot cab, and the case for getting to "
+                    "the box early"
+                ),
+                "body": (
+                    "Shipping advice aimed at this province almost always "
+                    "assumes the enemy is cold. Down in this corner of "
+                    "Alberta the months that deserve a plan are the "
+                    "clear, dry ones, when the sky holds its colour for a "
+                    "week straight and the light hangs around well past "
+                    "supper. A carton on a south-facing step at two in "
+                    "the afternoon is not sitting at whatever the "
+                    "forecast said. The concrete has been soaking up sun "
+                    "since morning, the door is doing the same, and the "
+                    "cardboard is happily absorbing the rest. Same story "
+                    "for a parcel that gets collected on the way through "
+                    "and then rides around in a closed vehicle on an open "
+                    "lot while the rest of the errands get done. We make "
+                    "no representation about how the contents behave "
+                    "through any of that, and after the fact you cannot "
+                    "reconstruct it either. That is the narrow, practical "
+                    "point: from the moment the box is outside and "
+                    "unattended, its temperature history stops being "
+                    "anything you can put in writing. Bringing it in "
+                    "promptly is the one part of that you own."
+                ),
+            },
+            {
+                "h2": (
+                    "Sorting out the handoff before anything is on its "
+                    "way"
+                ),
+                "body": (
+                    "Nobody can tell you the hour a driver will pull up, "
+                    "and we are not going to pretend we can. What you can "
+                    "settle beforehand is where the box waits when you "
+                    "are not standing at the door. A delivery instruction "
+                    "naming an actual sheltered spot — a shaded side "
+                    "entrance, a covered breezeway, a reception desk "
+                    "inside the building — does more good than a note "
+                    "asking the driver to take care. Putting a second "
+                    "name on the file means the parcel is not hostage to "
+                    "one person's schedule. And plenty of carriers will "
+                    "hold a parcel at their depot for collection, which "
+                    "at least keeps it under a roof until somebody drives "
+                    "over. On timing: figure on 10 to 15 days. Nothing in "
+                    "that range fixes an hour or a square on the calendar "
+                    "for you, so build it into the schedule as slack "
+                    "rather than treating it as something to hold us to. "
+                    "Figures on the storefront are in Canadian dollars. "
+                    "If a particular week in July or August already has "
+                    "work booked against it, start from that week and "
+                    "give yourself generous room ahead of it, so the "
+                    "parcel lands while the building still has people in "
+                    "it."
+                ),
+            },
+            {
+                "h2": (
+                    "When the person who signs for it is the person who "
+                    "uses it"
+                ),
+                "body": (
+                    "Not every delivery point has a receiving function "
+                    "behind it. Where there is no mailroom, no shipper "
+                    "and nobody whose job the door is, the person who "
+                    "signs was already halfway through something when the "
+                    "buzzer went, and is the same person who will be at "
+                    "the bench with it an hour later. That quietly "
+                    "changes what a delivery span means to you. Somewhere "
+                    "large, a parcel can sit indoors in a mail area until "
+                    "someone wanders down for it. In a two-person setup, "
+                    "if that one person is out at a supplier or gone for "
+                    "the afternoon, the box stays where the driver left "
+                    "it. Worth settling before the order goes in, then: "
+                    "who is the backup receiver, and do they actually "
+                    "know something is coming?"
+                ),
+            },
+        ],
+        "faqs": [
+            {
+                "q": (
+                    "The box sat in the sun on our step most of an "
+                    "afternoon before anyone got to it. What should we do "
+                    "with it?"
+                ),
+                "a": (
+                    "Honestly, we cannot tell you anything useful about "
+                    "what those hours did, and we are not going to guess. "
+                    "What we would do is write down what happened while "
+                    "it is fresh: roughly how long it was out, which way "
+                    "the step faces, whether the carton felt warm or "
+                    "looked deformed when it came inside. Then the "
+                    "decision about whether it still suits your protocol "
+                    "is yours, made against your own acceptance criteria "
+                    "rather than against anything we have said."
+                ),
+            },
+            {
+                "q": (
+                    "Our delivery point is out of town, toward Redcliff "
+                    "or Dunmore. Does that change the timing?"
+                ),
+                "a": (
+                    "The 10 to 15 day span is the same either way. The "
+                    "difference is the very last step. A rural or "
+                    "community box means the parcel can sit inside a "
+                    "metal enclosure with the sun on it until somebody "
+                    "drives out, and that drive often happens at the end "
+                    "of the day rather than the middle of it. If there is "
+                    "a staffed address in town willing to take it in and "
+                    "keep it inside, naming that as the delivery point is "
+                    "usually less trouble than writing careful "
+                    "instructions for a rural route."
+                ),
+            },
+            {
+                "q": (
+                    "Our lab shuts for a couple of weeks in August. Order "
+                    "now or after?"
+                ),
+                "a": (
+                    "After, unless you have somebody reliable receiving "
+                    "while everyone is away. With a span of 10 to 15 "
+                    "days, an order placed just before a shutdown has a "
+                    "real chance of turning up at a locked building in "
+                    "high summer, and then nobody knows where it spent "
+                    "its afternoons. Placing it once people are back "
+                    "costs you exactly the same span and removes that "
+                    "whole question."
+                ),
+            },
+        ],
+    },
+    {
+        "slug": "grande-prairie",
+        "market": "CA",
+        "owner": "peptidesalberta.ca",
+        "parent": "alberta",
+        "name": "Grande Prairie",
+        "short": "Grande Prairie",
+        "cities": ["Grande Prairie"],
+        "timezone": "Mountain Time",
+        "title": "Research Peptides for Grande Prairie and Peace Country Sites",
+        "meta_description": (
+            "Research peptides to Peace Country site addresses near "
+            "Grande Prairie: how to write a lease-road location into the "
+            "checkout fields. Laboratory use only; 10 to 15 day window."
+        ),
+        "h1": (
+            "Ordering Research Peptides to Grande Prairie and the Peace "
+            "Country"
+        ),
+        "intro": (
+            "Most of what goes wrong with a delivery into the Peace "
+            "Country is decided before the order is placed, in the "
+            "shipping fields. Around Grande Prairie the receiving point "
+            "is often a lease road or a plant gate rather than a numbered "
+            "street, and the run out to it is long enough that a second "
+            "attempt costs days rather than hours. So this page runs in "
+            "the order the problems actually turn up. Two things to "
+            "settle first: everything catalogued here is stocked for "
+            "bench work in a research setting, and it is not for "
+            "administration to people or to animals. Nothing below should "
+            "be read as direction for use in a living subject."
+        ),
+        "sections": [
+            {
+                "h2": (
+                    "Write the receiving point the way a driver would "
+                    "find it"
+                ),
+                "body": (
+                    "A street address gives a driver a number, a name and "
+                    "the assumption of a signed road. A site address does "
+                    "none of that. Around Grande Prairie the receiving "
+                    "point is frequently a gas plant, a mill site, a camp "
+                    "or field office, a seed-cleaning or agronomy "
+                    "operation, or a sample intake bench attached to a "
+                    "plant, and plenty of those sit on a range road or a "
+                    "lease road outside the city limits where the "
+                    "location is identified by land description rather "
+                    "than a civic number. Everything the driver has to "
+                    "work with comes out of the shipping fields on your "
+                    "order. Nobody reconstructs it later, and nobody "
+                    "phones you to ask. So if your receiving point is a "
+                    "site, enter it as one: the legal land description or "
+                    "site identifier if that is how the place is "
+                    "genuinely located, the road you turn off and which "
+                    "direction you travel from there, the operator or "
+                    "facility name that appears on the gate, and the name "
+                    "and mobile number of whoever signs. A loose entry is "
+                    "rarely refused outright. It is simply attempted, and "
+                    "on a run this long an attempt that fails is measured "
+                    "in days. Getting it right costs nothing and happens "
+                    "at the keyboard."
+                ),
+            },
+            {
+                "h2": (
+                    "The long final leg is already inside the 10 to 15 "
+                    "days"
+                ),
+                "body": (
+                    "Scheduled runs into this part of the province are "
+                    "sparse, and that changes the arithmetic more than "
+                    "raw distance does. A parcel that misses a departure "
+                    "is not waiting an hour for the next one. It waits "
+                    "for the next run, and some days there is not another "
+                    "one. That is why the 10 to 15 days we quote is a "
+                    "range rather than a named day. It was not set for "
+                    "easier destinations and then stretched when the "
+                    "Peace Country came up. The long final leg was built "
+                    "into the figure from the start, so a delivery out to "
+                    "a lease road is the thing the number already "
+                    "describes, not an exception to it. It is also the "
+                    "only timing we quote, on every order and for every "
+                    "destination, so the range on this page is the range "
+                    "that governs yours. If a project milestone governs "
+                    "when the material has to be on the shelf, place the "
+                    "order early enough that the full fifteen days can "
+                    "elapse in front of it and still leave you room."
+                ),
+            },
+            {
+                "h2": "Deep winter and spring breakup on the last stretch",
+                "body": (
+                    "Two stretches of the year change how a run to a "
+                    "rural receiving point behaves. In deep winter, "
+                    "storms and drifting can slow or close routes into "
+                    "the region for a day at a time, and a delay of that "
+                    "size does not get made up later in the trip. In "
+                    "spring, when the frost comes out of the ground and "
+                    "the secondary roads go soft, moving weight out to a "
+                    "site is slower work for a few weeks. Neither of "
+                    "those moves the figure we quote. The range reads the "
+                    "same in January as it does in July. What the season "
+                    "decides is where inside that range a given order "
+                    "tends to fall: nearer the front of it in a quiet "
+                    "stretch, nearer the back of it when the weather is "
+                    "doing the scheduling. One physical consequence is "
+                    "worth knowing about. A parcel crossing the region in "
+                    "January may spend part of its trip in unheated "
+                    "depots and trailers, and nothing about how it is "
+                    "packed changes that. If exposure is a variable in "
+                    "your protocol, plan around the possibility rather "
+                    "than assume against it."
+                ),
+            },
+            {
+                "h2": "Somebody has to be at the gate when the driver is",
+                "body": (
+                    "A remote receiving point is only as useful as its "
+                    "coverage. Gate hours belong in the shipping notes, "
+                    "and so does anything unusual about them: a camp "
+                    "office attended part of the week, a plant gate that "
+                    "rolls to a call box after shift, a field office that "
+                    "is effectively empty in a busy season because "
+                    "everyone is out on the ground. A driver at a locked "
+                    "gate at 16:30 on a Friday with no number to call is "
+                    "a wasted run on a route that does not get many. Two "
+                    "names beat one. A primary contact who is expecting "
+                    "the parcel, plus a second who can be reached when "
+                    "the first is on days off or out of coverage, is "
+                    "usually the difference between a delivery and a "
+                    "return trip. None of that coverage comes from us. We "
+                    "keep nobody in Grande Prairie and nobody anywhere in "
+                    "the Peace Country, and we hold no office, no storage "
+                    "and no bench in the region, so there is no local "
+                    "person to meet a driver, hold a parcel or sort out a "
+                    "gate problem on your behalf. Receiving sits entirely "
+                    "at your end, which is exactly why it pays to arrange "
+                    "it before the order goes in."
+                ),
+            },
+        ],
+        "faqs": [
+            {
+                "q": (
+                    "Our intake sits on a lease road with no civic "
+                    "number. How do I put that into the address fields?"
+                ),
+                "a": (
+                    "Describe it the way you would describe it to a "
+                    "driver over the phone, not the way a form expects a "
+                    "street address to look. Legal land description or "
+                    "site identifier, the road and the turn-off with a "
+                    "direction of travel, the operator or facility name "
+                    "on the gate, a receiving contact with a mobile "
+                    "number, and the hours the gate is attended. "
+                    "Industrial and rural receiving points are ordinary "
+                    "in this part of the province. The deliveries that "
+                    "fail are the ones described loosely."
+                ),
+            },
+            {
+                "q": (
+                    "Can I get a firm delivery date to slot into our "
+                    "project schedule?"
+                ),
+                "a": (
+                    "No. We quote a 10 to 15 day range and do not commit "
+                    "to a specific day, for this region or any other. The "
+                    "final leg out here carries real variability, so a "
+                    "named date would be a guess wearing the clothes of a "
+                    "commitment. For scheduling, plan against the "
+                    "fifteenth day and place the order far enough ahead "
+                    "of your milestone that the whole range fits in front "
+                    "of it."
+                ),
+            },
+        ],
+    },
+    # ------------------------------------------------------------------
     # UNITED STATES — 12 states, served by the .com storefronts
     # ------------------------------------------------------------------
     {
         "slug": "california",
         "market": "US",
+        "owner": "smashfatbiolabs.com",
         "name": "California",
         "short": "CA",
         "cities": ["Los Angeles", "San Diego", "San Francisco", "San Jose", "Sacramento", "Irvine"],
@@ -1380,6 +2410,7 @@ REGIONS = [
     {
         "slug": "texas",
         "market": "US",
+        "owner": "smashfatbiolabs.com",
         "name": "Texas",
         "short": "TX",
         "cities": ["Houston", "Dallas", "Austin", "San Antonio", "Fort Worth", "College Station"],
@@ -1470,6 +2501,7 @@ REGIONS = [
     {
         "slug": "new-york",
         "market": "US",
+        "owner": "smashfatbiolabs.com",
         "name": "New York",
         "short": "NY",
         "cities": ["New York City", "Buffalo", "Rochester", "Albany", "Syracuse", "Ithaca"],
@@ -1561,6 +2593,7 @@ REGIONS = [
     {
         "slug": "florida",
         "market": "US",
+        "owner": "smashfatbiolabs.com",
         "name": "Florida",
         "short": "FL",
         "cities": ["Miami", "Orlando", "Tampa", "Jacksonville", "Gainesville", "Fort Lauderdale"],
@@ -1651,6 +2684,7 @@ REGIONS = [
     {
         "slug": "massachusetts",
         "market": "US",
+        "owner": "smash-fat.com",
         "name": "Massachusetts",
         "short": "MA",
         "cities": ["Boston", "Cambridge", "Worcester", "Springfield", "Lowell", "Amherst"],
@@ -1747,6 +2781,7 @@ REGIONS = [
     {
         "slug": "illinois",
         "market": "US",
+        "owner": "smash-fat.com",
         "name": "Illinois",
         "short": "IL",
         "cities": ["Chicago", "Evanston", "Urbana", "Peoria", "Rockford", "Springfield"],
@@ -1836,6 +2871,7 @@ REGIONS = [
     {
         "slug": "pennsylvania",
         "market": "US",
+        "owner": "smash-fat.com",
         "name": "Pennsylvania",
         "short": "PA",
         "cities": ["Philadelphia", "Pittsburgh", "Allentown", "Harrisburg", "State College", "Hershey"],
@@ -1925,6 +2961,7 @@ REGIONS = [
     {
         "slug": "washington",
         "market": "US",
+        "owner": "smash-fat.com",
         "name": "Washington",
         "short": "WA",
         "cities": ["Seattle", "Bellevue", "Spokane", "Tacoma", "Pullman", "Vancouver"],
@@ -2012,6 +3049,7 @@ REGIONS = [
     {
         "slug": "georgia",
         "market": "US",
+        "owner": "where-do-i-get-peptides.com",
         "name": "Georgia",
         "short": "GA",
         "cities": ["Atlanta", "Athens", "Savannah", "Augusta", "Macon", "Columbus"],
@@ -2099,6 +3137,7 @@ REGIONS = [
     {
         "slug": "north-carolina",
         "market": "US",
+        "owner": "where-do-i-get-peptides.com",
         "name": "North Carolina",
         "short": "NC",
         "cities": ["Raleigh", "Durham", "Charlotte", "Chapel Hill", "Winston-Salem", "Greensboro"],
@@ -2183,6 +3222,7 @@ REGIONS = [
     {
         "slug": "ohio",
         "market": "US",
+        "owner": "where-do-i-get-peptides.com",
         "name": "Ohio",
         "short": "OH",
         "cities": ["Columbus", "Cleveland", "Cincinnati", "Dayton", "Toledo", "Akron"],
@@ -2277,6 +3317,7 @@ REGIONS = [
     {
         "slug": "arizona",
         "market": "US",
+        "owner": "where-do-i-get-peptides.com",
         "name": "Arizona",
         "short": "AZ",
         "cities": ["Phoenix", "Tucson", "Tempe", "Scottsdale", "Mesa", "Flagstaff"],
@@ -2377,12 +3418,33 @@ REGIONS_BY_SLUG = {r["slug"]: r for r in REGIONS}
 def by_market(market):
     """Every region for 'CA' or 'US', in file order.
 
-    Views use this to build the regional index for a storefront: .ca sites pass
-    'CA', .com sites pass 'US'. Unknown values return an empty list rather than
-    raising, so a misconfigured Site row renders an empty index instead of a 500.
+    Kept for callers that genuinely want the whole market (the network-wide
+    index). For "what does THIS storefront serve", use :func:`for_site` — market
+    alone would hand the same page to five domains.
     """
     market = (market or "").upper()
     return [r for r in REGIONS if r["market"] == market]
+
+
+def for_site(site):
+    """The regions one storefront owns, in file order.
+
+    This is the function views and sitemaps should use. A region belongs to
+    exactly one domain, so exactly one canonical URL exists for each page.
+    """
+    domain = (getattr(site, "domain", "") or "").lower().lstrip("www.")
+    return [r for r in REGIONS if r.get("owner", "").lower() == domain]
+
+
+def owner_of(slug):
+    """Domain that serves this region, or '' if the slug is unknown."""
+    r = REGIONS_BY_SLUG.get((slug or "").strip().lower())
+    return (r or {}).get("owner", "")
+
+
+def cities_of(parent_slug):
+    """City pages hanging off a province page (empty for most regions)."""
+    return [r for r in REGIONS if r.get("parent") == parent_slug]
 
 
 def get(slug):

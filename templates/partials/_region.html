@@ -6,6 +6,7 @@ pages Google demotes. A site only serves regions in its own market.{% endcomment
 
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <a href="/">Home</a><span>/</span>
+      {% if parent %}<a href="/research-peptides/{{ parent.slug }}/">{{ parent.name }}</a><span>/</span>{% endif %}
       <span class="crumb-cur">{{ region.name }}</span>
     </nav>
 
@@ -20,7 +21,7 @@ pages Google demotes. A site only serves regions in its own market.{% endcomment
         <li><b>{{ region.timezone }}</b><span>Support hours</span></li>
       </ul>
 
-      {% if region.cities %}
+      {% if region.cities and not parent %}
       <p class="region-cities">Researchers ordering from
         {% for c in region.cities %}<b>{{ c }}</b>{% if not forloop.last %}, {% endif %}{% endfor %}
         and across {{ region.name }}.</p>
@@ -33,7 +34,7 @@ pages Google demotes. A site only serves regions in its own market.{% endcomment
       {% for s in region.sections %}
       <section class="region-block">
         <h2>{{ s.h2 }}</h2>
-        <p>{{ s.body }}</p>
+        {{ s.body|linebreaks }}
       </section>
       {% endfor %}
     </div>
@@ -65,6 +66,20 @@ pages Google demotes. A site only serves regions in its own market.{% endcomment
       <strong>{{ site.shipping_window }} delivery.</strong>
       {{ site.shipping_notice }} {{ site.customs_notice }}
     </p>
+
+    {% if children %}
+    <nav class="region-siblings" aria-label="Cities">
+      <h2>{{ region.name }} centres we serve</h2>
+      <ul>
+        {% for c in children %}<li><a href="/research-peptides/{{ c.slug }}/">{{ c.name }}</a></li>{% endfor %}
+      </ul>
+    </nav>
+    {% endif %}
+
+    {% if parent %}
+    <p class="region-more"><a href="/research-peptides/{{ parent.slug }}/">←
+      Back to research peptides across {{ parent.name }}</a></p>
+    {% endif %}
 
     {% if siblings %}
     <nav class="region-siblings" aria-label="Other regions">

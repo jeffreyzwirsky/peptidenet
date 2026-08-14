@@ -168,7 +168,9 @@ def region_page(request, slug):
     _require_site(request)
     from . import regions
     r = regions.get(slug)
-    if r is None or r["market"] != request.site.country:
+    # Ownership, not just market. Every region page lives on exactly one domain,
+    # so there is exactly one canonical URL for it across the network.
+    if r is None or r.get("owner") != request.site.domain:
         raise Http404("No such region for this storefront.")
 
     base = _base_url(request)
@@ -178,9 +180,17 @@ def region_page(request, slug):
         "@type": "BreadcrumbList",
         "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Home", "item": base + "/"},
-            {"@type": "ListItem", "position": 2, "name": r["name"], "item": url},
         ],
     }]
+    if r.get("parent"):
+        p = regions.get(r["parent"])
+        if p:
+            ld[0]["itemListElement"].append({
+                "@type": "ListItem", "position": 2, "name": p["name"],
+                "item": f"{base}/research-peptides/{p['slug']}/"})
+    ld[0]["itemListElement"].append({
+        "@type": "ListItem", "position": len(ld[0]["itemListElement"]) + 1,
+        "name": r["name"], "item": url})
     if r.get("faqs"):
         ld.append({
             "@context": "https://schema.org",
@@ -191,11 +201,20 @@ def region_page(request, slug):
                 for f in r["faqs"]
             ],
         })
-    siblings = [x for x in regions.by_market(request.site.country)
-                if x["slug"] != slug]
+    # Only this storefront's own regions — linking to a page that 404s here
+    # would be an internal broken link on every one of them.
+    siblings = [x for x in regions.for_site(request.site) if x["slug"] != slug
+                and not x.get("parent")]
+    # City pages hang off a province page. Linking both directions makes the
+    # hierarchy explicit to a reader and to a crawler, and keeps the city pages
+    # from being orphans reachable only from the sitemap.
+    parent = regions.get(r["parent"]) if r.get("parent") else None
+    children = regions.cities_of(slug)
     return render(request, _theme_template(request, "region.html"), {
         "region": r,
         "siblings": siblings,
+        "parent": parent,
+        "children": children,
         "featured": Product.objects.filter(is_active=True)
                            .select_related("category")[:4],
         "jsonld": json.dumps(ld),
@@ -542,7 +561,7 @@ def sitemap_xml(request):
     if site:
         # Only this site's own market. A .com listing Canadian provinces would
         # be the doorway pattern these pages are written to avoid.
-        for r in regions.by_market(site.country):
+        for r in regions.for_site(site):
             urls.append((f"{base}/research-peptides/{r['slug']}/", "monthly",
                          "0.6", None))
         for post in posts:

@@ -402,42 +402,88 @@ class RegionPageTests(TestCase):
                             HTTP_HOST="smash-fat.com").status_code, 404)
 
     def test_us_region_serves_on_us_site_only(self):
+        # California is owned by smashfatbiolabs.com; a sibling .com must not
+        # serve it either, or the page exists at two US domains.
         self.assertEqual(
             self.client.get("/research-peptides/california/",
-                            HTTP_HOST="smash-fat.com").status_code, 200)
+                            HTTP_HOST="smashfatbiolabs.com").status_code, 200)
+        self.assertEqual(
+            self.client.get("/research-peptides/california/",
+                            HTTP_HOST="smash-fat.com").status_code, 404)
         self.assertEqual(
             self.client.get("/research-peptides/california/",
                             HTTP_HOST="smashfat.ca").status_code, 404)
 
-    def test_every_region_renders_on_a_site_in_its_market(self):
+    def test_every_region_renders_on_its_owner(self):
         from apps.stores import regions
-        hosts = {"CA": "smashfatbiolabs.ca", "US": "smashfatbiolabs.com"}
         for r in regions.REGIONS:
             resp = self.client.get(f"/research-peptides/{r['slug']}/",
-                                   HTTP_HOST=hosts[r["market"]])
+                                   HTTP_HOST=r["owner"])
             self.assertEqual(resp.status_code, 200, r["slug"])
+
+    def test_each_region_lives_on_exactly_one_domain(self):
+        """The point of the whole ownership layer. Before it, every .ca site
+        served all 13 Canadian pages — the same Alberta page at five domains,
+        which is cross-domain duplicate content no amount of distinct writing
+        fixes."""
+        from apps.stores import regions
+        from apps.stores.models import Site
+        domains = list(Site.objects.values_list("domain", flat=True))
+        for r in regions.REGIONS:
+            serving = [d for d in domains
+                       if self.client.get(f"/research-peptides/{r['slug']}/",
+                                          HTTP_HOST=d).status_code == 200]
+            self.assertEqual(serving, [r["owner"]],
+                             f"{r['slug']} served by {serving}, expected only {r['owner']}")
+
+    def test_region_ownership_is_evenly_spread(self):
+        from collections import Counter
+
+        from apps.stores import regions
+        ca = Counter(r["owner"] for r in regions.REGIONS if r["market"] == "CA"
+                     and not r.get("parent"))
+        us = Counter(r["owner"] for r in regions.REGIONS if r["market"] == "US")
+        # Alberta's owner holds one province; the other four .ca sites hold three each.
+        self.assertEqual(sorted(ca.values()), [1, 3, 3, 3, 3])
+        self.assertEqual(sorted(us.values()), [4, 4, 4])
+
+    def test_sibling_links_never_point_at_a_404(self):
+        """Siblings used to list the whole market, so every region page linked
+        to twelve pages that 404 on that domain."""
+        from apps.stores import regions
+        r = regions.get("alberta")
+        html = self.client.get("/research-peptides/alberta/",
+                               HTTP_HOST=r["owner"]).content.decode()
+        import re as _re
+        for slug in set(_re.findall(r'/research-peptides/([a-z\-]+)/', html)):
+            self.assertEqual(
+                self.client.get(f"/research-peptides/{slug}/",
+                                HTTP_HOST=r["owner"]).status_code, 200,
+                f"alberta page links to /research-peptides/{slug}/ which 404s on {r['owner']}")
 
     def test_region_copy_makes_no_banned_claim(self):
         """These pages are the biggest surface of new copy in the project. If a
         claim slips in anywhere, it slips in here."""
         from apps.stores import regions
-        hosts = {"CA": "smashfatbiolabs.ca", "US": "smashfatbiolabs.com"}
         banned = ["Ships from", "ships from", "same-day", "Same-day",
                   "1–2 business", "dosage", "weight loss"]
         for r in regions.REGIONS:
             html = self.client.get(f"/research-peptides/{r['slug']}/",
-                                   HTTP_HOST=hosts[r["market"]]).content.decode()
+                                   HTTP_HOST=r["owner"]).content.decode()
             for phrase in banned:
                 self.assertNotIn(phrase, html, f"{phrase!r} on {r['slug']}")
             self.assertIn("Research Use Only", html)
 
-    def test_sitemap_lists_only_this_markets_regions(self):
-        ca = self.client.get("/sitemap.xml", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+    def test_sitemap_lists_only_the_regions_this_site_owns(self):
+        ab = self.client.get("/sitemap.xml", HTTP_HOST="peptidesalberta.ca").content.decode()
+        bio = self.client.get("/sitemap.xml", HTTP_HOST="smashfatbiolabs.ca").content.decode()
         us = self.client.get("/sitemap.xml", HTTP_HOST="smashfatbiolabs.com").content.decode()
-        self.assertIn("/research-peptides/alberta/", ca)
+        self.assertIn("/research-peptides/alberta/", ab)
+        # Another .ca site must not advertise a page it does not serve.
+        self.assertNotIn("/research-peptides/alberta/", bio)
+        self.assertIn("/research-peptides/british-columbia/", bio)
         self.assertNotIn("/research-peptides/alberta/", us)
         self.assertIn("/research-peptides/california/", us)
-        self.assertNotIn("/research-peptides/california/", ca)
 
 
 class SupplierCommandTests(TestCase):
@@ -761,3 +807,80 @@ class SeoHygieneTests(TestCase):
                                HTTP_HOST="smashfatbiolabs.ca").content.decode()
         self.assertEqual(html.count("<h1"), 1)
         self.assertIn("<h1>SEO Post</h1>", html)
+
+
+class AlbertaCityPageTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    CITIES = ["calgary", "edmonton", "red-deer", "lethbridge",
+              "medicine-hat", "grande-prairie"]
+
+    def test_city_pages_serve_only_on_peptidesalberta(self):
+        for slug in self.CITIES:
+            self.assertEqual(
+                self.client.get(f"/research-peptides/{slug}/",
+                                HTTP_HOST="peptidesalberta.ca").status_code, 200, slug)
+            for other in ("smashfat.ca", "smashfatbiolabs.ca", "smash-fat.com"):
+                self.assertEqual(
+                    self.client.get(f"/research-peptides/{slug}/",
+                                    HTTP_HOST=other).status_code, 404, f"{slug} on {other}")
+
+    def test_city_pages_link_back_to_the_province(self):
+        html = self.client.get("/research-peptides/calgary/",
+                               HTTP_HOST="peptidesalberta.ca").content.decode()
+        self.assertIn("/research-peptides/alberta/", html)
+
+    def test_province_page_links_to_every_city(self):
+        html = self.client.get("/research-peptides/alberta/",
+                               HTTP_HOST="peptidesalberta.ca").content.decode()
+        for slug in self.CITIES:
+            self.assertIn(f"/research-peptides/{slug}/", html, slug)
+
+    def test_cities_are_in_the_sitemap(self):
+        sm = self.client.get("/sitemap.xml",
+                             HTTP_HOST="peptidesalberta.ca").content.decode()
+        for slug in self.CITIES:
+            self.assertIn(f"/research-peptides/{slug}/", sm, slug)
+
+    def test_city_pages_carry_no_shared_boilerplate_section(self):
+        """Two distinctness audits found the compliance paragraph, repeated six
+        ways, was the doorway signature — not the local copy. It is rendered
+        once by the template instead."""
+        from apps.stores import regions
+        banned = ["certificate of analysis", "purity figure", "purity or potency"]
+        for slug in self.CITIES:
+            r = regions.get(slug)
+            blob = " ".join([s["body"] for s in r["sections"]]
+                            + [f["a"] for f in r["faqs"]]).lower()
+            for phrase in banned:
+                self.assertNotIn(phrase, blob, f"{slug} still carries {phrase!r}")
+
+    def test_city_pages_do_not_share_a_uniform_shape(self):
+        """A uniform section/FAQ count across sibling pages is itself a
+        duplicate-content fingerprint."""
+        from apps.stores import regions
+        shapes = {(len(regions.get(s)["sections"]), len(regions.get(s)["faqs"]))
+                  for s in self.CITIES}
+        self.assertGreater(len(shapes), 1, "every city page has the same shape")
+
+    def test_no_two_city_pages_share_a_heading(self):
+        from apps.stores import regions
+        seen = {}
+        for slug in self.CITIES:
+            for s in regions.get(slug)["sections"]:
+                h = s["h2"].strip().lower()
+                self.assertNotIn(h, seen, f"{slug} reuses {seen.get(h)}'s heading {h!r}")
+                seen[h] = slug
+
+    def test_city_copy_makes_no_banned_claim(self):
+        banned = ["Ships from", "ships from", "same-day", "overnight", "express",
+                  "dosage", "weight loss", "cheapest", "purest"]
+        for slug in self.CITIES:
+            html = self.client.get(f"/research-peptides/{slug}/",
+                                   HTTP_HOST="peptidesalberta.ca").content.decode()
+            for phrase in banned:
+                self.assertNotIn(phrase, html, f"{phrase!r} on {slug}")
+            self.assertIn("Research Use Only", html)

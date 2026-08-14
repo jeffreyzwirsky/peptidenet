@@ -54,10 +54,26 @@ def place_call(to_number, from_number, twiml):
 
 
 def validate_twilio_signature(request):
-    """Verify X-Twilio-Signature. Skipped when no auth token (dev)."""
+    """Verify X-Twilio-Signature.
+
+    FAILS CLOSED. This used to `return True` whenever TWILIO_AUTH_TOKEN was
+    empty — and `scripts/deploy.sh` never wrote a TWILIO_* line into the
+    production `.env`, so a droplet rebuilt from the documented path came up
+    with every `/webhooks/twilio/*` route publicly writable: anyone could POST
+    a forged STOP to suppress a real customer's messaging and plant rows in the
+    deliberately-immutable SmsConsent trail that the compliance export presents
+    as a legal record.
+
+    A missing credential now means "reject", never "allow". The dev bypass is a
+    separate, explicit opt-in that is impossible to reach with DEBUG off.
+    """
     token = settings.TWILIO_AUTH_TOKEN
     if not token:
-        return True
+        if settings.DEBUG and getattr(settings, "COMMS_WEBHOOK_INSECURE", False):
+            log.warning("twilio webhook signature check bypassed (DEBUG dev flag)")
+            return True
+        log.error("twilio webhook rejected: TWILIO_AUTH_TOKEN is not configured")
+        return False
     try:  # pragma: no cover
         from twilio.request_validator import RequestValidator
         validator = RequestValidator(token)

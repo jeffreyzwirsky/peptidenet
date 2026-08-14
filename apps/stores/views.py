@@ -350,9 +350,14 @@ def checkout(request):
     })
 
 
+@rate_limit("order_status", limit=30, window=60)
 def order_status(request, number):
     """
     Customer-facing order status.
+
+    Rate-limited: the only thing protecting one customer's name, address and
+    order contents from another is an 8-digit order number, which is well
+    inside brute-force range for an unthrottled endpoint.
 
     Before this, the entire post-purchase experience was a toast that
     auto-dismissed after 2.6 seconds — on a 10–15 day delivery that is the

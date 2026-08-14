@@ -222,13 +222,20 @@ AI_LIVE = env_bool("PEPTIDENET_AI_LIVE", False)
 # Number of trusted reverse proxies in front (nginx=1, +Cloudflare=2). Used for
 # spoof-resistant client-IP resolution (like the SMASH consent-IP fix).
 TRUSTED_PROXY_COUNT = int(env("PEPTIDENET_TRUSTED_PROXIES", "0") or "0")
-CONTENT_SECURITY_POLICY = env(
-    "PEPTIDENET_CSP",
-    "default-src 'self'; img-src 'self' data:; "
-    "style-src 'self' 'unsafe-inline'; "
-    "font-src 'self'; "
-    "script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'",
-)
+# Dev-only escape hatch for unsigned Twilio webhooks. Guarded by DEBUG as well,
+# so it cannot be switched on in production even by mistake.
+COMMS_WEBHOOK_INSECURE = env_bool("PEPTIDENET_COMMS_WEBHOOK_INSECURE", False)
+# Outbound-calling brakes (toll-fraud containment). North America only by
+# default; raise deliberately if the business genuinely dials elsewhere.
+COMMS_CALL_ALLOWED_PREFIXES = tuple(
+    p.strip() for p in env("PEPTIDENET_CALL_PREFIXES", "+1").split(",") if p.strip())
+COMMS_MAX_CALLS_PER_HOUR = int(env("PEPTIDENET_MAX_CALLS_PER_HOUR", "20") or "20")
+# NOTE: the served CSP is built in apps/security/middleware.py (CSP_STRICT for
+# storefronts with a per-response nonce, CSP_RELAXED for the console). There is
+# deliberately no CONTENT_SECURITY_POLICY setting here: Django 5.2 does not read
+# one (that lands as SECURE_CSP in 6.0) and django-csp is not installed, so a
+# setting here would be silently ignored — an operator could "tighten the CSP",
+# redeploy, and change nothing. Edit the middleware constants instead.
 # In-process cache backs the rate limiter (fine for dev/single worker). Use Redis
 # in production so limits are shared across gunicorn workers.
 # FileBased, not LocMem (backported from the 2026-08-10 prod audit): gunicorn

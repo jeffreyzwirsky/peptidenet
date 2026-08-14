@@ -2,11 +2,21 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from xml.sax.saxutils import escape as _xml_escape
+
 from . import phone, providers, sms
 from . import voice as voicelib
 from .models import Call, PhoneNumber, Voicemail
 
 XML = "application/xml"
+
+
+def log_security(request, kind, detail):
+    try:
+        from apps.security.utils import log_event
+        log_event(request, kind, detail=detail)
+    except Exception:
+        pass
 
 
 def _lookup_number(request):
@@ -19,8 +29,22 @@ def _lookup_number(request):
 
 
 def _guard(request):
-    """Twilio signature check (skipped in dev when no auth token)."""
-    return providers.validate_twilio_signature(request)
+    """Twilio signature check (skipped in dev when no auth token).
+
+    A failure is recorded, not just refused. A forged webhook is somebody
+    actively trying to inject fake calls, texts or voicemails into the system —
+    that belongs in the Security audit trail, and the ``bad_signature`` event
+    kind existed for it but nothing ever wrote one.
+    """
+    ok = providers.validate_twilio_signature(request)
+    if not ok:
+        try:
+            from apps.security.utils import log_event
+            log_event(request, "bad_signature",
+                      detail=f"unverified Twilio webhook to {request.path}")
+        except Exception:
+            pass
+    return ok
 
 
 @csrf_exempt
@@ -37,7 +61,11 @@ def inbound_sms(request):
     _msg, reply = sms.handle_inbound(frm, to, body, site=site)
     twiml = '<?xml version="1.0" encoding="UTF-8"?><Response>'
     if reply:
-        twiml += f"<Message>{reply}</Message>"
+        # The STOP/HELP/START replies are staff-editable in the compliance page;
+        # an unescaped "&" or "<" there produced malformed TwiML (silently no
+        # reply to a legally-required STOP confirmation), and a crafted value
+        # could inject sibling verbs.
+        twiml += f"<Message>{_xml_escape(reply)}</Message>"
     twiml += "</Response>"
     return HttpResponse(twiml, content_type=XML)
 
@@ -139,7 +167,13 @@ def recording(request):
         return HttpResponseForbidden("bad signature")
     number = _lookup_number(request)
     site = number.site if number else None
-    rec_url = request.POST.get("RecordingUrl", "")
+    rec_url = (request.POST.get("RecordingUrl", "") or "").strip()
+    # Rendered as an href in the console. Anything that is not a plain https URL
+    # is dropped rather than stored — a `javascript:` value here becomes stored
+    # XSS the moment an operator clicks Play.
+    if rec_url and not rec_url.lower().startswith("https://"):
+        log_security(request, "blocked", f"refused non-https RecordingUrl: {rec_url[:80]}")
+        rec_url = ""
     # Twilio's recordingStatusCallback does NOT send From/To — only Recording*
     # and CallSid. Reading POST["From"] here is what left every stored voicemail
     # with a blank caller (and therefore no callback number). Prefer the number

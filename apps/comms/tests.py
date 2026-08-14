@@ -1,5 +1,5 @@
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from apps.stores.models import Site
 
@@ -67,6 +67,7 @@ class SmsTests(TestCase):
         self.assertEqual(chosen.region, "SK")
 
 
+@override_settings(TWILIO_AUTH_TOKEN="", DEBUG=True, COMMS_WEBHOOK_INSECURE=True)
 class WebhookTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -104,6 +105,7 @@ class WebhookTests(TestCase):
         self.assertIn(b"<Reject", r.content)
 
 
+@override_settings(TWILIO_AUTH_TOKEN="", DEBUG=True, COMMS_WEBHOOK_INSECURE=True)
 class ComplianceTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -186,6 +188,7 @@ class VoiceGreetingTests(TestCase):
         self.assertIn("greeting-9.mp3", xml)
 
 
+@override_settings(TWILIO_AUTH_TOKEN="", DEBUG=True, COMMS_WEBHOOK_INSECURE=True)
 class VoiceAgentTests(TestCase):
     """Guarded AI phone intake: deflects dosing/medical + company/address/staff,
     answers catalogue questions with the research-use-only disclaimer, and builds
@@ -259,6 +262,7 @@ class VoiceAgentTests(TestCase):
         self.assertNotIn(b"qualified professional", r.content)     # agent was skipped
 
 
+@override_settings(TWILIO_AUTH_TOKEN="", DEBUG=True, COMMS_WEBHOOK_INSECURE=True)
 class VoicemailCaptureTests(TestCase):
     """The recording callback must survive Twilio's actual payload, which
     carries Recording* + CallSid and NOT From/To."""

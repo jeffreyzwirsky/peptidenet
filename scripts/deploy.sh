@@ -66,6 +66,12 @@ PEPTIDENET_TRUSTED_PROXIES=1
 PEPTIDENET_SSL_REDIRECT=1
 PEPTIDENET_ADMIN_PATH=$ADMIN_PATH
 EOF
+# The secrets file never needed to be readable by the service user: systemd
+# reads EnvironmentFile as root before dropping privileges. 0644 (the default
+# umask) put SECRET_KEY and the Postgres password in reach of every local
+# account and of any file-read bug in the app itself.
+chmod 600 "$APP/.env"
+chown root:root "$APP/.env"
 set -a; source "$APP/.env"; set +a
 
 echo "==> Migrate + seed"
@@ -120,7 +126,7 @@ systemctl enable --now fail2ban || true
 systemctl restart fail2ban || true
 
 echo "==> Daily Postgres backup (14-day retention)"
-mkdir -p /var/backups/peptidenet
+install -d -m 0700 /var/backups/peptidenet
 cat > /etc/cron.daily/peptidenet-backup <<EOF
 #!/usr/bin/env bash
 set -e

@@ -314,7 +314,7 @@ def messages_inbox(request):
                 call = _calling.place_bridge_call(
                     to_raw or (get_object_or_404(Contact, pk=request.POST["contact_id"]).e164
                                if request.POST.get("contact_id") else ""),
-                    site=None)
+                    site=None, placed_by=request.user.get_username())
                 if call.status == "failed":
                     messages.error(request, f"Call failed: {call.transcript}")
                 else:

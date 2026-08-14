@@ -1,0 +1,53 @@
+{% comment %}Shared policy page body — shipping, returns, privacy, terms.
+Content is built per site and per market in apps/stores/policies.py, so one
+template serves all 8 storefronts in their own theme.{% endcomment %}
+<article class="policy">
+  <div class="wrap">
+
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a><span>/</span>
+      <span class="crumb-cur">{{ policy.title }}</span>
+    </nav>
+
+    <div class="policy-head">
+      <h1>{{ policy.title }}</h1>
+      <p class="policy-summary">{{ policy.summary }}</p>
+    </div>
+
+    <div class="policy-layout">
+      <div class="policy-body">
+        {% for section in policy.sections %}
+        <section class="policy-block">
+          <h2>{{ section.heading }}</h2>
+          {% for p in section.paragraphs %}<p>{{ p }}</p>{% endfor %}
+        </section>
+        {% endfor %}
+
+        <p class="policy-updated">Last updated 28 July 2026.</p>
+      </div>
+
+      <aside class="policy-aside">
+        <h3>Policies</h3>
+        <ul class="policy-nav">
+          {% for p in policy_nav %}
+          <li><a href="/{{ p.slug }}/"{% if p.slug == policy.slug %} class="is-current" aria-current="page"{% endif %}>{{ p.label }}</a></li>
+          {% endfor %}
+        </ul>
+
+        <div class="policy-contact">
+          <h3>Questions</h3>
+          <p><a href="mailto:{{ site.contact_email_or_default }}">{{ site.contact_email_or_default }}</a></p>
+          {% if site.phone %}<p><a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a></p>{% endif %}
+        </div>
+
+        <p class="ship-notice ship-notice--inline">
+          <strong>{{ site.shipping_window }} delivery.</strong> {{ site.shipping_notice }}
+        </p>
+      </aside>
+    </div>
+
+    <p class="policy-ruo"><strong>For Research Use Only.</strong> All products are
+      supplied as laboratory reference materials for in-vitro and laboratory research.
+      Not for human or veterinary use. Age 21+.</p>
+  </div>
+</article>

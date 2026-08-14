@@ -1,0 +1,20 @@
+<div class="ai-widget" data-ai-widget>
+  <button class="ai-fab" data-ai-toggle aria-label="Ask a question">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H7l-4 3v-4.5A8.5 8.5 0 1 1 21 11.5z"/></svg>
+  </button>
+  <div class="ai-panel" data-ai-panel hidden>
+    <div class="ai-head">
+      <div><b>Ask {{ site.brand_name }}</b><span class="ai-sub">Research-use info · not medical advice</span></div>
+      <button data-ai-toggle class="ai-x" aria-label="Close">×</button>
+    </div>
+    <div class="ai-log" data-ai-log>
+      <div class="ai-msg bot">Hi — ask me about our compounds, purity &amp; COAs, shipping, or ordering.</div>
+    </div>
+    <form class="ai-form" data-ai-form>
+      {# honeypot: hidden from humans, tempting to bots #}
+      <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="ai-hp" aria-hidden="true">
+      <input type="text" name="question" placeholder="Type your question…" autocomplete="off" required>
+      <button type="submit" aria-label="Send">→</button>
+    </form>
+  </div>
+</div>

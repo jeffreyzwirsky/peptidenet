@@ -1,0 +1,280 @@
+/* ============================================================================
+   Theme: neon — the SMASH FAT. look. Near-black, electric lime, hot orange,
+   Anton display over Archivo. Loud identity, executed with precision.
+
+   Direction: CLINICAL PRECISION *applied to a bold brand*. The lime stays; the
+   glow does not. Every former bloom (drop-shadow halos, lime box-shadow spread,
+   the rotated sticker card) is replaced by hairlines, hard edges, honest
+   elevation and one deliberate offset. The result reads as a race-team spec
+   sheet rather than a nightclub flyer.
+
+   Mobile-first: min-width steps only, matching base.css.
+   ========================================================================== */
+
+.theme-neon{
+  --bg:#0a0a0a; --fg:#f4f4f0; --muted:#94948c; --accent:#c6ff2f; --accent-ink:#0a0a0a;
+  --card:#111111; --line:rgba(244,244,240,.14); --radius:10px;
+  --font:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+
+  --display:'Anton','Archivo Narrow','Arial Narrow',sans-serif;
+  --orange:#ff5a1f; --bg-3:#161616; --ink-2:#cdcdc5;
+  /* The wordmark is set to FILL its column, so the step is derived from the
+     available measure rather than picked. Anton is condensed and will sit
+     comfortably inside this; the sizing deliberately also holds when Anton has
+     not loaded and a wide fallback grotesk is substituted — a clipped brand
+     name on first paint is not a trade worth making. Re-derived at --bp-lg,
+     where the copy stops owning the full width. */
+  --hero-display:clamp(52px, calc(17vw - 8px), 150px);
+}
+
+/* ---- Display type — heavy condensed uppercase ---------------------------- */
+.theme-neon h1,.theme-neon h2,.theme-neon h3,.theme-neon h4{
+  font-family:var(--display);font-weight:400;letter-spacing:.01em;
+  line-height:.94;text-transform:uppercase}
+.theme-neon .eyebrow{color:var(--orange);font-weight:800;letter-spacing:.2em;
+  font-size:var(--fs-3xs)}
+.theme-neon .section-head h2{font-size:var(--fs-4xl);max-width:16ch}
+.theme-neon .section-head .sec-sub{color:var(--muted);font-size:var(--fs-sm);
+  margin-top:var(--sp-2);max-width:58ch;line-height:1.6}
+/* Technical values in the engineered mono — the counterweight to all that Anton. */
+.theme-neon .chip,.theme-neon .hchip,.theme-neon .pdp-rail-facts dd,
+.theme-neon .spec-table td,.theme-neon .region-facts b{
+  font-family:var(--font-mono);letter-spacing:0}
+
+/* ---- Buttons — fat pills, hard edges, press physics. No glow. ------------- */
+.theme-neon .btn{text-transform:uppercase;font-weight:900;letter-spacing:.07em;
+  padding:13px 24px;border-radius:var(--radius-pill);font-size:var(--fs-xs)}
+.theme-neon .btn-primary{background:var(--accent);color:var(--accent-ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.6)}
+.theme-neon .btn-primary:hover{transform:translateY(-2px);filter:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 2px 4px rgba(0,0,0,.6),
+             0 14px 26px -14px rgba(198,255,47,.55)}
+.theme-neon .btn-ghost{border:1px solid var(--line);color:var(--fg);background:var(--tint-1)}
+.theme-neon .btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--tint-2)}
+
+/* ---- Header + announcement ----------------------------------------------- */
+.theme-neon .site-header{background:color-mix(in srgb,var(--bg) 82%,transparent)}
+.theme-neon .brand .brand-name{font-family:var(--display);font-weight:400;
+  font-size:var(--fs-xl);letter-spacing:.02em}
+.theme-neon .nav-links a{text-transform:uppercase;font-weight:700;letter-spacing:.06em;
+  font-size:var(--fs-2xs)}
+.theme-neon .nav-links a:hover{color:var(--accent)}
+.theme-neon .cart-count{background:var(--orange);color:#fff;box-shadow:0 0 0 2px var(--bg)}
+.theme-neon .announcement{background:var(--accent);color:#0a0a0a;font-weight:900;
+  border-bottom:1px solid #0a0a0a}
+.theme-neon .ann-track span{border-right-color:rgba(0,0,0,.26)}
+.theme-neon .ann-track b{color:#7a2c00}
+
+/* ============================================================
+   HERO
+   Phone: the wordmark is the composition. Kicker tab, giant title, one
+   hairline rule, copy, CTAs, then the plate with its stat plaque squared to
+   the frame's lower-left corner. Nothing rotates, nothing glows.
+   ============================================================ */
+.theme-neon .hero{position:relative;overflow:hidden;
+  padding-block:var(--sp-section);
+  border-bottom:1px solid var(--line)}
+.theme-neon .hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(70% 46% at 84% 4%, rgba(255,90,31,.17), transparent 62%),
+    radial-gradient(78% 56% at 4% 96%, rgba(198,255,47,.10), transparent 62%);
+}
+/* A single hard diagonal, clipped — a painted panel edge, not a soft haze. */
+.theme-neon .hero-diag{position:absolute;right:-18%;top:-30%;width:78%;aspect-ratio:1;
+  background:linear-gradient(135deg,var(--accent),transparent 52%);opacity:.05;
+  transform:rotate(18deg);pointer-events:none}
+.theme-neon .hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1fr);
+  gap:var(--sp-5);align-items:center}
+.theme-neon .hero-copy{min-width:0}
+
+.theme-neon .kicker{
+  display:inline-flex;align-items:center;gap:9px;background:var(--bg-3);
+  border:1px solid var(--line);color:var(--accent);font-weight:900;
+  font-size:var(--fs-3xs);letter-spacing:.14em;text-transform:uppercase;
+  padding:7px 13px;border-radius:var(--radius-pill);margin-bottom:var(--sp-3)}
+.theme-neon .pulse{width:7px;height:7px;flex:none;border-radius:50%;background:var(--orange)}
+
+.theme-neon .hero-title{font-size:var(--hero-display);letter-spacing:-.012em;
+  color:var(--fg);line-height:.86;margin:0}
+.theme-neon .hero-slash{color:var(--accent);white-space:nowrap}
+/* The orange wedge is a mark, not an afterthought: sized off the cap height,
+   set on the baseline, and tied to the full stop so the two never break apart
+   across a line. */
+.theme-neon .hero-slash::after{content:"";display:inline-block;width:.26em;height:.26em;
+  background:var(--orange);margin-left:.06em;vertical-align:baseline;
+  clip-path:polygon(0 0,100% 0,100% 100%)}
+.theme-neon .hero-sub{max-width:46ch;margin:var(--sp-4) 0 0;padding-top:var(--sp-4);
+  border-top:1px solid var(--line);
+  color:var(--ink-2);font-size:var(--fs-md);line-height:1.6}
+.theme-neon .hero-sub b{color:var(--fg);font-weight:700}
+.theme-neon .hero-cta{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-2);
+  margin:var(--sp-4) 0 0;max-width:23rem}
+.theme-neon .hero-cta .btn{width:100%}
+
+/* ---- Hero plate + stat plaque -------------------------------------------- */
+.theme-neon .hero-figure-neon{position:relative;display:block;min-height:0;
+  padding-bottom:var(--sp-5)}
+.theme-neon .hero-vial-wrap{
+  position:relative;width:100%;max-width:26rem;margin-inline:auto;
+  aspect-ratio:430/537;border-radius:var(--radius);overflow:hidden;
+  background:linear-gradient(168deg,#181818,#0c0c0c);
+  box-shadow:inset 0 0 0 1px var(--line), 0 30px 60px -34px rgba(0,0,0,.9);
+  /* Quiet alt text if the photograph is missing — a black plate, not a slab. */
+  font-size:var(--fs-3xs);color:var(--muted);letter-spacing:.06em}
+.theme-neon .hero-vial-wrap .hero-vial{display:block;width:100%;height:100%;
+  object-fit:cover;max-width:none;filter:none;box-shadow:none;border-radius:0;background:none}
+.theme-neon .hero-vial-wrap .hero-video{border-radius:0}
+
+/* The plaque: square shoulders, a lime hairline, one lime rule across the top.
+   Reads as a machined instrument face rather than a glowing sticker. */
+.theme-neon .hero-stat{position:relative;background:#0d0d0d;
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:var(--sp-3);overflow:hidden}
+.theme-neon .hero-stat-slash{position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent);width:auto;transform:none;opacity:1}
+.theme-neon .hero-big{font-family:var(--display);font-size:var(--fs-4xl);line-height:.82;
+  color:var(--accent);letter-spacing:-.01em}
+.theme-neon .hero-big small{font-size:.38em;vertical-align:super;color:var(--fg)}
+.theme-neon .hero-cap{font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  font-size:var(--fs-3xs);color:var(--muted);margin-top:7px;line-height:1.45;max-width:26ch}
+.theme-neon .hero-chiprow{display:flex;gap:7px;margin-top:var(--sp-3);flex-wrap:wrap}
+.theme-neon .hchip{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-3xs);
+  font-weight:600;letter-spacing:.02em;text-transform:uppercase;background:var(--bg-3);
+  border:1px solid var(--line);padding:6px 10px;border-radius:var(--radius-pill);color:#d0d0ca}
+.theme-neon .hchip .d{width:6px;height:6px;flex:none;border-radius:50%;background:var(--accent)}
+/* Phone: the plaque tucks under the plate's lower-left, overlapping by a fixed
+   amount — a deliberate offset, not a random float. */
+.theme-neon .hero-stat-float{
+  position:relative;z-index:2;width:calc(100% - var(--sp-4));max-width:22rem;
+  margin:calc(var(--sp-5) * -1) auto 0;
+  box-shadow:0 24px 46px -26px rgba(0,0,0,.95)}
+
+@media (min-width:36rem){
+  .theme-neon .hero-cta{grid-template-columns:repeat(2,auto);justify-content:start;max-width:none}
+  .theme-neon .hero-cta .btn{width:auto}
+  .theme-neon .hero-stat-float{margin-inline:0 auto}
+}
+@media (min-width:64rem){
+  /* Copy no longer owns the full measure, so the wordmark is re-derived against
+     the narrower column (≈61% of a 1200px wrap, less the gutter and the gap). */
+  .theme-neon{--hero-display:clamp(52px, calc(10.6vw - 12px), 112px)}
+  .theme-neon .hero{padding-block:var(--sp-section)}
+  .theme-neon .hero-grid{grid-template-columns:1.28fr .82fr;gap:var(--sp-6)}
+  .theme-neon .hero-sub{font-size:var(--fs-lg);max-width:44ch}
+  .theme-neon .hero-figure-neon{padding-bottom:var(--sp-6)}
+  .theme-neon .hero-vial-wrap{max-width:none;margin-inline:0}
+  .theme-neon .hero-stat-float{position:absolute;left:calc(var(--sp-5) * -1);
+    bottom:var(--sp-5);width:16.5rem;max-width:none;margin:0}
+  .theme-neon .hero-big{font-size:var(--fs-3xl)}
+}
+@media (min-width:80rem){
+  .theme-neon .hero-stat-float{width:18rem;left:calc(var(--sp-6) * -1)}
+}
+
+/* ---- Ticker strip -------------------------------------------------------- */
+.theme-neon .strip{background:var(--orange);color:#0a0a0a;
+  border-block:1px solid #0a0a0a;overflow:hidden;white-space:nowrap}
+.theme-neon .strip-track{display:inline-block;padding:11px 0;
+  animation:neonmarq 34s linear infinite;will-change:transform;
+  font-family:var(--display);font-size:var(--fs-lg);letter-spacing:.03em}
+.theme-neon .strip-track span{margin:0 var(--sp-4)}
+.theme-neon .strip-track .star{color:#0a0a0a}
+@keyframes neonmarq{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+
+/* ---- Catalogue ----------------------------------------------------------- */
+.theme-neon .cat-chip{text-transform:uppercase;font-weight:800;letter-spacing:.06em;
+  background:var(--card)}
+.theme-neon .cat-chip.is-active,.theme-neon .cat-chip:hover{background:var(--accent);
+  color:var(--accent-ink);border-color:var(--accent)}
+
+.theme-neon .pcard{background:var(--card)}
+.theme-neon .pcard:hover{border-color:var(--accent);
+  box-shadow:var(--elev-2), inset 0 1px 0 rgba(255,255,255,.06)}
+.theme-neon .pcard-media{aspect-ratio:1/.82;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.05),transparent 30%),
+    radial-gradient(120% 90% at 50% 20%,rgba(198,255,47,.14),transparent 64%),
+    linear-gradient(168deg,#161616,#0b0b0b);
+  box-shadow:inset 0 0 0 1px var(--hairline-soft)}
+/* The product renders are shot on a light sweep; a vignette settles them onto
+   the black page without a filter or a blur. */
+.theme-neon .pcard-media::after,
+.theme-neon .pdp-media::after{content:"";position:absolute;inset:0;pointer-events:none;
+  z-index:1;border-radius:inherit;
+  background:
+    radial-gradient(118% 96% at 50% 32%, transparent 30%, rgba(10,10,10,.6) 100%),
+    linear-gradient(180deg, rgba(10,10,10,.1), rgba(10,10,10,.34))}
+.theme-neon .pcard-new{background:var(--orange);color:#0a0a0a;text-transform:uppercase;
+  font-weight:900}
+.theme-neon .pcard-cat{color:var(--orange)}
+.theme-neon .pcard-name{font-family:var(--display);font-weight:400;font-size:var(--fs-xl);
+  letter-spacing:.01em;margin:5px 0 8px;line-height:1}
+.theme-neon .pcard-price{font-family:var(--display);font-weight:400;font-size:var(--fs-2xl);
+  letter-spacing:0;line-height:1}
+.theme-neon .pcard-price span{font-family:var(--font-mono);font-weight:500;letter-spacing:0}
+.theme-neon .chip{text-transform:uppercase;font-weight:600;letter-spacing:.02em;
+  font-size:var(--fs-3xs);background:var(--bg-3)}
+.theme-neon .chip.pur{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 34%,var(--line))}
+.theme-neon .pcard-actions .btn{border-radius:8px;padding:11px 14px}
+
+/* ---- Quality / reviews --------------------------------------------------- */
+.theme-neon .quality{background:#0d0d0d;border-block:1px solid var(--line)}
+.theme-neon .q-item{background:#080808}
+.theme-neon .q-item h3{font-size:var(--fs-lg);letter-spacing:.02em}
+.theme-neon .q-item p{color:var(--muted)}
+.theme-neon .review{background:var(--card)}
+.theme-neon .review .stars{color:var(--accent);letter-spacing:2px}
+.theme-neon .review figcaption{text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+
+/* ---- CTA band ------------------------------------------------------------ */
+.theme-neon .band{position:relative;background:var(--accent);color:#0a0a0a;overflow:hidden}
+.theme-neon .band::before{content:"";position:absolute;top:-14%;right:-6%;
+  width:38%;aspect-ratio:1;background:var(--orange);opacity:.22;transform:rotate(20deg)}
+.theme-neon .band-inner{position:relative;display:flex;flex-direction:column;
+  align-items:flex-start;gap:var(--sp-4);padding-block:var(--sp-section)}
+.theme-neon .band h2{font-size:var(--fs-3xl);max-width:16ch;color:#0a0a0a}
+.theme-neon .band-side{display:flex;flex-direction:column;gap:var(--sp-2);align-items:flex-start}
+.theme-neon .band-code{font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  font-size:var(--fs-2xs)}
+.theme-neon .band-code .code{background:#0a0a0a;color:var(--accent);
+  font-family:var(--font-mono);font-weight:600;padding:5px 11px;border-radius:6px;
+  letter-spacing:.06em}
+.theme-neon .band-btn{background:#0a0a0a;color:var(--accent);border:1px solid #0a0a0a;
+  box-shadow:none}
+.theme-neon .band-btn:hover{transform:translateY(-2px);background:#0a0a0a;color:#fff;
+  box-shadow:0 12px 24px -14px rgba(0,0,0,.7)}
+@media (min-width:64rem){
+  .theme-neon .band-inner{flex-direction:row;align-items:center;
+    justify-content:space-between;gap:var(--sp-5)}
+  .theme-neon .band-side{align-items:flex-end}
+}
+
+/* ---- Contact / footer / overlays ----------------------------------------- */
+.theme-neon .contact-form input,.theme-neon .contact-form textarea{background:var(--bg-3)}
+.theme-neon .site-footer{background:#060606}
+.theme-neon .site-footer .brand-name{font-family:var(--display);font-weight:400;
+  letter-spacing:.02em;font-size:var(--fs-lg)}
+.theme-neon .foot-fruo strong{color:var(--orange);font-family:var(--display);
+  font-weight:400;letter-spacing:.02em}
+.theme-neon .foot-contact{color:var(--accent);font-family:var(--font-mono)}
+.theme-neon .cart-drawer{background:var(--card)}
+.theme-neon .cart-head h3,.theme-neon .cart-subtotal{font-family:var(--display);
+  font-weight:400;letter-spacing:.02em}
+.theme-neon .cart-subtotal{color:var(--accent)}
+.theme-neon .btn-checkout{background:var(--orange);color:#0a0a0a}
+.theme-neon .age-box h2,.theme-neon .cart-head h3{text-transform:uppercase}
+.theme-neon .cookie .btn-primary,.theme-neon .toast{font-weight:900;text-transform:uppercase}
+.theme-neon .toast{background:var(--accent);color:#0a0a0a;border-color:#0a0a0a;
+  letter-spacing:.05em}
+
+/* ---- Motion — the pulse is a ring that composites, not a growing shadow --- */
+@media (prefers-reduced-motion: no-preference){
+  .theme-neon .pulse{position:relative}
+  .theme-neon .pulse::after{content:"";position:absolute;inset:0;border-radius:50%;
+    border:1px solid var(--orange);animation:neonpulse 2.4s var(--ease-out) infinite}
+  @keyframes neonpulse{
+    0%{transform:scale(1);opacity:.7}
+    70%,100%{transform:scale(3);opacity:0}
+  }
+}

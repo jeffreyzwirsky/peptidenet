@@ -1,0 +1,16 @@
+{% comment %} The top ticker previously led with a Canadian flag and "Ships from Canada",
+   and promised "free express" / "free priority" shipping. None of that is true
+   under dropship — goods ship direct from the manufacturing partner on a
+   10–15 day window. It now leads with the price cut and states the real
+   delivery time. {% endcomment %}
+<div class="announcement">
+  <div class="ann-track">
+    {% for i in "12" %}
+    <span><b>30% off</b> the entire catalogue</span>
+    <span>{{ site.shipping_window|default:"10–15 days" }} delivery</span>
+    <span>Plain, tracked packaging</span>
+    <span>COA on every lot</span>
+    {% if site.promo_code %}<span>Use code <b>{{ site.promo_code }}</b> for 10% off</span>{% endif %}
+    {% endfor %}
+  </div>
+</div>

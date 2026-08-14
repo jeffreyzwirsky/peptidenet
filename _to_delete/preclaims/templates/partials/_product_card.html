@@ -1,0 +1,87 @@
+<article class="pcard" data-cat="{{ product.category.slug }}">
+  <a class="pcard-media" href="/product/{{ product.slug }}/" style="--cap:{{ product.category.color }}" aria-label="{{ product.name }}">
+    {% if product.is_new %}<span class="pcard-new">New</span>{% endif %}
+    {% if product.image %}
+      {% comment %} Real product render. Replaced an inline SVG that stamped the product name
+         in at 7px and truncated it to 9 characters — "Bacteriostatic Water" came
+         out as "Bacterios". {% endcomment %}
+      <img class="pcard-photo" src="{{ product.image }}" alt="{{ product.alt_text }}"
+           width="1000" height="1000" loading="lazy" decoding="async">
+    {% else %}
+      {# Fallback for a product with no photography yet. #}
+      <svg class="vial" viewBox="0 0 96 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="30" y="6" width="36" height="14" rx="3" fill="{{ product.category.color }}"/>
+        <rect x="33" y="18" width="30" height="7" rx="2" fill="#9aa6b8"/>
+        <rect x="28" y="24" width="40" height="100" rx="8" fill="#f4f7fb" stroke="#c9d3e2" stroke-width="1.5"/>
+        <rect x="28" y="86" width="40" height="38" rx="8" fill="#e4ebf4"/>
+        <rect x="31" y="54" width="34" height="40" rx="4" fill="#0f1728"/>
+        <rect x="34" y="30" width="9" height="52" rx="5" fill="#fff" opacity=".5"/>
+      </svg>
+    {% endif %}
+  </a>
+  <div class="pcard-body">
+    <div class="pcard-cat">{{ product.category.name }}</div>
+    <div class="pcard-stock {{ product.stock_state }}"><span class="dot"></span>{{ product.stock_state_label }}</div>
+    {% comment %} The headline figure has to be the price of the thing you can actually
+       buy. Compounds sell only in 10-vial packs, so leading with the per-vial
+       price and charging ten times it at checkout is a bait-and-switch — the
+       per-vial number stays, underneath, as the comparison figure it always was.
+    {% endcomment %}
+    <div class="pcard-price">
+      ${{ product.pack_price }} <span>/ {{ product.pack_label }}</span>
+      {% if product.is_discounted %}<s class="price-was">${{ product.pack_list_price }}</s>
+      <span class="price-save">Save {{ product.discount_pct }}%</span>{% endif %}
+    </div>
+    {% if product.sells_in_packs %}
+    <p class="pcard-unit">${{ product.price }} per vial · {{ product.vials_per_pack }}-vial minimum</p>
+    {% endif %}
+    {% if product.has_sizes %}
+    <p class="pcard-from">{{ product.siblings|length }} sizes, from ${{ product.price_from }} per pack</p>
+    {% endif %}
+    <h3 class="pcard-name"><a href="/product/{{ product.slug }}/">{{ product.name }}</a></h3>
+    {% comment %} Ratings already existed on the model and were never rendered on the card —
+       the catalogue grid had zero social proof. {% endcomment %}
+    {% if product.rating_avg %}
+    <div class="pcard-rating">
+      <span class="rating-stars" aria-hidden="true">{% for _ in "12345" %}★{% endfor %}</span>
+      <span class="sr-value">{{ product.rating_avg }} out of 5 from {{ product.rating_count }} review{{ product.rating_count|pluralize }}</span>
+    </div>
+    {% endif %}
+    <p class="pcard-desc">{{ product.description }}</p>
+    <div class="pcard-chips">
+      <span class="chip pur">{{ product.purity }}</span>
+      {% if not product.has_sizes %}
+        {% for s in product.sizes %}<span class="chip">{{ s }}</span>{% endfor %}
+      {% endif %}
+    </div>
+    {% comment %} Available strengths, shown on the card so the choice is visible before
+       the click. Read-only chips — picking one happens on the product page,
+       where the price for that strength is shown alongside it. {% endcomment %}
+    {% if product.has_sizes %}
+    <div class="pcard-sizes" aria-label="Available sizes">
+      {% for s in product.siblings %}<span class="pcard-size">{{ s.size_display }}</span>{% endfor %}
+    </div>
+    {% endif %}
+    {% if product.stock_state == "low" and product.track_inventory and product.stock_qty > 0 %}
+      <p class="stock-count">Only {{ product.stock_qty }} left</p>
+    {% endif %}
+    <div class="pcard-actions">
+      {% if product.stock_state == "out" %}
+        <button class="btn btn-ghost" disabled>Sold out</button>
+      {% elif product.has_sizes %}
+        {% comment %} A compound with several strengths gets a link, not an add button.
+           "Add to cart" on a card showing three sizes has to silently pick
+           one, and a customer who wanted the 50mg discovering they bought
+           10mg only after paying is exactly the error worth designing out.
+        {% endcomment %}
+        <a class="btn btn-primary" href="/product/{{ product.slug }}/">Choose size →</a>
+      {% else %}
+        <button class="btn btn-primary btn-add" data-add="{{ product.id }}" data-name="{{ product.name }}"
+                data-pack="{{ product.vials_per_pack }}">
+          {% if product.sells_in_packs %}Add {{ product.vials_per_pack }} vials{% else %}Add to cart{% endif %}
+        </button>
+      {% endif %}
+      {% if product.has_coa %}<a class="btn btn-ghost" href="{{ product.coa_url }}" target="_blank" rel="noopener">COA</a>{% endif %}
+    </div>
+  </div>
+</article>

@@ -1,0 +1,184 @@
+{% load static %}<!DOCTYPE html>
+<html lang="{{ site.hreflang|default:'en-ca' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ site.brand_name }} — Research Compounds{% endblock %}</title>
+<meta name="description" content="{{ site.meta_description }}">
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+{% comment %} hreflang — the fix for our biggest SEO problem. Three brands each run a .ca
+   and a .com serving the same catalogue; without these tags Google reads them
+   as duplicates and suppresses one of every pair. Only emitted when a genuine
+   alternate exists (see Site.alternates), because hreflang pointing at nothing
+   is worse than none. {% endcomment %}
+{% for alt in site.alternates %}<link rel="alternate" hreflang="{{ alt.hreflang }}" href="{{ request.scheme }}://{{ alt.domain }}{{ request.path }}">
+{% endfor %}{% if site.alternates %}<link rel="alternate" hreflang="x-default" href="{{ request.scheme }}://{{ site.domain }}{{ request.path }}">
+{% endif %}<meta name="theme-color" content="{{ site.theme_color|default:'#0a0f1c' }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ site.brand_name }}">
+<meta property="og:title" content="{% block og_title %}{{ site.brand_name }} — Research Compounds{% endblock %}">
+<meta property="og:description" content="{{ site.meta_description }}">
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ site.brand_name }} — {{ site.tagline }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ site.brand_name }} — Research Compounds">
+<meta name="twitter:description" content="{{ site.meta_description }}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<script type="application/ld+json" nonce="{{ request.csp_nonce }}">
+{"@context":"https://schema.org","@type":"Store","name":"{{ site.brand_name }}",
+"url":"{{ request.scheme }}://{{ request.get_host }}/",
+"description":"{{ site.meta_description }}",
+"areaServed":{"@type":"Country","name":"{{ site.country_name }}"},
+"currenciesAccepted":"{{ site.currency }}",
+"paymentAccepted":"{{ payment_methods_label }}",
+"brand":"{{ site.brand_name }}"}
+</script>
+{% comment %} Preload the hero this theme actually renders. Previously hardcoded to
+   hero-vials.jpg, which only biolabs uses — the other 7 domains were fetching a
+   large unused JPG at high priority, competing with their real LCP image. {% endcomment %}
+{% if preload_hero and hero_image %}<link rel="preload" as="image" href="{{ hero_image }}" fetchpriority="high">{% endif %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ asset_v }}">
+<link rel="stylesheet" href="{% static 'fonts/'|add:theme|add:'.css' %}?v={{ asset_v }}">
+<link rel="stylesheet" href="{% static 'themes/'|add:theme|add:'/theme.css' %}?v={{ asset_v }}">
+{% block head_extra %}{% endblock %}
+</head>
+<body class="theme-{{ theme }}" data-checkout-url="{% url 'checkout' %}" data-contact-url="{% url 'contact' %}" data-cart-add-url="{% url 'cart_add' %}" data-cart-update-url="{% url 'cart_update' %}">
+{% csrf_token %}
+{% if not request.COOKIES.age_ok %}{% include "partials/_age_gate.html" %}{% endif %}
+{% include "partials/_announcement.html" %}
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a href="/" class="brand">{% block brandmark %}<span class="brand-name">{{ site.brand_name }}</span>{% endblock %}</a>
+    <nav class="nav-links">{% block navlinks %}
+      <a href="/#catalogue">Compounds</a>
+      <a href="/calculator/">Calculator</a>
+      <a href="/#quality">Quality</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#contact">Contact</a>
+    {% endblock %}</nav>
+    <div class="nav-actions">
+      {% if site.phone %}<a class="nav-phone" href="tel:{{ site.phone_tel_or_derived }}" aria-label="Call {{ site.phone }}"><svg class="nav-phone-ic" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span class="nav-phone-num">{{ site.phone }}</span></a>{% endif %}
+      {% block navcta %}<a href="#catalogue" class="btn btn-primary">Shop</a>{% endblock %}
+      <button class="cart-btn" data-cart-open aria-label="Cart">
+        <svg class="cart-ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 2h2.5l2.4 12.1a2 2 0 0 0 2 1.6h8.5a2 2 0 0 0 2-1.6L21 6H5.6"/></svg><span class="cart-count" data-cart-count>{{ cart_count }}</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  {% block main %}
+  {% block hero %}{% endblock %}
+  {% block before_catalogue %}{% endblock %}
+
+  <section id="catalogue" class="catalogue">
+    <div class="wrap">
+      {% block catalogue_head %}
+      <div class="section-head">
+        <p class="eyebrow">Research Compounds</p>
+        <h2>The full catalogue</h2>
+      </div>
+      {% endblock %}
+      {% include "partials/_product_grid.html" %}
+    </div>
+  </section>
+
+  {% block after_catalogue %}{% endblock %}
+
+  {% block quality %}
+  <section id="quality" class="quality">
+    {% include "partials/_molecule_bg.html" %}
+    <div class="wrap">
+      <div class="section-head"><p class="eyebrow">Quality Standards</p><h2>What "research-grade" means here</h2></div>
+      <div class="quality-grid">
+        <div class="q-item"><h3>≥99% purity</h3><p>Every lot released above a documented purity threshold.</p></div>
+        <div class="q-item"><h3>Third-party tested</h3><p>Independent HPLC &amp; mass-spec verification before release.</p></div>
+        <div class="q-item"><h3>COA available</h3><p>A batch-specific certificate for every product on request.</p></div>
+        {% comment %} Fourth card previously claimed goods shipped from Canada. They don't —
+           the manufacturing partner ships direct — so it states the delivery
+           window instead. This one edit puts the disclosure on all 8 homepages. {% endcomment %}
+        <div class="q-item"><h3>{{ site.shipping_window|default:"10–15 days" }} delivery</h3><p>Plain, tracked packaging, shipped direct from our manufacturing partner.</p></div>
+      </div>
+    </div>
+  </section>
+  {% endblock %}
+
+  {% block reviews %}{% include "partials/_reviews.html" %}{% endblock %}
+
+  {% block lab_band %}
+  <section class="lab-band">
+    <img class="lab-band-img" src="/static/brand/lab-backdrop.jpg" width="1600" height="900"
+         alt="Clear-liquid research-compound vials on a laboratory bench with molecular structures" loading="lazy">
+    <div class="lab-band-scrim"></div>
+    <div class="wrap lab-band-inner">
+      <p class="eyebrow">Analytically verified</p>
+      <h2>Purity, documented to the lot.</h2>
+      <p>Every batch is independently tested by HPLC and mass spectrometry and released against a
+        certificate of analysis, then shipped discreetly in plain, tracked packaging.</p>
+    </div>
+  </section>
+  {% endblock %}
+
+  {% block contact %}
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <div class="section-head"><p class="eyebrow">Get in touch</p><h2>Questions? Ask our team.</h2>
+        {% if site.phone %}<p class="contact-phone">Call us: <a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% if site.phone_alt %} · <a href="tel:{{ site.phone_alt_tel_or_derived }}">{{ site.phone_alt }}</a>{% endif %}</p>{% endif %}
+      </div>
+      <form class="contact-form" data-contact-form>
+        <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="ai-hp" aria-hidden="true">
+        <input name="name" placeholder="Name" aria-label="Your name" autocomplete="name" required>
+        <input name="email" type="email" placeholder="Email" aria-label="Your email" autocomplete="email" required>
+        <textarea name="message" placeholder="How can we help?" aria-label="Your message" required></textarea>
+        <input name="phone" type="tel" placeholder="Phone (optional — for SMS updates)" aria-label="Your phone" autocomplete="tel">
+        <label class="sms-optin"><input type="checkbox" name="sms_optin_transactional" value="1"> Text me order &amp; COA updates (transactional).</label>
+        <label class="sms-optin"><input type="checkbox" name="sms_optin_marketing" value="1"> Text me offers &amp; restock alerts (marketing).</label>
+        <p class="sms-disclosure">If you check a box, you agree to receive recurring SMS from {{ site.brand_name }}. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of purchase.</p>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+    </div>
+  </section>
+  {% endblock %}
+  {% endblock main %}
+</main>
+
+{% block footer %}
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <div class="brand-name">{{ site.brand_name }}</div>
+      <p>{{ site.meta_description }}</p>
+    </div>
+    <div class="foot-fruo">
+      <strong>For Research Use Only.</strong> Not for human or veterinary use. All products
+      are intended for laboratory and in-vitro research.
+      <div class="foot-contact">{{ site.contact_email_or_default }}</div>
+      {% if site.phone %}<div class="foot-contact"><a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% if site.phone_alt %} · <a href="tel:{{ site.phone_alt_tel_or_derived }}">{{ site.phone_alt }}</a>{% endif %}</div>{% endif %}
+    </div>
+    <div class="foot-shipping">
+      <strong>Shipping</strong>
+      <p class="ship-notice ship-notice--inline">{{ site.shipping_notice }}</p>
+      <p class="foot-customs">{{ site.customs_notice }}</p>
+    </div>
+  </div>
+  {% comment %} No origin claim here. Orders ship direct from the manufacturing partner, so
+     stating a ships-from country would be a false representation. {% endcomment %}
+  <div class="wrap foot-bottom">© 2026 {{ site.brand_name }}. {{ site.shipping_window }} delivery. Age 21+.</div>
+</footer>
+{% endblock %}
+
+{% include "partials/_cart_drawer.html" %}
+{% include "partials/_cookie.html" %}
+{% include "partials/_ai_widget.html" %}
+{% include "partials/_hero_video.html" %}
+<div class="toast" data-toast></div>
+<script src="{% static 'js/store.js' %}?v={{ asset_v }}" nonce="{{ request.csp_nonce }}" defer></script>
+<script src="{% static 'js/ai.js' %}?v={{ asset_v }}" nonce="{{ request.csp_nonce }}" defer></script>
+{% block body_extra %}{% endblock %}
+</body>
+</html>

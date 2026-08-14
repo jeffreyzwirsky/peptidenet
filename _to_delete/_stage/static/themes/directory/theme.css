@@ -1,0 +1,280 @@
+/* ============================================================================
+   Theme: directory — dark slate + amber, "buyer's guide" answer style, US market.
+   Direction: clinical precision. This site's promise is verification, so the
+   design's job is to make STRUCTURED EVIDENCE look authoritative: a criteria
+   table you can actually read on a phone, a checklist that reads like a record,
+   figures set in a real engineered mono. Nothing decorative sits near the data.
+
+   MOBILE FIRST. Every rule below is the phone layout; min-width steps at
+   36 / 48 / 64 / 80rem (base.css) add columns and scale. No max-width queries.
+
+   Typefaces: Space Grotesk (display — headings, figures, buttons) over
+   IBM Plex Sans (body, replacing Inter), with IBM Plex Mono on every
+   verifiable value: purity, lot terms, delivery windows, table cells.
+   ========================================================================== */
+.theme-directory{
+  --bg:#131a26; --fg:#eef2f8; --muted:#9aa8bd; --accent:#ffb300; --accent-ink:#1a1200;
+  --card:#1f2836; --line:#334156; --radius:14px;
+  --font:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  --font-display:'Space Grotesk',system-ui,sans-serif;
+  --slate:#1b2230; --slate2:#222c3d; --amber2:#ffc94d; --good:#37d39b; --low:#ff8a5c;
+  --muted2:#7d8ca3;
+}
+.theme-directory h1,.theme-directory h2,.theme-directory h3,.theme-directory h4{
+  font-family:var(--font-display);letter-spacing:-.026em}
+.theme-directory .btn{font-family:var(--font-display);border-radius:10px}
+.theme-directory .btn-primary{box-shadow:0 1px 2px rgba(0,0,0,.3), 0 14px 30px -14px rgba(255,179,0,.55)}
+.theme-directory .btn-primary:hover{box-shadow:0 2px 4px rgba(0,0,0,.34), 0 20px 40px -16px rgba(255,179,0,.6)}
+.theme-directory .eyebrow{color:var(--accent);font-family:var(--font-mono);font-weight:500}
+.theme-directory .head-sub{color:var(--muted);font-size:var(--fs-md);line-height:1.65;
+  margin-top:var(--sp-3);max-width:64ch}
+
+/* header brandmark */
+.theme-directory .brand-mark{display:flex;flex-direction:column;line-height:1.12;min-width:0}
+.theme-directory .brand-tag{font-size:var(--fs-3xs);letter-spacing:.16em;color:var(--muted2);
+  font-weight:600;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-directory .brand .brand-name{font-family:var(--font-display)}
+.theme-directory .cart-count{font-family:var(--font-mono);font-weight:600}
+.theme-directory .nav-links a{font-weight:500}
+/* Nav rail: base centres the inline links, which means an overflowing rail is
+   clipped at BOTH ends and the first label reads as a fragment. Start-aligned
+   between 48 and 80rem so the rail degrades into an honest scroll strip; it
+   fits and re-centres at 80rem. */
+@media (min-width:48rem){ .theme-directory .nav-links{justify-content:flex-start} }
+@media (min-width:80rem){ .theme-directory .nav-links{justify-content:center} }
+
+
+/* alternating section band */
+.theme-directory .alt{background:var(--slate);
+  border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
+
+/* ============================================================
+   HERO — the query, then the verdict, then the record
+   Phone order is copy → figure, deliberately: the old layout pulled the image
+   above the fold with `order:-1`, so a phone opened on a photograph instead of
+   on the answer the visitor searched for.
+   ============================================================ */
+.theme-directory .hero{position:relative;overflow:hidden;
+  padding-block:calc(var(--sp-section) * .85) var(--sp-section);
+  border-bottom:1px solid var(--hairline)}
+.theme-directory .hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(760px 400px at 86% 4%,rgba(255,179,0,.13),transparent 62%),
+  radial-gradient(620px 520px at 6% 100%,rgba(55,211,155,.05),transparent 62%)}
+.theme-directory .hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1fr);
+  gap:var(--sp-6);align-items:center}
+.theme-directory .hero-copy{min-width:0}
+
+/* Verification tag — hairline, mono, with a live amber dot from the markup. */
+.theme-directory .hero-eyebrow{display:inline-flex;align-items:center;gap:9px;
+  background:transparent;border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);
+  color:var(--accent);font-family:var(--font-mono);
+  font-size:var(--fs-3xs);font-weight:500;padding:6px 13px;border-radius:var(--radius-pill);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:var(--sp-4)}
+
+/* The search query, quoted back. Mono, indented behind a rule: a log line. */
+.theme-directory .hero-q{font-family:var(--font-mono);color:var(--muted2);
+  font-size:var(--fs-2xs);font-style:normal;letter-spacing:.01em;
+  border-left:2px solid color-mix(in srgb,var(--accent) 55%,transparent);
+  padding:2px 0 2px var(--sp-2);margin-bottom:var(--sp-3)}
+
+.theme-directory .hero h1{font-size:var(--fs-4xl);line-height:1.0;font-weight:700;
+  letter-spacing:-.035em;margin:0 0 var(--sp-3);max-width:13ch}
+.theme-directory .hero h1 span{color:var(--accent)}
+.theme-directory .hero .lead{font-size:var(--fs-lg);color:var(--muted);line-height:1.55;
+  max-width:46ch;margin:0 0 var(--sp-5)}
+.theme-directory .hero-cta{display:flex;gap:var(--sp-2);flex-wrap:wrap}
+
+/* Stat ledger — mono figures over tracked labels, shared hairline rules. */
+.theme-directory .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+  margin-top:var(--sp-5);border-top:1px solid var(--hairline)}
+.theme-directory .hero-stats div{border-left:0;padding:var(--sp-3) var(--sp-2) var(--sp-3) 0;
+  border-bottom:1px solid var(--hairline-soft)}
+.theme-directory .hero-stats div+div{padding-left:var(--sp-3);border-left:1px solid var(--hairline-soft)}
+.theme-directory .hero-stats b{font-family:var(--font-mono);font-size:var(--fs-lg);font-weight:600;
+  display:block;line-height:1.1;letter-spacing:-.02em;color:var(--accent)}
+.theme-directory .hero-stats span{display:block;margin-top:6px;font-size:var(--fs-3xs);
+  color:var(--muted2);font-weight:600;letter-spacing:var(--track-label);text-transform:uppercase}
+
+/* ---- The record: framed plate + the buyer's checklist, stacked.
+   Each keeps its own hairline bezel so the composition holds with no photo. */
+.theme-directory .hero-figure{position:relative;display:grid;
+  /* Explicit single track: base's .hero-figure is a centred flex row and its
+     `justify-content:center` survives the switch to grid, which would stop
+     an auto track from stretching. */
+  grid-template-columns:minmax(0,1fr);justify-content:stretch;align-items:start;
+  gap:var(--sp-3);min-height:0;overflow:visible}
+.theme-directory .hero-figure .hero-vid-frame{position:relative;max-width:none;margin:0;
+  aspect-ratio:16/10;border-radius:calc(var(--radius) + 2px);
+  background:linear-gradient(160deg,var(--slate2),#121824);
+  box-shadow:var(--elev-2), inset 0 0 0 1px var(--hairline)}
+.theme-directory .hero-figure .hero-vial{position:absolute;inset:0;width:100%;height:100%;
+  margin:0;max-width:none;filter:none;box-shadow:none;transform:none}
+
+.theme-directory .hero-card{position:relative;z-index:2;max-width:none;backdrop-filter:none;
+  background:linear-gradient(162deg,var(--slate2),var(--slate));
+  border:1px solid var(--hairline);border-radius:calc(var(--radius) + 2px);
+  padding:var(--sp-4) var(--sp-3);box-shadow:var(--elev-2)}
+/* Card header reads as a document header: tracked label, then a rule. */
+.theme-directory .hero-card h4{margin:0;font-size:var(--fs-md);letter-spacing:-.024em}
+.theme-directory .hero-card-sub{font-size:var(--fs-2xs);color:var(--muted2);line-height:1.55;
+  margin:5px 0 0;padding-bottom:var(--sp-3);border-bottom:1px solid var(--hairline)}
+.theme-directory .checkline{display:flex;align-items:flex-start;gap:10px;
+  padding:11px 0;border-top:0;border-bottom:1px solid var(--hairline-soft);
+  font-size:var(--fs-xs);color:var(--fg);line-height:1.5}
+.theme-directory .checkline:last-of-type{border-bottom:0;padding-bottom:0}
+
+@media (min-width:48rem){
+  .theme-directory .hero-card{padding:var(--sp-5) var(--sp-4)}
+  .theme-directory .hero-figure{gap:var(--sp-4)}
+}
+@media (min-width:64rem){
+  .theme-directory .hero-grid{grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);
+    gap:clamp(36px,4.4vw,68px);align-items:center}
+  .theme-directory .hero h1{max-width:11ch}
+  .theme-directory .hero-figure .hero-vid-frame{margin-left:var(--sp-6)}
+  .theme-directory .hero-card{margin-top:calc(var(--sp-5) * -1);margin-right:var(--sp-5)}
+}
+
+/* ---------- Catalogue cards ---------- */
+.theme-directory .catalogue .section-head{text-align:left;max-width:680px;margin:0 0 var(--sp-block)}
+.theme-directory .pcard{background:var(--card)}
+.theme-directory .pcard:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.theme-directory .pcard-media{background:radial-gradient(circle at 50% 40%,#26314400,#141b28)}
+.theme-directory .pcard-cat{color:var(--accent);font-family:var(--font-mono);font-weight:500}
+.theme-directory .pcard-price{font-family:var(--font-mono);font-weight:600}
+.theme-directory .pcard-price span{font-family:var(--font)}
+.theme-directory .pcard-name{font-family:var(--font-display)}
+.theme-directory .pcard-stock{font-family:var(--font-mono);font-weight:500}
+.theme-directory .chip{font-family:var(--font-mono)}
+.theme-directory .chip.pur{color:var(--good);border-color:color-mix(in srgb,var(--good) 34%,var(--line))}
+.theme-directory .cat-chip{font-family:var(--font-display)}
+.theme-directory .cat-chip.is-active,.theme-directory .cat-chip:hover{
+  background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* ============================================================
+   Comparison table — the centrepiece.
+   Four columns will never fit a 390px phone honestly, so it scrolls; the
+   criteria column is pinned so you always know which row you are reading, and
+   the "us" column carries a standing amber rule so it stays findable while the
+   rest of the table slides underneath.
+   ============================================================ */
+.theme-directory .compare{position:relative;overflow-x:auto;overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  border:1px solid var(--hairline);border-radius:var(--radius);
+  background:var(--slate2);box-shadow:var(--elev-1)}
+.theme-directory table.cmp{width:100%;border-collapse:separate;border-spacing:0;min-width:600px;
+  font-variant-numeric:tabular-nums}
+.theme-directory table.cmp th,.theme-directory table.cmp td{
+  padding:var(--sp-3) var(--sp-3);text-align:left;
+  border-bottom:1px solid var(--hairline-soft);font-size:var(--fs-xs);vertical-align:middle}
+.theme-directory table.cmp thead th{font-family:var(--font-display);font-size:var(--fs-3xs);
+  text-transform:uppercase;letter-spacing:.12em;color:var(--muted2);font-weight:600;
+  padding-block:var(--sp-2);background:color-mix(in srgb,var(--slate) 80%,#000);
+  border-bottom:1px solid var(--hairline);white-space:nowrap}
+.theme-directory table.cmp thead th.us{color:var(--accent)}
+/* Pinned criteria column. `left:0` inside the scroll container, with its own
+   background and a right hairline so the scrolled cells pass behind an edge
+   rather than smearing into it. */
+.theme-directory table.cmp th:first-child,
+.theme-directory table.cmp td:first-child{position:sticky;left:0;z-index:2;
+  background:var(--slate2);box-shadow:1px 0 0 var(--hairline);min-width:170px}
+.theme-directory table.cmp thead th:first-child{z-index:3;
+  background:color-mix(in srgb,var(--slate) 80%,#000)}
+.theme-directory table.cmp td.feat{color:var(--fg);font-weight:600;letter-spacing:-.01em}
+.theme-directory table.cmp .col-us{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.theme-directory table.cmp thead th.col-us{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 16%,transparent),
+             color-mix(in srgb,var(--slate) 80%,#000));
+  box-shadow:inset 0 2px 0 var(--accent)}
+.theme-directory table.cmp tbody tr:last-child td{border-bottom:none}
+.theme-directory table.cmp tbody tr:hover td{background:var(--tint-1)}
+.theme-directory table.cmp tbody tr:hover td.col-us{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.theme-directory .yes,.theme-directory .no,.theme-directory .maybe{
+  font-family:var(--font-mono);font-weight:500;font-size:var(--fs-2xs);white-space:nowrap}
+.theme-directory .yes{color:var(--good);font-weight:600}
+.theme-directory .no{color:var(--muted2)}
+.theme-directory .maybe{color:var(--low)}
+@media (min-width:48rem){
+  .theme-directory table.cmp th,.theme-directory table.cmp td{padding:var(--sp-3) var(--sp-4)}
+  .theme-directory table.cmp th:first-child,
+  .theme-directory table.cmp td:first-child{min-width:210px}
+}
+@media (min-width:64rem){
+  /* Everything fits: unpin the column so it stops casting an edge it no
+     longer needs. */
+  .theme-directory table.cmp{min-width:0}
+  .theme-directory table.cmp th:first-child,
+  .theme-directory table.cmp td:first-child{position:static;box-shadow:none}
+}
+
+/* ============================================================
+   FAQ accordion (CSS-only <details>) — one ruled document
+   ============================================================ */
+.theme-directory .faq-head{text-align:center;max-width:none;margin:0 auto var(--sp-block)}
+.theme-directory .faq{max-width:820px;margin:0 auto;
+  border:1px solid var(--hairline);border-radius:var(--radius);overflow:hidden;
+  background:var(--card);box-shadow:var(--elev-1)}
+.theme-directory .acc{border:0;border-radius:0;margin:0;background:transparent;overflow:hidden;
+  border-bottom:1px solid var(--hairline-soft)}
+.theme-directory .acc:last-child{border-bottom:0}
+.theme-directory .acc[open]{background:var(--tint-1)}
+.theme-directory .acc summary{list-style:none;cursor:pointer;color:var(--fg);
+  font-family:var(--font-display);font-size:var(--fs-sm);font-weight:600;letter-spacing:-.015em;
+  padding:var(--sp-3);min-height:60px;
+  display:flex;justify-content:space-between;align-items:center;gap:var(--sp-3);
+  transition:color var(--dur-fast) var(--ease-out)}
+.theme-directory .acc summary::-webkit-details-marker{display:none}
+.theme-directory .acc summary:hover{color:var(--amber2)}
+.theme-directory .acc .plus{color:var(--accent);font-size:20px;line-height:1;flex:none;
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-pill);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 32%,transparent);
+  transition:transform var(--dur-mid) var(--ease-spring),background-color var(--dur-mid) var(--ease-out)}
+.theme-directory .acc[open] .plus{transform:rotate(45deg);
+  background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.theme-directory .acc p{margin:0;padding:0 var(--sp-3) var(--sp-3);color:var(--muted);
+  font-size:var(--fs-sm);line-height:1.72;max-width:72ch}
+@media (min-width:48rem){
+  .theme-directory .acc summary{padding:var(--sp-3) var(--sp-4);font-size:var(--fs-md)}
+  .theme-directory .acc p{padding:0 var(--sp-4) var(--sp-4)}
+}
+
+/* ============================================================
+   Vetting criteria (quality grid) — numbered clauses
+   ============================================================ */
+.theme-directory .q-item h3{font-family:var(--font-display);font-size:var(--fs-md);
+  font-variant-numeric:tabular-nums;letter-spacing:-.022em}
+.theme-directory .q-item:hover{border-color:color-mix(in srgb,var(--accent) 42%,var(--line))}
+.theme-directory .q-item p{line-height:1.65}
+
+/* ---------- Reviews / long-form / detail pages ---------- */
+.theme-directory .review .stars{color:var(--accent)}
+.theme-directory .review blockquote{font-size:var(--fs-sm)}
+.theme-directory .pdp-name,.theme-directory .policy-head h1,
+.theme-directory .region-head h1,.theme-directory .blog-content h1,
+.theme-directory .blog-card-body h3{font-family:var(--font-display)}
+.theme-directory .pdp-price,.theme-directory .pdp-rail-price,.theme-directory .cart-subtotal,
+.theme-directory .ostatus-total,.theme-directory .calc-v,.theme-directory .region-facts b,
+.theme-directory .pdp-bulk,.theme-directory .pdp-rail-facts dd{font-family:var(--font-mono);font-weight:600}
+.theme-directory .pdp-cat,.theme-directory .pdp-syn{font-family:var(--font-mono);font-weight:500}
+.theme-directory .spec-table th{font-family:var(--font-mono);font-size:var(--fs-2xs);
+  letter-spacing:.06em;text-transform:uppercase}
+.theme-directory .rw-code{font-family:var(--font-mono)}
+.theme-directory .lab-band .lab-band-inner h2{font-family:var(--font-display)}
+.theme-directory .foot-bottom{font-family:var(--font-mono);letter-spacing:.06em}
+
+/* ---------- Footer ---------- */
+.theme-directory .site-footer{background:#0f1520;border-top:1px solid var(--hairline)}
+.theme-directory .foot-contact{color:var(--accent)}
+
+/* ============================================================
+   Motion — the answer sets, then the record arrives
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference){
+  .theme-directory .hero-q{animation:dr-rise .6s var(--ease-out) both}
+  .theme-directory .hero-stats{animation:dr-rise .75s .22s var(--ease-out) both}
+  .theme-directory .hero-figure .hero-vid-frame{animation:dr-plate .85s .1s var(--ease-spring) both}
+  .theme-directory .hero-card{animation:dr-plate .9s .24s var(--ease-spring) both}
+  @keyframes dr-rise{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:none}}
+  @keyframes dr-plate{from{opacity:0;transform:translate3d(0,22px,0) scale(.99)}to{opacity:1;transform:none}}
+}

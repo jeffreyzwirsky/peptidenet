@@ -1,0 +1,72 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{% if is_admin_console %}Control{% else %}Staff Portal{% endif %}{% endblock %} · SmashFat BioLabs</title>
+<link rel="stylesheet" href="{% static 'manage/manage.css' %}?v={{ asset_v }}">
+</head>
+<body>
+<div class="topbar">
+  <button class="nav-btn" data-nav-toggle aria-label="Toggle navigation" title="Menu">☰</button>
+  <div class="tb-logo">{% if is_admin_console %}Peptide<span>net</span>{% else %}Staff<span>Portal</span>{% endif %}</div>
+</div>
+<div class="backdrop" data-nav-close></div>
+<div class="shell">
+  <aside class="side">
+    {% if is_admin_console %}
+      <div class="logo">Peptide<span>net</span><small>Owner · Admin</small></div>
+    {% else %}
+      <div class="logo">Staff<span>Portal</span><small>SmashFat BioLabs</small></div>
+    {% endif %}
+    <nav>
+      <a href="{% url cns|add:':dashboard' %}" class="{% if nav == 'dashboard' %}on{% endif %}">Overview</a>
+      <a href="{% url cns|add:':orders' %}" class="{% if nav == 'orders' %}on{% endif %}">Orders</a>
+      <a href="{% url cns|add:':inventory' %}" class="{% if nav == 'inventory' %}on{% endif %}">Inventory</a>
+      <a href="{% url cns|add:':purchasing' %}" class="{% if nav == 'purchasing' %}on{% endif %}">Purchasing</a>
+      <a href="{% url cns|add:':leads' %}" class="{% if nav == 'leads' %}on{% endif %}">Leads</a>
+      <div class="nav-group">Comms</div>
+      <a href="{% url cns|add:':messages' %}" class="{% if nav == 'messages' %}on{% endif %}">Messages</a>
+      <a href="{% url cns|add:':calls' %}" class="{% if nav == 'calls' %}on{% endif %}">Calls &amp; Voicemail</a>
+      <a href="{% url cns|add:':numbers' %}" class="{% if nav == 'numbers' %}on{% endif %}">Phone Numbers</a>
+      <a href="{% url cns|add:':compliance' %}" class="{% if nav == 'compliance' %}on{% endif %}">SMS Compliance</a>
+      <a href="{% url cns|add:':emails' %}" class="{% if nav == 'emails' %}on{% endif %}">Email</a>
+      <div class="nav-group">Content &amp; System</div>
+      <a href="{% url cns|add:':blog' %}" class="{% if nav == 'blog' %}on{% endif %}">Blog</a>
+      <a href="{% url cns|add:':ai_usage' %}" class="{% if nav == 'ai' %}on{% endif %}">AI Assistant</a>
+      <a href="{% url cns|add:':security' %}" class="{% if nav == 'security' %}on{% endif %}">Security</a>
+      {% if request.user.is_superuser %}
+        <div class="nav-group">Owner</div>
+        <a href="{% url cns|add:':team' %}" class="{% if nav == 'team' %}on{% endif %}">Team</a>
+        {% if is_admin_console %}
+          <a href="{% url 'admin:index' %}" class="ext">Django admin ↗</a>
+          <a href="/portal/" class="ext">Staff portal ↗</a>
+        {% else %}
+          <a href="/manage/" class="ext">Admin panel ↗</a>
+        {% endif %}
+      {% endif %}
+    </nav>
+    <div class="side-foot">
+      {% if is_admin_console %}<span class="role-pill owner">Owner</span>{% else %}<span class="role-pill staff">Staff</span>{% endif %}
+      Signed in as {{ request.user.get_username }}<br>
+      <a href="{% url cns|add:':logout' %}">Sign out</a>
+    </div>
+  </aside>
+  <main class="content">
+    {% if is_staff_portal %}<div class="portal-banner">Staff Portal — you're working the SmashFat BioLabs front desk.</div>{% endif %}
+    {% if messages %}<div class="flash">{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+    <header class="page-head"><h1>{% block heading %}{% endblock %}</h1><div class="head-right">{% block head_right %}{% endblock %}</div></header>
+    {% block body %}{% endblock %}
+  </main>
+</div>
+<script>
+(function(){var b=document.body,mq=window.matchMedia('(max-width:859px)');
+function tgl(){if(mq.matches){b.classList.toggle('nav-open');}else{b.classList.toggle('nav-collapsed');try{localStorage.setItem('pn_col',b.classList.contains('nav-collapsed')?'1':'0');}catch(e){}}}
+document.querySelectorAll('[data-nav-toggle]').forEach(function(e){e.addEventListener('click',tgl);});
+document.querySelectorAll('[data-nav-close]').forEach(function(e){e.addEventListener('click',function(){b.classList.remove('nav-open');});});
+document.querySelectorAll('.side nav a').forEach(function(a){a.addEventListener('click',function(){if(mq.matches)b.classList.remove('nav-open');});});
+try{if(localStorage.getItem('pn_col')==='1'&&!mq.matches)b.classList.add('nav-collapsed');}catch(e){}
+})();
+</script>
+</body>
+</html>

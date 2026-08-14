@@ -68,7 +68,16 @@ class Command(BaseCommand):
                 # Only show a struck-through comparison price when it's genuinely
                 # higher — a fake "was" price is a Competition Act problem.
                 "list_price": (p["was"] if p.get("was", 0) > p["price"] else None),
-                "purity": p.get("pur", "≥99%"),
+                # No catalogue entry has ever carried a "pur" key, so this
+                # fallback was the sole author of the "≥99%" chip that rendered
+                # on every product card and product page across all eight
+                # storefronts — a measured-result claim with no analysis behind
+                # it. The model default is already "" for exactly that reason
+                # (Competition Act s.74.01(1)(b): adequate and proper testing
+                # BEFORE the claim, burden on the advertiser); the seeder was
+                # quietly overriding it on every run. Set "pur" on a compound
+                # only once its analysis is actually in hand.
+                "purity": p.get("pur", ""),
                 "sizes": p.get("sizes", []),
                 "stock": p.get("stock", "in"),
                 "is_new": p.get("new", False),

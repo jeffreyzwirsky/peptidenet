@@ -1,0 +1,289 @@
+/* ============================================================================
+   Theme: clinical — light pharma / analytical lab.
+   Paper white + cobalt + slate ink. Fraunces is the display voice;
+   IBM Plex Sans carries the body; IBM Plex Mono carries every measured figure.
+
+   Direction: CLINICAL PRECISION — the visual language of a released batch
+   record. Hairline rules instead of boxes, tabular mono for anything that came
+   off an instrument, and a great deal of paper left blank.
+
+   Mobile-first: base rules are the phone layout, min-width steps only add.
+   ========================================================================== */
+
+.theme-clinical{
+  --bg:#ffffff; --fg:#0e1c33; --muted:#67748b; --accent:#2b5cd9; --accent-ink:#ffffff;
+  --card:#ffffff; --line:#dfe4ee; --radius:12px;
+  --font:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+
+  --paper-2:#f7f8fb; --paper-3:#eef1f7;
+  --line-2:#cfd7e5; --accent-dk:#1f47b3; --accent-soft:#eef3fe;
+  --good:#0f875a; --warn:#a45309; --ink-2:#39465c;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  /* Deliberately weak, wide and cool: on white, a dark shadow is the loudest
+     cheapness tell. These read as paper lifted a millimetre off a desk. */
+  --shadow-sm:0 1px 1px rgba(16,32,58,.03),0 2px 8px -4px rgba(16,32,58,.10);
+  --shadow-md:0 2px 4px rgba(16,32,58,.04),0 18px 40px -22px rgba(16,32,58,.24);
+  --hero-display:clamp(37px, 24px + 3.8vw, 70px);
+}
+
+/* ---- Type ---------------------------------------------------------------- */
+.theme-clinical h1,.theme-clinical h2,.theme-clinical h3,.theme-clinical h4{
+  font-family:var(--serif);font-weight:500;letter-spacing:-.015em;color:var(--fg)}
+.theme-clinical .eyebrow{color:var(--accent);font-weight:600;letter-spacing:var(--track-label)}
+.theme-clinical .section-head h2{font-size:var(--fs-3xl)}
+.theme-clinical .section-head .sec-sub{color:var(--ink-2);font-size:var(--fs-md);
+  margin-top:var(--sp-2);max-width:60ch;line-height:1.65}
+.theme-clinical .catalogue .section-head .sec-sub,
+.theme-clinical .quality .section-head .sec-sub{margin-inline:auto}
+/* Instrument output is set in mono. Nothing else is. */
+.theme-clinical .pcard-price,.theme-clinical .pdp-price,.theme-clinical .assay-row .v,
+.theme-clinical .coa-doc .rowd b,.theme-clinical .chip.pur,.theme-clinical .pdp-attrs .chip,
+.theme-clinical .pdp-rail-facts dd,.theme-clinical .region-facts b{
+  font-family:var(--font-mono);font-weight:500;letter-spacing:-.02em}
+.theme-clinical .pcard-price span,.theme-clinical .pdp-price span{font-family:var(--font)}
+
+/* ---- Buttons — square-shouldered, flat, deliberate ----------------------- */
+.theme-clinical .btn{border-radius:9px;font-weight:600;letter-spacing:.005em}
+.theme-clinical .btn-primary{background:var(--accent);color:#fff;
+  box-shadow:0 1px 2px rgba(16,32,58,.10), 0 10px 22px -14px rgba(43,92,217,.9)}
+.theme-clinical .btn-primary:hover{background:var(--accent-dk);filter:none;
+  transform:translateY(-1px);box-shadow:0 2px 4px rgba(16,32,58,.12), 0 16px 28px -16px rgba(43,92,217,.9)}
+.theme-clinical .btn-ghost{background:#fff;color:var(--fg);border-color:var(--line-2)}
+.theme-clinical .btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+/* ---- Header -------------------------------------------------------------- */
+.theme-clinical .site-header{background:rgba(255,255,255,.84)}
+.theme-clinical .brand-mark{width:30px;height:30px;flex:0 0 30px;display:inline-flex}
+.theme-clinical .brand-name{font-family:var(--serif);font-weight:500;
+  font-size:var(--fs-lg);letter-spacing:-.02em;color:var(--fg)}
+.theme-clinical .nav-links a{color:var(--ink-2);font-weight:500}
+.theme-clinical .nav-links a:hover{color:var(--accent)}
+.theme-clinical .announcement{background:var(--fg);color:#e7edfa;border-bottom:0}
+.theme-clinical .ann-track span{border-right-color:rgba(255,255,255,.16)}
+.theme-clinical .ann-track b{color:#93b2ff}
+
+/* ============================================================
+   HERO — a batch record, not a banner.
+   Phone: copy, then the plate, then the assay card, in one column with real
+   air between them. Laptop: an asymmetric split where the copy owns the
+   measure and the plate is allowed to run taller than the text block.
+   ============================================================ */
+.theme-clinical .hero{
+  position:relative;overflow:hidden;
+  padding-block:var(--sp-section);
+  border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(760px 460px at 92% -14%, var(--accent-soft) 0%, transparent 62%),
+    linear-gradient(180deg,#fff 0%,var(--paper-2) 100%);
+}
+.theme-clinical .hero-grid{display:grid;grid-template-columns:minmax(0,1fr);
+  gap:var(--sp-6);align-items:center}
+.theme-clinical .hero-copy{min-width:0}
+
+.theme-clinical .hero-badge{
+  display:inline-flex;align-items:center;gap:9px;background:#fff;
+  border:1px solid var(--line);border-radius:var(--radius-pill);
+  padding:6px 14px 6px 10px;font-size:var(--fs-2xs);font-weight:600;color:var(--ink-2);
+  letter-spacing:.01em;box-shadow:var(--shadow-sm);margin-bottom:var(--sp-3)}
+.theme-clinical .hero-badge .dot{width:7px;height:7px;flex:none;border-radius:50%;
+  background:var(--good);box-shadow:0 0 0 3px rgba(15,135,90,.16)}
+.theme-clinical .hero .eyebrow{font-size:var(--fs-3xs);margin-bottom:var(--sp-2)}
+.theme-clinical .hero h1{
+  font-size:var(--hero-display);font-weight:500;line-height:1.02;
+  letter-spacing:-.028em;max-width:15ch}
+.theme-clinical .hero .lead{font-size:var(--fs-md);color:var(--ink-2);line-height:1.62;
+  max-width:48ch;margin:var(--sp-3) 0 0}
+.theme-clinical .hero-cta{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-2);
+  margin:var(--sp-5) 0 0;max-width:23rem}
+.theme-clinical .hero-cta .btn{width:100%}
+
+/* Release figures, set as a specification table rather than three floating
+   numbers: on a phone each line is label-left / value-right against a hairline,
+   which is exactly how the batch record itself reads. */
+.theme-clinical .hero-stats{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+  margin:var(--sp-5) 0 0;max-width:30rem;
+  border-top:1px solid var(--line)}
+.theme-clinical .hero-stats .s{
+  display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3);
+  padding:11px 0;border-bottom:1px solid var(--line)}
+.theme-clinical .hero-stats .s b{font-family:var(--serif);font-size:var(--fs-lg);
+  font-weight:500;letter-spacing:-.025em;color:var(--fg);line-height:1.1;order:2;
+  flex:none;font-variant-numeric:tabular-nums}
+.theme-clinical .hero-stats .s span{font-size:var(--fs-3xs);color:var(--muted);
+  letter-spacing:var(--track-label);text-transform:uppercase;font-weight:600;line-height:1.3;
+  order:1;min-width:0}
+@media (min-width:36rem){
+  /* Wide enough for the columnar form: one shared border box, 1px grid gaps
+     painting the dividers, so it reads as one instrument strip. */
+  .theme-clinical .hero-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
+    max-width:34rem;background:var(--line);border:1px solid var(--line);
+    border-radius:10px;overflow:hidden}
+  .theme-clinical .hero-stats .s{flex-direction:column;align-items:stretch;gap:3px;
+    padding:var(--sp-2) var(--sp-2) 13px;background:#fff;border-bottom:0}
+  .theme-clinical .hero-stats .s b{order:1}
+  .theme-clinical .hero-stats .s span{order:2}
+}
+
+/* ---- Hero plate + assay card --------------------------------------------- */
+.theme-clinical .hero-visual{position:relative;min-width:0}
+.theme-clinical .hero-figure{position:relative;display:block;min-height:0}
+.theme-clinical .hero-vid-frame{
+  max-width:none;border-radius:var(--radius);
+  background:linear-gradient(168deg,var(--paper-3),var(--paper-2));
+  box-shadow:inset 0 0 0 1px var(--line), var(--shadow-md);
+  /* Quiet, small alt text if the photograph never arrives — a framed plate,
+     not a grey slab with 17px system copy across it. */
+  font-size:var(--fs-3xs);color:var(--muted);letter-spacing:.04em}
+.theme-clinical .hero-figure .hero-vial{max-width:none;margin:0;filter:none;
+  box-shadow:none;background:none}
+
+.theme-clinical .assay-card{
+  position:relative;isolation:isolate;background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow-md);
+  padding:var(--sp-4) var(--sp-3) var(--sp-3);overflow:hidden}
+/* Double bezel: the shell above, an inset plate below it. */
+.theme-clinical .assay-card::before{content:"";position:absolute;inset:var(--bezel);z-index:-1;
+  border-radius:var(--radius-inner);background:var(--paper-2);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.theme-clinical .assay-card.hero-card-float{
+  position:relative;right:auto;bottom:auto;width:100%;max-width:none;
+  margin-top:calc(var(--sp-4) * -1);margin-inline:var(--sp-3) 0}
+.theme-clinical .assay-card .molecule{position:absolute;right:-34px;top:-34px;opacity:.24;z-index:-1}
+.theme-clinical .assay-card h4{font-family:var(--font);font-size:var(--fs-3xs);
+  letter-spacing:var(--track-label);text-transform:uppercase;color:var(--muted);
+  font-weight:600;margin-bottom:2px}
+.theme-clinical .assay-card .big{font-family:var(--serif);font-size:var(--fs-2xl);
+  font-weight:500;letter-spacing:-.03em;color:var(--fg);line-height:1;margin-bottom:9px;
+  font-variant-numeric:tabular-nums}
+.theme-clinical .assay-card.hero-card-float .big{font-size:var(--fs-2xl)}
+.theme-clinical .chip-pass{color:var(--good);font-weight:600;font-size:var(--fs-2xs);
+  display:inline-flex;gap:6px;align-items:center;letter-spacing:.01em}
+.theme-clinical .assay-row{display:flex;justify-content:space-between;align-items:baseline;
+  gap:var(--sp-2);padding:9px 0;border-top:1px solid var(--line);font-size:var(--fs-2xs)}
+.theme-clinical .assay-row:first-of-type{margin-top:var(--sp-2)}
+.theme-clinical .assay-row .k{color:var(--muted);letter-spacing:.04em;flex:none}
+.theme-clinical .assay-row .v{font-weight:500;color:var(--fg);text-align:right}
+.theme-clinical .trace{margin-top:var(--sp-1);opacity:.9}
+
+@media (min-width:36rem){
+  .theme-clinical .hero-cta{grid-template-columns:repeat(2,auto);justify-content:start;max-width:none}
+  .theme-clinical .hero-cta .btn{width:auto}
+  .theme-clinical .assay-card.hero-card-float{max-width:23rem;margin-inline:auto}
+}
+@media (min-width:64rem){
+  .theme-clinical .hero-grid{grid-template-columns:1.06fr .94fr;gap:var(--sp-6);align-items:center}
+  .theme-clinical .hero h1{max-width:16ch}
+  .theme-clinical .hero .lead{font-size:var(--fs-lg);max-width:44ch}
+  .theme-clinical .hero-figure{padding-bottom:var(--sp-5)}
+  .theme-clinical .hero-vid-frame{max-width:26rem;margin-inline:auto 0}
+  /* Back to an overlap once there is room for the card to sit on the plate
+     without covering the product. */
+  .theme-clinical .assay-card.hero-card-float{
+    position:absolute;left:0;right:auto;bottom:var(--sp-5);width:17.5rem;max-width:none;margin:0;
+    padding:var(--sp-3);
+    box-shadow:0 2px 6px rgba(16,32,58,.05), 0 26px 54px -26px rgba(16,32,58,.34)}
+  .theme-clinical .assay-card.hero-card-float .big{font-size:var(--fs-xl)}
+}
+@media (min-width:80rem){
+  .theme-clinical .hero-vid-frame{max-width:28rem}
+  .theme-clinical .assay-card.hero-card-float{width:19rem}
+}
+
+/* base.css floats the assay card forever. A certificate of analysis that bobs
+   is a toy; it holds still here and the entrance rise does the work. */
+.theme-clinical .assay-card{animation:none}
+
+/* ---- Catalogue ----------------------------------------------------------- */
+.theme-clinical .cat-chip{border:1px solid var(--line-2);background:#fff;color:var(--ink-2);
+  font-weight:600}
+.theme-clinical .cat-chip.is-active,.theme-clinical .cat-chip:hover{
+  background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.theme-clinical .pcard{background:#fff;border-color:var(--line);box-shadow:var(--shadow-sm)}
+.theme-clinical .pcard:hover{transform:translateY(-3px);
+  border-color:color-mix(in srgb,var(--accent) 34%,var(--line));box-shadow:var(--shadow-md)}
+.theme-clinical .pcard-media{background:linear-gradient(178deg,#fbfcfe 0%,#eef2f8 100%);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.theme-clinical .pcard-new{background:var(--accent);color:#fff}
+.theme-clinical .pcard-name{font-family:var(--serif);font-weight:500;color:var(--fg);
+  letter-spacing:-.02em}
+.theme-clinical .pcard-desc{color:var(--muted)}
+.theme-clinical .pcard-price{color:var(--fg)}
+.theme-clinical .pcard-price span{color:var(--muted)}
+.theme-clinical .chip{background:var(--paper-2);border:1px solid var(--line);color:var(--ink-2)}
+.theme-clinical .chip.pur{color:var(--accent);border-color:#cfdcfb;background:var(--accent-soft)}
+.theme-clinical .pcard-stock.in{color:var(--good)}
+.theme-clinical .pcard-stock.low{color:var(--warn)}
+
+/* ---- Quality band -------------------------------------------------------- */
+.theme-clinical .quality{background:var(--paper-2);border-block:1px solid var(--line)}
+.theme-clinical .quality .section-head{text-align:center;max-width:44rem;
+  margin:0 auto var(--sp-block)}
+.theme-clinical .q-item{background:#fff;border-color:var(--line);box-shadow:var(--shadow-sm)}
+.theme-clinical .q-item::before{background:var(--paper-2);
+  box-shadow:inset 0 0 0 1px var(--line), inset 0 1px 0 #fff}
+.theme-clinical .q-item h3{font-family:var(--serif);font-size:var(--fs-lg);color:var(--fg);
+  margin-bottom:7px}
+.theme-clinical .q-item p{color:var(--muted)}
+
+/* ---- COA verification band — inverted document plate ---------------------- */
+.theme-clinical .coa-section{padding-top:0}
+.theme-clinical .coa{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-5);align-items:center;
+  background:var(--fg);color:#e6ecf8;border-radius:calc(var(--radius) + 6px);
+  padding:var(--sp-5) var(--sp-4);overflow:hidden;position:relative;
+  box-shadow:0 30px 70px -40px rgba(14,28,51,.7)}
+.theme-clinical .coa::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(90% 70% at 88% 4%, rgba(91,141,255,.20), transparent 60%)}
+.theme-clinical .coa-copy{position:relative;min-width:0}
+.theme-clinical .coa h2{color:#fff;font-size:var(--fs-2xl)}
+.theme-clinical .coa p{color:#b3c0d8;margin:var(--sp-2) 0 0;font-size:var(--fs-sm);line-height:1.65}
+.theme-clinical .coa .eyebrow{color:#93b2ff}
+.theme-clinical .coa ul{list-style:none;padding:0;margin:var(--sp-3) 0 0;display:grid;gap:11px}
+.theme-clinical .coa li{display:flex;gap:11px;align-items:flex-start;font-size:var(--fs-xs);
+  color:#d6dff0;line-height:1.55}
+.theme-clinical .coa li svg{flex:0 0 18px;width:18px;height:18px;color:#5b8dff;margin-top:1px}
+.theme-clinical .coa-doc{position:relative;background:#08101f;border:1px solid #24304a;
+  border-radius:var(--radius);padding:var(--sp-3);min-width:0}
+.theme-clinical .coa-doc .top{display:flex;justify-content:space-between;align-items:center;
+  gap:var(--sp-2);border-bottom:1px solid #24304a;padding-bottom:11px;margin-bottom:11px}
+.theme-clinical .coa-doc .top b{font-family:var(--font-mono);color:#fff;font-size:var(--fs-2xs);
+  letter-spacing:-.01em}
+.theme-clinical .coa-doc .doc-pass{color:#2ec98a;font-weight:700;font-size:var(--fs-3xs);
+  letter-spacing:.14em}
+.theme-clinical .coa-doc .rowd{display:flex;justify-content:space-between;gap:var(--sp-2);
+  font-size:var(--fs-2xs);padding:6px 0;color:#a6b3ca}
+.theme-clinical .coa-doc .rowd b{color:#fff;font-weight:500;text-align:right}
+.theme-clinical .coa-doc .peak{height:64px;margin-top:11px;border-top:1px solid #24304a;
+  padding-top:11px}
+@media (min-width:64rem){
+  .theme-clinical .coa{grid-template-columns:1.02fr .98fr;gap:var(--sp-6);
+    padding:var(--sp-6) var(--sp-5)}
+  .theme-clinical .coa-doc{padding:var(--sp-4)}
+}
+
+/* ---- Reviews / contact / footer ------------------------------------------ */
+.theme-clinical .review{background:#fff;border-color:var(--line);box-shadow:var(--shadow-sm)}
+.theme-clinical .review::before{background:var(--paper-2);
+  box-shadow:inset 0 0 0 1px var(--line), inset 0 1px 0 #fff}
+.theme-clinical .review .stars{color:#d99b12}
+.theme-clinical .review blockquote{color:var(--ink-2)}
+.theme-clinical .review figcaption{color:var(--muted)}
+.theme-clinical .contact-form input,.theme-clinical .contact-form textarea{
+  background:#fff;border:1px solid var(--line-2);color:var(--fg)}
+.theme-clinical .contact-form input::placeholder,
+.theme-clinical .contact-form textarea::placeholder{color:var(--muted)}
+.theme-clinical .site-footer{background:var(--paper-2);border-top:1px solid var(--line)}
+.theme-clinical .site-footer .brand-name{font-family:var(--serif);font-weight:500;color:var(--fg)}
+.theme-clinical .footer-grid p,.theme-clinical .foot-fruo{color:var(--muted)}
+.theme-clinical .foot-contact{color:var(--accent)}
+.theme-clinical .foot-bottom{color:var(--muted);border-top:1px solid var(--line)}
+
+/* ---- Overlays ------------------------------------------------------------ */
+.theme-clinical .cart-drawer{background:#fff;border-left:1px solid var(--line)}
+.theme-clinical .age-box,.theme-clinical .cookie{background:#fff;border:1px solid var(--line-2);
+  box-shadow:var(--shadow-md)}
+.theme-clinical .toast{background:var(--fg);border-color:var(--fg);color:#fff}
+.theme-clinical .faq-list{background:#fff}
+.theme-clinical .spec-table th{color:var(--muted)}

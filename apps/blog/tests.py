@@ -540,3 +540,72 @@ class ResearchNewsGuardrailTests(TestCase):
         site = Site.objects.get(domain="smashfatbiolabs.ca")
         p = generator.generate(site, "peptide research news")
         self.assertEqual(p.compliance_status, "pass")
+
+
+class RetroScanTests(TestCase):
+    """`rescan_posts` — the guardrails applied to what is ALREADY live.
+
+    The generation-time scan never revisits a post. When a new rule lands, every
+    post that published before it keeps serving the claim. On 2026-08-14 five of
+    the six published posts across the network were asserting a "≥99% purity
+    threshold", a "batch-specific Certificate of Analysis" and a shipping origin
+    — all three already scrubbed from the storefronts — and no command existed
+    that would have surfaced it.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+        cls.site = Site.objects.get(domain="peptidesalberta.ca")
+
+    def _post(self, body, **kw):
+        defaults = dict(site=self.site, title="Supplier notes", body=body,
+                        status="published", compliance_status="pass")
+        defaults.update(kw)
+        return BlogPost.objects.create(**defaults)
+
+    # The real sentence, from the real post that was live on peptidesalberta.ca.
+    OFFENDING = ("Every compound is released above a documented ≥99% purity threshold "
+                 "and independently analyzed by HPLC and mass spectrometry. A "
+                 "batch-specific Certificate of Analysis (COA) is available on request.")
+    CLEAN = ("We hold no certificate of analysis, no purity result and no identity "
+             "confirmation for anything in this catalogue. Assume the vial is "
+             "uncharacterised and budget for your own analysis.")
+
+    def test_report_only_is_the_default_and_changes_nothing(self):
+        p = self._post(self.OFFENDING)
+        call_command("rescan_posts")
+        p.refresh_from_db()
+        self.assertEqual(p.status, "published", "a bare report must not mutate anything")
+
+    def test_unpublish_takes_down_the_failing_post(self):
+        bad = self._post(self.OFFENDING, slug="bad")
+        good = self._post(self.CLEAN, slug="good")
+        call_command("rescan_posts", unpublish=True)
+        bad.refresh_from_db(); good.refresh_from_db()
+        self.assertEqual(bad.status, "needs_review")
+        self.assertEqual(bad.compliance_status, "flagged")
+        self.assertIn("purity", bad.compliance_notes.lower())
+        self.assertEqual(good.status, "published", "a clean post must survive the sweep")
+
+    def test_the_body_is_never_edited(self):
+        """Unpublishing must be reversible — we flip status, never the text."""
+        bad = self._post(self.OFFENDING, slug="bad")
+        call_command("rescan_posts", unpublish=True)
+        bad.refresh_from_db()
+        self.assertEqual(bad.body, self.OFFENDING)
+
+    def test_a_claim_hiding_in_the_meta_description_is_caught(self):
+        """A body-only scan misses the field Google actually shows."""
+        p = self._post(self.CLEAN, slug="meta",
+                       meta_description="Batch-specific certificate of analysis on request.")
+        call_command("rescan_posts", unpublish=True)
+        p.refresh_from_db()
+        self.assertEqual(p.status, "needs_review")
+
+    def test_drafts_are_left_alone_by_unpublish(self):
+        d = self._post(self.OFFENDING, slug="draft", status="needs_review")
+        call_command("rescan_posts", unpublish=True, all=True)
+        d.refresh_from_db()
+        self.assertEqual(d.status, "needs_review")

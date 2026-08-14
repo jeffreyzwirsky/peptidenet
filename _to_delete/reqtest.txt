@@ -1,0 +1,21 @@
+# Django 5.2 is the current LTS — security-supported into 2028. This range keeps
+# us on the latest 5.2.x security patch (5.2.16+ as of Jul 2026) and off the
+# short-lived 6.x feature releases that EOL every ~8 months.
+Django>=5.2,<5.3
+gunicorn>=23.0
+# Postgres in production (same managed Postgres pattern as the lead system).
+# Not needed for local SQLite dev.
+psycopg[binary]>=3.1
+
+# AI content: blog generation (gpt-4o-mini fallback) + blog hero images
+# (gpt-image-1). Was pip-installed on the box but never committed — a rebuild
+# would have come up without a package prod needs at runtime. Imports are lazy
+# + guarded, so tests still pass with no key set.
+openai>=1.0
+
+# --- Comms / telephony providers (OPTIONAL) ---
+# Imports are lazy + guarded, so the app runs and all tests pass WITHOUT these.
+# Install + set the matching keys only when you flip PEPTIDENET_COMMS_LIVE=1.
+# twilio>=9.0          # SMS + voice + signature validation
+# anthropic>=0.40      # AI-drafted SMS replies (Claude Haiku)
+# requests>=2.31       # fetch recordings for transcription

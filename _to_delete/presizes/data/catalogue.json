@@ -1,0 +1,756 @@
+{
+ "note": "Shared research-compound catalogue for all SmashFat-family peptide sites. Prices in CAD per vial. 'was' is the pre-discount reference price; 'price' is the current sell price (30% network-wide reduction applied 2026-07-27). 'cost' is the PLACEHOLDER landed cost (35% of the pre-discount price) and must be replaced with the real per-vial supplier cost before margin figures mean anything. purity is the release threshold. Descriptions are research-framed. 'new' and stock ('in'|'low') are display flags. Products carrying `sup` are linked to a supplier catalogue code; their cost and price are maintained by `manage.py reprice` from the supplier price list and the live USD/CAD rate.",
+ "products": [
+  {
+   "n": "KLOW",
+   "cat": "Metabolic",
+   "price": 87.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "80mg"
+   ],
+   "stock": "low",
+   "new": false,
+   "d": "A novel metabolic research compound under active investigation for lipid and energy regulation.",
+   "was": 125.0,
+   "cost": 43.75,
+   "sup": "BBKG80"
+  },
+  {
+   "n": "GLOW",
+   "cat": "Metabolic",
+   "price": 84.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "70mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A novel metabolic research compound under investigation for energy regulation and cellular vitality.",
+   "was": 120.0,
+   "cost": 42.0,
+   "sup": "BBG70"
+  },
+  {
+   "n": "Retatrutide",
+   "cat": "Metabolic",
+   "price": 58.8,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A triple GIP/GLP-1/glucagon receptor agonist under investigation for metabolic and weight-management research.",
+   "was": 84.0,
+   "cost": 29.4,
+   "sup": "RT10"
+  },
+  {
+   "n": "MOTS-C",
+   "cat": "Mitochondrial",
+   "price": 42.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A mitochondrial-derived research compound encoded in the 12S rRNA gene with metabolic and cytoprotective properties.",
+   "was": 60.0,
+   "cost": 21.0,
+   "sup": "MS10"
+  },
+  {
+   "n": "BPC-157",
+   "cat": "Repair & Recovery",
+   "price": 42.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Body Protection Compound-157. A 15-amino-acid partial sequence of human gastric juice protein.",
+   "was": 60.0,
+   "cost": 21.0,
+   "sup": "BC10"
+  },
+  {
+   "n": "GHK-Cu",
+   "cat": "Growth Factors",
+   "price": 35.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "50mg",
+    "100mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Copper research compound tripeptide-1. A naturally occurring plasma tripeptide with copper-binding properties.",
+   "was": 50.0,
+   "cost": 17.5,
+   "sup": "CU50"
+  },
+  {
+   "n": "TB-500",
+   "cat": "Repair & Recovery",
+   "price": 45.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "Thymosin Beta-4. A 43-amino-acid research compound involved in actin sequestration and tissue repair.",
+   "was": 65.0,
+   "cost": 22.75,
+   "sup": "BT10"
+  },
+  {
+   "n": "Ipamorelin",
+   "cat": "Growth Factors",
+   "price": 28.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A selective growth-hormone secretagogue and ghrelin receptor agonist.",
+   "was": 40.0,
+   "cost": 14.0,
+   "sup": "IP10"
+  },
+  {
+   "n": "Selank",
+   "cat": "Neuropeptides",
+   "price": 35.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A synthetic analogue of the endogenous tetrapeptide tuftsin with anxiolytic properties.",
+   "was": 50.0,
+   "cost": 17.5,
+   "sup": "SK10"
+  },
+  {
+   "n": "Semax",
+   "cat": "Neuropeptides",
+   "price": 37.1,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "An ACTH(4-7) analogue with nootropic and neuroprotective properties.",
+   "was": 53.0,
+   "cost": 18.55,
+   "sup": "XA10"
+  },
+  {
+   "n": "Tesamorelin",
+   "cat": "Growth Factors",
+   "price": 63.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "A stabilized GHRH analogue with potent growth-hormone-releasing activity for metabolic and body-composition research.",
+   "was": 90.0,
+   "cost": 31.5,
+   "sup": "TSM10"
+  },
+  {
+   "n": "SS-31",
+   "cat": "Mitochondrial",
+   "price": 49.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "low",
+   "new": false,
+   "d": "A mitochondria-targeted tetrapeptide with potent antioxidant and cardioprotective properties.",
+   "was": 70.0,
+   "cost": 24.5,
+   "sup": "2S10"
+  },
+  {
+   "n": "NAD+",
+   "cat": "Mitochondrial",
+   "price": 42.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "500mg"
+   ],
+   "stock": "low",
+   "new": false,
+   "d": "Nicotinamide adenine dinucleotide \u2014 a critical coenzyme in cellular energy metabolism and DNA repair.",
+   "was": 60.0,
+   "cost": 21.0,
+   "sup": "NJ500"
+  },
+  {
+   "n": "BPC-157 + TB-500",
+   "cat": "Repair & Recovery",
+   "price": 63.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A synergistic blend of BPC-157 and TB-500 for advanced tissue-repair and recovery research.",
+   "was": 90.0,
+   "cost": 31.5,
+   "sup": "BB10"
+  },
+  {
+   "n": "Epithalon",
+   "cat": "Repair & Recovery",
+   "price": 38.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A synthetic tetrapeptide analogue of epithalamin studied for telomere elongation, anti-aging, and circadian-rhythm regulation.",
+   "was": 55.0,
+   "cost": 19.25,
+   "sup": "ET10"
+  },
+  {
+   "n": "KPV",
+   "cat": "Repair & Recovery",
+   "price": 35.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A C-terminal tripeptide of \u03b1-MSH with potent anti-inflammatory and gut-protective properties.",
+   "was": 50.0,
+   "cost": 17.5,
+   "sup": "KPV10"
+  },
+  {
+   "n": "Melanotan 2",
+   "cat": "Melanocortin",
+   "price": 38.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A synthetic analogue of \u03b1-MSH acting as a non-selective melanocortin receptor agonist, studied for pigmentation and energy-regulation research.",
+   "was": 55.0,
+   "cost": 19.25,
+   "sup": "ML10"
+  },
+  {
+   "n": "Bacteriostatic Water",
+   "cat": "Supplies",
+   "price": 17.5,
+   "pur": "USP Grade",
+   "sizes": [
+    "30ml"
+   ],
+   "stock": "in",
+   "new": false,
+   "d": "USP-grade bacteriostatic water for reconstituting lyophilized research compounds.",
+   "was": 25.0,
+   "cost": 8.75,
+   "sup": "WA10"
+  },
+  {
+   "n": "CJC-1295 (no DAC)",
+   "cat": "Growth Factors",
+   "price": 74.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A modified growth-hormone-releasing hormone analogue, also called Mod GRF (1-29).",
+   "area": "Studied in laboratory models for its interaction with the GHRH receptor and its short plasma half-life relative to DAC-conjugated analogues.",
+   "cost": 18.63,
+   "sup": "CND10",
+   "margin": 75
+  },
+  {
+   "n": "CJC-1295 with DAC",
+   "cat": "Growth Factors",
+   "price": 84.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A GHRH analogue conjugated to a drug affinity complex, extending its measured half-life in vitro.",
+   "area": "Investigated for binding-affinity and half-life characteristics conferred by the DAC moiety.",
+   "cost": 20.96,
+   "sup": "CD5",
+   "margin": 75
+  },
+  {
+   "n": "Sermorelin",
+   "cat": "Growth Factors",
+   "price": 70.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A 29-amino-acid fragment corresponding to the active region of growth-hormone-releasing hormone.",
+   "area": "Used as a reference peptide in GHRH receptor and pituitary-signalling research.",
+   "cost": 17.67,
+   "sup": "SMO10",
+   "margin": 75
+  },
+  {
+   "n": "Hexarelin",
+   "cat": "Growth Factors",
+   "price": 81.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A synthetic hexapeptide of the growth-hormone secretagogue class.",
+   "area": "Studied for its interaction with the GHS-R1a receptor and CD36 in laboratory models.",
+   "cost": 20.28,
+   "sup": "HX10",
+   "margin": 75
+  },
+  {
+   "n": "GHRP-2",
+   "cat": "Growth Factors",
+   "price": 27.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "Growth hormone releasing peptide-2, a synthetic secretagogue hexapeptide.",
+   "area": "Investigated in receptor-binding studies of the ghrelin/GHS-R axis.",
+   "cost": 6.71,
+   "sup": "G210",
+   "margin": 75
+  },
+  {
+   "n": "GHRP-6",
+   "cat": "Growth Factors",
+   "price": 27.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "Growth hormone releasing peptide-6, one of the earliest characterised GHS peptides.",
+   "area": "A common reference compound in growth-hormone secretagogue receptor research.",
+   "cost": 6.71,
+   "sup": "G610",
+   "margin": 75
+  },
+  {
+   "n": "IGF-1 LR3",
+   "cat": "Growth Factors",
+   "price": 96.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "1mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "Long R3 insulin-like growth factor-1, an analogue with reduced binding-protein affinity.",
+   "area": "Used in cell-culture work where reduced IGFBP binding is the property under study.",
+   "cost": 24.11,
+   "sup": "IG1",
+   "margin": 75
+  },
+  {
+   "n": "Thymosin Alpha-1",
+   "cat": "Repair & Recovery",
+   "price": 84.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A 28-amino-acid peptide originally isolated from thymic tissue.",
+   "area": "Studied in immunological research for its interaction with toll-like receptor signalling.",
+   "cost": 20.96,
+   "sup": "TA10",
+   "margin": 75
+  },
+  {
+   "n": "Thymalin",
+   "cat": "Repair & Recovery",
+   "price": 36.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A peptide preparation derived from thymic tissue.",
+   "area": "Investigated in laboratory studies of thymic peptide signalling.",
+   "cost": 9.04,
+   "sup": "TY10",
+   "margin": 75
+  },
+  {
+   "n": "PT-141",
+   "cat": "Melanocortin",
+   "price": 36.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "Bremelanotide, a cyclic heptapeptide analogue of alpha-MSH.",
+   "area": "Studied for its activity at melanocortin receptors, particularly MC3R and MC4R.",
+   "cost": 9.04,
+   "sup": "P41",
+   "margin": 75
+  },
+  {
+   "n": "Kisspeptin-10",
+   "cat": "Neuropeptides",
+   "price": 49.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "The 10-amino-acid C-terminal fragment of kisspeptin, a KISS1R ligand.",
+   "area": "A reference ligand in research on the kisspeptin/GPR54 signalling axis.",
+   "cost": 12.19,
+   "sup": "KS10",
+   "margin": 75
+  },
+  {
+   "n": "DSIP",
+   "cat": "Neuropeptides",
+   "price": 45.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "Delta sleep-inducing peptide, a nonapeptide first characterised in the 1970s.",
+   "area": "Studied in neuropeptide research for its distribution and receptor interactions.",
+   "cost": 11.23,
+   "sup": "DS10",
+   "margin": 75
+  },
+  {
+   "n": "Oxytocin Acetate",
+   "cat": "Neuropeptides",
+   "price": 49.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A nine-amino-acid cyclic neuropeptide, supplied as the acetate salt.",
+   "area": "A standard reference peptide in oxytocin receptor binding and signalling assays.",
+   "cost": 12.19,
+   "sup": "OT10",
+   "margin": 75
+  },
+  {
+   "n": "AOD9604",
+   "cat": "Metabolic",
+   "price": 96.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A modified fragment corresponding to residues 177-191 of human growth hormone.",
+   "area": "Investigated in laboratory models of lipid metabolism as a growth-hormone fragment analogue.",
+   "cost": 24.11,
+   "sup": "10AD",
+   "margin": 75
+  },
+  {
+   "n": "5-amino-1MQ",
+   "cat": "Metabolic",
+   "price": 58.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "50mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A small-molecule NNMT inhibitor, supplied as the iodide salt.",
+   "area": "Used in research on nicotinamide N-methyltransferase and cellular NAD+ handling.",
+   "cost": 14.52,
+   "sup": "50AM",
+   "margin": 75
+  },
+  {
+   "n": "AICAR",
+   "cat": "Metabolic",
+   "price": 35.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "50mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "5-aminoimidazole-4-carboxamide ribonucleotide, an AMP analogue.",
+   "area": "A widely used AMPK activator in cellular metabolism research.",
+   "cost": 8.77,
+   "sup": "AR50",
+   "margin": 75
+  },
+  {
+   "n": "SLU-PP-332",
+   "cat": "Metabolic",
+   "price": 49.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A synthetic pan-ERR agonist developed as a research tool compound.",
+   "area": "Studied for its agonism of estrogen-related receptors in metabolic research.",
+   "cost": 12.19,
+   "sup": "322",
+   "margin": 75
+  },
+  {
+   "n": "LL-37",
+   "cat": "Repair & Recovery",
+   "price": 47.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "The C-terminal fragment of human cathelicidin hCAP18.",
+   "area": "A reference antimicrobial peptide in innate-immunity and membrane-interaction studies.",
+   "cost": 11.92,
+   "sup": "375",
+   "margin": 75
+  },
+  {
+   "n": "Pinealon",
+   "cat": "Neuropeptides",
+   "price": 47.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "20mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A short synthetic tripeptide of the Khavinson peptide series.",
+   "area": "Investigated in laboratory studies of short-peptide interaction with nucleic acids.",
+   "cost": 11.92,
+   "sup": "PI20",
+   "margin": 75
+  },
+  {
+   "n": "Dihexa",
+   "cat": "Neuropeptides",
+   "price": 64.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A synthetic angiotensin IV analogue with high metabolic stability.",
+   "area": "Studied for its interaction with hepatocyte growth factor and the c-Met receptor in vitro.",
+   "cost": 16.17,
+   "sup": "DH10",
+   "margin": 75
+  },
+  {
+   "n": "Cartalax",
+   "cat": "Repair & Recovery",
+   "price": 51.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "20mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A synthetic tripeptide (Ala-Glu-Asp) of the short bioregulator series.",
+   "area": "Used in research on short peptides and connective-tissue cell cultures.",
+   "cost": 12.88,
+   "sup": "CTL20",
+   "margin": 75
+  },
+  {
+   "n": "Adamax",
+   "cat": "Neuropeptides",
+   "price": 64.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A synthetic analogue in the nootropic research-peptide series.",
+   "area": "Supplied as a reference compound for neuropeptide research.",
+   "cost": 16.17,
+   "sup": "ADA10",
+   "margin": 75
+  },
+  {
+   "n": "VIP",
+   "cat": "Neuropeptides",
+   "price": 84.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "Vasoactive intestinal peptide, a 28-amino-acid signalling peptide.",
+   "area": "A standard ligand in VPAC1/VPAC2 receptor research.",
+   "cost": 20.96,
+   "sup": "VIP10",
+   "margin": 75
+  },
+  {
+   "n": "Ara-290",
+   "cat": "Repair & Recovery",
+   "price": 40.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "An 11-amino-acid peptide derived from the helix B domain of erythropoietin.",
+   "area": "Studied for its interaction with the innate repair receptor, without erythropoietic activity.",
+   "cost": 10.0,
+   "sup": "RA10",
+   "margin": 75
+  },
+  {
+   "n": "SNAP-8",
+   "cat": "Repair & Recovery",
+   "price": 23.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "2mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "Acetyl octapeptide-3, an elongated analogue of the SNAP-25 N-terminal fragment.",
+   "area": "Used in laboratory research on SNARE complex formation.",
+   "cost": 5.75,
+   "sup": "NP810",
+   "margin": 75
+  },
+  {
+   "n": "AHK-Cu",
+   "cat": "Repair & Recovery",
+   "price": 26.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "50mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "The tripeptide Ala-His-Lys as its copper(II) complex.",
+   "area": "A copper-peptide reference compound in fibroblast and matrix research.",
+   "cost": 6.44,
+   "sup": "ACU50",
+   "margin": 75
+  },
+  {
+   "n": "MGF",
+   "cat": "Growth Factors",
+   "price": 21.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "2mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "Mechano growth factor, a splice variant of IGF-1.",
+   "area": "Studied in laboratory models of mechanical loading and myogenic signalling.",
+   "cost": 5.21,
+   "sup": "FM2",
+   "margin": 75
+  },
+  {
+   "n": "PEG-MGF",
+   "cat": "Growth Factors",
+   "price": 45.0,
+   "pur": "\u226599%",
+   "sizes": [
+    "2mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A pegylated form of mechano growth factor with extended in-vitro stability.",
+   "area": "Investigated for the stability conferred by pegylation relative to native MGF.",
+   "cost": 11.23,
+   "sup": "FMP2",
+   "margin": 75
+  },
+  {
+   "n": "FOXO4-DRI",
+   "cat": "Repair & Recovery",
+   "price": 180.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "10mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A retro-inverso peptide designed to disrupt the FOXO4-p53 interaction.",
+   "area": "A research tool compound in cellular senescence studies.",
+   "cost": 45.07,
+   "sup": "F410",
+   "margin": 75
+  },
+  {
+   "n": "Adipotide",
+   "cat": "Metabolic",
+   "price": 90.5,
+   "pur": "\u226599%",
+   "sizes": [
+    "5mg"
+   ],
+   "stock": "in",
+   "new": true,
+   "d": "A peptidomimetic combining a targeting motif with a pro-apoptotic sequence.",
+   "area": "Studied in laboratory models of vasculature-targeted delivery.",
+   "cost": 22.61,
+   "sup": "AP5",
+   "margin": 75
+  }
+ ]
+}

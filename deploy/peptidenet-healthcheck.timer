@@ -1,0 +1,14 @@
+[Unit]
+Description=PeptideNet — run the standing healthcheck twice daily
+
+[Timer]
+# 07:10 and 19:10 local. The morning run is deliberately AFTER the blog timer:
+# the one thing that has actually published a bad post is the scheduler, and a
+# check that runs before it would have missed exactly that.
+OnCalendar=*-*-* 07:10:00
+OnCalendar=*-*-* 19:10:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

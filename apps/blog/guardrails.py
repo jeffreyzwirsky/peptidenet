@@ -81,16 +81,35 @@ HARD_PATTERNS = {
     #
     # Explaining what a COA or an HPLC test IS remains fine: the negation and
     # quoted-example escapes in scan() cover genuine buyer education.
-    "unsupported testing claim": r"\b((third[- ]party|independent(ly)?|lab)\s+"
-                                r"(tested|verified|analy[sz]ed|screened)|"
+    # NOTE the `[-\s]` separators. This used to require whitespace between the
+    # qualifier and the verb, so "lab verified" was caught and "Lab-verified"
+    # was not — and "Lab-verified research compounds" was sitting in
+    # peptidesalberta.ca's homepage meta description, one clause away from
+    # "Sold uncharacterised", contradicting itself in a single sentence. Same
+    # gap hid "batch-documented" on smash-fat.ca. A hyphen is not an escape.
+    "unsupported testing claim": r"\b((third[-\s]party|independent(ly)?|lab|in[-\s]house)"
+                                r"[-\s]+(tested|verified|analy[sz]ed|screened|"
+                                r"characteri[sz]ed|documented)|"
                                 r"hplc[- /]?(ms|verified|tested)?|mass[- ]spec(trometry)?|"
-                                r"chromatograph(y|ic)|batch[- ]tested|lot[- ]tested|"
-                                r"purity[- ](tested|verified|threshold)|release purity)\b",
+                                r"chromatograph(y|ic)|batch[-\s](tested|documented|verified)|"
+                                r"lot[-\s](tested|documented|verified)|"
+                                r"purity[-\s](tested|verified|threshold)|release purity)\b",
     "unsupported COA claim": r"\b(coa[s]?\b|certificate[s]? of analysis|"
                              r"batch[- ](specific|matched) certificate|lot file)\b",
+    # "lab-grade" belongs here for the same reason: it names an analytical
+    # standard this business does not hold and cannot evidence. It was live in
+    # where-do-i-get-peptides.ca's meta description.
+    #
+    # "research grade" is deliberately NOT here. It is a use designation — the
+    # same thing "For Research Use Only" says — not a claim about measured
+    # purity, and treating it as a violation would fire on compliant copy across
+    # the whole network, including a brand tagline. The line this draws: a word
+    # that names an ANALYTICAL standard (lab, analytical, reference, high) is a
+    # claim; a word that names the INTENDED USE is not.
     "unsupported purity figure": r"(≥\s*9[0-9](\.[0-9])?\s*%|"
                                  r"\b9[0-9](\.[0-9])?\s*%\s*(pure|purity)|"
-                                 r"\b(high|reference|analytical)[- ]?(purity|grade)\b)",
+                                 r"\b(high|reference|analytical|lab)[-\s]?"
+                                 r"(purity|grade)\b)",
 
     # The delivery promise is 10–15 days everywhere. Any other window in a post
     # is a promise the fulfilment chain has not agreed to.
@@ -147,6 +166,41 @@ def _in_quotes(text, start, end):
 # …" where the cue sits well ahead of the match, short enough not to reach
 # into a previous sentence.
 _LOOKBACK = 140
+
+
+# A question answered "No." denies its own premise. The negation escape looks
+# only BACKWARD from a match, which means the single most natural shape for
+# compliant buyer-education copy —
+#
+#     Do you provide a certificate of analysis?
+#     No. Nothing of that kind exists here to send.
+#
+# — reads to the scanner as a claim, because the cue that kills it arrives one
+# sentence later. Four region FAQs tripped on exactly this, including the one
+# whose entire purpose is to say we hold nothing.
+#
+# Deliberately narrow: the match must sit inside a QUESTION, and the very next
+# sentence must OPEN with a denial. "We provide a certificate of analysis." is
+# not a question and does not escape, no matter what follows it.
+_ANSWER_DENIAL = re.compile(
+    r"^\s*(no\b|none\b|nothing\b|never\b|not\b|we (do not|don't|hold no|have no)|"
+    r"there (is|are) (no|none))", re.I)
+
+
+def _is_question_denied(text, start, end):
+    """True when the match is inside a question whose answer opens with a denial."""
+    sentence_start = max(text.rfind(".", 0, start), text.rfind("!", 0, start),
+                         text.rfind("?", 0, start), text.rfind("\n", 0, start)) + 1
+    q_end = text.find("?", end)
+    if q_end == -1:
+        return False
+    # The "?" must close the sentence the match sits in — no other terminator
+    # may come between the match and it.
+    if re.search(r"[.!\n]", text[end:q_end]):
+        return False
+    if not text[sentence_start:q_end].strip():
+        return False
+    return bool(_ANSWER_DENIAL.match(text[q_end + 1:q_end + 60]))
 
 
 def _is_negated(text, start):
@@ -206,6 +260,8 @@ def scan(text):
                 hard.append((label, m.group(0)))
                 continue
             if _is_negated(text, m.start()):
+                continue
+            if _is_question_denied(text, m.start(), m.end()):
                 continue
             if _in_quotes(text, m.start(), m.end()):
                 # Surfaced, not blocking — the reviewer still sees it, but the

@@ -1,0 +1,26 @@
+[Unit]
+Description=PeptideNet — standing healthcheck (reachability, compliance, SEO)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/peptidenet
+EnvironmentFile=/var/www/peptidenet/.env
+
+# Four silent failures in two days made the case for this unit: 35 minutes of
+# origin 520s, 186 innocent IPs banned, a security audit trail dead for three
+# days, and a purity claim published at 04:14. Every one was found because a
+# human happened to look. This is what looks instead.
+#
+# It emails only on failure (MAIL_ALERTS_TO), so a quiet inbox means healthy.
+ExecStart=/var/www/peptidenet/venv/bin/python manage.py healthcheck
+
+Nice=10
+TimeoutStartSec=1800
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full

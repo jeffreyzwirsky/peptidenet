@@ -176,3 +176,14 @@ def send_invite(user, url, invited_by=""):
         + (f"\n(invited by {invited_by})" if invited_by else "")
     )
     return _send("invite", "Set up your SmashFat BioLabs staff account", user.email, text)
+
+
+def health_alert(subject, report):
+    """Operational alert to the addresses in MAIL_ALERTS_TO.
+
+    Plain text on purpose. This is the message that arrives when something is
+    already wrong, quite possibly at 07:10 on a phone, and the fastest thing to
+    read is the thing that was going to be read anyway — the command's own
+    output, unstyled and unwrapped.
+    """
+    return _send("health_alert", subject, _alerts_to(), report)

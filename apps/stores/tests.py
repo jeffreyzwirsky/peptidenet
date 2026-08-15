@@ -1200,3 +1200,180 @@ class BlogTitleDistinctnessTests(TestCase):
         out = seo.blog_post(self.site, self._Post(title))
         self.assertEqual(out["title"], title)
         self.assertNotIn("…", out["title"])
+
+
+class ComplianceCoverageTests(TestCase):
+    """The regression harness for the lesson of 2026-08-15.
+
+    Four separate defects that day were the same bug at different scales: the
+    fix was only as wide as the thing that got scanned. The blog loop scanned
+    `body` and missed titles. `blog_tick` scanned nothing at publish time.
+    `rescan_posts` scanned blog posts, so nobody ever looked at `Site` rows —
+    and "Lab-verified research compounds" sat in a homepage meta description for
+    weeks. These tests make the *coverage* the thing under test, not any one
+    surface.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+        # A published post, so the `blog` surface is not empty. Without one the
+        # command scans zero posts and still reports success — which is exactly
+        # how "727 text surfaces, 0 failures" got reported for a network whose
+        # 60 published posts had not been looked at.
+        from apps.blog.models import BlogPost
+        BlogPost.objects.create(
+            site=Site.objects.first(), title="A compliant post", slug="compliant",
+            seo_title="A compliant post", excerpt="Vials arrive lyophilised.",
+            meta_description="Vials arrive lyophilised and are logged on receipt.",
+            body="# A compliant post\n\nVials arrive lyophilised.\n",
+            status="published", compliance_status="pass")
+
+    def test_every_shipped_text_surface_is_compliant(self):
+        """The whole network, every surface, one assertion.
+
+        If this fails, read the command's output — it names the surface and
+        quotes the phrase. Do NOT widen a guardrail regex to make it pass:
+        that weakens the rule everywhere, including places nobody has looked.
+        Fix the copy, or add a reviewed entry to compliance_check.ACCEPTED.
+        """
+        try:
+            call_command("compliance_check", quiet=True, verbosity=0)
+        except SystemExit as exc:
+            self.fail("compliance_check found violations — run "
+                      "`manage.py compliance_check` for the report. "
+                      f"(exit {exc.code})")
+
+    def test_a_surface_that_scans_nothing_is_a_failure(self):
+        """C2 check 5, earned on 2026-08-15: zero means the filter is wrong far
+        more often than it means the answer is zero. A surface that looked at
+        nothing must not be able to report a clean bill of health."""
+        from apps.blog.models import BlogPost
+        BlogPost.objects.all().delete()
+        with self.assertRaises(SystemExit):
+            call_command("compliance_check", surface="blog", quiet=True, verbosity=0)
+        # ...and the escape hatch has to be asked for explicitly.
+        call_command("compliance_check", surface="blog", quiet=True,
+                     allow_empty=True, verbosity=0)
+
+    def test_the_count_states_its_own_pattern_set(self):
+        """A bare total invites the misreading that produced the rule."""
+        import io
+        buf = io.StringIO()
+        call_command("compliance_check", surface="site", quiet=True,
+                     stdout=buf, verbosity=0)
+        self.assertIn("site=", buf.getvalue())
+
+    def test_site_rows_are_scanned_at_all(self):
+        """Coverage guard: proves the site surface is actually wired up.
+
+        A checker that silently stopped enumerating a surface would keep
+        passing forever. This asserts it *can* fail.
+        """
+        from apps.blog import guardrails
+        from apps.stores.models import Site
+        site = Site.objects.first()
+        original = site.meta_description
+        site.meta_description = "Lab-verified compounds with a certificate of analysis."
+        site.save(update_fields=["meta_description"])
+        try:
+            self.assertTrue(guardrails.scan(site.meta_description)[0])
+            with self.assertRaises(SystemExit):
+                call_command("compliance_check", surface="site", quiet=True, verbosity=0)
+        finally:
+            site.meta_description = original
+            site.save(update_fields=["meta_description"])
+
+    def test_every_accepted_exemption_still_applies(self):
+        """A stale exemption is a hole in the scanner nobody remembers opening.
+
+        Each entry must still match live copy; when the copy changes, the
+        exemption must be deleted rather than left widening coverage forever.
+        """
+        from apps.blog import guardrails
+        from apps.stores import regions
+        from apps.stores.management.commands.compliance_check import ACCEPTED
+        corpus = {}
+        for r in regions.REGIONS:
+            parts = []
+            for key in ("title", "meta_description", "intro", "body"):
+                v = r.get(key)
+                parts += [v] if isinstance(v, str) else [str(x) for x in (v or [])]
+            for faq in r.get("faqs", []) or []:
+                parts.append(f"{faq.get('q','')} {faq.get('a','')}")
+            corpus[f"region/{r.get('slug')}"] = " ".join(parts)
+        for (where, rule, snippet), reason in ACCEPTED.items():
+            with self.subTest(exemption=(where, rule, snippet)):
+                self.assertIn(where, corpus, f"{where} no longer exists")
+                self.assertIn(snippet.lower(), corpus[where].lower(),
+                              f"exemption is stale — {snippet!r} is gone from {where}; "
+                              "delete the entry")
+                self.assertTrue(reason.strip(), "an exemption needs a written reason")
+
+    def test_a_hyphen_is_not_an_escape(self):
+        """The gap that let "Lab-verified" through while catching "lab verified"."""
+        from apps.blog import guardrails
+        for phrase in ("lab verified", "Lab-verified", "third-party tested",
+                       "third party tested", "batch-documented", "batch documented",
+                       "in-house verified", "lab-grade", "lab grade"):
+            with self.subTest(phrase=phrase):
+                self.assertTrue(guardrails.scan(phrase)[0], f"{phrase!r} should flag")
+
+    def test_a_use_designation_is_not_a_grade_claim(self):
+        """"research grade" says what it is FOR, not what was measured."""
+        from apps.blog import guardrails
+        for ok in ("research grade", "research-grade", "For Research Use Only",
+                   "upgrade your protocol", "a research programme"):
+            with self.subTest(phrase=ok):
+                self.assertEqual(guardrails.scan(ok)[0], [], f"{ok!r} should pass")
+
+    def test_a_question_answered_no_is_not_a_claim(self):
+        from apps.blog import guardrails
+        denied = ("Do you provide a certificate of analysis? No. Nothing of that "
+                  "kind exists here to send.")
+        asserted = "Do you provide a certificate of analysis? Yes, with every batch."
+        self.assertEqual(guardrails.scan(denied)[0], [])
+        self.assertTrue(guardrails.scan(asserted)[0])
+
+    def test_the_denial_escape_needs_an_actual_question(self):
+        """"We provide a certificate of analysis. No question about it." must
+        still fail — a following "No" is not an answer if nothing was asked."""
+        from apps.blog import guardrails
+        self.assertTrue(guardrails.scan(
+            "We provide a certificate of analysis. No question about it.")[0])
+
+
+class HealthcheckHarnessTests(TestCase):
+    """The standing loop itself needs a test, or it becomes another thing that
+    reports success because it looked at nothing."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_a_check_that_scanned_nothing_is_not_a_pass(self):
+        """`rescan_posts: checked=0 failing=0` against an empty database reads
+        like a clean bill of health. It is the absence of a measurement."""
+        import io
+        buf = io.StringIO()
+        with self.assertRaises(SystemExit):
+            call_command("healthcheck", quick=True, email="never",
+                         stdout=buf, verbosity=0)
+        out = buf.getvalue()
+        self.assertIn("scanned NOTHING", out)
+
+    def test_alerting_failure_never_masks_the_alert(self):
+        """If the mailer explodes, the report still has to come out — the whole
+        point is that a silent failure is the thing being guarded against."""
+        import io
+        from unittest import mock
+        buf = io.StringIO()
+        with mock.patch("apps.mailer.mailer.health_alert",
+                        side_effect=RuntimeError("smtp down")):
+            with self.assertRaises(SystemExit):
+                call_command("healthcheck", quick=True, email="always",
+                             stdout=buf, verbosity=0)
+        self.assertIn("HEALTHCHECK", buf.getvalue())
+        self.assertIn("alert email failed", buf.getvalue())

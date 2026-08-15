@@ -49,4 +49,18 @@ systemctl enable --now unattended-upgrades >/dev/null 2>&1 || true
 echo "==> Reload web stack"
 nginx -t && systemctl reload nginx
 systemctl restart peptidenet
+
+# --- Post-deploy verification -------------------------------------------
+# Deliberately AFTER the restart and deliberately non-fatal: the code is
+# already live, so failing the script here would only hide the report. What
+# this buys is that nobody has to remember to run it, and a regression is
+# named in the deploy output instead of being found days later by a human who
+# happened to look. Every check here has caught something real.
+echo "==> Post-deploy verification"
+"$APP/venv/bin/python" manage.py compliance_check --quiet || \
+    echo "!! compliance_check FAILED — see above. A claim may be live."
+"$APP/venv/bin/python" manage.py rescan_posts | tail -2 || true
+"$APP/venv/bin/python" manage.py healthcheck --quick --no-email | tail -15 || \
+    echo "!! healthcheck FAILED — see above."
+
 echo "==> update.sh DONE."

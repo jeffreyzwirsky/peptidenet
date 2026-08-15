@@ -876,3 +876,63 @@ class HeadlineCleanupTests(TestCase):
     def test_empty_input_is_empty_output(self):
         for value in ("", "   ", None):
             self.assertEqual(generator._clean_headline(value), "")
+
+
+class PublishTimeRescanTests(TestCase):
+    """The scheduler trusted a verdict that could be weeks old.
+
+    `compliance_status` records what the rules said on the day a draft was
+    written, and blog_tick drains a backlog that is weeks deep. At 04:14 UTC on
+    2026-08-15 it published a post generated 2026-07-28 and marked `pass` under
+    the guardrails of that day, putting "≥95% purity", "Certificate of Analysis"
+    and "HPLC" live on smashfatbiolabs.com. rescan_posts caught it after the
+    fact; these tests are the version that stops it going out.
+    """
+
+    def setUp(self):
+        self.site = Site.objects.create(
+            domain="tick-rescan.ca", brand_name="Tick Rescan", theme="biolabs",
+            country="CA", is_active=True)
+
+    def _draft(self, **kwargs):
+        defaults = dict(
+            site=self.site, slug=f"d{BlogPost.objects.count()}",
+            title="A clean title", seo_title="A clean title",
+            excerpt="Clean excerpt.", meta_description="Clean description.",
+            body="# A clean title\n\nOrdinary prose about vials.\n",
+            status="needs_review", compliance_status="pass")
+        defaults.update(kwargs)
+        return BlogPost.objects.create(**defaults)
+
+    def test_a_clean_draft_is_publishable(self):
+        from apps.blog.management.commands.blog_tick import publishable
+        self.assertTrue(publishable(self._draft()))
+
+    def test_a_stale_pass_is_not_publishable(self):
+        from apps.blog.management.commands.blog_tick import publishable
+        post = self._draft(body="# T\n\nEvery batch is HPLC tested to ≥99% purity.\n")
+        self.assertEqual(post.compliance_status, "pass")   # what the DB claims
+        self.assertFalse(publishable(post))                # what the rules say
+
+    def test_a_stale_pass_in_the_title_alone_is_caught(self):
+        from apps.blog.management.commands.blog_tick import publishable
+        self.assertFalse(publishable(self._draft(title="High Purity Peptides Canada")))
+        self.assertFalse(publishable(self._draft(seo_title="Mass-Spec Verified Peptides")))
+        self.assertFalse(publishable(self._draft(meta_description="≥99% pure.")))
+
+    def test_blog_tick_demotes_a_stale_draft_instead_of_publishing_it(self):
+        stale = self._draft(slug="stale",
+                            body="# T\n\nA batch-specific certificate of analysis "
+                                 "is available on request.\n")
+        call_command("blog_tick", "--force", "--site", self.site.domain, verbosity=0)
+        stale.refresh_from_db()
+        self.assertEqual(stale.status, "needs_review")
+        self.assertEqual(stale.compliance_status, "flagged")
+        self.assertIn("re-scanned at publish time", stale.compliance_notes)
+
+    def test_blog_tick_still_publishes_the_clean_one_behind_it(self):
+        self._draft(slug="stale2", body="# T\n\nEvery batch is HPLC tested.\n")
+        clean = self._draft(slug="clean2")
+        call_command("blog_tick", "--force", "--site", self.site.domain, verbosity=0)
+        clean.refresh_from_db()
+        self.assertEqual(clean.status, "published")

@@ -30,7 +30,7 @@ import zlib
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from apps.blog import generator, keywords
+from apps.blog import generator, guardrails, keywords
 from apps.blog.models import BLOG_HERO_POOL, BlogPost
 from apps.stores.models import Site
 
@@ -44,6 +44,27 @@ def posting_days(domain):
         days.add((max(days) + step) % 7)
         step += 1
     return sorted(days)
+
+
+def publishable(post):
+    """Re-scan against TODAY'S guardrails, not the verdict stored at writing.
+
+    `compliance_status` is a snapshot of what the rules said on the day a draft
+    was written, and this scheduler drains a backlog that is weeks old. On
+    2026-08-15 at 04:14 UTC it published a post generated on 2026-07-28 and
+    marked `pass` under the guardrails of that day — putting "≥95% purity",
+    "Certificate of Analysis" and "HPLC" live on smashfatbiolabs.com, three
+    hours before anyone looked. `rescan_posts` existed to catch exactly that
+    after the fact; this stops it happening in the first place.
+
+    Every field a crawler reads is checked, not just the body — a claim in the
+    title is the most visible place it can sit.
+    """
+    for field in (post.title, post.seo_title, post.excerpt,
+                  post.meta_description, post.body):
+        if guardrails.scan(field or "")[0]:
+            return False
+    return True
 
 
 def ensure_hero_image(post):
@@ -96,9 +117,29 @@ class Command(BaseCommand):
                 self.stdout.write(f"  {site.domain}: already published today")
                 continue
 
-            post = (BlogPost.objects
-                    .filter(site=site, status="needs_review", compliance_status="pass")
-                    .order_by("created_at").first())
+            post, stale = None, 0
+            for candidate in (BlogPost.objects
+                              .filter(site=site, status="needs_review",
+                                      compliance_status="pass")
+                              .order_by("created_at")):
+                if publishable(candidate):
+                    post = candidate
+                    break
+                # The rules moved under it since it was written. Demote it so
+                # the queue tells the truth and repair_posts can pick it up.
+                stale += 1
+                if not opts["dry_run"]:
+                    candidate.compliance_status = "flagged"
+                    candidate.compliance_notes = "\n".join(filter(None, [
+                        candidate.compliance_notes,
+                        "· re-scanned at publish time and now fails the current "
+                        "guardrails — run manage.py repair_posts"]))
+                    candidate.save(update_fields=["compliance_status",
+                                                  "compliance_notes", "updated_at"])
+            if stale:
+                self.stdout.write(self.style.WARNING(
+                    f"  {site.domain}: {stale} backlog draft(s) no longer pass "
+                    "today's guardrails — demoted to flagged."))
             source = "backlog"
             if post is None:
                 if opts["dry_run"]:
@@ -117,7 +158,7 @@ class Command(BaseCommand):
                     kw = kws[(start + offset) % len(kws)]
                     candidate = generator.generate(site, kw)
                     generated += 1
-                    if candidate.compliance_status == "pass":
+                    if candidate.compliance_status == "pass" and publishable(candidate):
                         post = candidate
                         break
                     flagged += 1

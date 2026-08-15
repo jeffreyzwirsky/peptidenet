@@ -583,8 +583,15 @@ def security_txt(request):
 
     base = _base_url(request)
     site = getattr(request, "site", None)
+    # RFC 9116 contact. Never a personal address: security.txt is served as
+    # text/plain, so Cloudflare's email obfuscation — which only rewrites HTML —
+    # does not apply to it. Before 2026-08-15 this fell through to a personal
+    # mailbox and published it verbatim on all eight storefronts. The fallback is
+    # now a per-domain role address; request.get_host() covers the case where no
+    # Site row matched, so the fallback can never be a person either.
+    host = request.get_host().split(":")[0].lower().removeprefix("www.")
     contact = (site.contact_email if site and site.contact_email
-               else "jeff@smashscrap.ca")
+               else "security@%s" % (site.domain if site else host))
     expires = (timezone.now() + timedelta(days=180)).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines = [
         f"Contact: mailto:{contact}",

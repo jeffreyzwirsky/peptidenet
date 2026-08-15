@@ -719,6 +719,36 @@ class DiscoveryFileTests(TestCase):
                 self.assertIn(f"//{host}/.well-known/security.txt",
                               body)  # canonical is per-host
 
+    def test_security_txt_never_publishes_a_personal_address(self):
+        """security.txt is text/plain, so Cloudflare's email obfuscation (HTML
+        only) does not cover it — whatever is in here is published verbatim on
+        every storefront. On 2026-08-15 all eight were serving a personal
+        mailbox because Site.contact_email was blank and the fallback was a
+        person. This pins the fallback to a per-domain role address.
+
+        The PERSONAL set is deliberately literal rather than a heuristic: a
+        pattern like "any address that is not info@/security@" would pass the
+        day someone adds a second legitimate role address, and a test that
+        cannot fail on the next mistake is not a test."""
+        PERSONAL = ("jeff@", "jeffz@", "@smashscrap.ca", "@smashscrap.com")
+        hosts = list(Site.objects.values_list("domain", flat=True))
+        self.assertEqual(len(hosts), 8, "expected all 8 storefronts seeded")
+        for host in hosts:
+            for path in ("/.well-known/security.txt", "/security.txt"):
+                body = self.client.get(path, HTTP_HOST=host).content.decode()
+                for needle in PERSONAL:
+                    self.assertNotIn(needle, body, f"{host}{path} leaks {needle}")
+                self.assertIn(f"Contact: mailto:security@{host}", body)
+
+    def test_security_txt_personal_check_can_actually_fail(self):
+        """Zero findings are only meaningful from an instrument proven able to
+        find one. Feeds the assertion a body that does leak and requires it to
+        trip — otherwise the test above could pass on an empty response."""
+        PERSONAL = ("jeff@", "@smashscrap.ca")
+        leaky = "Contact: mailto:jeff@smashscrap.ca\n"
+        tripped = [n for n in PERSONAL if n in leaky]
+        self.assertEqual(sorted(tripped), sorted(PERSONAL))
+
     def test_robots_is_unique_per_site(self):
         a = self.client.get("/robots.txt", HTTP_HOST="smashfatbiolabs.ca").content.decode()
         b = self.client.get("/robots.txt", HTTP_HOST="smashfat.ca").content.decode()

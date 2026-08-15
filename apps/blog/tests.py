@@ -836,3 +836,43 @@ class TitleComplianceTests(TestCase):
         self.assertTrue(Command._fails(post))
         post.title = post.seo_title = "Evaluating a research supplier"
         self.assertFalse(Command._fails(post))
+
+
+class HeadlineCleanupTests(TestCase):
+    """A model asked for "the headline alone" still wraps it.
+
+    Three titles in the first live run reached the database as
+    "# Peptides for Laboratory Research: Analytical Standards" — the markdown
+    hash included, which is what would have been rendered inside <title>.
+    """
+
+    def test_strips_a_markdown_heading_marker(self):
+        self.assertEqual(
+            generator._clean_headline("# Peptides for Laboratory Research"),
+            "Peptides for Laboratory Research")
+        self.assertEqual(generator._clean_headline("###   Deep heading"),
+                         "Deep heading")
+
+    def test_strips_quotes_and_a_label(self):
+        self.assertEqual(generator._clean_headline('"A Quoted Headline"'),
+                         "A Quoted Headline")
+        self.assertEqual(generator._clean_headline("Title: A Labelled Headline"),
+                         "A Labelled Headline")
+        self.assertEqual(generator._clean_headline("“Smart quotes”"),
+                         "Smart quotes")
+
+    def test_keeps_only_the_first_line(self):
+        self.assertEqual(
+            generator._clean_headline("The Real One\nAn alternative\nAnother"),
+            "The Real One")
+
+    def test_does_not_eat_characters_the_way_lstrip_would(self):
+        """`lstrip("#")` strips characters, not a prefix — the same trap that
+        turned "where-do-i-get-peptides.ca".lstrip("www.") into
+        "here-do-i-get-peptides.ca"."""
+        self.assertEqual(generator._clean_headline("Handling Hashes # In Titles"),
+                         "Handling Hashes # In Titles")
+
+    def test_empty_input_is_empty_output(self):
+        for value in ("", "   ", None):
+            self.assertEqual(generator._clean_headline(value), "")

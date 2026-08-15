@@ -294,6 +294,26 @@ def _repair_loop(site, body, keyword, provenance):
     return review, provenance
 
 
+def _clean_headline(text):
+    """Strip what a model wraps a headline in before returning it.
+
+    Asked for "the headline alone", it still returns "# Peptides for Laboratory
+    Research" or a quoted string often enough to matter — and three titles in
+    the first live run went to the database with a literal "# " on the front,
+    which is what would have been rendered inside <title>. Note the regex rather
+    than `lstrip("#")`: lstrip strips *characters*, which is the same trap that
+    turned "where-do-i-get-peptides.ca".lstrip("www.") into
+    "here-do-i-get-peptides.ca" and left that site owning zero regions.
+    """
+    line = (text or "").strip()
+    if not line:
+        return ""
+    line = line.splitlines()[0].strip()
+    line = re.sub(r"^#+\s*", "", line)                 # markdown heading
+    line = re.sub(r"^(title|headline)\s*[:\-–]\s*", "", line, flags=re.I)
+    return line.strip().strip('"“”\'').strip()[:200]
+
+
 def repair_title(site, body, current_title, keyword=""):
     """A compliant title for a repaired post, or '' if none could be produced.
 
@@ -317,9 +337,9 @@ def repair_title(site, body, current_title, keyword=""):
     for line in body.splitlines():
         s = line.strip()
         if s.startswith("# "):
-            candidate = s[2:].strip()
+            candidate = _clean_headline(s)
             if candidate and not guardrails.scan(candidate)[0]:
-                return candidate[:200]
+                return candidate
             break
 
     hard, _ = guardrails.scan(current_title)
@@ -339,8 +359,7 @@ def repair_title(site, body, current_title, keyword=""):
                   f"ARTICLE:\n{body[:2500]}"),
             purpose="blog_title", site=site, stub="", max_tokens=120,
         )
-        candidate = (out or "").strip().strip('"“”').splitlines()[0].strip()[:200] \
-            if (out or "").strip() else ""
+        candidate = _clean_headline(out)
         if candidate and not guardrails.scan(candidate)[0]:
             return candidate
     return ""

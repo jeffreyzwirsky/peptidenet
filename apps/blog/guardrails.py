@@ -227,7 +227,13 @@ def _is_negated(text, start):
 # superlative and delivery claims stay hard no matter how they are attributed,
 # because attribution does not make them lawful for the advertiser.
 _ATTRIBUTION = re.compile(
-    r"\b(stud(?:y|ies)|trials?|researchers?|scientists?|investigators?|"
+    # `stud(?:y|ies)` missed "studied", which is the commonest form the cue
+    # actually takes — "Studied in laboratory models for its role in collagen
+    # synthesis, wound-healing and skin-remodeling pathways" is a fair, hedged
+    # description of GHK-Cu's literature, and it was being read as a therapeutic
+    # claim because the escape could not see its own cue. Same shape as the
+    # hyphen gap: the rule was right, the pattern was narrower than the rule.
+    r"\b(stud(?:y|ies|ied)|(?:laboratory|preclinical|animal|in[- ]vitro)\s+models?|"
     r"paper|publication|preprint|meta[- ]analys[ie]s|systematic review|"
     r"literature|according to|reported(?:ly)?|was (?:reported|observed|shown)|"
     r"findings?|in (?:mice|rats|rodents|cell(?:s| lines?)?|vitro|vivo)|"

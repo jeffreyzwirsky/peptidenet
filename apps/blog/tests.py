@@ -936,3 +936,35 @@ class PublishTimeRescanTests(TestCase):
         call_command("blog_tick", "--force", "--site", self.site.domain, verbosity=0)
         clean.refresh_from_db()
         self.assertEqual(clean.status, "published")
+
+
+class AttributionCueTests(TestCase):
+    """The escape has to be able to see its own cue.
+
+    `stud(?:y|ies)` missed "studied" — the commonest form the cue takes — so
+    "Studied in laboratory models for its role in collagen synthesis,
+    wound-healing and skin-remodeling pathways", a fair and hedged description
+    of GHK-Cu's literature, read as a therapeutic claim on a live product page.
+    The same shape as the hyphen gap: the rule was right, the pattern was
+    narrower than the rule.
+    """
+
+    def test_studied_is_an_attribution_cue(self):
+        self.assertEqual(guardrails.scan(
+            "Studied in laboratory models for its role in collagen synthesis, "
+            "wound-healing, and skin-remodeling pathways.")[0], [])
+
+    def test_model_phrases_are_attribution_cues(self):
+        for cue in ("laboratory models", "preclinical model", "animal models"):
+            with self.subTest(cue=cue):
+                self.assertEqual(guardrails.scan(
+                    f"Investigated in {cue} for a role in tissue-repair pathways.")[0], [])
+
+    def test_an_unattributed_claim_still_fails(self):
+        """Attribution is an escape for reporting, never a licence to claim."""
+        for bad in ("This peptide heals wounds.",
+                    "GHK-Cu heals skin.",
+                    "Our compound cures inflammation.",
+                    "It prevents tendon injury."):
+            with self.subTest(text=bad):
+                self.assertTrue(guardrails.scan(bad)[0], f"{bad!r} should flag")

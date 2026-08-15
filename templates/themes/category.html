@@ -1,0 +1,70 @@
+{% extends "themes/base.html" %}
+{% comment %}
+One category template for all eight themes.
+
+Deliberately not eight copies. The themes differ in CSS, not in structure — the
+body class already carries the palette, type and spacing — and eight copies of
+this page is eight places for the next SEO fix to be applied seven times. What
+this page needs is what every theme's version would have needed: a real h1 that
+is not the brand's slogan, copy that is about this category rather than about
+the store, and a grid holding only this category's products instead of the whole
+catalogue behind a JavaScript filter.
+{% endcomment %}
+
+{% block main %}
+<section class="cat-hero wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a> <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ category.name }}</span>
+  </nav>
+
+  <h1>{{ category.name }} research compounds</h1>
+  <p class="lead">{{ copy.lede }}</p>
+</section>
+
+<section class="wrap cat-body">
+  {% comment %} The per-site paragraph goes first. Seven categories of shared copy across
+     eight domains is fifty-six pages that differ only by logo; this is what
+     makes each one this site's page rather than the network's. {% endcomment %}
+  <p class="cat-framing">{{ site_framing }}</p>
+  {% for para in copy.body %}<p>{{ para }}</p>{% endfor %}
+
+  {% if copy.considerations %}
+  <h2>Before you order</h2>
+  <ul class="cat-notes">
+    {% for note in copy.considerations %}<li>{{ note }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<section class="wrap cat-products" id="catalogue">
+  <h2>{{ category.name }} compounds in the catalogue</h2>
+  {% if category_products %}
+    <div class="product-grid" data-grid>
+      {% for product in category_products %}
+        {% include "partials/_product_card.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Nothing is listed in this category at the moment.</p>
+  {% endif %}
+</section>
+
+{% if sibling_categories %}
+<section class="wrap cat-siblings">
+  <h2>Other research categories</h2>
+  <ul class="cat-links">
+    {% for c in sibling_categories %}
+      <li><a href="/category/{{ c.slug }}/">{{ c.name }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="wrap cat-disclaimer">
+  <p><strong>For research use only.</strong> Every compound listed here is
+  supplied as a laboratory reference material and is not for human or veterinary
+  use. No analytical documentation accompanies this material and none is
+  claimed.</p>
+</section>
+{% endblock %}

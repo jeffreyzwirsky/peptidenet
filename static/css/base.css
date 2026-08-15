@@ -1378,3 +1378,31 @@ section{padding:var(--sp-section) 0}
 .pcard-size{font-size:var(--fs-3xs);font-weight:700;padding:3px 8px;border-radius:6px;
   border:1px solid var(--hairline);color:var(--muted);font-variant-numeric:tabular-nums}
 .pcard-from{font-size:var(--fs-2xs);color:var(--muted);font-weight:600}
+
+/* --- Category pages -------------------------------------------------------
+   One shared template across all eight themes, so these rules lean on the
+   variables each theme already defines rather than on any theme's own classes.
+   Every /category/<slug>/ URL previously rendered the homepage with a filter
+   chip preselected: same title, same copy, same h1, on 56 URLs. */
+.cat-hero { padding: 3.5rem 0 1.5rem; }
+.cat-hero .crumbs { font-size: .85rem; opacity: .7; margin-bottom: 1rem; }
+.cat-hero .crumbs a { color: inherit; }
+.cat-hero h1 { margin: 0 0 .75rem; }
+.cat-hero .lead { font-size: 1.15rem; line-height: 1.6; max-width: 62ch; opacity: .9; }
+.cat-body { max-width: 68ch; padding-bottom: 1rem; }
+.cat-body p { line-height: 1.7; margin: 0 0 1.1rem; }
+.cat-body h2 { margin: 2rem 0 .75rem; }
+.cat-notes { margin: 0 0 1.5rem; padding-left: 1.2rem; }
+.cat-notes li { line-height: 1.6; margin-bottom: .6rem; }
+.cat-products { padding: 1.5rem 0 2.5rem; }
+.cat-products h2 { margin-bottom: 1.25rem; }
+.cat-siblings { padding-bottom: 2rem; }
+.cat-links { list-style: none; display: flex; flex-wrap: wrap;
+             gap: .5rem .75rem; padding: 0; margin: .75rem 0 0; }
+.cat-links a { display: inline-block; padding: .4rem .85rem; border-radius: 999px;
+               border: 1px solid currentColor; opacity: .8; font-size: .9rem;
+               text-decoration: none; color: inherit; }
+.cat-links a:hover { opacity: 1; }
+.cat-disclaimer { padding-bottom: 3rem; font-size: .9rem; opacity: .75; max-width: 68ch; }
+.foot-categories ul { list-style: none; padding: 0; margin: .5rem 0 0; }
+.foot-categories li { margin-bottom: .35rem; }

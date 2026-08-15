@@ -2,6 +2,7 @@ import json
 import math
 
 from django.conf import settings
+from django.db.models import Q
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -12,6 +13,7 @@ from apps.leads.models import Lead
 from apps.orders.models import Order
 from apps.security.utils import is_bot_honeypot, rate_limit
 
+from . import seo
 from .cart import Cart
 
 
@@ -26,9 +28,53 @@ def _require_site(request):
 
 @ensure_csrf_cookie
 def home(request, slug=None):
+    """The storefront home, and — until this split — also every category page.
+
+    `/category/<slug>/` rendered `home.html` with a filter chip preselected, so
+    all seven categories on a domain served the homepage's title, description,
+    h1 and body. Fifty-six URLs across the network, each a duplicate of the page
+    it was meant to support. A category now gets its own view and its own copy.
+    """
     _require_site(request)
+    if slug:
+        return category_page(request, slug)
     return render(request, _theme_template(request, "home.html"),
-                  {"active_category": slug, "preload_hero": True})
+                  {"active_category": None, "preload_hero": True,
+                   "seo": seo.home(request.site)})
+
+
+def category_page(request, slug):
+    """A real category page: its own heading, its own copy, its own products."""
+    from apps.catalog import copy as catalog_copy
+
+    cat = get_object_or_404(Category, slug=slug)
+    products = (Product.objects.filter(is_active=True, category=cat)
+                .filter(Q(family="") | Q(is_family_default=True))
+                .select_related("category"))
+    siblings = [c for c in Category.objects.all() if c.slug != slug]
+    base = _base_url(request)
+    url = f"{base}/category/{cat.slug}/"
+    ld = [
+        {"@context": "https://schema.org", "@type": "CollectionPage",
+         "name": f"{cat.name} research compounds", "url": url,
+         "isPartOf": {"@type": "WebSite", "name": request.site.brand_name,
+                      "url": base + "/"}},
+        {"@context": "https://schema.org", "@type": "BreadcrumbList",
+         "itemListElement": [
+             {"@type": "ListItem", "position": 1, "name": "Home", "item": base + "/"},
+             {"@type": "ListItem", "position": 2, "name": cat.name, "item": url},
+         ]},
+    ]
+    return render(request, "themes/category.html", {
+        "category": cat,
+        "copy": catalog_copy.for_category(cat),
+        "site_framing": catalog_copy.framing_for(request.site),
+        "category_products": products,
+        "sibling_categories": siblings,
+        "active_category": slug,
+        "jsonld": json.dumps(ld),
+        "seo": seo.category(request.site, cat, products.count()),
+    })
 
 
 def product_detail(request, slug):
@@ -136,6 +182,7 @@ def product_detail(request, slug):
             "faqs": faqs,
             "jsonld": json.dumps(ld),
             "preload_hero": True,
+            "seo": seo.product(request.site, product),
         },
     )
 
@@ -154,6 +201,7 @@ def policy(request, slug):
     return render(request, _theme_template(request, "policy.html"), {
         "policy": doc,
         "policy_nav": policies.nav(request.site),
+        "seo": seo.generic(request.site, doc.get("title", ""), doc.get("summary", "")),
     })
 
 
@@ -218,17 +266,28 @@ def region_page(request, slug):
         "featured": Product.objects.filter(is_active=True)
                            .select_related("category")[:4],
         "jsonld": json.dumps(ld),
+        "seo": seo.region(request.site, r),
     })
 
 
 def calculator(request):
     _require_site(request)
-    return render(request, _theme_template(request, "calculator.html"), {})
+    return render(request, _theme_template(request, "calculator.html"), {
+        "seo": seo.generic(
+            request.site, "Peptide Reconstitution Calculator",
+            "Work out concentration, volume to draw and doses per vial for a "
+            "lyophilised research peptide. For laboratory use only."),
+    })
 
 
 def rewards(request):
     _require_site(request)
-    return render(request, _theme_template(request, "rewards.html"), {})
+    return render(request, _theme_template(request, "rewards.html"), {
+        "seo": seo.generic(
+            request.site, "Bulk Pricing & Referrals",
+            f"Automatic volume pricing, first-order discount and referral "
+            f"options at {request.site.brand_name}. For research use only."),
+    })
 
 
 def _cart_payload(cart):
@@ -549,13 +608,31 @@ def sitemap_xml(request):
     posts = (list(BlogPost.objects.filter(site=site, status="published"))
              if site else [])
     latest_post = max((p.updated_at for p in posts), default=None)
-    urls = [(base + "/", "daily", "1.0", latest_post),
+    live = list(Product.objects.filter(is_active=True).select_related("category"))
+    # A category's freshness is its products' freshness — that is the only real
+    # timestamp behind the page, and an invented lastmod is worse than none:
+    # Google stops trusting the field across the whole sitemap once it catches
+    # one that does not match. Pages with nothing real behind them (policies,
+    # calculator, rewards, regions) therefore carry no lastmod at all.
+    cat_lastmod = {}
+    for prod in live:
+        stamp = prod.price_updated_at
+        if not stamp:
+            continue
+        current = cat_lastmod.get(prod.category_id)
+        if current is None or stamp > current:
+            cat_lastmod[prod.category_id] = stamp
+    latest_catalogue = max(cat_lastmod.values(), default=None)
+    latest_any = max([d for d in (latest_post, latest_catalogue) if d],
+                     default=None)
+    urls = [(base + "/", "daily", "1.0", latest_any),
             (base + "/blog/", "daily", "0.7", latest_post),
             (base + "/calculator/", "monthly", "0.6", None),
             (base + "/rewards/", "monthly", "0.5", None)]
     for c in Category.objects.all():
-        urls.append((f"{base}/category/{c.slug}/", "weekly", "0.7", None))
-    for p in Product.objects.filter(is_active=True):
+        urls.append((f"{base}/category/{c.slug}/", "weekly", "0.7",
+                     cat_lastmod.get(c.id)))
+    for p in live:
         urls.append((f"{base}/product/{p.slug}/", "weekly", "0.8",
                      p.price_updated_at))
     if site:

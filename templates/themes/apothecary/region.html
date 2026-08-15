@@ -1,7 +1,6 @@
 {% extends "themes/base.html" %}
 
-{% block title %}{{ region.title }}{% endblock %}
-{% block head_extra %}<meta name="description" content="{{ region.meta_description }}">
+{% block head_extra %}
 <script type="application/ld+json" nonce="{{ request.csp_nonce }}">{{ jsonld|safe }}</script>{% endblock %}
 {% block navcta %}<a href="/#catalogue" class="btn btn-primary">Browse catalogue</a>{% endblock %}
 

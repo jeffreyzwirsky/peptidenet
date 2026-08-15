@@ -1,11 +1,11 @@
 {% extends "themes/base.html" %}
 {% load blog_extras %}
-{% block title %}{{ post.seo_title }} — {{ site.brand_name }}{% endblock %}
+{% block title %}{{ seo.title }}{% endblock %}
+{% block meta_description %}{{ seo.description }}{% endblock %}
 {% block head_extra %}
-<meta name="description" content="{{ post.meta_description }}">
 <meta property="og:type" content="article">
-<meta property="og:title" content="{{ post.seo_title }}">
-<meta property="og:description" content="{{ post.meta_description }}">
+<meta property="og:title" content="{{ seo.title }}">
+<meta property="og:description" content="{{ seo.description }}">
 {% if post.hero_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.hero_image }}">
 <meta property="og:image:alt" content="{{ post.title }}">
 <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.hero_image }}">{% endif %}

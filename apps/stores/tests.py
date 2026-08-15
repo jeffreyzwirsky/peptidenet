@@ -1,8 +1,12 @@
+import re
+
 from django.core.management import call_command
 from django.db import models
 from django.test import TestCase
 
 from apps.catalog.models import Product
+from apps.stores import seo
+from apps.stores.models import Site
 
 
 class StorefrontTests(TestCase):
@@ -1000,3 +1004,158 @@ class RegionAnalyticalClaimTests(TestCase):
                                         "nothing of that kind exists", "no purity figure",
                                         "none is quoted", "none is published")),
                 f"{r['slug']} discusses a COA without stating we hold none")
+
+
+class SeoMetaTests(TestCase):
+    """Titles and descriptions are built to a budget now, not assembled inline.
+
+    The three defects this locks out, all found by `manage.py seo_audit` across
+    848 pages: every page on a domain shared one meta description; the eight
+    strengths of a compound shared one title; and 344 descriptions and 33 titles
+    ran past the length Google renders, so the distinguishing part was the part
+    that got cut.
+    """
+
+    def setUp(self):
+        from apps.catalog.models import Category, Product
+        self.site = Site.objects.create(
+            domain="seo-test.ca", brand_name="SEO Test Labs", theme="biolabs",
+            country="CA", currency="CAD", is_active=True,
+            meta_description="A test storefront.", tagline="Testing",
+        )
+        self.cat = Category.objects.create(name="Metabolic", slug="metabolic")
+        self.p10 = Product.objects.create(
+            name="Retatrutide", slug="reta-10", category=self.cat, price=58.80,
+            family="retatrutide", size_label="10mg", is_family_default=True,
+            is_active=True)
+        self.p30 = Product.objects.create(
+            name="Retatrutide", slug="reta-30", category=self.cat, price=93.00,
+            family="retatrutide", size_label="30mg", is_active=True)
+
+    # --- lengths -----------------------------------------------------------
+    def test_titles_fit_the_budget(self):
+        for meta in (seo.product(self.site, self.p10),
+                     seo.category(self.site, self.cat, 12),
+                     seo.generic(self.site, "Shipping & Delivery", "How it ships.")):
+            self.assertLessEqual(len(meta["title"]), seo.TITLE_BUDGET, meta["title"])
+            self.assertLessEqual(len(meta["description"]), seo.DESC_BUDGET)
+
+    def test_fit_never_cuts_a_word_in_half(self):
+        out = seo.fit("Peptide Reconstitution And Dosage Calculator For Labs",
+                      ["Research Compound"], required="Where Do I Get Peptides?")
+        self.assertLessEqual(len(out), seo.TITLE_BUDGET)
+        self.assertNotIn(" Calc…", out.replace("…", "…"))
+        self.assertTrue(out.endswith("Where Do I Get Peptides?") or "…" in out)
+
+    def test_required_segment_is_never_dropped(self):
+        """Dropping the brand is how eight domains end up sharing a title."""
+        out = seo.fit("Repair & Recovery", ["Research Compounds", "Canada"],
+                      required="Where Do I Get Peptides?")
+        self.assertIn("Where Do I Get Peptides?", out)
+        self.assertLessEqual(len(out), seo.TITLE_BUDGET)
+
+    # --- distinctness ------------------------------------------------------
+    def test_size_variants_do_not_share_a_title(self):
+        a = seo.product(self.site, self.p10)
+        b = seo.product(self.site, self.p30)
+        self.assertNotEqual(a["title"], b["title"])
+        self.assertNotEqual(a["description"], b["description"])
+        self.assertIn("10mg", a["title"])
+        self.assertIn("30mg", b["title"])
+
+    def test_the_same_page_on_two_domains_differs(self):
+        other = Site.objects.create(
+            domain="seo-test.com", brand_name="Other Labs", theme="clinical",
+            country="US", currency="USD", is_active=True,
+            meta_description="Another storefront.")
+        for build in (lambda s: seo.product(s, self.p10),
+                      lambda s: seo.category(s, self.cat, 12),
+                      lambda s: seo.generic(s, "Returns", "A long returns policy "
+                                            "summary " * 20)):
+            a, b = build(self.site), build(other)
+            self.assertNotEqual(a["title"], b["title"])
+            self.assertNotEqual(a["description"], b["description"])
+
+    def test_category_description_is_not_the_homepage_description(self):
+        self.assertNotEqual(seo.category(self.site, self.cat, 3)["description"],
+                            seo.home(self.site)["description"])
+
+
+class CategoryPageTests(TestCase):
+    """`/category/<slug>/` used to render the homepage with a filter chip.
+
+    Same title, same description, same h1, same body — on seven categories
+    across eight domains. Fifty-six URLs, each a duplicate of the page it was
+    supposed to support.
+    """
+
+    def setUp(self):
+        from apps.catalog.models import Category, Product
+        self.site = Site.objects.create(
+            domain="cat-test.ca", brand_name="Cat Test", theme="biolabs",
+            country="CA", currency="CAD", is_active=True,
+            meta_description="A test storefront.")
+        self.cat = Category.objects.create(name="Metabolic", slug="metabolic")
+        self.other = Category.objects.create(name="Neuropeptides",
+                                             slug="neuropeptides")
+        Product.objects.create(name="Retatrutide", slug="reta", category=self.cat,
+                               price=58.80, size_label="10mg", is_active=True)
+        Product.objects.create(name="Semax", slug="semax", category=self.other,
+                               price=30.00, size_label="5mg", is_active=True)
+
+    def _get(self, path):
+        return self.client.get(path, HTTP_HOST="cat-test.ca", secure=True)
+
+    def test_category_page_differs_from_the_homepage(self):
+        home = self._get("/").content.decode()
+        cat = self._get("/category/metabolic/").content.decode()
+        self.assertNotEqual(
+            re.search(r"<title>(.*?)</title>", home, re.S).group(1),
+            re.search(r"<title>(.*?)</title>", cat, re.S).group(1))
+        self.assertNotEqual(
+            re.search(r'name="description" content="(.*?)"', home).group(1),
+            re.search(r'name="description" content="(.*?)"', cat).group(1))
+
+    def test_category_h1_names_the_category(self):
+        html = self._get("/category/metabolic/").content.decode()
+        h1s = re.findall(r"<h1[^>]*>(.*?)</h1>", html, re.S)
+        self.assertEqual(len(h1s), 1, h1s)
+        self.assertIn("Metabolic", h1s[0])
+
+    def test_two_categories_do_not_share_copy(self):
+        a = self._get("/category/metabolic/").content.decode()
+        b = self._get("/category/neuropeptides/").content.decode()
+        self.assertNotEqual(
+            re.search(r"<title>(.*?)</title>", a, re.S).group(1),
+            re.search(r"<title>(.*?)</title>", b, re.S).group(1))
+        self.assertIn("incretin", a)
+        self.assertNotIn("incretin", b)
+
+    def test_category_page_lists_only_its_own_products(self):
+        html = self._get("/category/metabolic/").content.decode()
+        self.assertIn("Retatrutide", html)
+        self.assertNotIn("Semax", html)
+
+    def test_unknown_category_404s(self):
+        self.assertEqual(self._get("/category/not-a-category/").status_code, 404)
+
+    def test_category_copy_makes_no_banned_claim(self):
+        """The same rule the blog is held to. This copy ships on 56 URLs."""
+        from apps.blog import guardrails
+        from apps.catalog import copy
+        for slug, block in copy.CATEGORIES.items():
+            text = " ".join([block["lede"]] + block["body"]
+                            + block.get("considerations", []))
+            with self.subTest(category=slug):
+                self.assertEqual(guardrails.scan(text)[0], [])
+        for domain, para in copy.SITE_FRAMING.items():
+            with self.subTest(site=domain):
+                self.assertEqual(guardrails.scan(para)[0], [])
+
+    def test_every_site_has_its_own_framing_paragraph(self):
+        from apps.catalog import copy
+        seeded = set(Site.objects.values_list("domain", flat=True)) - {"cat-test.ca"}
+        for domain in seeded:
+            self.assertIn(domain, copy.SITE_FRAMING, f"{domain} has no framing")
+        self.assertEqual(len(set(copy.SITE_FRAMING.values())),
+                         len(copy.SITE_FRAMING), "two sites share a paragraph")

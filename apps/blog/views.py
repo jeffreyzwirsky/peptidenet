@@ -4,6 +4,8 @@ from xml.sax.saxutils import escape
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
+from apps.stores import seo
+
 from .models import BlogPost
 
 
@@ -15,7 +17,16 @@ def blog_list(request):
     if request.site is None:
         raise Http404()
     posts = BlogPost.objects.filter(site=request.site, status="published")
-    return render(request, "blog/list.html", {"posts": posts})
+    # The blog index used to inherit the storefront's own meta description,
+    # which made it a duplicate of the homepage on every domain.
+    return render(request, "blog/list.html", {
+        "posts": posts,
+        "seo": seo.generic(
+            request.site, "Research Notes",
+            f"Research notes from {request.site.brand_name} — what recent "
+            f"peptide studies reported, in what model, and what they did not "
+            f"show. Not medical advice."),
+    })
 
 
 def blog_feed(request):
@@ -56,4 +67,7 @@ def blog_detail(request, slug):
         raise Http404()
     post = get_object_or_404(BlogPost, site=request.site, slug=slug, status="published")
     more = BlogPost.objects.filter(site=request.site, status="published").exclude(pk=post.pk)[:3]
-    return render(request, "blog/detail.html", {"post": post, "more": more})
+    return render(request, "blog/detail.html", {
+        "post": post, "more": more,
+        "seo": seo.blog_post(request.site, post),
+    })

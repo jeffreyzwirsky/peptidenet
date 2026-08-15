@@ -3,8 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}{{ site.brand_name }} — Research Compounds{% endblock %}</title>
-<meta name="description" content="{{ site.meta_description }}">
+{% comment %} Titles and descriptions come from apps/stores/seo.py, which builds them
+   to the lengths Google actually renders (60 / 158) and drops whole segments
+   rather than cutting a word in half. Before that, this line was the ONLY
+   description on the site — every page on a domain shipped the same one — and
+   the eight per-theme product.html files each hardcoded their own. {% endcomment %}
+<title>{% block title %}{{ seo.title|default:site.brand_name }}{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}{{ seo.description|default:site.meta_description }}{% endblock %}">
 <link rel="canonical" href="{{ request.scheme }}://{{ site.domain|default:request.get_host }}{{ request.path }}">
 <link rel="alternate" type="application/rss+xml" title="{{ site.brand_name }} — Research Notes" href="{{ request.scheme }}://{{ request.get_host }}/blog/feed/">
 {% comment %} hreflang — the fix for our biggest SEO problem. Three brands each run a .ca
@@ -17,17 +22,17 @@
 {% endif %}<meta name="theme-color" content="{{ site.theme_color|default:'#0a0f1c' }}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{{ site.brand_name }}">
-<meta property="og:title" content="{% block og_title %}{{ site.brand_name }} — Research Compounds{% endblock %}">
-<meta property="og:description" content="{{ site.meta_description }}">
+<meta property="og:title" content="{% block og_title %}{{ seo.title|default:site.brand_name }}{% endblock %}">
+<meta property="og:description" content="{{ seo.description|default:site.meta_description }}">
 <meta property="og:url" content="{{ request.scheme }}://{{ site.domain|default:request.get_host }}{{ request.path }}">
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ site.domain|default:request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{{ site.brand_name }} — {{ site.tagline }}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ site.brand_name }} — Research Compounds">
-<meta name="twitter:description" content="{{ site.meta_description }}">
-<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
+<meta name="twitter:title" content="{{ seo.title|default:site.brand_name }}">
+<meta name="twitter:description" content="{{ seo.description|default:site.meta_description }}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ site.domain|default:request.get_host }}/static/brand/og-{{ theme }}.jpg?v={{ asset_v }}">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <script type="application/ld+json" nonce="{{ request.csp_nonce }}">
 {"@context":"https://schema.org","@type":"Store","name":"{{ site.brand_name }}",
@@ -180,6 +185,12 @@
       </ul>
     </div>
     {% endif %}
+    <div class="foot-categories">
+      <strong>Research categories</strong>
+      <ul>
+        {% for c in categories %}<li><a href="/category/{{ c.slug }}/">{{ c.name }}</a></li>{% endfor %}
+      </ul>
+    </div>
     <div class="foot-policies">
       <strong>Policies</strong>
       <ul>
@@ -187,6 +198,9 @@
         <li><a href="/returns/">Returns &amp; Refunds</a></li>
         <li><a href="/privacy/">Privacy</a></li>
         <li><a href="/terms/">Terms</a></li>
+        <li><a href="/rewards/">Bulk pricing &amp; referrals</a></li>
+        <li><a href="/calculator/">Reconstitution calculator</a></li>
+        <li><a href="/blog/">Research notes</a></li>
       </ul>
     </div>
   </div>

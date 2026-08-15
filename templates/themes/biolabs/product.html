@@ -1,11 +1,6 @@
 {% extends "themes/base.html" %}
 {% load static %}
 
-{% block title %}{{ product.name }} — {{ site.brand_name }} · Research Compound{% endblock %}
-{% block head_extra %}
-{# Meta description previously claimed a purity figure and third-party testing on every product page. #}
-<meta name="description" content="{{ product.name }} — {{ product.research_area }} Supplied as a laboratory reference material, for research use only. {{ site.shipping_window }} delivery.">
-{% endblock %}
 
 {% block navcta %}<a href="/#catalogue" class="btn btn-primary">Browse catalogue</a>{% endblock %}
 

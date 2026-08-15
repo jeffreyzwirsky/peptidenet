@@ -218,6 +218,16 @@ DEFAULT_THEME = "biolabs"
 # AI_LIVE=1 and an Anthropic/OpenAI key is set. Every call is ledgered (AgentRun).
 AI_LIVE = env_bool("PEPTIDENET_AI_LIVE", False)
 
+# --- Blog writer ---
+# How many times a flagged draft is handed back to the model with its own
+# violations before the deterministic scrub takes over. The writer used to get a
+# single attempt and no feedback at all, which is why 65 of 66 drafts sat
+# stranded in needs_review and six of the eight blogs had never published a post.
+BLOG_REPAIR_PASSES = int(env("PEPTIDENET_BLOG_REPAIR_PASSES", "3") or "3")
+# A scrubbed post shorter than this is held for a human rather than published —
+# thin content ranks for nothing and drags down the pages around it.
+BLOG_MIN_WORDS = int(env("PEPTIDENET_BLOG_MIN_WORDS", "600") or "600")
+
 # --- Security hardening ---
 # Number of trusted reverse proxies in front (nginx=1, +Cloudflare=2). Used for
 # spoof-resistant client-IP resolution (like the SMASH consent-IP fix).

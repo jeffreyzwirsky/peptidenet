@@ -1,7 +1,9 @@
 """AI blog-post generator with compliance baked into the prompt AND enforced by
 the guardrail scanner afterward. Produces a DRAFT (needs_review) — never publishes."""
+import re
 import zlib
 
+from django.conf import settings
 from django.utils.text import slugify
 
 from apps.ai import images, llm
@@ -22,6 +24,42 @@ def _unique_slug(site, base):
         slug = f"{base[:200 - len(suffix)]}{suffix}"
         i += 1
     return slug
+
+
+# Google renders roughly 155–160 characters of a meta description on desktop and
+# less on mobile. The old code stored the first 300 characters of the body —
+# which, because the body opens with its own H1, meant every description on the
+# network began by repeating the title and then cut off mid-sentence.
+META_DESCRIPTION_CHARS = 158
+
+
+def summarise(body, title="", limit=158):
+    """A clean description drawn from the post's opening prose.
+
+    Skips the H1, any other heading, the hero/disclaimer rules and list markers,
+    strips inline markdown, and trims on a word boundary with an ellipsis rather
+    than mid-word.
+    """
+    text_parts = []
+    for line in body.splitlines():
+        s = line.strip()
+        if not s or s.startswith(("#", "---", ">", "|", "*", "-", "_")):
+            continue
+        if title and s.lower().startswith(title.lower()[:40]):
+            continue
+        if "research use only" in s.lower():
+            continue
+        text_parts.append(s)
+        if sum(len(p) for p in text_parts) > limit * 2:
+            break
+    text = " ".join(text_parts)
+    text = re.sub(r"[*_`]+", "", text)                      # inline emphasis
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)     # links → their text
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    cut = text[:limit].rsplit(" ", 1)[0].rstrip(" ,;:.—–-")
+    return f"{cut}…"
 
 
 def build_system(site):
@@ -119,8 +157,55 @@ describes laboratory research materials; it makes no medical, therapeutic, or he
     return title, body
 
 
-def generate(site, keyword):
-    stub_title, stub_body = _stub_post(site, keyword)
+# How many times the model is handed its own violations and asked to fix them
+# before the deterministic scrub takes over. Three is where the returns stop:
+# pass 1 clears the great majority, pass 2 catches the phrase the rewrite
+# reintroduced somewhere else, pass 3 is insurance. Override with
+# PEPTIDENET_BLOG_REPAIR_PASSES.
+MAX_REPAIR_PASSES = getattr(settings, "BLOG_REPAIR_PASSES", 3)
+
+# Below this, a scrubbed post is too thin to be worth publishing and is held
+# for a human instead. Google's problem with a 300-word page is not that it is
+# short, it is that it answers nothing.
+MIN_PUBLISH_WORDS = getattr(settings, "BLOG_MIN_WORDS", 600)
+
+
+def _repair_prompt(site, body, hard, keyword):
+    """The rewrite instruction: the offending draft plus a per-rule brief."""
+    window = f"{site.shipping_min_days}–{site.shipping_max_days}"
+    return (
+        "The draft below FAILED the compliance scanner. Rewrite it in full so it "
+        "passes, and change nothing else.\n\n"
+        "=== WHAT FAILED ===\n"
+        f"{guardrails.remediation_brief(hard)}\n\n"
+        "=== HOW TO REWRITE ===\n"
+        "- Keep the same topic, structure, headings, register and length. This is "
+        "a repair, not a new post.\n"
+        "- Fix the idea, not just the words. Deleting a banned phrase while the "
+        "surrounding sentence still asserts the claim does not pass.\n"
+        "- Do not replace a removed claim with a synonym for it, and do not "
+        "replace it with a denial that names a country.\n"
+        "- Losing a paragraph is acceptable; replace it with something factual "
+        "and useful so the post stays substantive.\n"
+        f"- The only delivery window you may state is {window} days.\n"
+        f"- Keep the keyword \"{keyword}\" reading naturally in the text.\n"
+        "- Return the complete rewritten post as Markdown, starting with its H1. "
+        "Return nothing else — no preamble, no notes about what you changed.\n\n"
+        "=== DRAFT ===\n"
+        f"{body}"
+    )
+
+
+def compose(site, keyword):
+    """Write a post and repair it until the guardrails pass.
+
+    Returns (review, provenance). The old behaviour was a single call whose
+    output was scanned once and then, if flagged, abandoned — which is how 65 of
+    66 drafts ended up stranded in needs_review with six of eight blogs never
+    publishing anything. The scanner's verdict is now fed back to the writer,
+    which is the difference between a gate and a dead end.
+    """
+    _, stub_body = _stub_post(site, keyword)
     market = site.country_name or "Canada"
     # The angle keeps eight sites off one another's toes. All eight share a
     # single catalogue, so without a distinct lane per domain the network reads
@@ -128,8 +213,9 @@ def generate(site, keyword):
     # a network filtered rather than ranked.
     angle = keywords.angle_for(site)
     lane = f"\nEditorial angle for this site: {angle}" if angle else ""
+    system = build_system(site)
     body = llm.complete(
-        system=build_system(site),
+        system=system,
         user=(f"Write an SEO blog post for {site.brand_name} targeting the keyword "
               f"\"{keyword}\" for the {market} research market.{lane}\n"
               "Write it so it stands on its own — a reader who found this page from "
@@ -138,6 +224,81 @@ def generate(site, keyword):
         purpose="blog_post", site=site, stub=stub_body,
         max_tokens=2600,
     )
+    return _repair_loop(site, body, keyword, provenance=["first draft"])
+
+
+def compose_repair(site, body, keyword):
+    """Run an EXISTING body through the repair loop. Same contract as compose().
+
+    This is what rescues the backlog: a draft written before the loop existed
+    never got a second look, and the scanner's own verdict is the brief that
+    fixes it.
+    """
+    return _repair_loop(site, body, keyword, provenance=["existing draft"])
+
+
+def _repair_loop(site, body, keyword, provenance):
+    """Hand the model its own violations until they are gone, then scrub.
+
+    Returns (review, provenance).
+    """
+    system = build_system(site)
+    review = guardrails.review(body)
+
+    for attempt in range(1, MAX_REPAIR_PASSES + 1):
+        if review["status"] == "pass":
+            break
+        hard, _ = guardrails.scan(review["text"])
+        if not hard:                                   # nothing actionable left
+            break
+        rewritten = llm.complete(
+            system=system,
+            user=_repair_prompt(site, review["text"], hard, keyword),
+            purpose="blog_repair", site=site, stub="",
+            max_tokens=2800,
+        )
+        if not rewritten.strip():
+            # No key, or the call failed. Another identical attempt will fail
+            # the same way, so stop paying for it and let the scrub decide.
+            provenance.append(f"repair pass {attempt}: no response")
+            break
+        candidate = guardrails.review(rewritten)
+        provenance.append(
+            f"repair pass {attempt}: {review['hard_count']} → {candidate['hard_count']} issues")
+        # Only keep a rewrite that actually helped. A model asked to fix four
+        # violations sometimes returns prose that is cleaner in three places and
+        # worse in a fourth; keeping the better of the two means the loop can
+        # never walk a draft backwards.
+        if candidate["hard_count"] <= review["hard_count"]:
+            review = candidate
+        if review["status"] == "pass":
+            break
+
+    if review["status"] != "pass":
+        # The model has had its chances. Cut the sentences that still carry a
+        # violation and re-scan — a post that loses two sentences and publishes
+        # clean beats a post that keeps them and never publishes at all.
+        before = review["hard_count"]
+        scrubbed = guardrails.review(guardrails.scrub(review["text"]))
+        words = guardrails.word_count(scrubbed["text"])
+        if scrubbed["status"] == "pass" and words >= MIN_PUBLISH_WORDS:
+            review = scrubbed
+            provenance.append(f"scrubbed {before} → 0 issues ({words} words)")
+        elif scrubbed["status"] == "pass":
+            provenance.append(
+                f"scrub left only {words} words (min {MIN_PUBLISH_WORDS}) "
+                "— held for a human")
+        else:
+            provenance.append("scrub could not clear it — held for a human")
+
+    return review, provenance
+
+
+def generate(site, keyword):
+    stub_title, _ = _stub_post(site, keyword)
+    review, provenance = compose(site, keyword)
+    body = review["text"]
+
     # derive a title from the first H1 if present, else the stub title
     title = stub_title
     for line in body.splitlines():
@@ -145,8 +306,7 @@ def generate(site, keyword):
             title = line.strip()[2:].strip()
             break
 
-    review = guardrails.review(body)     # enforce disclaimer + scan for claims
-    excerpt = " ".join(review["text"].replace("#", "").split())[:300]
+    excerpt = summarise(body, title, limit=300)
 
     slug = _unique_slug(site, slugify(title) or slugify(keyword))
     accent = (site.palette or {}).get("accent", "#4f8ff7")
@@ -158,12 +318,14 @@ def generate(site, keyword):
     post = BlogPost.objects.create(
         site=site, title=title[:200], slug=slug,
         keyword=keyword, excerpt=excerpt, body=review["text"],
-        meta_description=excerpt[:300], seo_title=title[:200],
+        seo_title=title[:200],
         hero_svg=banner_svg(site, title),
         hero_image=hero_image,
+        meta_description=summarise(body, title, limit=META_DESCRIPTION_CHARS),
         status="needs_review",                         # NEVER auto-published
         compliance_status=review["status"],
-        compliance_notes=review["notes"],
+        compliance_notes="\n".join(
+            [review["notes"]] + [f"· {p}" for p in provenance]).strip(),
         ai_generated=True,
     )
     return post

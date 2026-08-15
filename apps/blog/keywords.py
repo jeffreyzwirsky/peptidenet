@@ -74,8 +74,14 @@ BY_DOMAIN = {
     ],
     "smash-fat.com": [
         "research peptide library", "documented research peptides",
-        "batch tested research compounds", "research peptide reference data",
-        "peptide molecular weight reference",
+        # "batch tested research compounds" used to sit here. Rule 10 tells the
+        # writer to work the target keyword naturally into the text, and "batch
+        # tested" is itself a hard guardrail violation — so every post on that
+        # keyword was flagged the instant it was written, permanently, by
+        # design. A keyword a compliant post cannot contain is not a keyword.
+        # `safe_for()` below now makes that impossible to reintroduce by hand.
+        "research compound reference sheet", "research peptide reference data",
+        "peptide molecular weight reference", "peptide sequence reference data",
     ],
     "where-do-i-get-peptides.com": [
         "where to buy research peptides", "trusted research peptide source",
@@ -162,8 +168,29 @@ def market_for(site):
     return "US" if domain.endswith(".com") else "CA"
 
 
+def safe_for(keyword):
+    """False when the keyword phrase itself trips a hard guardrail.
+
+    The generator is instructed to include the target keyword naturally in the
+    post, so a keyword containing a banned claim guarantees a flagged draft no
+    matter how carefully the model writes — "batch tested research compounds"
+    sat in a lane for weeks doing exactly that. Cheap to check, and it stops the
+    next person adding one.
+    """
+    from . import guardrails
+    hard, _ = guardrails.scan(keyword)
+    return not hard
+
+
 def for_site(site):
     domain = getattr(site, "domain", "")
-    if domain in BY_DOMAIN:
-        return BY_DOMAIN[domain]
-    return DEFAULT_US if market_for(site) == "US" else DEFAULT_CA
+    kws = BY_DOMAIN.get(domain)
+    if kws is None:
+        kws = DEFAULT_US if market_for(site) == "US" else DEFAULT_CA
+    safe = [k for k in kws if safe_for(k)]
+    # If a lane were ever edited down to nothing writable, fall back to the
+    # market default rather than handing the caller an empty list to index into.
+    if safe:
+        return safe
+    fallback = DEFAULT_US if market_for(site) == "US" else DEFAULT_CA
+    return [k for k in fallback if safe_for(k)] or list(fallback)

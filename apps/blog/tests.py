@@ -609,3 +609,169 @@ class RetroScanTests(TestCase):
         call_command("rescan_posts", unpublish=True, all=True)
         d.refresh_from_db()
         self.assertEqual(d.status, "needs_review")
+
+
+class RepairLoopTests(TestCase):
+    """The writer now gets its own violations back and a chance to fix them.
+
+    Before this, a flagged draft was a dead draft: one LLM call, one scan, and
+    if the scan found anything the post sat in needs_review forever. Sixty-five
+    of the network's sixty-six drafts were stranded there and six of the eight
+    blogs had never published a post.
+    """
+
+    def setUp(self):
+        self.site = Site.objects.create(
+            domain="repair-test.ca", brand_name="Repair Test", theme="biolabs",
+            country="CA", is_active=True,
+        )
+
+    # --- the brief the model is handed ------------------------------------
+    def test_remediation_brief_names_the_rule_and_quotes_the_evidence(self):
+        text = ("Every batch is HPLC tested and a certificate of analysis is "
+                "available on request. We ship from Canada.")
+        hard, _ = guardrails.scan(text)
+        brief = guardrails.remediation_brief(hard)
+        self.assertIn("UNSUPPORTED TESTING CLAIM", brief)
+        self.assertIn("UNSUPPORTED COA CLAIM", brief)
+        self.assertIn("SHIPPING ORIGIN CLAIM", brief)
+        # The evidence is quoted back, not just the rule name — a model told
+        # only "no testing claims" patches the wrong sentence.
+        self.assertIn("HPLC", brief)
+        # And each rule carries an instruction, not just an accusation.
+        self.assertIn("uncharacterised", brief)
+
+    def test_brief_groups_repeats_instead_of_listing_every_hit(self):
+        text = " ".join(["A certificate of analysis is provided."] * 8)
+        hard, _ = guardrails.scan(text)
+        brief = guardrails.remediation_brief(hard)
+        self.assertEqual(brief.count("UNSUPPORTED COA CLAIM"), 1)
+
+    # --- the deterministic last resort -------------------------------------
+    def test_scrub_removes_only_the_offending_sentence(self):
+        text = ("Peptides are supplied as lyophilised powder. "
+                "Every batch is HPLC tested to ≥99% purity. "
+                "Store the vial below freezing until reconstitution.")
+        cleaned = guardrails.scrub(text)
+        self.assertIn("lyophilised powder", cleaned)
+        self.assertIn("below freezing", cleaned)
+        self.assertNotIn("HPLC", cleaned)
+        self.assertEqual(guardrails.review(cleaned)["status"], "pass")
+
+    def test_scrub_also_cleans_headings(self):
+        """A claim in an H2 is the most visible place it can sit."""
+        text = ("# Sourcing notes\n\n"
+                "## Our HPLC tested catalogue\n\n"
+                "The catalogue lists research categories and vial sizes.\n")
+        cleaned = guardrails.scrub(text)
+        self.assertNotIn("HPLC", cleaned)
+        self.assertIn("Sourcing notes", cleaned)
+        self.assertIn("research categories", cleaned)
+
+    def test_scrub_output_always_passes_the_scanner(self):
+        text = ("Our GMP-certified facility ships from Canada. "
+                "This compound cures inflammation and is FDA-approved. "
+                "Vials are supplied for laboratory research.")
+        self.assertEqual(guardrails.review(guardrails.scrub(text))["status"], "pass")
+
+    def test_word_count_gate_ignores_markdown(self):
+        self.assertEqual(guardrails.word_count("# Title\n\n**bold** words here"), 4)
+
+    # --- the loop itself ----------------------------------------------------
+    def test_repair_loop_recovers_a_flagged_body(self):
+        """With AI stubbed there is no rewrite, so the scrub must carry it.
+
+        This is the important half of the guarantee: the loop cannot depend on
+        a model being reachable. A long draft with two bad sentences still ends
+        up publishable with no API call at all.
+        """
+        filler = ("Researchers evaluating a supplier should record the vial "
+                  "size, the storage temperature and the date of receipt in "
+                  "their own inventory system before any bench work begins. ")
+        body = ("# Evaluating a research supplier\n\n"
+                + filler * 40
+                + "\nEvery batch is HPLC tested to ≥99% purity.\n"
+                + "A certificate of analysis is available on request.\n")
+        review, provenance = generator.compose_repair(self.site, body, "research peptides")
+        self.assertEqual(review["status"], "pass")
+        self.assertNotIn("HPLC", review["text"])
+        self.assertGreaterEqual(guardrails.word_count(review["text"]),
+                                generator.MIN_PUBLISH_WORDS)
+        self.assertTrue(any("scrubbed" in p for p in provenance), provenance)
+
+    def test_a_short_draft_is_held_rather_than_published_thin(self):
+        body = "# Note\n\nEvery batch is HPLC tested to ≥99% purity.\n"
+        review, provenance = generator.compose_repair(self.site, body, "research peptides")
+        self.assertTrue(any("held for a human" in p for p in provenance), provenance)
+
+    def test_repair_never_edits_a_body_it_cannot_clean(self):
+        """A post that stays flagged keeps its original text, so a rewrite is
+        still possible later from the words the author actually wrote."""
+        body = "# Note\n\nWe ship from Canada.\n"
+        review, _ = generator.compose_repair(self.site, body, "research peptides")
+        if review["status"] != "pass":
+            self.assertIn("ship from Canada", review["text"])
+
+
+class KeywordSafetyTests(TestCase):
+    def test_no_shipped_keyword_trips_its_own_guardrail(self):
+        """A keyword the writer must include, that the scanner must reject, is
+        a permanent flag. `batch tested research compounds` was one for weeks."""
+        from . import keywords
+        every = list(keywords.DEFAULT_CA) + list(keywords.DEFAULT_US)
+        for lane in keywords.BY_DOMAIN.values():
+            every += list(lane)
+        for kw in every:
+            with self.subTest(keyword=kw):
+                self.assertEqual(guardrails.scan(kw)[0], [], f"{kw!r} trips a guardrail")
+
+    def test_for_site_filters_an_unwritable_keyword(self):
+        from . import keywords
+        site = Site.objects.create(domain="kwsafe.ca", brand_name="KW", theme="biolabs",
+                                   country="CA", is_active=True)
+        keywords.BY_DOMAIN["kwsafe.ca"] = ["batch tested compounds", "peptide storage"]
+        try:
+            self.assertEqual(keywords.for_site(site), ["peptide storage"])
+        finally:
+            del keywords.BY_DOMAIN["kwsafe.ca"]
+
+    def test_for_site_never_returns_empty(self):
+        from . import keywords
+        site = Site.objects.create(domain="kwempty.com", brand_name="KW", theme="biolabs",
+                                   country="US", is_active=True)
+        keywords.BY_DOMAIN["kwempty.com"] = ["batch tested compounds"]
+        try:
+            self.assertTrue(keywords.for_site(site))
+        finally:
+            del keywords.BY_DOMAIN["kwempty.com"]
+
+
+class MetaDescriptionTests(TestCase):
+    """The description stored on a post used to be the first 300 characters of
+    the body — which, because the body opens with its own H1, meant every
+    description in the network began by repeating the title and then stopped
+    mid-word."""
+
+    def test_summary_skips_the_title_and_headings(self):
+        body = ("# Reconstitution of research peptides\n\n"
+                "Lyophilised material is reconstituted with bacteriostatic water "
+                "before any bench work, and the vial is labelled immediately.\n\n"
+                "## Storage\n\nKeep the vial cold.\n")
+        s = generator.summarise(body, "Reconstitution of research peptides")
+        self.assertFalse(s.lower().startswith("reconstitution of research peptides"))
+        self.assertNotIn("#", s)
+        self.assertTrue(s.startswith("Lyophilised material"))
+
+    def test_summary_trims_on_a_word_boundary(self):
+        body = "# T\n\n" + ("supplier documentation " * 40)
+        s = generator.summarise(body, "T", limit=158)
+        self.assertLessEqual(len(s), 159)
+        self.assertTrue(s.endswith("…"))
+        self.assertNotIn("suppli…", s)
+
+    def test_summary_strips_inline_markdown_and_links(self):
+        body = "# T\n\nSee the **catalogue** and the [shipping policy](/shipping/) page.\n"
+        s = generator.summarise(body, "T")
+        self.assertNotIn("*", s)
+        self.assertNotIn("](", s)
+        self.assertIn("shipping policy", s)

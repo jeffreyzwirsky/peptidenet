@@ -251,3 +251,154 @@ def review(text):
         "hard_count": len(hard),
         "soft_count": len(soft),
     }
+
+
+# ---------------------------------------------------------------------------
+# Remediation — turning a scan result back into something a model can act on
+# ---------------------------------------------------------------------------
+#
+# The scanner has always been able to say *no*. It could never say *how*, and
+# the generator only ever got one attempt, so a flagged draft was a dead draft:
+# 65 of the network's 66 drafts sat in needs_review and six of eight blogs had
+# never published a single post. A model that is shown the exact offending
+# phrase and told what to write instead fixes almost all of these on the first
+# rewrite — the failures were never a capability problem, they were a feedback
+# problem.
+
+FIX_HINTS = {
+    "medical/therapeutic claim":
+        "Remove every statement that a compound cures, treats, prevents, heals, "
+        "reverses or is a therapy for anything. If the point comes from published "
+        "research, rewrite it as attributed and hedged reporting in one sentence "
+        "('a 2023 rodent study reported…', 'in an animal model, researchers "
+        "observed…', 'not established in humans'). If it cannot be attributed to a "
+        "study, delete the sentence.",
+    "efficacy / guarantee":
+        "Remove all guarantees and proof language ('clinically proven', 'proven "
+        "to', 'guaranteed', 'risk-free', 'no side effects'). Nothing here is "
+        "proven or guaranteed; say what was observed and by whom, or say nothing.",
+    "human use / dosing":
+        "Remove all dosing, administration and human-use language — no amounts, "
+        "no schedules, no 'how to take/use/inject'. These are laboratory reference "
+        "materials only. Where a study's protocol matters, describe it as the "
+        "study's method in the study's model, never as guidance to a reader.",
+    "weight-loss / body promise":
+        "Remove every body-composition or weight promise. A metabolic research "
+        "finding may be reported only if it is attributed to a named study and "
+        "hedged, and never phrased as something the reader will experience.",
+    "regulatory claim":
+        "Remove all regulatory language — no FDA/Health Canada approval, no "
+        "'approved for use', no prescription framing. Nothing in the catalogue is "
+        "approved for any use.",
+    "personal testimonial of outcome":
+        "Remove the testimonial. Never write a first-person outcome, a customer "
+        "quote, a review count or a case study — real or illustrative.",
+    "shipping origin claim":
+        "Remove the country or region entirely. Never state or deny where goods "
+        "ship from, are stocked, made, produced or sourced — silence is the "
+        "policy, and a denial still puts a country on the page. Write only "
+        "'orders ship directly from our manufacturing partner'. Writing about the "
+        "market you serve is fine; writing about an origin is not.",
+    "domestic-stock claim":
+        "Remove the domestic-stock or made-in claim completely. No local, "
+        "in-country or domestic warehousing language of any kind.",
+    "unverifiable superlative":
+        "Remove the superlative and any price or ranking claim ('best', 'purest', "
+        "'cheapest', 'number one', 'industry leading', 'fastest'). Replace it with "
+        "a plain factual statement or nothing at all.",
+    "unheld certification":
+        "Remove the certification. This business holds no GMP, ISO, USP, cGMP, "
+        "pharmaceutical-grade or licensed-facility status and must not imply one.",
+    "unsupported testing claim":
+        "Remove every suggestion that this supplier tests, verifies, screens or "
+        "analyses its material — no HPLC, no mass spectrometry, no chromatography, "
+        "no third-party or independent testing, no batch or lot testing, no purity "
+        "verification. You may explain what such a test IS as general education, "
+        "but you must say plainly that we hold no analytical documentation and the "
+        "material should be treated as uncharacterised.",
+    "unsupported COA claim":
+        "Remove every reference to a certificate of analysis being provided, "
+        "issued, batch-matched or available on request. We hold none. If the "
+        "reader needs to understand what a COA is, define it and then state that "
+        "we do not supply one.",
+    "unsupported purity figure":
+        "Remove the purity figure or grade entirely — no percentage, no threshold, "
+        "no 'high purity', no 'analytical grade', no 'reference grade'. We publish "
+        "no figure because we hold no measurement behind one.",
+    "off-policy delivery promise":
+        "State the delivery window only as the policy window given in the brief, "
+        "and remove every other timeframe — no same-day, next-day, overnight or "
+        "free express shipping.",
+}
+
+
+def remediation_brief(hard):
+    """A numbered, de-duplicated rewrite brief built from hard scan issues.
+
+    Grouped by rule rather than by occurrence: a model handed fourteen separate
+    'delete this phrase' lines patches phrases and leaves the underlying claim
+    standing somewhere else, while one instruction per rule plus the evidence
+    makes it rewrite the idea.
+    """
+    grouped = {}
+    for label, snip in hard:
+        grouped.setdefault(label, [])
+        if snip not in grouped[label] and len(grouped[label]) < 6:
+            grouped[label].append(snip)
+    lines = []
+    for i, (label, snips) in enumerate(grouped.items(), 1):
+        quoted = "; ".join(f'"{s}"' for s in snips)
+        hint = FIX_HINTS.get(label, "Remove this claim.")
+        lines.append(f"{i}. {label.upper()} — found: {quoted}\n   {hint}")
+    return "\n".join(lines)
+
+
+# Sentence splitter for the deterministic scrub. Markdown-aware enough: it keeps
+# headings, list markers and blank lines as their own units so removing a bad
+# sentence never collapses the document structure.
+_SENT_SPLIT = re.compile(r"(?<=[.!?])\s+")
+
+
+def scrub(text):
+    """Delete the sentences that still carry a hard violation. Last resort.
+
+    Used only after the model has been given its chances to rewrite. It is
+    deliberately blunt — a post that loses two sentences and publishes clean
+    beats a post that keeps them and never publishes at all — but it never
+    touches a sentence the scanner is happy with, and the caller re-scans and
+    re-checks length afterwards rather than trusting it.
+    """
+    out_blocks = []
+    for block in text.split("\n"):
+        stripped = block.strip()
+        if not stripped or stripped.startswith(("---", "|")):
+            out_blocks.append(block)
+            continue
+        if stripped.startswith("#"):
+            # Headings get scanned too. A claim in an H2 sits in the most
+            # visible place on the page and is exactly what a body-only scrub
+            # would leave standing. A section that loses its heading still
+            # reads; a section that keeps a non-compliant one cannot publish.
+            hard, _ = scan(stripped)
+            if not hard:
+                out_blocks.append(block)
+            continue
+        kept = []
+        for sentence in _SENT_SPLIT.split(block):
+            hard, _ = scan(sentence)
+            if hard:
+                continue
+            kept.append(sentence)
+        rebuilt = " ".join(kept).strip()
+        # A list item or heading-like line that lost everything is dropped;
+        # a paragraph that lost everything becomes an empty line, not a gap.
+        if rebuilt or not kept:
+            out_blocks.append(rebuilt)
+    cleaned = "\n".join(out_blocks)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    return ensure_disclaimer(cleaned.strip() + "\n")
+
+
+def word_count(text):
+    """Words of prose, ignoring markdown punctuation. Used as a publish gate."""
+    return len(re.findall(r"[A-Za-z][A-Za-z'\-]+", text))

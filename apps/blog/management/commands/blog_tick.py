@@ -71,6 +71,9 @@ class Command(BaseCommand):
                                  "posting day for every selected site.")
         parser.add_argument("--dry-run", action="store_true",
                             help="Report what would happen without changing anything.")
+        parser.add_argument("--tries", type=int, default=2,
+                            help="How many keywords to attempt on a site before "
+                                 "giving up for the day (default 2).")
 
     def handle(self, *args, **opts):
         today = timezone.localdate()
@@ -101,16 +104,30 @@ class Command(BaseCommand):
                 if opts["dry_run"]:
                     self.stdout.write(f"  {site.domain}: would generate + publish")
                     continue
+                # Try more than one keyword before giving up on the day. The
+                # generator repairs its own drafts now, so a flag that survives
+                # that means the topic itself keeps steering the model into a
+                # claim it is not allowed to make — and the next keyword in the
+                # lane usually does not.
                 kws = keywords.for_site(site)
-                kw = kws[BlogPost.objects.filter(site=site).count() % len(kws)]
-                post = generator.generate(site, kw)
-                generated += 1
-                source = "fresh"
-                if post.compliance_status != "pass":
+                start = BlogPost.objects.filter(site=site).count()
+                tries = max(1, min(opts["tries"], len(kws)))
+                source, post = "fresh", None
+                for offset in range(tries):
+                    kw = kws[(start + offset) % len(kws)]
+                    candidate = generator.generate(site, kw)
+                    generated += 1
+                    if candidate.compliance_status == "pass":
+                        post = candidate
+                        break
                     flagged += 1
                     self.stdout.write(self.style.WARNING(
-                        f"  {site.domain}: “{post.title}” FLAGGED by guardrails — "
-                        "held in needs_review for a human."))
+                        f"  {site.domain}: “{candidate.title}” FLAGGED "
+                        f"(keyword “{kw}”) — held in needs_review."))
+                if post is None:
+                    self.stdout.write(self.style.ERROR(
+                        f"  {site.domain}: nothing publishable after {tries} "
+                        "attempts — the lane needs a human."))
                     continue
             elif opts["dry_run"]:
                 self.stdout.write(f"  {site.domain}: would publish backlog draft "

@@ -294,6 +294,58 @@ def _repair_loop(site, body, keyword, provenance):
     return review, provenance
 
 
+def repair_title(site, body, current_title, keyword=""):
+    """A compliant title for a repaired post, or '' if none could be produced.
+
+    The repair loop only ever scanned `body`, and a title is a separate column.
+    So a post could come out of it marked `pass` while its `<title>` still read
+    "High Purity Peptides Canada" or "Mass-Spec Verified Peptides" — 17 of the
+    backlog did exactly that. That is the most damaging place a claim can sit:
+    the title is what Google renders in the result and what a reader sees before
+    they see anything else, and the body scrub had removed the very sentences
+    that made the claim, so the post asserted in its headline something its text
+    no longer said.
+
+    Tries the cheapest thing first (the scrubbed body's own H1, which is already
+    known clean), then asks the model, then gives up — and giving up means the
+    post stays flagged rather than publishing a headline nobody checked.
+    """
+    current_title = (current_title or "").strip()
+    if current_title and not guardrails.scan(current_title)[0]:
+        return current_title
+
+    for line in body.splitlines():
+        s = line.strip()
+        if s.startswith("# "):
+            candidate = s[2:].strip()
+            if candidate and not guardrails.scan(candidate)[0]:
+                return candidate[:200]
+            break
+
+    hard, _ = guardrails.scan(current_title)
+    brief = guardrails.remediation_brief(hard) if hard else ""
+    for _ in range(2):
+        out = llm.complete(
+            system=build_system(site),
+            user=("Write a replacement headline for the article below. The "
+                  "current headline fails compliance:\n\n"
+                  f"CURRENT: {current_title}\n\n"
+                  f"{brief}\n\n"
+                  "Rules: under 70 characters, no claim the article does not "
+                  "support, no purity figure, no testing/COA/certification "
+                  f"claim, no country of origin. Keep it about \"{keyword}\" if "
+                  "that reads naturally. Return the headline alone — no quotes, "
+                  "no preamble, no alternatives.\n\n"
+                  f"ARTICLE:\n{body[:2500]}"),
+            purpose="blog_title", site=site, stub="", max_tokens=120,
+        )
+        candidate = (out or "").strip().strip('"“”').splitlines()[0].strip()[:200] \
+            if (out or "").strip() else ""
+        if candidate and not guardrails.scan(candidate)[0]:
+            return candidate
+    return ""
+
+
 def generate(site, keyword):
     stub_title, _ = _stub_post(site, keyword)
     review, provenance = compose(site, keyword)
@@ -305,6 +357,11 @@ def generate(site, keyword):
         if line.strip().startswith("# "):
             title = line.strip()[2:].strip()
             break
+    # The H1 survives the scrub only if it was clean, but a title lifted from a
+    # draft the model wrote can still carry a claim the body no longer makes.
+    # A headline is the most visible place a claim can sit; scan it like prose.
+    if guardrails.scan(title)[0]:
+        title = repair_title(site, body, title, keyword) or stub_title
 
     excerpt = summarise(body, title, limit=300)
 

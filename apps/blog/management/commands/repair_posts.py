@@ -25,7 +25,8 @@ that cannot be cleaned is never edited at all, so a run is safe to repeat.
 from django.core.management.base import BaseCommand
 
 from apps.blog import guardrails
-from apps.blog.generator import MIN_PUBLISH_WORDS, compose_repair
+from apps.blog.generator import (MIN_PUBLISH_WORDS, compose_repair,
+                                 repair_title, summarise)
 from apps.blog.models import BlogPost
 
 
@@ -46,21 +47,44 @@ class Command(BaseCommand):
                             help="Also repair posts that are already live and "
                                  "now fail the current guardrails.")
 
+    @staticmethod
+    def _fails(post):
+        """Every field a crawler or a regulator can read, not just the body.
+
+        Selecting on `compliance_status == "flagged"` alone was not enough: a
+        post whose body had already been repaired was marked `pass` and dropped
+        out of the queue while its title still carried the claim. The scanner is
+        the authority here, not the stored status.
+        """
+        for field in (post.title, post.seo_title, post.excerpt,
+                      post.meta_description, post.body):
+            if guardrails.scan(field or "")[0]:
+                return True
+        return post.compliance_status == "flagged"
+
     def handle(self, *args, **opts):
-        qs = BlogPost.objects.filter(compliance_status="flagged")
+        qs = BlogPost.objects.all()
         if not opts["include_published"]:
             qs = qs.filter(status="needs_review")
         if opts["site"]:
             qs = qs.filter(site__domain=opts["site"])
         qs = qs.select_related("site").order_by("site__domain", "created_at")
+        posts = [p for p in qs if self._fails(p)]
         if opts["limit"]:
-            qs = qs[:opts["limit"]]
+            posts = posts[:opts["limit"]]
+        self.stdout.write(f"{len(posts)} post(s) fail the current guardrails.")
 
         repaired = published = failed = 0
-        for post in qs:
+        for post in posts:
             before = guardrails.review(post.body)
-            review, provenance = compose_repair(post.site, post.body,
-                                                post.keyword or post.title)
+            if before["status"] == "pass":
+                # The body is already clean — this post is in the queue for a
+                # title or a description, so do not spend four LLM calls
+                # rewriting prose that has nothing wrong with it.
+                review, provenance = before, ["body already clean"]
+            else:
+                review, provenance = compose_repair(post.site, post.body,
+                                                    post.keyword or post.title)
             words = guardrails.word_count(review["text"])
             trail = " · ".join(provenance)
 
@@ -84,23 +108,39 @@ class Command(BaseCommand):
                     f"{words} words (min {MIN_PUBLISH_WORDS}) — left as a draft"))
                 continue
 
+            # The body is clean; the title is a different column and was never
+            # scanned. 17 of this backlog came out of the loop marked `pass`
+            # with headlines like "High Purity Peptides Canada" and "Mass-Spec
+            # Verified Peptides" — a claim in the one place Google renders
+            # verbatim, on a post whose text no longer made it.
+            title = repair_title(post.site, review["text"], post.title,
+                                 post.keyword or "")
+            if not title:
+                failed += 1
+                self.stdout.write(self.style.WARNING(
+                    f"  ✗ {post.site.domain} “{post.title[:56]}” body is clean "
+                    "but the title could not be made compliant — left flagged"))
+                continue
+
             repaired += 1
+            retitled = " · retitled" if title != post.title else ""
             self.stdout.write(self.style.SUCCESS(
-                f"  ✓ {post.site.domain} “{post.title[:56]}” "
-                f"{before['hard_count']} → 0 issues, {words} words ({trail})"))
+                f"  ✓ {post.site.domain} “{title[:56]}” "
+                f"{before['hard_count']} → 0 issues, {words} words{retitled} ({trail})"))
             if opts["dry_run"]:
                 continue
 
-            from apps.blog.generator import summarise
+            post.title = title[:200]
+            post.seo_title = title[:200]
             post.body = review["text"]
-            post.excerpt = summarise(review["text"], post.title, limit=300)
-            post.meta_description = summarise(review["text"], post.title)
+            post.excerpt = summarise(review["text"], title, limit=300)
+            post.meta_description = summarise(review["text"], title)
             post.compliance_status = "pass"
             post.compliance_notes = "\n".join(
                 [review["notes"], f"· repaired — {trail}"]).strip()
-            post.save(update_fields=["body", "excerpt", "meta_description",
-                                     "compliance_status", "compliance_notes",
-                                     "updated_at"])
+            post.save(update_fields=["title", "seo_title", "body", "excerpt",
+                                     "meta_description", "compliance_status",
+                                     "compliance_notes", "updated_at"])
             if opts["publish"] and post.status != "published":
                 from apps.blog.management.commands.blog_tick import ensure_hero_image
                 ensure_hero_image(post)

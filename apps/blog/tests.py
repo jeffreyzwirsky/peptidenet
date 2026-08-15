@@ -775,3 +775,64 @@ class MetaDescriptionTests(TestCase):
         self.assertNotIn("*", s)
         self.assertNotIn("](", s)
         self.assertIn("shipping policy", s)
+
+
+class TitleComplianceTests(TestCase):
+    """The repair loop scanned the body and nothing else.
+
+    Seventeen posts came out of the first production run marked `pass` while
+    their titles still read "High Purity Peptides Canada", "Mass-Spec Verified
+    Peptides" and "Lab Verified Peptides Canada" — the claim removed from the
+    prose, still sitting in the one string Google renders verbatim.
+    """
+
+    def setUp(self):
+        self.site = Site.objects.create(
+            domain="title-test.ca", brand_name="Title Test", theme="biolabs",
+            country="CA", is_active=True)
+        filler = ("Researchers should record the vial size, the storage "
+                  "temperature and the date of receipt before any bench work. ")
+        self.clean_body = ("# Evaluating a research supplier\n\n" + filler * 40)
+
+    def test_a_clean_title_is_returned_unchanged(self):
+        out = generator.repair_title(self.site, self.clean_body,
+                                     "Evaluating a research supplier", "peptides")
+        self.assertEqual(out, "Evaluating a research supplier")
+
+    def test_a_bad_title_falls_back_to_the_scrubbed_h1(self):
+        """The H1 survived the scrub, so it is already known clean — try it
+        before spending an API call."""
+        out = generator.repair_title(self.site, self.clean_body,
+                                     "High Purity Peptides Canada", "peptides")
+        self.assertEqual(out, "Evaluating a research supplier")
+        self.assertEqual(guardrails.scan(out)[0], [])
+
+    def test_an_unfixable_title_returns_empty_so_the_post_stays_flagged(self):
+        """With AI stubbed and no clean H1 there is no compliant title to be
+        had, and publishing beats nothing is NOT the trade here."""
+        body = "## Mass-Spec Verified Peptides\n\nSome prose about vials.\n"
+        self.assertEqual(
+            generator.repair_title(self.site, body, "HPLC Purity Testing", "x"), "")
+
+    def test_scan_catches_the_real_titles_that_slipped_through(self):
+        for title in ("High Purity Peptides Canada: Understanding Analytical Standards",
+                      "Mass-Spec Verified Peptides: Understanding Documentation",
+                      "Lab Verified Peptides Canada: Understanding Analytical Standards",
+                      "Reference Grade Research Peptides: Understanding Standards",
+                      "HPLC Purity Testing for Peptides: What Researchers Need to Know"):
+            with self.subTest(title=title):
+                self.assertTrue(guardrails.scan(title)[0], f"{title!r} should flag")
+
+    def test_repair_posts_selects_a_passing_post_with_a_bad_title(self):
+        """The command used to filter on compliance_status='flagged', so a post
+        whose body was already repaired dropped out of the queue with its bad
+        title intact. The scanner is the authority, not the stored status."""
+        from apps.blog.management.commands.repair_posts import Command
+        post = BlogPost.objects.create(
+            site=self.site, title="High Purity Peptides Canada", slug="hp",
+            body=self.clean_body, excerpt="x", meta_description="x",
+            seo_title="High Purity Peptides Canada",
+            status="needs_review", compliance_status="pass")
+        self.assertTrue(Command._fails(post))
+        post.title = post.seo_title = "Evaluating a research supplier"
+        self.assertFalse(Command._fails(post))

@@ -1159,3 +1159,44 @@ class CategoryPageTests(TestCase):
             self.assertIn(domain, copy.SITE_FRAMING, f"{domain} has no framing")
         self.assertEqual(len(set(copy.SITE_FRAMING.values())),
                          len(copy.SITE_FRAMING), "two sites share a paragraph")
+
+
+class BlogTitleDistinctnessTests(TestCase):
+    """Two different posts must not end up with the same rendered <title>.
+
+    `fit(..., required=brand)` truncates the head to make room for the brand,
+    which is right for a product or a category and wrong for a blog post: ten
+    pairs of genuinely different articles collapsed into one identical title
+    because they shared an opening phrase and the distinguishing half was the
+    half that got cut.
+    """
+
+    def setUp(self):
+        self.site = Site.objects.create(
+            domain="blogtitle.ca", brand_name="Where Do I Get Peptides?",
+            theme="guide", country="CA", is_active=True, meta_description="x")
+
+    class _Post:
+        def __init__(self, title):
+            self.title = self.seo_title = title
+            self.meta_description = "A description."
+            self.excerpt = "An excerpt."
+
+    def test_long_titles_sharing_a_prefix_stay_distinct(self):
+        a = seo.blog_post(self.site, self._Post(
+            "Where to Buy Research Peptides in Canada: A Buyer's Guide to Documentation"))
+        b = seo.blog_post(self.site, self._Post(
+            "Where to Buy Research Peptides in Canada: A Buyer's Guide to Storage"))
+        self.assertNotEqual(a["title"], b["title"])
+        self.assertTrue(a["title"].endswith("Documentation"))
+        self.assertTrue(b["title"].endswith("Storage"))
+
+    def test_a_short_title_still_gets_the_brand(self):
+        out = seo.blog_post(self.site, self._Post("Peptide Storage"))
+        self.assertEqual(out["title"], "Peptide Storage — Where Do I Get Peptides?")
+
+    def test_a_long_title_drops_the_brand_rather_than_itself(self):
+        title = "Reconstitution of Research Peptides: A Practical Bench Guide"
+        out = seo.blog_post(self.site, self._Post(title))
+        self.assertEqual(out["title"], title)
+        self.assertNotIn("…", out["title"])

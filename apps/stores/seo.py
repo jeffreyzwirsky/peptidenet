@@ -176,8 +176,22 @@ def product(site, prod):
 
 
 def blog_post(site, post):
+    """A post's own headline, never truncated to make room for the brand.
+
+    Everywhere else, squeezing a title into 60 characters is the right trade.
+    Here it is not: blog headlines run long and often share an opening, so
+    truncating the head and appending the brand collapsed ten pairs of genuinely
+    different posts into one identical `<title>` — "Where to Buy Research
+    Peptides… — Where Do I Get Peptides?" twice on the same site. A title that
+    Google shortens in the SERP still indexes in full and still tells the two
+    pages apart; a title that arrives identical does neither.
+
+    So the brand is appended only when the whole thing fits.
+    """
+    title = _clean(post.seo_title or post.title)
+    with_brand = f"{title} — {_clean(site.brand_name)}"
     return {
-        "title": fit(post.seo_title or post.title, required=site.brand_name),
+        "title": with_brand if len(with_brand) <= TITLE_BUDGET else title,
         "description": clamp(post.meta_description or post.excerpt),
     }
 

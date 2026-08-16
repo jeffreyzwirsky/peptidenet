@@ -378,6 +378,55 @@ def messages_inbox(request):
 
 
 @console_required
+def recording_audio(request, kind, pk):
+    """Stream a call/voicemail recording to the console, WITH Twilio credentials.
+
+    The console linked its Play button straight at `recording_url`, which is
+    `https://api.twilio.com/2010-04-01/Accounts/AC.../Recordings/RE...`. That
+    endpoint requires HTTP Basic auth, so every Play click opened a tab showing
+    Twilio's 401 XML. Confirmed on the live console 2026-08-16: all nine Play
+    links pointed at api.twilio.com. A browser cannot send those credentials, so
+    no front-end change could have fixed it — the fetch has to happen
+    server-side, where the token lives.
+
+    Two things here are security-load-bearing:
+
+    1. **The client sends a row id, never a URL.** The URL is read from the
+       database. A proxy that fetches a caller-supplied URL is an SSRF hole
+       pointed at everything the droplet can reach, link-local metadata included.
+    2. **The stored URL is re-validated** against Twilio's host before fetching.
+       `recording_url` is written from a webhook body, and the write-time check
+       only enforces `https://` — any https host would survive it.
+
+    Not a general media proxy: `@console_required` is owner/Portal-Staff only,
+    and it can only ever reach one host.
+    """
+    from django.http import Http404, HttpResponse
+
+    model = {"vm": Voicemail, "call": Call}.get(kind)
+    if model is None:
+        raise Http404("unknown recording kind")
+    obj = get_object_or_404(model, pk=pk)
+    resp, reason = _providers.fetch_recording(obj.recording_url)
+    if resp is None:
+        # Loud and distinguishable. A dead <audio> element that says nothing is
+        # how "we can't play the voicemails" stayed unnoticed in the first place.
+        return HttpResponse(
+            f"Recording unavailable ({reason}). The comms log has the status, "
+            "content-type and byte count of the failed fetch.",
+            status=502, content_type="text/plain; charset=utf-8")
+    out = HttpResponse(
+        resp.content,
+        content_type=resp.headers.get("content-type", "audio/mpeg"))
+    out["Content-Length"] = str(len(resp.content))
+    # private/no-store: this is a customer's voice behind a staff login. It must
+    # not sit in a shared cache and Cloudflare must not keep a copy.
+    out["Cache-Control"] = "private, no-store"
+    out["Content-Disposition"] = f'inline; filename="{kind}-{pk}.mp3"'
+    return out
+
+
+@console_required
 def calls(request):
     if request.method == "POST" and request.POST.get("mark_listened"):
         Voicemail.objects.filter(pk=request.POST["mark_listened"]).update(listened=True)

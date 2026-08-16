@@ -329,3 +329,122 @@ class PurchasingTests(TestCase):
         self.assertContains(r, "SFB-4")
         self.assertContains(r, "10–15 days")
         self.assertContains(r, "noindex")
+
+
+class RecordingProxyTests(TestCase):
+    """Playing a voicemail from the console.
+
+    Jeff, 2026-08-16: "we can't actually play the voicemails in the super admin
+    portal." The Play button linked straight at `recording_url`, which is a
+    Twilio API URL requiring HTTP Basic auth — confirmed on the live console,
+    where all nine Play links pointed at api.twilio.com. A browser cannot send
+    those credentials, so every click showed Twilio's 401 XML.
+
+    Same root cause as the empty-transcript bug: Twilio recording media needs
+    credentials. That one was fixed server-side for Whisper; nobody checked the
+    other consumer.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_sites")
+        from apps.comms.models import Voicemail
+        cls.boss = get_user_model().objects.create_user(
+            "boss2", password="x", is_staff=True, is_superuser=True)
+        cls.vm = Voicemail.objects.create(
+            from_number="+12045551234", duration_sec=12,
+            recording_url="https://api.twilio.com/2010-04-01/Accounts/AC1/Recordings/RE1")
+        cls.evil = Voicemail.objects.create(
+            from_number="+12045551235", duration_sec=3,
+            recording_url="https://169.254.169.254/latest/meta-data/")
+
+    def _url(self, vm):
+        return f"/manage/recording/vm/{vm.pk}/"
+
+    def test_anonymous_cannot_fetch_a_recording(self):
+        r = self.client.get(self._url(self.vm))
+        self.assertIn(r.status_code, (302, 403))
+
+    def test_console_page_no_longer_links_at_twilio(self):
+        """The actual reported symptom."""
+        self.client.force_login(self.boss)
+        r = self.client.get("/manage/calls/")
+        body = r.content.decode()
+        self.assertNotIn("api.twilio.com", body)
+        self.assertIn(f"/manage/recording/vm/{self.vm.pk}/", body)
+        self.assertIn("<audio", body)
+        self.assertIn('preload="none"', body)
+
+    def test_it_streams_audio_when_twilio_returns_audio(self):
+        from apps.comms import providers
+        self.client.force_login(self.boss)
+
+        class _Resp:
+            status_code = 200
+            headers = {"content-type": "audio/mpeg"}
+            content = b"ID3fake-mp3-bytes"
+
+        real = providers.fetch_recording
+        providers.fetch_recording = lambda url, timeout=30: (_Resp(), "")
+        try:
+            r = self.client.get(self._url(self.vm))
+        finally:
+            providers.fetch_recording = real
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"], "audio/mpeg")
+        self.assertEqual(r.content, b"ID3fake-mp3-bytes")
+        # A customer's voice must not sit in a shared cache.
+        self.assertIn("no-store", r["Cache-Control"])
+        self.assertIn("private", r["Cache-Control"])
+
+    def test_a_failed_fetch_is_loud_not_an_empty_200(self):
+        """The failure-as-absence pattern this codebase keeps paying for. A
+        silently empty 200 renders a player that just never plays."""
+        from apps.comms import providers
+        self.client.force_login(self.boss)
+        real = providers.fetch_recording
+        providers.fetch_recording = lambda url, timeout=30: (None, "fetch_failed")
+        try:
+            r = self.client.get(self._url(self.vm))
+        finally:
+            providers.fetch_recording = real
+        self.assertEqual(r.status_code, 502)
+        self.assertIn(b"fetch_failed", r.content)
+
+    def test_it_refuses_a_stored_url_that_is_not_twilio(self):
+        """SSRF guard. `recording_url` is written from a webhook body and the
+        write-time check only enforces https, so a forged webhook could plant
+        any https host — including link-local metadata. The proxy must refuse
+        it, and must refuse it without making the request."""
+        self.client.force_login(self.boss)
+        r = self.client.get(self._url(self.evil))
+        self.assertEqual(r.status_code, 502)
+        self.assertIn(b"bad_url", r.content)
+
+    def test_the_client_cannot_supply_a_url(self):
+        """The route takes a row id. There is no parameter that becomes a
+        fetch target."""
+        self.client.force_login(self.boss)
+        r = self.client.get("/manage/recording/vm/99999/")
+        self.assertEqual(r.status_code, 404)
+
+    def test_unknown_kind_is_404(self):
+        self.client.force_login(self.boss)
+        r = self.client.get("/manage/recording/bogus/1/")
+        self.assertIn(r.status_code, (404, 400))
+
+
+class RecordingUrlValidationTests(TestCase):
+    def test_only_https_twilio_passes(self):
+        from apps.comms.providers import recording_url_ok
+        ok = "https://api.twilio.com/2010-04-01/Accounts/AC1/Recordings/RE1"
+        self.assertTrue(recording_url_ok(ok))
+        for bad in [
+            "http://api.twilio.com/x",                      # not https
+            "https://169.254.169.254/latest/meta-data/",    # cloud metadata
+            "https://api.twilio.com.evil.test/x",           # suffix trick
+            "https://evil.test/api.twilio.com/x",           # path trick
+            "javascript:alert(1)",
+            "", None,
+        ]:
+            self.assertFalse(recording_url_ok(bad), f"should refuse: {bad!r}")

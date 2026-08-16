@@ -16,7 +16,11 @@
           <td class="sub">{{ row.obj.site.domain|default:"—" }}</td>
           <td class="sub">{{ row.obj.duration_sec }}s</td>
           <td class="msg-cell">{{ row.obj.transcript|default:"—"|truncatechars:70 }}</td>
-          <td class="r">{% if row.obj.recording_url %}<a class="btn sm ghost" href="{{ row.obj.recording_url }}" rel="noopener noreferrer" target="_blank">▶ Play</a>{% endif %}</td>
+          {# Proxied, not linked. api.twilio.com needs HTTP Basic auth a browser
+             cannot send, so the old direct link opened Twilio's 401 XML.
+             preload="none": a page of rows must not pull every recording from
+             Twilio on load — audio is fetched only when someone presses play. #}
+          <td class="r">{% if row.obj.recording_url %}<audio controls preload="none" style="height:32px;max-width:220px" src="{% url 'manage:recording_audio' 'call' row.obj.pk %}"></audio>{% endif %}</td>
         </tr>
         {% else %}
         <tr class="{% if not row.obj.listened %}unread{% endif %}">
@@ -30,7 +34,7 @@
           <td class="sub">{{ row.obj.duration_sec }}s</td>
           <td class="msg-cell">{% if row.obj.subject %}<div style="font-weight:600;margin-bottom:3px">Re: {{ row.obj.subject }}</div>{% endif %}{{ row.obj.transcript|default:"(no transcript)"|truncatechars:70 }}{% if row.obj.tier_rationale %}<div class="sub" style="margin-top:3px;color:#8fb6ff">{{ row.obj.tier_rationale }}</div>{% endif %}</td>
           <td class="r nowrap">
-            {% if row.obj.recording_url %}<a class="btn sm ghost" href="{{ row.obj.recording_url }}" rel="noopener noreferrer" target="_blank">▶</a>{% endif %}
+            {% if row.obj.recording_url %}<audio controls preload="none" style="height:32px;max-width:220px;vertical-align:middle" src="{% url 'manage:recording_audio' 'vm' row.obj.pk %}"></audio>{% endif %}
             {% if not row.obj.listened %}<form method="post" style="display:inline">{% csrf_token %}<button class="btn sm" name="mark_listened" value="{{ row.obj.pk }}">Mark read</button></form>{% endif %}
           </td>
         </tr>

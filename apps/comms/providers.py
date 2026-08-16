@@ -85,32 +85,80 @@ def validate_twilio_signature(request):
         return False
 
 
+# Recording media lives on this host and nowhere else. Used to validate a stored
+# URL before the console proxy fetches it: a proxy that fetches whatever host it
+# is handed is an SSRF hole, and `recording_url` is written from a webhook body.
+RECORDING_HOST = "api.twilio.com"
+
+
+def recording_url_ok(url):
+    """True only for an https URL on Twilio's recording host.
+
+    Deliberately a SECOND check, not a replacement for the write-time one in
+    webhooks.recording(): that one only enforces `https://`, so any https host
+    passes it. Re-validating at fetch time means a forged webhook that planted a
+    URL cannot turn the console into a request proxy for an arbitrary host.
+    """
+    from urllib.parse import urlparse
+    try:
+        p = urlparse((url or "").strip())
+    except ValueError:
+        return False
+    return p.scheme == "https" and p.hostname == RECORDING_HOST
+
+
+def fetch_recording(audio_url, timeout=30):
+    """GET a Twilio recording WITH credentials. Returns (response, reason).
+
+    Success is `(response, "")`; every failure is `(None, reason)` and never a
+    silent empty success — that shape is exactly what hid the empty-transcript
+    bug for a month.
+
+    **Twilio recording media requires HTTP Basic auth (AccountSid/AuthToken).**
+    Unauthenticated, api.twilio.com answers 401 with a ~232-byte XML body;
+    verified live 2026-08-16. That single fact has now produced two separate
+    defects — transcription fed the XML to Whisper as if it were audio, and the
+    console's Play button pointed a browser straight at the URL, where it 401s
+    because a browser cannot send those credentials. Both consumers now come
+    through here, so the next thing that needs a recording inherits the auth
+    instead of rediscovering the 401.
+    """
+    if not recording_url_ok(audio_url):
+        log.error("recording fetch refused, not an https %s URL: %r",
+                  RECORDING_HOST, (audio_url or "")[:120])
+        return (None, "bad_url")
+    if not (settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN):
+        log.error("recording fetch refused: TWILIO credentials not configured")
+        return (None, "no_credentials")
+    try:
+        import requests
+        resp = requests.get(
+            audio_url, timeout=timeout,
+            auth=(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN))
+    except Exception as e:  # pragma: no cover - network
+        log.exception("recording fetch errored for %s", audio_url[:120])
+        return (None, f"error:{type(e).__name__}")
+    ctype = (resp.headers.get("content-type") or "").lower()
+    # A 200 carrying XML or JSON is still a failure. Passing it downstream is
+    # what hid the transcription bug; handing it to an <audio> tag would render
+    # a player that silently never plays.
+    if resp.status_code != 200 or not ctype.startswith("audio"):
+        log.error("recording fetch refused: status=%s ctype=%r bytes=%s url=%s",
+                  resp.status_code, ctype, len(resp.content or b""),
+                  audio_url[:120])
+        return (None, "fetch_failed")
+    return (resp, "")
+
+
 def transcribe(audio_url):
     """OpenAI Whisper. Returns (text, source). Stub when no key."""
     if not (settings.COMMS_LIVE and settings.OPENAI_API_KEY):
         return ("", "")
     try:  # pragma: no cover
-        import requests
         from openai import OpenAI
-        # Twilio recording media requires HTTP Basic auth (AccountSid / AuthToken).
-        # Without it api.twilio.com answers 401 with a ~232-byte XML error body,
-        # which then got handed to Whisper *as if it were audio*. Whisper raised,
-        # the bare except swallowed it, and transcribe() returned ("", "") — so
-        # every voicemail looked "not transcribed" rather than "failed". Verified
-        # live 2026-08-16: an unauthenticated GET of a real RecordingUrl returns
-        # 401 / application/xml.
-        auth = None
-        if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
-            auth = (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-        resp = requests.get(audio_url, timeout=30, auth=auth)
-        ctype = (resp.headers.get("content-type") or "").lower()
-        # Fail loudly on anything that is not audio. A 200 carrying XML or JSON is
-        # still a failure; passing it downstream is what hid this for a month.
-        if resp.status_code != 200 or not ctype.startswith("audio"):
-            log.error("whisper: refusing non-audio recording fetch %s ctype=%r "
-                      "bytes=%s url=%s", resp.status_code, ctype,
-                      len(resp.content or b""), audio_url[:120])
-            return ("", "fetch_failed")
+        resp, reason = fetch_recording(audio_url)
+        if resp is None:
+            return ("", reason or "fetch_failed")
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
         r = client.audio.transcriptions.create(
             model="whisper-1", file=("vm.mp3", resp.content),

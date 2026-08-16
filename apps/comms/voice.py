@@ -92,8 +92,23 @@ def intake_twiml(number, request):
              "Or press zero at any time to leave a message for the team.")
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n<Response>'
-        f'<Gather input="speech dtmf" numDigits="1" speechTimeout="auto" '
-        f'speechModel="phone_call" action="{escape(gather_url)}" method="POST">'
+        # speechTimeout: NOT "auto". Twilio documents auto as "stops recognizing
+        # speech at the first pause" — so a caller who breathes mid-sentence gets
+        # cut off and the agent answers a fragment. That is the reported "it
+        # isn't hearing me". 3 seconds lets a normal sentence finish.
+        #
+        # speechModel: googlev2_telephony is Google STT V2 tuned for phone audio
+        # (this is what "Chirp" means in Twilio's vocabulary — there is no
+        # speechModel="chirp"). Was "phone_call", the legacy generic model.
+        # deepgram_nova-3 is the alternative worth A/B-ing if this is not enough.
+        #
+        # numDigits="1" stays: it is load-bearing for the "press zero at any time"
+        # escape in the greeting, making a single keypress submit immediately.
+        # Twilio gives precedence to whichever input it detects first and ignores
+        # finishOnKey when speech comes first, so it does not shorten speech.
+        f'<Gather input="speech dtmf" numDigits="1" speechTimeout="3" '
+        f'speechModel="googlev2_telephony" language="en-CA" '
+        f'action="{escape(gather_url)}" method="POST">'
         f"{_say(greet)}</Gather>"
         f"{_say('I did not catch that — let me take a message.')}"
         f"{_greeting(number, request)}"

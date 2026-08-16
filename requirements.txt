@@ -13,6 +13,14 @@ psycopg[binary]>=3.1
 # + guarded, so tests still pass with no key set.
 openai>=1.0
 
+# CSS minification at deploy time (manage.py minify_css, after collectstatic).
+# Pure Python, so the droplet gains no Node runtime. Chosen over clean-css after
+# measuring on this codebase's 11 stylesheets: rcssmin lands within 10 BYTES of
+# clean-css -O2 network-wide, while only stripping comments and whitespace — it
+# cannot reorder a rule and silently break one of eight themes. Worth 7.3 KB
+# (-37%) of brotli'd CSS on the flagship's first paint.
+rcssmin>=1.1
+
 # --- Comms / telephony providers (OPTIONAL) ---
 # Imports are lazy + guarded, so the app runs and all tests pass WITHOUT these.
 # Install + set the matching keys only when you flip PEPTIDENET_COMMS_LIVE=1.

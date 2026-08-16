@@ -25,6 +25,9 @@ echo "==> Load env + migrate + static"
 set -a; source "$APP/.env"; set +a
 ./venv/bin/python manage.py migrate
 ./venv/bin/python manage.py collectstatic --noinput
+# AFTER collectstatic, never before — collectstatic copies the readable sources
+# over the top of STATIC_ROOT, so minifying first would be undone every deploy.
+./venv/bin/python manage.py minify_css
 
 echo "==> Regenerate nginx + ensure default-deny catch-all + re-apply TLS"
 ./venv/bin/python manage.py emit_nginx > /etc/nginx/sites-available/peptidenet

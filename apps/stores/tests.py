@@ -1,8 +1,12 @@
 import re
+import shutil
+import tempfile
+from io import StringIO
+from pathlib import Path
 
 from django.core.management import call_command
 from django.db import models
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from apps.catalog.models import Product
 from apps.stores import seo
@@ -1407,3 +1411,99 @@ class HealthcheckHarnessTests(TestCase):
                              stdout=buf, verbosity=0)
         self.assertIn("HEALTHCHECK", buf.getvalue())
         self.assertIn("alert email failed", buf.getvalue())
+
+
+class MinifyCssTests(TestCase):
+    """`minify_css` rewrites STATIC_ROOT in place. The failure modes that matter
+    are not "did it shrink" — they are the ones where it quietly does nothing and
+    reports success, and where it corrupts a stylesheet."""
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+        return p
+
+    def test_it_minifies_and_reports_bytes(self):
+        p = self._write("css/base.css",
+                        "/* a comment */\nbody {\n    color: red;\n}\n\n"
+                        ".x {\n    margin: 0;\n}\n")
+        out = StringIO()
+        with override_settings(STATIC_ROOT=self.root):
+            call_command("minify_css", stdout=out)
+        after = p.read_text()
+        self.assertNotIn("a comment", after)
+        self.assertLess(len(after), 40)
+        self.assertIn("color:red", after)
+        self.assertIn("bytes removed", out.getvalue())
+
+    def test_it_is_idempotent(self):
+        p = self._write("css/base.css", "body {  color: red;  }\n")
+        with override_settings(STATIC_ROOT=self.root):
+            call_command("minify_css", stdout=StringIO())
+            once = p.read_text()
+            call_command("minify_css", stdout=StringIO())
+        self.assertEqual(p.read_text(), once)
+
+    def test_significant_whitespace_and_media_queries_survive(self):
+        """The reason this uses a real minifier instead of a regex."""
+        css = ('.c::after{content:"  keep   me  "}'
+               '@media (min-width:861px){.d{display:block}}'
+               '.e{font-family:"Source Serif 4",serif}')
+        p = self._write("css/t.css", css)
+        with override_settings(STATIC_ROOT=self.root):
+            call_command("minify_css", stdout=StringIO())
+        after = p.read_text()
+        self.assertIn('content:"  keep   me  "', after)
+        self.assertIn("min-width:861px", after)
+        self.assertIn('"Source Serif 4"', after)
+
+    def test_a_file_whose_url_token_would_change_is_refused_not_corrupted(self):
+        """rcssmin strips whitespace INSIDE url(), so `url("/static/x y.png")`
+        becomes a broken path. No stylesheet here contains a url() today (all 41
+        background declarations are gradients), but "today" is not "forever" —
+        and a silently broken path is exactly the failure this codebase keeps
+        paying for. The file must come back untouched."""
+        css = '.a{background:url("/static/x y.png")}\n\n\n.b{color:red}\n'
+        p = self._write("css/t.css", css)
+        err = StringIO()
+        with override_settings(STATIC_ROOT=self.root):
+            call_command("minify_css", stdout=StringIO(), stderr=err)
+        self.assertEqual(p.read_text(), css)          # untouched, not corrupted
+        self.assertIn("REFUSED", err.getvalue())
+
+    def test_a_normal_url_token_is_left_intact_and_still_minifies(self):
+        css = '.a{background:url("/static/ok.png")}\n\n\n.b{color:red}\n'
+        p = self._write("css/t.css", css)
+        with override_settings(STATIC_ROOT=self.root):
+            call_command("minify_css", stdout=StringIO())
+        after = p.read_text()
+        self.assertIn('url("/static/ok.png")', after)
+        self.assertLess(len(after), len(css))
+
+    def test_check_mode_writes_nothing_and_fails_when_work_is_pending(self):
+        p = self._write("css/base.css", "body {  color: red;  }\n")
+        before = p.read_text()
+        with override_settings(STATIC_ROOT=self.root):
+            with self.assertRaises(SystemExit):
+                call_command("minify_css", "--check", stdout=StringIO(), stderr=StringIO())
+        self.assertEqual(p.read_text(), before)
+
+    def test_no_css_found_is_an_error_not_a_pass(self):
+        """A zero is a claim about the search. An empty STATIC_ROOT means
+        collectstatic did not run — reporting 'nothing to do' would let a deploy
+        that never collected anything read as green."""
+        with override_settings(STATIC_ROOT=self.root):
+            with self.assertRaises(SystemExit):
+                call_command("minify_css", stdout=StringIO(), stderr=StringIO())
+
+    def test_missing_static_root_is_an_error(self):
+        with override_settings(STATIC_ROOT=str(self.root / "does-not-exist")):
+            with self.assertRaises(SystemExit):
+                call_command("minify_css", stdout=StringIO(), stderr=StringIO())

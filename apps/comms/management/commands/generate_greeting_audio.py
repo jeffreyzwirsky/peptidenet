@@ -42,14 +42,23 @@ class Command(BaseCommand):
             qs = qs.filter(e164=opts["number"])
         done = offline = 0
         for n in qs:
-            # spoken_text(), NOT the raw DB string. This path never passes
-            # through voice._say(), so it never picked up the pronunciation
-            # normalisation. Regenerating the mp3 to "fix" the 3-2-5 greeting
-            # would have rendered "three hundred twenty five" all over again —
-            # and looked fixed, because the file changed and voice_check stopped
-            # complaining. Third layer of one trap: the code string, the DB row,
-            # and now the renderer that reads the DB row.
-            audio = providers.tts_greeting_audio(voice.spoken_text(n.greeting))
+            # RAW DB text, deliberately NOT voice.spoken_text().
+            #
+            # spoken_text() exists for Amazon Polly, which reads "325" as "three
+            # hundred twenty five". ElevenLabs does not have that problem — it
+            # says "325 BioLabs" correctly on its own. Feeding it the
+            # pre-split "three two five" makes it worse, not better: it staggers
+            # the digits unnaturally and inserts an audible artifact before them.
+            #
+            # Measured, not assumed. Three clips of the same sentence were
+            # rendered through ElevenLabs on prod 2026-08-16 and compared by ear
+            # — "3-2-5", raw "325", and "three two five". Jeff picked raw "325".
+            # An earlier version of this line applied spoken_text() here and
+            # shipped exactly the staggered "M-325" delivery he then reported.
+            #
+            # So the rule is per-engine, and the seam is the engine, not the
+            # text: normalise for <Say> (voice._say), send raw to ElevenLabs.
+            audio = providers.tts_greeting_audio(n.greeting)
             if audio:
                 url = _save_static(audio, f"comms/greeting-{n.pk}.mp3")
                 n.greeting_audio = url

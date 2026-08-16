@@ -622,17 +622,20 @@ class SpeechBrevityTests(TestCase):
         self.assertEqual(guardrails.scan(r)[0], [])
 
 
-class GreetingAudioNormalisationTests(TestCase):
-    """The renderer that turns the DB greeting into an mp3 must apply the same
-    pronunciation normalisation as <Say>.
+class GreetingAudioEngineTests(TestCase):
+    """Which text each TTS engine gets, and why they differ.
 
-    It does not go through voice._say(), so it did not. Regenerating the mp3 to
-    "fix" the 3-2-5 greeting would have produced a new file that still said
-    "three hundred twenty five" — and looked fixed, because voice_check only
-    knows whether an mp3 exists, not what is inside it."""
+    voice.spoken_text() exists for Amazon Polly, which reads "325" as "three
+    hundred twenty five". ElevenLabs does not need it and is made WORSE by it:
+    fed "three two five" it staggers the digits and adds an audible artifact.
+    Established by rendering three clips on prod 2026-08-16 and comparing by
+    ear — the only instrument that can judge this — and Jeff picked raw "325".
 
-    def test_the_text_sent_to_tts_is_normalised(self):
-        from apps.comms.management.commands import generate_greeting_audio as cmd
+    So the seam is the ENGINE, not the text: normalise for <Say>, raw for
+    ElevenLabs. A previous commit had this backwards and shipped the stagger.
+    """
+
+    def test_elevenlabs_gets_the_raw_text(self):
         from apps.comms import providers
         from apps.stores.models import Site
         call_command("seed_sites")
@@ -648,5 +651,11 @@ class GreetingAudioNormalisationTests(TestCase):
                          stdout=StringIO())
         finally:
             providers.tts_greeting_audio = real
-        self.assertIn("three two five BioLabs", seen.get("text", ""))
-        self.assertNotIn("325 BioLabs", seen.get("text", ""))
+        self.assertIn("325 BioLabs", seen.get("text", ""))
+        self.assertNotIn("three two five", seen.get("text", ""))
+
+    def test_the_say_path_still_normalises(self):
+        """The other half of the rule. Polly still needs it."""
+        from apps.comms import voice as voicelib
+        self.assertIn("three two five",
+                      voicelib.spoken_text("Thanks for calling 325 BioLabs."))

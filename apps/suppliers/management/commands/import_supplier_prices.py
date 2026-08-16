@@ -60,13 +60,33 @@ class Command(BaseCommand):
                 continue
             seen.add(cat)
             new_price = Decimal(str(r["pack_price_usd"]))
+            # Reject an unrecognised risk instead of storing it. Django checks
+            # `choices` in forms and full_clean(), NOT on save() and not in the
+            # database — so `r.get("risk", "standard")` used to accept any
+            # string the supplier's sheet happened to contain. A row arrived
+            # marked "controlled", stored without complaint, and then matched
+            # no query anywhere: not the legal-review flag, not the operator
+            # warning. It read as clean because nothing could see it.
+            #
+            # Refusing is the right failure here. A risk label this code does
+            # not understand is precisely the row a human needs to look at, and
+            # defaulting it to "standard" would be the same silence with extra
+            # steps.
+            risk = (r.get("risk") or "standard").strip()
+            if risk not in SupplierPrice.VALID_RISKS:
+                raise CommandError(
+                    f"{cat} ({r.get('name', '?')}) has risk={risk!r}, which is not "
+                    f"a known category. Known: {', '.join(sorted(SupplierPrice.VALID_RISKS))}. "
+                    "Nothing was imported. Add the category to "
+                    "SupplierPrice.RISK_CHOICES — and to REVIEW_RISKS if it needs "
+                    "legal review — or correct the price sheet.")
             defaults = {
                 "name": r.get("name", cat),
                 "size": r.get("size", ""),
                 "pack_size": int(r.get("pack_size", 10)),
                 "pack_price": new_price,
                 "currency": r.get("currency", currency),
-                "risk": r.get("risk", "standard"),
+                "risk": risk,
                 "is_active": True,
             }
             existing = SupplierPrice.objects.filter(cat_no=cat).first()
@@ -104,13 +124,32 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"\n{created} created, {updated} repriced, {unchanged} unchanged."))
 
-        flagged = SupplierPrice.objects.filter(risk__in=("patented", "hormone"),
-                                               is_active=True).count()
-        if flagged:
+        flagged = SupplierPrice.objects.filter(risk__in=SupplierPrice.REVIEW_RISKS,
+                                               is_active=True)
+        if flagged.exists():
+            by_risk = ", ".join(
+                f"{flagged.filter(risk=r).count()} {r}"
+                for r in SupplierPrice.REVIEW_RISKS if flagged.filter(risk=r).exists())
             self.stdout.write(self.style.WARNING(
-                f"{flagged} SKU(s) are flagged as patent-enforced GLP-1s or regulated "
-                f"hormones. They are in the cost list but must not be listed for sale "
-                f"without a deliberate decision — see /manage/pricing/."))
+                f"{flagged.count()} SKU(s) need legal review ({by_risk}). They are in "
+                f"the cost list but must not be listed for sale without a deliberate "
+                f"decision — see /manage/pricing/."))
+            # Say plainly whether any of them reached a storefront. The old
+            # warning gave a count and left the reader to guess, which is how
+            # "31 flagged SKUs" got read as "31 products are live" — it was
+            # read that way in this session, by me.
+            from apps.catalog.models import Product
+            live = Product.objects.filter(
+                supplier_cat_no__in=flagged.values_list("cat_no", flat=True),
+                is_active=True)
+            if live.exists():
+                self.stdout.write(self.style.ERROR(
+                    f"  {live.count()} of them ARE listed for sale right now: "
+                    + ", ".join(live.values_list("slug", flat=True)[:20])))
+            else:
+                self.stdout.write(
+                    "  None of them are listed for sale — no active product "
+                    "carries one of these catalogue codes.")
         if o["dry_run"]:
             raise CommandError("--dry-run: rolled back, nothing written.")
 

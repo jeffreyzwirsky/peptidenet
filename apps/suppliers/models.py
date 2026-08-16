@@ -308,8 +308,25 @@ class SupplierPrice(models.Model):
         ("standard", "Standard research compound"),
         ("patented", "Patent-enforced GLP-1 — legal review required"),
         ("hormone", "Regulated hormone — legal review required"),
+        ("controlled", "Controlled substance — legal review required"),
         ("consumable", "Consumable or hardware"),
     ]
+
+    # The risks that must not be listed for sale without a deliberate decision.
+    # Defined ONCE, here, because it used to be written out twice — as a tuple
+    # in needs_legal_review and again as a filter in import_supplier_prices —
+    # and two copies are only correct until someone edits one of them.
+    #
+    # On 2026-08-16 a row was found carrying risk="controlled": a value in
+    # NEITHER list, and not in RISK_CHOICES either. Django does not enforce
+    # `choices` at the database layer, so it stored cleanly and then became
+    # invisible — excluded from the flag, from the count, and from the warning
+    # the operator reads. The row was Dermorphin, a mu-opioid agonist. It was
+    # never listed for sale so nothing reached a storefront, but a compound in
+    # that class being the one the classifier could not see is the lesson.
+    REVIEW_RISKS = ("patented", "hormone", "controlled")
+
+    VALID_RISKS = frozenset(dict(RISK_CHOICES))
 
     cat_no = models.CharField(max_length=20, unique=True,
                               help_text="The supplier's own catalogue code, e.g. BC10.")
@@ -341,7 +358,7 @@ class SupplierPrice(models.Model):
 
     @property
     def needs_legal_review(self):
-        return self.risk in ("patented", "hormone")
+        return self.risk in self.REVIEW_RISKS
 
     def __str__(self):
         return f"{self.cat_no} {self.name} {self.size} — {self.currency} {self.pack_price}"

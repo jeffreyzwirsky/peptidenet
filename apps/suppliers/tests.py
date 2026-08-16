@@ -203,3 +203,89 @@ class PricingPageTests(TestCase):
             for secret in ("BC10", "BBKG80", "supplier_cat_no", "unit_cost",
                            "target_margin", "Warehouse"):
                 self.assertNotIn(secret, html, f"{secret} leaked on {path}")
+
+
+class RiskClassifierTests(TestCase):
+    """A risk label the code does not understand must never read as clean.
+
+    The supplier sheet carried a row marked risk="controlled" — Dermorphin, a
+    mu-opioid agonist. "controlled" was not in RISK_CHOICES, not in the
+    needs_legal_review tuple, and not in the import command's warning filter.
+    Django enforces `choices` in forms and full_clean(), not on save() and not
+    in the database, so it stored without complaint and then matched nothing.
+    It was excluded from the flag, from the count, and from the line the
+    operator reads after every import.
+
+    Nothing reached a storefront — the compound was never listed. What it cost
+    was trust in the number: "31 SKUs flagged" was read in this session as "31
+    products are live", by me, and the warning said nothing either way.
+    """
+
+    def _sheet(self, tmp, rows):
+        import json
+        from pathlib import Path
+        p = Path(tmp) / "prices.json"
+        p.write_text(json.dumps({"currency": "USD", "prices": rows}), encoding="utf-8")
+        return str(p)
+
+    def _tmp(self):
+        import shutil
+        import tempfile
+        d = tempfile.mkdtemp(prefix="prices-")
+        self.addCleanup(shutil.rmtree, d, True)
+        return d
+
+    def test_an_unknown_risk_is_refused_not_stored(self):
+        """The bug, directly: an unrecognised label used to be accepted."""
+        from django.core.management.base import CommandError
+        path = self._sheet(self._tmp(), [
+            {"cat": "DR5", "name": "Dermorphin", "size": "5mg",
+             "pack_size": 10, "pack_price_usd": 52, "risk": "controlled_typo"},
+        ])
+        with self.assertRaises(CommandError) as ctx:
+            call_command("import_supplier_prices", file=path, verbosity=0)
+        self.assertIn("controlled_typo", str(ctx.exception))
+        self.assertEqual(SupplierPrice.objects.filter(cat_no="DR5").count(), 0,
+                         "the row was written despite the refusal")
+
+    def test_controlled_is_a_real_category_that_needs_review(self):
+        s = SupplierPrice(cat_no="DR5", name="Dermorphin", size="5mg",
+                          pack_price=Decimal("52"), risk="controlled")
+        self.assertTrue(s.needs_legal_review)
+        self.assertIn("controlled", dict(SupplierPrice.RISK_CHOICES))
+
+    def test_every_review_risk_is_a_declared_choice(self):
+        """Stops REVIEW_RISKS drifting to name a category that cannot be set."""
+        for r in SupplierPrice.REVIEW_RISKS:
+            self.assertIn(r, SupplierPrice.VALID_RISKS)
+
+    def test_needs_legal_review_and_the_import_filter_cannot_disagree(self):
+        """They were two hand-written tuples. This pins that they are one list."""
+        for risk in SupplierPrice.VALID_RISKS:
+            s = SupplierPrice(cat_no="X", name="n", size="1mg",
+                              pack_price=Decimal("1"), risk=risk)
+            self.assertEqual(s.needs_legal_review,
+                             risk in SupplierPrice.REVIEW_RISKS)
+        self.assertTrue(SupplierPrice.REVIEW_RISKS,
+                        "an empty REVIEW_RISKS would flag nothing and still pass")
+
+    def test_the_warning_says_whether_a_flagged_sku_is_actually_listed(self):
+        """A count alone got misread as a live-exposure figure. It must say."""
+        path = self._sheet(self._tmp(), [
+            {"cat": "TR10", "name": "Tirzepatide", "size": "10mg",
+             "pack_size": 10, "pack_price_usd": 100, "risk": "patented"},
+        ])
+        out = StringIO()
+        call_command("import_supplier_prices", file=path, stdout=out)
+        self.assertIn("None of them are listed for sale", out.getvalue())
+
+        # Now list one, and the same command must say so loudly.
+        from apps.catalog.models import Category
+        cat = Category.objects.create(name="Metabolic", slug="metabolic")
+        Product.objects.create(name="Tirzepatide", slug="tirzepatide", category=cat,
+                               price=Decimal("100"), supplier_cat_no="TR10",
+                               purity="")
+        out = StringIO()
+        call_command("import_supplier_prices", file=path, stdout=out)
+        self.assertIn("ARE listed for sale right now", out.getvalue())
+        self.assertIn("tirzepatide", out.getvalue())

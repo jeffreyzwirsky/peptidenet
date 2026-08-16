@@ -1,3 +1,5 @@
+import logging
+
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -9,6 +11,8 @@ from . import voice as voicelib
 from .models import Call, PhoneNumber, Voicemail
 
 XML = "application/xml"
+
+log = logging.getLogger("comms")
 
 
 def log_security(request, kind, detail):
@@ -26,6 +30,17 @@ def _lookup_number(request):
             or request.GET.get("number") or "")
     e164 = phone.normalize(cand)
     return PhoneNumber.objects.filter(e164=e164, is_active=True).first()
+
+
+def _call_of(request):
+    """The Call row this callback belongs to, or None.
+
+    CallSid is in the POST body on Twilio's own callbacks and in the query
+    string on the ones whose URL we built ourselves (?call_sid=), because
+    recordingStatusCallback does not carry it in the body.
+    """
+    sid = request.POST.get("CallSid") or request.GET.get("call_sid") or ""
+    return Call.objects.filter(twilio_sid=sid).first() if sid else None
 
 
 def _guard(request):
@@ -118,11 +133,65 @@ def voice(request):
     return HttpResponse(voicelib.voicemail_twiml(number, request, category), content_type=XML)
 
 
+def _turn_of(request):
+    """Which turn of the conversation this callback belongs to (1-based).
+
+    Carried in the <Gather> action URL because Twilio holds no session state.
+    Clamped rather than trusted: the query string is caller-influencable in
+    principle, and an absurd value here would otherwise decide how many LLM
+    round-trips a single call can buy.
+    """
+    try:
+        return max(1, min(int(request.GET.get("turn") or 1), 20))
+    except (TypeError, ValueError):
+        return 1
+
+
+def _log_turn(call, speech, reply):
+    """Append one exchange to the Call's transcript, as it happens.
+
+    This is worth a write per turn for two reasons.
+
+    1. Memory. The next turn is grounded in what was already said, so "how much
+       is that one?" resolves instead of being answered blind.
+    2. Corpus. Phase 2 learns from transcripts — and until now the only
+       transcript a call could produce was of the voicemail left AFTER the agent
+       stopped talking. The conversation itself, which is the thing worth
+       learning from, was never written down anywhere.
+
+    Best-effort by design: a database problem must never break a live call.
+    """
+    if not call:
+        return
+    try:
+        prior = call.transcript or ""
+        merged = prior + f"Caller: {speech}\nAgent: {reply}\n"
+        if len(merged) > 8000:                    # keep whole lines only
+            merged = merged[-8000:].split("\n", 1)[-1]
+        call.transcript = merged
+        fields = ["transcript"]
+        if not call.transcript_source:
+            call.transcript_source = "conversation"
+            fields.append("transcript_source")
+        call.save(update_fields=fields)
+    except Exception:
+        log.exception("comms: could not log conversation turn for call %s",
+                      getattr(call, "pk", "?"))
+
+
 @csrf_exempt
 @require_POST
 def gather(request):
-    """AI intake speech callback: answer the caller's question (guarded), build a
-    subject line, then record the full voicemail. Empty speech -> voicemail."""
+    """AI intake speech callback: answer the caller's question (guarded), then
+    hand back a TwiML document that asks for the NEXT question. A keypress or
+    silence -> record the message.
+
+    Before 2026-08-16 this always ended the conversation: one answer, then the
+    beep — "it only lets you ask one question", as Jeff put it after the first
+    working call. The loop itself lives in voice.agent_reply_twiml(); what
+    changes here is that the turn counter and the subject line travel with it,
+    and each exchange is written to the Call row as it happens.
+    """
     if not _guard(request):
         return HttpResponseForbidden("bad signature")
     number = _lookup_number(request)
@@ -130,20 +199,34 @@ def gather(request):
         return HttpResponse(
             '<?xml version="1.0" encoding="UTF-8"?><Response><Reject/></Response>',
             content_type=XML)
-    # Caller pressed a key (0 = "just let me leave a message") -> skip the agent.
-    if request.POST.get("Digits"):
-        return HttpResponse(voicelib.voicemail_twiml(number, request), content_type=XML)
+    turn = _turn_of(request)
+    carried_subject = (request.GET.get("subject") or "")[:180]
     speech = (request.POST.get("SpeechResult") or "").strip()
-    if not speech:
+    # Caller pressed a key (0 = "just let me leave a message"), or said nothing.
+    # Mid-conversation that must NOT replay the greeting, hence handoff_twiml.
+    if request.POST.get("Digits") or not speech:
+        if turn > 1:
+            return HttpResponse(
+                voicelib.handoff_twiml(number, request, subject=carried_subject),
+                content_type=XML)
         return HttpResponse(voicelib.voicemail_twiml(number, request), content_type=XML)
+    call = _call_of(request)
     from . import agent
     try:
-        reply = agent.answer(speech, number.site)
-        subject = agent.subject_line(speech, number.site)
+        reply = agent.answer(speech, number.site,
+                             history=(call.transcript if call else ""))
+        # The subject line is the caller's REASON for calling, which is their
+        # first question — computed once and carried forward, not recomputed
+        # every turn. That also keeps a second LLM round-trip out of the middle
+        # of a live call, where latency is a caller listening to silence.
+        subject = carried_subject or agent.subject_line(speech, number.site)
     except Exception:  # never let the agent break the call
-        reply, subject = agent.SAFE_FALLBACK, " ".join(speech.split()[:8])[:80]
+        reply = agent.SAFE_FALLBACK
+        subject = carried_subject or " ".join(speech.split()[:8])[:80]
+    _log_turn(call, speech, reply)
     return HttpResponse(
-        voicelib.agent_reply_twiml(number, request, reply, subject), content_type=XML)
+        voicelib.agent_reply_twiml(number, request, reply, subject, turn=turn),
+        content_type=XML)
 
 
 def _close_call(request, duration=0):
@@ -248,8 +331,15 @@ def recording(request):
     if call and rec_url and not call.recording_url:
         call.recording_url = rec_url
         call.duration_sec = call.duration_sec or duration
-        if text and not call.transcript:
-            call.transcript, call.transcript_source = text, source
+        if text:
+            # APPEND, not "only if empty". From 2026-08-16 the Call row carries
+            # the conversation itself (one block per turn), so `not
+            # call.transcript` is false on every AI call — the spoken message
+            # would have been dropped from the one record that ties it to the
+            # conversation that produced it.
+            call.transcript = (
+                f"{call.transcript}\nVoicemail: {text}" if call.transcript else text)
+            call.transcript_source = call.transcript_source or source
         call.contact = call.contact or contact
         call.save(update_fields=["recording_url", "duration_sec", "transcript",
                                  "transcript_source", "contact"])

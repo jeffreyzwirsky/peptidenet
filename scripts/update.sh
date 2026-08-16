@@ -60,6 +60,12 @@ echo "==> Post-deploy verification"
 "$APP/venv/bin/python" manage.py compliance_check --quiet || \
     echo "!! compliance_check FAILED — see above. A claim may be live."
 "$APP/venv/bin/python" manage.py rescan_posts | tail -2 || true
+# What a CALLER actually hears — the one layer a code diff cannot show. A
+# pre-generated greeting mp3 is played instead of <Say> and silently bypasses
+# every text fix in voice.py, so "I changed the greeting" can be true and change
+# nothing on the line.
+"$APP/venv/bin/python" manage.py voice_check || \
+    echo "!! voice_check FAILED — callers may not be hearing what the code says."
 "$APP/venv/bin/python" manage.py healthcheck --quick --no-email | tail -15 || \
     echo "!! healthcheck FAILED — see above."
 

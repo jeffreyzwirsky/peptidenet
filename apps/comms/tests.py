@@ -1,6 +1,7 @@
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
+from apps.blog import guardrails
 from apps.stores.models import Site
 
 from . import phone, sms
@@ -347,3 +348,273 @@ class OutboundCallingTests(TestCase):
         self.assertIn('callerId="+13252465227"', xml)
         self.assertIn("<Dial", xml)
         self.assertIn("+12045551234", xml)
+
+
+@override_settings(TWILIO_AUTH_TOKEN="", DEBUG=True, COMMS_WEBHOOK_INSECURE=True)
+class MultiTurnConversationTests(TestCase):
+    """The call is a conversation, not one question and a beep.
+
+    Jeff, after the first working acceptance call (2026-08-16): "it only lets
+    you ask one question and then goes and explains it and then goes straight to
+    voicemail." These tests pin the loop, its ceiling, its escapes, and the
+    guardrail scan that has to run on every turn of it — the last being the one
+    that matters, because a multi-turn agent validated only on turn 1 is the
+    blog's stale-verdict bug wearing a different hat.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog"); call_command("seed_sites")
+        cls.site = Site.objects.get(domain="smashfatbiolabs.ca")
+        cls.num = PhoneNumber.objects.create(
+            e164="+13252465227", label="test", site=cls.site,
+            voice_enabled=True, ai_intake=True, greeting="Leave a message.")
+
+    def _ask(self, text, turn=None, sid="CA-MT", **extra):
+        url = "/webhooks/twilio/gather/?number=%2B13252465227"
+        if turn is not None:
+            url += f"&turn={turn}"
+        data = {"From": "+15875551212", "CallSid": sid}
+        if text is not None:
+            data["SpeechResult"] = text
+        data.update(extra)
+        with self.settings(AI_LIVE=False):
+            return self.client.post(url, data, HTTP_HOST="smashfatbiolabs.ca")
+
+    def test_answer_is_followed_by_another_gather(self):
+        """The whole point: after answering, ask for the next question."""
+        xml = self._ask("do you have BPC-157 in stock").content.decode()
+        self.assertIn("<Gather", xml)
+        self.assertIn("turn=2", xml)
+        self.assertIn("<Record", xml)   # still falls through if they go quiet
+
+    def test_follow_up_gather_keeps_the_recogniser_settings(self):
+        """A later turn that quietly reverted to Twilio's defaults would bring
+        back 'the AI isn't hearing me' from turn 2 on, with turn 1 still fine
+        and hiding it."""
+        xml = self._ask("what about retatrutide", turn=2).content.decode()
+        gathers = [g for g in xml.split("<Gather")[1:]]
+        self.assertTrue(gathers)
+        for g in gathers:
+            self.assertIn('speechTimeout="3"', g)
+            self.assertNotIn('speechTimeout="auto"', g)
+            self.assertIn('speechModel="googlev2_telephony"', g)
+            self.assertIn('numDigits="1"', g)   # the press-zero escape survives
+
+    def test_turn_ceiling_stops_the_loop(self):
+        xml = self._ask("and how about shipping", turn=99).content.decode()
+        self.assertNotIn("<Gather", xml)
+        self.assertIn("<Record", xml)
+        self.assertIn("<Hangup", xml)
+
+    def test_press_zero_mid_conversation_does_not_replay_the_greeting(self):
+        """Assert against the DATABASE greeting, which is what voicemail_twiml
+        would replay — an earlier version of this test looked for the hardcoded
+        code greeting instead and a mutation that reintroduced the replay walked
+        straight past it."""
+        xml = self._ask(None, turn=3, Digits="0").content.decode()
+        self.assertIn("<Record", xml)
+        self.assertNotIn(self.num.greeting, xml)
+        self.assertNotIn("<Gather", xml)
+
+    def test_silence_mid_conversation_does_not_replay_the_greeting_either(self):
+        xml = self._ask(None, turn=2).content.decode()
+        self.assertIn("<Record", xml)
+        self.assertNotIn(self.num.greeting, xml)
+
+    def test_silence_on_turn_one_still_takes_a_message(self):
+        xml = self._ask(None, turn=1).content.decode()
+        self.assertIn("<Record", xml)
+
+    def test_every_turn_is_scanned_before_it_is_spoken(self):
+        """Not 'the answer was scanned when generated' — scanned at speak time,
+        which is the only moment that is true for text of any age."""
+        from apps.comms import voice as voicelib
+
+        class _Req:
+            META = {"HTTP_HOST": "smashfatbiolabs.ca"}
+            POST = {}
+            def build_absolute_uri(self, loc):
+                return "https://smashfatbiolabs.ca" + loc
+
+        banned = "Every vial is 99% purity with a Certificate of Analysis."
+        self.assertTrue(guardrails.scan(banned)[0], "test premise: this must trip")
+        xml = voicelib.agent_reply_twiml(self.num, _Req(), banned, turn=1)
+        self.assertNotIn("Certificate of Analysis", xml)
+        self.assertIn("qualified professional", xml)   # the safe fallback
+
+    def test_fixed_phrases_are_speakable(self):
+        """speakable() returns SAFE_FALLBACK for anything that trips the scan.
+        If the fixed strings tripped it, the agent would answer every question
+        with the fallback — and if SAFE_FALLBACK itself tripped, there would be
+        nothing clean left to say."""
+        from apps.comms import agent
+        from apps.comms import voice as voicelib
+        for text in (agent.SAFE_FALLBACK, agent.MEDICAL_DEFLECT,
+                     agent.INFO_DEFLECT, agent.DISCLAIMER,
+                     voicelib.INTAKE_GREETING):
+            self.assertEqual(guardrails.scan(text)[0], [], f"trips the scan: {text[:60]}")
+            self.assertEqual(agent.speakable(text), " ".join(text.split()))
+
+    def test_conversation_is_written_to_the_call(self):
+        """The corpus Phase 2 is supposed to learn from. Before this, the only
+        transcript a call could produce was of the voicemail left after the
+        agent stopped talking."""
+        call = Call.objects.create(direction="in", twilio_sid="CA-LOG",
+                                   from_number="+15875551212", to_number=self.num.e164)
+        self._ask("do you have BPC-157", sid="CA-LOG")
+        self._ask("and what does it cost", sid="CA-LOG", turn=2)
+        call.refresh_from_db()
+        self.assertIn("Caller: do you have BPC-157", call.transcript)
+        self.assertIn("Caller: and what does it cost", call.transcript)
+        self.assertEqual(call.transcript.count("Agent: "), 2)
+
+    def test_later_turns_see_the_earlier_ones(self):
+        from apps.comms import agent
+        seen = {}
+        real = agent.llm.complete
+
+        def spy(system, user, **kw):
+            seen["user"] = user
+            return real(system, user, **kw)
+
+        agent.llm.complete = spy
+        try:
+            with self.settings(AI_LIVE=False):
+                agent.answer("how much is that one", self.site,
+                             history="Caller: do you have BPC-157\nAgent: Yes, $64 a vial.\n")
+        finally:
+            agent.llm.complete = real
+        self.assertIn("BPC-157", seen["user"])
+        self.assertIn("how much is that one", seen["user"])
+
+    def test_the_webhook_actually_hands_the_history_to_the_agent(self):
+        """Separate from the test above on purpose. That one proves answer()
+        USES history; this one proves gather() PASSES it. A mutation that
+        replaced the argument with "" survived the first test — memory would
+        have been silently dead on every real call while the suite stayed green.
+        """
+        from apps.comms import agent
+        call = Call.objects.create(direction="in", twilio_sid="CA-HIST",
+                                   from_number="+15875551212", to_number=self.num.e164,
+                                   transcript="Caller: do you have BPC-157\n"
+                                              "Agent: Yes, $64 a vial.\n")
+        seen = {}
+        real = agent.answer
+
+        def spy(speech, site, history=""):
+            seen["history"] = history
+            return real(speech, site, history=history)
+
+        agent.answer = spy
+        try:
+            self._ask("how much is that one", sid="CA-HIST", turn=2)
+        finally:
+            agent.answer = real
+        self.assertIn("BPC-157", seen.get("history", ""))
+
+    def test_the_subject_line_is_computed_once_and_carried(self):
+        """Recomputing it every turn would put a second LLM round-trip in the
+        middle of a live call for no gain."""
+        xml = self._ask("do you have BPC-157", turn=1).content.decode()
+        self.assertIn("subject=", xml)
+        from apps.comms import agent
+        real = agent.subject_line
+        agent.subject_line = _boom            # blows up if called again
+        try:
+            r = self.client.post(
+                "/webhooks/twilio/gather/?number=%2B13252465227&turn=2&subject=Pricing+question",
+                {"SpeechResult": "what about shipping", "From": "+15875551212"},
+                HTTP_HOST="smashfatbiolabs.ca")
+        finally:
+            agent.subject_line = real
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("Pricing+question", r.content.decode())
+
+
+def _boom(*a, **kw):
+    raise AssertionError("subject_line must not be recomputed on a later turn")
+
+
+@override_settings(TWILIO_AUTH_TOKEN="", DEBUG=True, COMMS_WEBHOOK_INSECURE=True)
+class SpokenTextTests(TestCase):
+    """Polly reads '325 BioLabs' as 'three hundred twenty five BioLabs'."""
+
+    def test_brand_digits_are_spelled_out(self):
+        from apps.comms import voice as voicelib
+        self.assertEqual(voicelib.spoken_text("Thanks for calling 325 BioLabs."),
+                         "Thanks for calling three two five BioLabs.")
+        self.assertEqual(voicelib.spoken_text("325 Biolabs"), "three two five Biolabs")
+        self.assertEqual(voicelib.spoken_text("325-BioLabs"), "three two five-BioLabs")
+
+    def test_other_numbers_are_left_alone(self):
+        from apps.comms import voice as voicelib
+        self.assertEqual(voicelib.spoken_text("That is $325 for 325 vials."),
+                         "That is $325 for 325 vials.")
+
+    def test_normalisation_reaches_the_database_greeting(self):
+        """A code fix is not a data fix. The greeting that actually plays comes
+        from a DB row, so the fix has to sit where BOTH paths pass through."""
+        from apps.comms import voice as voicelib
+        num = PhoneNumber.objects.create(
+            e164="+13252465227", greeting="You have reached 325 BioLabs.",
+            voice_enabled=True)
+
+        class _Req:
+            POST = {}
+            def build_absolute_uri(self, loc):
+                return "https://smashfatbiolabs.ca" + loc
+
+        xml = voicelib.voicemail_twiml(num, _Req())
+        self.assertIn("three two five BioLabs", xml)
+        self.assertNotIn("325 BioLabs", xml)
+
+    def test_pregenerated_audio_is_the_one_path_code_cannot_fix(self):
+        """Documents the trap rather than pretending it is closed: when an mp3
+        exists it is played and every text fix above is bypassed."""
+        from apps.comms import voice as voicelib
+        num = PhoneNumber.objects.create(
+            e164="+13252465228", greeting="You have reached 325 BioLabs.",
+            greeting_audio="/static/comms/greeting-1.mp3", voice_enabled=True)
+
+        class _Req:
+            POST = {}
+            def build_absolute_uri(self, loc):
+                return "https://smashfatbiolabs.ca" + loc
+
+        xml = voicelib.voicemail_twiml(num, _Req())
+        self.assertIn("<Play>", xml)
+        self.assertNotIn("three two five", xml)   # the mp3 says whatever it says
+
+
+@override_settings(TWILIO_AUTH_TOKEN="", DEBUG=True, COMMS_WEBHOOK_INSECURE=True)
+class SpeechBrevityTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog"); call_command("seed_sites")
+
+    def test_reply_is_capped_at_two_sentences(self):
+        from apps.comms import agent
+        long = ("One. Two. Three. Four. Five.")
+        self.assertEqual(agent.shorten_for_speech(long), "One. Two.")
+
+    def test_a_single_runaway_sentence_is_cut_on_a_word_boundary(self):
+        from apps.comms import agent
+        out = agent.shorten_for_speech("word " * 200)
+        self.assertLessEqual(len(out), agent.SPEECH_HARD_CEILING + 1)
+        self.assertTrue(out.endswith("."))
+        self.assertNotIn("  ", out)
+
+    def test_short_answers_are_untouched(self):
+        from apps.comms import agent
+        s = "BPC-157 is $64 a vial. For research use only."
+        self.assertEqual(agent.shorten_for_speech(s), s)
+
+    def test_a_real_answer_stays_short_and_keeps_the_disclaimer(self):
+        from apps.comms import agent
+        site = Site.objects.get(domain="smashfatbiolabs.ca")
+        with self.settings(AI_LIVE=False):
+            r = agent.answer("how much is BPC-157", site)
+        self.assertIn("research", r.lower())
+        self.assertLessEqual(len(r), agent.SPEECH_HARD_CEILING + len(agent.DISCLAIMER) + 4)
+        self.assertEqual(guardrails.scan(r)[0], [])

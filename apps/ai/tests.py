@@ -1,5 +1,6 @@
 import json
 
+from django.core.cache import cache
 from django.core.management import call_command
 from django.test import TestCase
 
@@ -13,6 +14,20 @@ class AiTests(TestCase):
     def setUpTestData(cls):
         call_command("seed_catalog")
         call_command("seed_sites")
+
+    def setUp(self):
+        # The /ai/ask/ rate limiter is CACHE-backed, and the cache is not part
+        # of the per-test transaction that gets rolled back — so state leaks
+        # forwards between tests. apps.security's
+        # test_rate_limit_returns_429_and_logs deliberately fires 20 requests at
+        # this exact endpoint to exhaust the bucket, and leaves it exhausted.
+        # Every test in this class then gets 429 instead of an answer.
+        #
+        # It never showed because Django runs apps alphabetically and "ai" sorts
+        # before "security". `manage.py test --shuffle` fails 5 tests here at
+        # 24cde4f, before any of tonight's changes. A suite that only passes in
+        # one order is not measuring what it appears to be measuring.
+        cache.clear()
 
     def test_ask_returns_grounded_answer_and_ledgers(self):
         r = self.client.post("/ai/ask/", json.dumps({"question": "Do you ship to Alberta?"}),

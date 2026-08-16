@@ -14,9 +14,12 @@ Outputs (per product slug, into static/products/):
   <slug>-label.png  1000x1000 macro crop of the label
   <slug>.webp / <slug>-label.webp   optimised siblings for <picture>
 
-Label content is compliance-locked: name, net fill, purity, lot placeholder and
-"RESEARCH USE ONLY - NOT FOR HUMAN CONSUMPTION". No dosing, no routes, no claims,
-no approval marks, no medical imagery. Vials only.
+Label content is compliance-locked and carries VERIFIABLE FACTS ONLY: name, net
+fill, appearance, storage, lot placeholder and "RESEARCH USE ONLY - NOT FOR HUMAN
+CONSUMPTION". No dosing, no routes, no claims, no approval marks, no medical
+imagery, and NO PURITY OR TESTING FIGURE - this catalogue holds no certificate of
+analysis and no purity result, so a "% PURITY HPLC" spec (which these renders
+carried until 2026-08-16) is a claim the business cannot support. Vials only.
 
 Fonts are self-hosted woff2 in static/products/_fonts/ and inlined as data URIs,
 so the render is byte-identical on any box with no font installation.
@@ -127,6 +130,26 @@ def fill_height(sizes) -> int:
     return int(round(min(max(34 + 20 * math.log10(max(float(m.group(1)), 1)), 46), 96)))
 
 
+def dedupe_by_slug(products):
+    """Keep the FIRST entry per slug — the same rule seed_catalog applies.
+
+    catalogue.json has 28 duplicated slugs (retatrutide appears 8 times at
+    10/5/15/20/30/40/50/60 mg; BPC-157 twice at 10 and 5 mg). Every duplicate
+    renders to the same <slug>.png, so without this the LAST entry silently
+    overwrote the rest while the database kept the FIRST — the product page said
+    "10mg" and the image printed on that page said "5 mg". Found 2026-08-16.
+    """
+    from django.utils.text import slugify as _slugify
+    seen, unique = set(), []
+    for p in products:
+        s = _slugify(p["n"])
+        if s in seen:
+            continue
+        seen.add(s)
+        unique.append(p)
+    return unique
+
+
 # --------------------------------------------------------------------------- #
 # Scene markup
 # --------------------------------------------------------------------------- #
@@ -155,9 +178,26 @@ VIAL = Template("""
         <div class="cmpd" style="font-size:${namesize}px;letter-spacing:${nametrack}em;
              white-space:$namewrap">$namehtml</div>
         <div class="rule"></div>
+        <!-- NO purity / HPLC spec, deliberately. This label used to carry
+             "≥99% PURITY HPLC" — a testing claim this business explicitly
+             cannot make. The catalogue holds no certificate of analysis, no
+             purity result and no identity confirmation for any compound, and
+             apps/blog/guardrails.py hard-blocks that exact string:
+             scan("≥99% PURITY HPLC") returns ('unsupported testing claim',
+             'HPLC') and ('unsupported purity figure', '≥99%'). It is the same
+             claim class that got a blog post pulled on 2026-08-15.
+
+             It survived here because compliance_check scans TEXT and this claim
+             was baked into a PNG, where no text scanner could reach it.
+             Product.purity has been blank "deliberately so" and no catalogue
+             entry has ever carried a "pur" key — these renders were stale
+             artifacts of a superseded version, still live on 36 images across 8
+             storefronts when found on 2026-08-16.
+
+             Only verifiable facts belong on this label: net fill, appearance,
+             storage, and the research-use-only notice. -->
         <div class="specs mid">
           <div class="spec"><b>$size</b><em>NET FILL</em></div>
-          <div class="spec"><b>$purity</b><em>PURITY HPLC</em></div>
         </div>
         <div class="hair"></div>
         <div class="lot"><span>LOT&nbsp;&nbsp;——</span><span>$appearance</span></div>
@@ -466,7 +506,7 @@ class Command(BaseCommand):
             category=p["cat"].upper(), namehtml=name_html(p["n"]),
             namesize=nsize, nametrack=ntrack,
             namewrap=nwrap,
-            size=size, purity=p.get("pur", ""), appearance=appearance_for(slug),
+            size=size, appearance=appearance_for(slug),
             storage=storage_for(slug),
         )
         if mode == "label":
@@ -526,6 +566,14 @@ class Command(BaseCommand):
         out_dir.mkdir(parents=True, exist_ok=True)
 
         products = json.loads(Path(opts["path"]).read_text(encoding="utf-8"))["products"]
+
+        before = len(products)
+        products = dedupe_by_slug(products)
+        if len(products) != before:
+            self.stdout.write(self.style.WARNING(
+                f"  {before - len(products)} duplicate slug(s) skipped — first "
+                "entry wins, matching seed_catalog."))
+
         if opts["only"]:
             products = [p for p in products if slugify(p["n"]) == opts["only"]]
             if not products:

@@ -214,6 +214,38 @@ class Command(BaseCommand):
                 "name", "slug", "description", "research_area", "purity"):
             for field in ("name", "description", "research_area", "purity"):
                 self._scan(f"product/{p.slug}", field, getattr(p, field, "") or "")
+        self._check_product_label()
+
+    def _check_product_label(self):
+        """Scan the text printed onto the product vial LABEL.
+
+        This surface existed and was never checked, and the omission cost a live
+        claim: every product image carried "≥99% PURITY HPLC" until 2026-08-16 —
+        two hard guardrail hits ('unsupported testing claim', 'unsupported
+        purity figure') — on a catalogue that holds no COA and no purity result.
+
+        It survived because every other surface here is database text or JSON,
+        and this claim was baked into a PNG. compliance_check reported 1027
+        surfaces and 0 failures while it sat on 36 images across 8 storefronts.
+        A scanner that cannot see a surface will always call it clean.
+
+        The PNG still cannot be read, so this scans the SOURCE the renderer
+        prints from — the label markup — which is what a person edits when they
+        add a claim to it.
+        """
+        import re as _re
+        try:
+            from apps.catalog.management.commands.generate_product_images import (
+                VIAL,
+            )
+        except Exception as e:  # pragma: no cover - import guard
+            self._scan("product/label", "template",
+                       f"UNCHECKED: cannot import the label template ({e})")
+            return
+        markup = _re.sub(r"<!--.*?-->", " ", VIAL.template, flags=_re.S)
+        text = _re.sub(r"<[^>]+>", " ", markup)
+        text = _re.sub(r"\$\{?\w+\}?", " ", text)
+        self._scan("product/label", "vial label text", " ".join(text.split()))
 
     def _check_blog(self):
         from apps.blog.models import BlogPost

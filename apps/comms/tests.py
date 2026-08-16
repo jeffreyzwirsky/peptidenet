@@ -1,3 +1,5 @@
+from io import StringIO
+
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
@@ -618,3 +620,33 @@ class SpeechBrevityTests(TestCase):
         self.assertIn("research", r.lower())
         self.assertLessEqual(len(r), agent.SPEECH_HARD_CEILING + len(agent.DISCLAIMER) + 4)
         self.assertEqual(guardrails.scan(r)[0], [])
+
+
+class GreetingAudioNormalisationTests(TestCase):
+    """The renderer that turns the DB greeting into an mp3 must apply the same
+    pronunciation normalisation as <Say>.
+
+    It does not go through voice._say(), so it did not. Regenerating the mp3 to
+    "fix" the 3-2-5 greeting would have produced a new file that still said
+    "three hundred twenty five" — and looked fixed, because voice_check only
+    knows whether an mp3 exists, not what is inside it."""
+
+    def test_the_text_sent_to_tts_is_normalised(self):
+        from apps.comms.management.commands import generate_greeting_audio as cmd
+        from apps.comms import providers
+        from apps.stores.models import Site
+        call_command("seed_sites")
+        PhoneNumber.objects.create(
+            e164="+13252465227", voice_enabled=True, is_active=True,
+            site=Site.objects.first(),
+            greeting="Thanks for calling 325 BioLabs. Leave a message.")
+        seen = {}
+        real = providers.tts_greeting_audio
+        providers.tts_greeting_audio = lambda t: seen.setdefault("text", t) and None
+        try:
+            call_command("generate_greeting_audio", "--number", "+13252465227",
+                         stdout=StringIO())
+        finally:
+            providers.tts_greeting_audio = real
+        self.assertIn("three two five BioLabs", seen.get("text", ""))
+        self.assertNotIn("325 BioLabs", seen.get("text", ""))

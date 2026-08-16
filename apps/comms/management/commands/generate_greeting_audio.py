@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from apps.comms import providers
+from apps.comms import voice
 from apps.comms.models import PhoneNumber
 
 
@@ -41,7 +42,14 @@ class Command(BaseCommand):
             qs = qs.filter(e164=opts["number"])
         done = offline = 0
         for n in qs:
-            audio = providers.tts_greeting_audio(n.greeting)
+            # spoken_text(), NOT the raw DB string. This path never passes
+            # through voice._say(), so it never picked up the pronunciation
+            # normalisation. Regenerating the mp3 to "fix" the 3-2-5 greeting
+            # would have rendered "three hundred twenty five" all over again —
+            # and looked fixed, because the file changed and voice_check stopped
+            # complaining. Third layer of one trap: the code string, the DB row,
+            # and now the renderer that reads the DB row.
+            audio = providers.tts_greeting_audio(voice.spoken_text(n.greeting))
             if audio:
                 url = _save_static(audio, f"comms/greeting-{n.pk}.mp3")
                 n.greeting_audio = url

@@ -1,4 +1,7 @@
+import shutil
+import tempfile
 from io import StringIO
+from pathlib import Path
 
 from django.core.management import call_command
 from django.test import TestCase, override_settings
@@ -620,6 +623,130 @@ class SpeechBrevityTests(TestCase):
         self.assertIn("research", r.lower())
         self.assertLessEqual(len(r), agent.SPEECH_HARD_CEILING + len(agent.DISCLAIMER) + 4)
         self.assertEqual(guardrails.scan(r)[0], [])
+
+
+class VoiceCheckTests(TestCase):
+    """voice_check has to be able to PASS.
+
+    Its first version flagged any pre-generated mp3, on the grounds that code
+    cannot hear audio. That meant it printed FAILED on every deploy forever —
+    and a check that always fails is one nobody reads, which is how this
+    codebase has lost audit trails before. It now verifies the mp3 is a render
+    of the greeting text currently in the database, via a fingerprint the
+    generator stamps into the URL.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp())
+        (self.root / "comms").mkdir(parents=True, exist_ok=True)
+        call_command("seed_sites")
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def _number(self, greeting, audio=b"FAKE-MP3", stamp=True, write=True):
+        from apps.comms.management.commands.voice_check import audio_token
+        from apps.stores.models import Site
+        if write:
+            (self.root / "comms" / "greeting-x.mp3").write_bytes(audio)
+        url = "/static/comms/greeting-x.mp3"
+        if stamp:
+            url += "?v=" + audio_token(greeting, audio)
+        return PhoneNumber.objects.create(
+            e164="+13252465227", voice_enabled=True, is_active=True,
+            site=Site.objects.first(), greeting=greeting, greeting_audio=url)
+
+    def _run(self):
+        out, err = StringIO(), StringIO()
+        try:
+            call_command("voice_check", stdout=out, stderr=err)
+            return 0, out.getvalue() + err.getvalue()
+        except SystemExit:
+            return 1, out.getvalue() + err.getvalue()
+
+    def test_a_current_mp3_passes(self):
+        """The whole point: it can go green."""
+        self._number("Thanks for calling 325 BioLabs.")
+        with override_settings(STATIC_ROOT=self.root):
+            code, text = self._run()
+        self.assertEqual(code, 0, text)
+        self.assertIn("current: mp3 matches", text)
+
+    def test_editing_the_greeting_makes_the_mp3_stale(self):
+        n = self._number("Thanks for calling 325 BioLabs.")
+        n.greeting = "Thanks for calling 325 BioLabs. New hours."
+        n.save(update_fields=["greeting"])
+        with override_settings(STATIC_ROOT=self.root):
+            code, text = self._run()
+        self.assertEqual(code, 1)
+        self.assertIn("STALE", text)
+
+    def test_rerendering_the_same_text_changes_the_stamp(self):
+        """The CDN bug: same filename, new audio. The fingerprint covers the
+        bytes too, so the URL changes and the edge cannot serve the old file."""
+        from apps.comms.management.commands.voice_check import audio_token
+        t = "Thanks for calling 325 BioLabs."
+        self.assertNotEqual(audio_token(t, b"AUDIO-V1"), audio_token(t, b"AUDIO-V2"))
+
+    def test_a_missing_file_is_an_error(self):
+        self._number("Thanks for calling 325 BioLabs.", write=False)
+        with override_settings(STATIC_ROOT=self.root):
+            code, text = self._run()
+        self.assertEqual(code, 1)
+        self.assertIn("MISSING", text)
+
+    def test_an_unstamped_url_is_unverifiable_not_ok(self):
+        self._number("Thanks for calling 325 BioLabs.", stamp=False)
+        with override_settings(STATIC_ROOT=self.root):
+            code, text = self._run()
+        self.assertEqual(code, 1)
+        self.assertIn("UNVERIFIABLE", text)
+
+    def test_the_say_path_still_fails_on_a_raw_325(self):
+        """No mp3, so Polly speaks it — and there the digits DO matter."""
+        from apps.stores.models import Site
+        from apps.comms import voice as voicelib
+        PhoneNumber.objects.create(
+            e164="+13252465228", voice_enabled=True, is_active=True,
+            site=Site.objects.first(), greeting="Call 325 Labs at 325.",
+            greeting_audio="")
+        with override_settings(STATIC_ROOT=self.root):
+            code, text = self._run()
+        self.assertEqual(code, 1)
+        self.assertIn("STILL SAYS 325", text)
+        # ...and the brand form alone would have been normalised away.
+        self.assertNotIn("325 BioLabs", voicelib.spoken_text("325 BioLabs"))
+
+    def test_the_generator_stamps_a_url_that_voice_check_accepts(self):
+        """End to end across the two commands. Removing the stamp in the
+        generator left every other test green while voice_check would report
+        UNVERIFIABLE forever — the two halves have to be tested together."""
+        from apps.comms import providers
+        from apps.stores.models import Site
+        n = PhoneNumber.objects.create(
+            e164="+13252465229", voice_enabled=True, is_active=True,
+            site=Site.objects.first(),
+            greeting="Thanks for calling 325 BioLabs.", greeting_audio="")
+        real = providers.tts_greeting_audio
+        providers.tts_greeting_audio = lambda t: b"RENDERED-AUDIO-BYTES"
+        try:
+            with override_settings(STATIC_ROOT=self.root, STATICFILES_DIRS=[self.root]):
+                call_command("generate_greeting_audio", "--number", n.e164,
+                             stdout=StringIO())
+                n.refresh_from_db()
+                self.assertIn("?v=", n.greeting_audio)
+                PhoneNumber.objects.exclude(pk=n.pk).delete()
+                code, text = self._run()
+        finally:
+            providers.tts_greeting_audio = real
+        self.assertEqual(code, 0, text)
+        self.assertIn("current: mp3 matches", text)
+
+    def test_no_numbers_is_an_error_not_a_pass(self):
+        with override_settings(STATIC_ROOT=self.root):
+            code, text = self._run()
+        self.assertEqual(code, 1)
+        self.assertIn("NOT a clean result", text)
 
 
 class GreetingAudioEngineTests(TestCase):

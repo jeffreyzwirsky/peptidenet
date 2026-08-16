@@ -14,6 +14,7 @@ from django.core.management.base import BaseCommand
 
 from apps.comms import providers
 from apps.comms import voice
+from apps.comms.management.commands.voice_check import audio_token
 from apps.comms.models import PhoneNumber
 
 
@@ -61,6 +62,17 @@ class Command(BaseCommand):
             audio = providers.tts_greeting_audio(n.greeting)
             if audio:
                 url = _save_static(audio, f"comms/greeting-{n.pk}.mp3")
+                # Stamp the URL with a fingerprint of (text + rendered bytes).
+                # Two jobs, both learned the hard way on 2026-08-16:
+                #  1. voice_check recomputes it to prove the mp3 is a render of
+                #     the greeting text that is in the database TODAY. Without
+                #     it the audio layer is unverifiable, and the check had to
+                #     fail on every deploy to stay honest.
+                #  2. It is the CDN cache key. Re-rendering from unchanged text
+                #     leaves the filename identical, and these are served
+                #     immutable — Cloudflare kept handing Twilio the superseded
+                #     greeting until the URL changed. Callers heard the old one.
+                url = f"{url}?v={audio_token(n.greeting, audio)}"
                 n.greeting_audio = url
                 n.save(update_fields=["greeting_audio"])
                 done += 1

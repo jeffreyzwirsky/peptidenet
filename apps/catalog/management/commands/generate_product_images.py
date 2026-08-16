@@ -2,10 +2,15 @@
 
 Each vial is a parameterised HTML/CSS scene (glass cylinder, aluminium crimp cap,
 studio sweep backdrop, grounded contact shadow) screenshotted with Playwright at
-2x and downsampled, so all 18 renders are pixel-consistent and the label text is
+2x and downsampled, so every render is pixel-consistent and the label text is
 actually correct and legible instead of a truncated SVG string.
 
-  python manage.py generate_product_images                 # everything
+One render per PRODUCT SLUG, not per compound — the label prints the net fill and
+the cake is drawn from the milligram mass, so a 5 mg sibling needs its own
+picture. See product_slug() for why this is not negotiable.
+
+  python manage.py generate_product_images                 # everything (87)
+  python manage.py generate_product_images --missing-only  # only what's absent
   python manage.py generate_product_images --only bpc-157  # one product
   python manage.py generate_product_images --no-webp       # skip .webp siblings
 
@@ -130,24 +135,49 @@ def fill_height(sizes) -> int:
     return int(round(min(max(34 + 20 * math.log10(max(float(m.group(1)), 1)), 46), 96)))
 
 
-def dedupe_by_slug(products):
-    """Keep the FIRST entry per slug — the same rule seed_catalog applies.
+def product_slug(p) -> str:
+    """The slug this entry becomes in the database. MUST match seed_catalog.
 
-    catalogue.json has 28 duplicated slugs (retatrutide appears 8 times at
-    10/5/15/20/30/40/50/60 mg; BPC-157 twice at 10 and 5 mg). Every duplicate
-    renders to the same <slug>.png, so without this the LAST entry silently
-    overwrote the rest while the database kept the FIRST — the product page said
-    "10mg" and the image printed on that page said "5 mg". Found 2026-08-16.
+    seed_catalog keys products on ``p.get("slug") or slugify(p["n"])`` — an
+    explicit slug is how a sibling strength gets its own URL without stealing
+    the already-indexed one from the original (see the comment there). Renders
+    are looked up by product slug, so the renderer has to key on the same thing
+    or the file it writes is not the file the page asks for.
+
+    Slugifying the NAME instead — which this command did until 2026-08-16 —
+    collapses 87 entries onto 48 filenames: retatrutide appears 8 times at
+    10/5/15/…/60 mg and every one of them wants ``retatrutide.png``. The first
+    fix deduplicated, keeping the first entry. That stopped the renders
+    overwriting each other, but left the real defect standing: the label prints
+    the NET FILL and the cake height is drawn from the milligram mass, so all
+    eight strengths shared a picture of a 10 mg vial, and the 60 mg page sold a
+    60 mg vial under a photograph of a label reading "10 MG".
+
+    Net fill is one of the verifiable facts this label is allowed to carry, so
+    a shared render is a wrong one. Per-slug art is the only version where the
+    picture is true of the thing on the page.
     """
-    from django.utils.text import slugify as _slugify
-    seen, unique = set(), []
+    return p.get("slug") or slugify(p["n"])
+
+
+def assert_unique_slugs(products):
+    """Fail loudly on a slug collision instead of silently dropping entries.
+
+    A collision is two products writing the same filename, i.e. one of them
+    ending up illustrated by the other. Dropping the loser quietly (the
+    behaviour this replaces) turns that into an invisible content bug, so this
+    raises. Currently 87 entries, 87 distinct slugs.
+    """
+    seen = {}
     for p in products:
-        s = _slugify(p["n"])
+        s = product_slug(p)
         if s in seen:
-            continue
-        seen.add(s)
-        unique.append(p)
-    return unique
+            raise CommandError(
+                f"Duplicate slug {s!r}: {seen[s]!r} and {p['n']!r} would render "
+                "to the same file, so one product would be illustrated by the "
+                'other. Give one of them an explicit "slug" in catalogue.json.')
+        seen[s] = p["n"]
+    return products
 
 
 # --------------------------------------------------------------------------- #
@@ -477,6 +507,8 @@ class Command(BaseCommand):
             help="Catalogue JSON to render from.")
         parser.add_argument("--out", default="", help="Output dir (default static/products).")
         parser.add_argument("--only", default="", help="Render one slug only.")
+        parser.add_argument("--missing-only", action="store_true",
+                            help="Skip slugs that already have a render on disk.")
         parser.add_argument("--no-webp", action="store_true", help="Skip .webp siblings.")
         parser.add_argument("--quality", type=int, default=86, help="WebP quality.")
         parser.add_argument("--max-kb", type=int, default=180,
@@ -567,17 +599,23 @@ class Command(BaseCommand):
 
         products = json.loads(Path(opts["path"]).read_text(encoding="utf-8"))["products"]
 
-        before = len(products)
-        products = dedupe_by_slug(products)
-        if len(products) != before:
-            self.stdout.write(self.style.WARNING(
-                f"  {before - len(products)} duplicate slug(s) skipped — first "
-                "entry wins, matching seed_catalog."))
+        assert_unique_slugs(products)
 
         if opts["only"]:
-            products = [p for p in products if slugify(p["n"]) == opts["only"]]
+            products = [p for p in products if product_slug(p) == opts["only"]]
             if not products:
                 raise CommandError(f"No product with slug {opts['only']!r}")
+
+        if opts["missing_only"]:
+            before = len(products)
+            products = [p for p in products
+                        if not (out_dir / f"{product_slug(p)}.png").exists()]
+            self.stdout.write(
+                f"  --missing-only: {before - len(products)} already rendered, "
+                f"{len(products)} to render.")
+            if not products:
+                self.stdout.write(self.style.SUCCESS("Nothing to render."))
+                return
 
         fontface = self._fontface(static_dir)
         tmp = Path(tempfile.mkdtemp(prefix="pn-vials-"))
@@ -588,7 +626,7 @@ class Command(BaseCommand):
                 page = browser.new_page(
                     viewport={"width": CANVAS, "height": CANVAS}, device_scale_factor=SCALE)
                 for p in products:
-                    slug = slugify(p["n"])
+                    slug = product_slug(p)
                     for mode, suffix in (("primary", ""), ("label", "-label")):
                         html = self._html(p, slug, fontface, mode)
                         f = tmp / f"{slug}{suffix}.html"

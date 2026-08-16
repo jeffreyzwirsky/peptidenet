@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
+from apps.catalog import images
 from apps.catalog.models import Category, Product
 
 # Category accent colours (used to tint vials/badges across all themes).
@@ -44,7 +45,7 @@ class Command(BaseCommand):
                 },
             )
 
-        created = updated = 0
+        created = updated = borrowed = 0
         for i, p in enumerate(products):
             cat, _ = Category.objects.get_or_create(
                 name=p["cat"],
@@ -110,19 +111,25 @@ class Command(BaseCommand):
 
             # Point at the generated product renders when they exist on disk, so
             # a fresh deploy gets real photography without a second command.
-            # Siblings share the family's artwork — same compound, same vial.
+            # This prefers the product's OWN render and only falls back to the
+            # family's — siblings do NOT simply share artwork, because the label
+            # prints the net fill and the cake is drawn from the mass, so the
+            # family picture states the wrong milligrams on every sibling.
+            # apps/catalog/images.art_urls is the single definition; this and
+            # assign_product_images disagreed until 2026-08-16 and 49 products
+            # fell down the gap.
             slug = p.get("slug") or slugify(p["n"])
-            art = p.get("family") or slug
-            img = Path(settings.BASE_DIR) / "static" / "products" / f"{art}.png"
-            if img.exists():
-                defaults["image"] = f"/static/products/{art}.png"
-                label = Path(settings.BASE_DIR) / "static" / "products" / f"{art}-label.png"
-                if label.exists():
+            primary, label = images.art_urls(slug, p.get("family", ""))
+            if primary:
+                defaults["image"] = primary
+                if label:
                     defaults["gallery"] = [{
-                        "src": f"/static/products/{art}-label.png",
+                        "src": label,
                         "alt": f"{p['n']} vial label detail — research use only",
                         "label": "Label detail",
                     }]
+                if images.is_family_fallback(slug, p.get("family", "")):
+                    borrowed += 1
 
             existing = Product.objects.filter(slug=slug).first()
             if existing is None:
@@ -134,6 +141,14 @@ class Command(BaseCommand):
             )
             created += was_created
             updated += not was_created
+
+        if borrowed:
+            # Not fatal, but it means those pages show a label printing a net
+            # fill that is not theirs. Say so rather than let it pass as green.
+            self.stdout.write(self.style.WARNING(
+                f"  {borrowed} product(s) are borrowing a sibling's photograph, "
+                "so the printed net fill on those images is wrong. Fix: "
+                "manage.py generate_product_images --missing-only"))
 
         self.stdout.write(
             self.style.SUCCESS(

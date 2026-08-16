@@ -7,7 +7,8 @@ static/products/):
   python manage.py assign_product_images --all      # re-point every product
   python manage.py assign_product_images --dry-run  # show what would change
 
-Sets, per product:
+Art is resolved by apps.catalog.images.art_urls — the product's own render
+first, the size family's only as a fallback. Sets, per product:
   image      /static/products/<slug>.png
   image_alt  a compliant, descriptive alt string (research framing only)
   gallery    [{"src": "/static/products/<slug>-label.png", ..., "label": "Label detail"}]
@@ -16,15 +17,13 @@ Product.images serves the primary first (label "Vial"), then the gallery, so the
 detail template gets a two-shot gallery and the card gets the hero. Products with
 no rendered file on disk are left alone, so templates keep their SVG fallback.
 """
-from pathlib import Path
-
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
+from apps.catalog import images
 from apps.catalog.models import Product
 
-STATIC_URL_DIR = "/static/products"
+STATIC_URL_DIR = images.STATIC_URL_DIR
 
 
 def alt_for(p) -> str:
@@ -57,15 +56,19 @@ class Command(BaseCommand):
         parser.add_argument("--dry-run", action="store_true")
 
     def handle(self, *args, **opts):
-        products_dir = Path(settings.STATICFILES_DIRS[0]) / "products"
-        updated = skipped = missing = 0
+        products_dir = images.products_dir()
+        updated = skipped = missing = borrowed = 0
 
         for p in Product.objects.all().order_by("order", "name"):
             slug = p.slug or slugify(p.name)
-            primary = products_dir / f"{slug}.png"
-            label = products_dir / f"{slug}-label.png"
+            # Resolve through apps.catalog.images, NOT `products_dir / slug`.
+            # Looking only for the product's own file is what left every size
+            # sibling — 49 active products — permanently on the SVG fallback
+            # while seed_catalog thought it had illustrated them: it resolved
+            # through the family and this did not. One definition now.
+            primary, label = images.art_urls(slug, p.family, products_dir)
 
-            if not primary.exists():
+            if not primary:
                 missing += 1
                 self.stdout.write(self.style.WARNING(
                     f"  no render for {p.name} ({slug}.png) — left on the SVG fallback"))
@@ -74,21 +77,30 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
-            p.image = f"{STATIC_URL_DIR}/{slug}.png"
+            p.image = primary
             p.image_alt = alt_for(p)
             p.gallery = [{
-                "src": f"{STATIC_URL_DIR}/{slug}-label.png",
+                "src": label,
                 "alt": label_alt_for(p),
                 "label": "Label detail",
-            }] if label.exists() else []
+            }] if label else []
 
             if not opts["dry_run"]:
                 p.save(update_fields=["image", "image_alt", "gallery"])
             updated += 1
+            note = ""
+            if images.is_family_fallback(slug, p.family, products_dir):
+                borrowed += 1
+                note = "  [family fallback — printed net fill is NOT this size]"
             self.stdout.write(f"  {p.name} -> {p.image}"
-                              + (" + label detail" if p.gallery else ""))
+                              + (" + label detail" if p.gallery else "") + note)
 
         verb = "would update" if opts["dry_run"] else "updated"
+        if borrowed:
+            self.stdout.write(self.style.WARNING(
+                f"  {borrowed} product(s) borrowed a sibling's photograph, whose "
+                "label prints a different net fill. Fix: manage.py "
+                "generate_product_images --missing-only"))
         self.stdout.write(self.style.SUCCESS(
             f"Product imagery: {verb} {updated}, {skipped} already had an image, "
             f"{missing} with no render on disk."))

@@ -6,3 +6,4 @@ staticfiles/
 venv/
 dj_*.png
 smoke.py
+.venv/

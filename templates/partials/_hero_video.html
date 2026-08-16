@@ -26,7 +26,15 @@ playback on the first user gesture. ?vdebug=1 shows a live state readout.
     v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.preload='auto';
     v.setAttribute('muted','');v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('loop','');
     v.setAttribute('aria-hidden','true');v.tabIndex=-1;
-    if(img){v.poster=img.getAttribute('src');}
+    // currentSrc, NOT getAttribute('src'). The poster <img> sits inside a
+    // <picture> whose first <source> is the webp; getAttribute('src') returns
+    // the literal attribute, which is always the JPG fallback — so every
+    // desktop hero fetched a second, larger copy of an image the browser had
+    // already chosen the webp for (hero-vials: 189K jpg vs 56K webp).
+    // currentSrc is the URL the browser actually resolved from the <picture>,
+    // so it is the webp wherever webp is supported. It is empty until the image
+    // starts loading, hence the fallback.
+    if(img){v.poster=img.currentSrc||img.getAttribute('src');}
     var webm=src.replace('.mp4','.webm');
     // Pick ONE source explicitly. Safari can't decode VP9/WebM in <video> and,
     // with a webm-first <source> list, gets stuck on it instead of falling back

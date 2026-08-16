@@ -366,10 +366,25 @@ class RecordingProxyTests(TestCase):
         self.assertIn(r.status_code, (302, 403))
 
     def test_console_page_no_longer_links_at_twilio(self):
-        """The actual reported symptom."""
+        """The actual reported symptom.
+
+        A Call row AND a Voicemail row, because the two render through separate
+        template branches. An earlier version of this test created only a
+        voicemail, so the call branch never rendered — and a multi-line {# #}
+        "comment" in that branch (Django's {# #} is single-line only, so it is
+        not a comment) leaked into the live page 20 times while this test stayed
+        green. A fixture that misses a branch is a test that proves nothing
+        about it.
+        """
+        from apps.comms.models import Call
+        Call.objects.create(direction="in", twilio_sid="CA-T1",
+                            from_number="+12045551234", duration_sec=9,
+                            recording_url="https://api.twilio.com/2010-04-01/"
+                                          "Accounts/AC1/Recordings/RE2")
         self.client.force_login(self.boss)
         r = self.client.get("/manage/calls/")
         body = r.content.decode()
+        self.assertIn("/manage/recording/call/", body)   # the call branch rendered
         self.assertNotIn("api.twilio.com", body)
         self.assertIn(f"/manage/recording/vm/{self.vm.pk}/", body)
         self.assertIn("<audio", body)

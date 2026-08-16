@@ -16,10 +16,15 @@
           <td class="sub">{{ row.obj.site.domain|default:"—" }}</td>
           <td class="sub">{{ row.obj.duration_sec }}s</td>
           <td class="msg-cell">{{ row.obj.transcript|default:"—"|truncatechars:70 }}</td>
-          {# Proxied, not linked. api.twilio.com needs HTTP Basic auth a browser
-             cannot send, so the old direct link opened Twilio's 401 XML.
-             preload="none": a page of rows must not pull every recording from
-             Twilio on load — audio is fetched only when someone presses play. #}
+          {% comment %}
+            Proxied, not linked. Twilio's recording host needs HTTP Basic auth a
+            browser cannot send, so the old direct link opened its 401 XML.
+            preload="none": a page of rows must not pull every recording on load.
+
+            {% comment %}, not {# #}: Django's {# #} is SINGLE-LINE ONLY. A
+            multi-line one is not a comment at all — it renders as literal text.
+            This exact block leaked into the page 20 times before it was caught.
+          {% endcomment %}
           <td class="r">{% if row.obj.recording_url %}<audio controls preload="none" style="height:32px;max-width:220px" src="{% url 'manage:recording_audio' 'call' row.obj.pk %}"></audio>{% endif %}</td>
         </tr>
         {% else %}

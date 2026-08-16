@@ -29,6 +29,16 @@ set -a; source "$APP/.env"; set +a
 # over the top of STATIC_ROOT, so minifying first would be undone every deploy.
 ./venv/bin/python manage.py minify_css
 
+# Point any product with no image at its render. Deliberately WITHOUT --all:
+# this fills gaps and never overwrites an image somebody chose by hand in the
+# console. A new product shipping with artwork but no Product.image row was how
+# 49 products sat on the grey SVG fallback until 2026-08-16 — the renders were
+# committed, nothing ever assigned them, and no deploy step noticed.
+#
+# Re-pointing products that ALREADY have an image is a judgement call (it can
+# undo a manual choice), so that stays a deliberate `--all` by hand.
+./venv/bin/python manage.py assign_product_images
+
 echo "==> Regenerate nginx + ensure default-deny catch-all + re-apply TLS"
 ./venv/bin/python manage.py emit_nginx > /etc/nginx/sites-available/peptidenet
 # Default-deny (bare IP / unknown Host -> nginx 444). Standalone file, idempotent.

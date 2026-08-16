@@ -9,7 +9,11 @@ subject line, then records the message. Compliance is enforced in layers:
      chat assistant); every product answer keeps a research-use-only framing.
   3. A guardrail scan runs on the generated answer; if it trips a prohibited
      pattern it is replaced with a safe fallback instead of being spoken.
-  4. The full call is always recorded + transcribed as an audit-trail fallback.
+  4. The full call is recorded, and transcribed when the media fetch and
+     Whisper both succeed. This said "always ... transcribed" until
+     2026-08-16, when it turned out the media fetch had never been
+     authenticated and every transcript silently came back empty. Treat a
+     missing transcript as a fault to investigate, not as normal.
 
 All of this is easy to loosen later (edit the deflect lists / system prompt).
 """

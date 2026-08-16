@@ -92,15 +92,33 @@ def transcribe(audio_url):
     try:  # pragma: no cover
         import requests
         from openai import OpenAI
-        audio = requests.get(audio_url, timeout=30).content
+        # Twilio recording media requires HTTP Basic auth (AccountSid / AuthToken).
+        # Without it api.twilio.com answers 401 with a ~232-byte XML error body,
+        # which then got handed to Whisper *as if it were audio*. Whisper raised,
+        # the bare except swallowed it, and transcribe() returned ("", "") — so
+        # every voicemail looked "not transcribed" rather than "failed". Verified
+        # live 2026-08-16: an unauthenticated GET of a real RecordingUrl returns
+        # 401 / application/xml.
+        auth = None
+        if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
+            auth = (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+        resp = requests.get(audio_url, timeout=30, auth=auth)
+        ctype = (resp.headers.get("content-type") or "").lower()
+        # Fail loudly on anything that is not audio. A 200 carrying XML or JSON is
+        # still a failure; passing it downstream is what hid this for a month.
+        if resp.status_code != 200 or not ctype.startswith("audio"):
+            log.error("whisper: refusing non-audio recording fetch %s ctype=%r "
+                      "bytes=%s url=%s", resp.status_code, ctype,
+                      len(resp.content or b""), audio_url[:120])
+            return ("", "fetch_failed")
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
         r = client.audio.transcriptions.create(
-            model="whisper-1", file=("vm.mp3", audio),
+            model="whisper-1", file=("vm.mp3", resp.content),
         )
         return (r.text, "whisper")
     except Exception:  # pragma: no cover
-        log.exception("whisper transcription failed")
-        return ("", "")
+        log.exception("whisper transcription failed for %s", audio_url[:120])
+        return ("", "error")
 
 
 def tts_greeting_audio(text):

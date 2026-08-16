@@ -146,6 +146,49 @@ def gather(request):
         voicelib.agent_reply_twiml(number, request, reply, subject), content_type=XML)
 
 
+def _close_call(request, duration=0):
+    """Move a Call off 'ringing'.
+
+    Twilio only POSTs a call-status callback to the URL configured on the phone
+    NUMBER in the console — it cannot be set from TwiML for an inbound leg. That
+    was never configured, so all 18 Call rows sat at status='ringing' with
+    duration_sec=0 forever and the Calls page showed a fiction. Until the console
+    field is set (see comms:call_status below), we close the record from the
+    callbacks we *do* receive, which carry CallSid and CallStatus.
+    """
+    sid = request.POST.get("CallSid") or request.GET.get("call_sid") or ""
+    if not sid:
+        return None
+    call = Call.objects.filter(twilio_sid=sid).first()
+    if not call:
+        return None
+    status = request.POST.get("CallStatus") or ""
+    fields = []
+    if status and status != call.status:
+        call.status, _ = status, fields.append("status")
+    if duration and not call.duration_sec:
+        call.duration_sec, _ = duration, fields.append("duration_sec")
+    if fields:
+        call.save(update_fields=fields)
+    return call
+
+
+@csrf_exempt
+@require_POST
+def call_status(request):
+    """Twilio call-status callback.
+
+    NOT wired automatically: paste this URL into the Twilio Console under the
+    number's Voice configuration -> "Call status changes" ->
+    https://smashfatbiolabs.ca/webhooks/twilio/call-status/ (POST). Until then
+    _close_call() approximates it from the recording callbacks.
+    """
+    if not _guard(request):
+        return HttpResponseForbidden("bad signature")
+    _close_call(request, int(request.POST.get("CallDuration", 0) or 0))
+    return HttpResponse("", content_type=XML)
+
+
 @csrf_exempt
 @require_POST
 def recording_done(request):
@@ -156,6 +199,7 @@ def recording_done(request):
     ending the call."""
     if not _guard(request):
         return HttpResponseForbidden("bad signature")
+    _close_call(request, int(request.POST.get("RecordingDuration", 0) or 0))
     return HttpResponse(voicelib.recording_done_twiml(), content_type=XML)
 
 
@@ -187,13 +231,20 @@ def recording(request):
     duration = int(request.POST.get("RecordingDuration", 0) or 0)
     contact = sms.resolve_contact(frm, site=site) if frm else None
     text, source = providers.transcribe(rec_url) if rec_url else ("", "")
+    # call= is the join a learning loop needs: without it there is no way to get
+    # from a stored message back to the conversation that produced it. Every
+    # voicemail before 2026-08-16 has call_id NULL for exactly this reason —
+    # the Call was resolved here and then not used.
     vm = Voicemail.objects.create(
-        site=site, contact=contact, from_number=frm,
+        site=site, contact=contact, from_number=frm, call=call,
         category=request.GET.get("category", "general"),
         subject=request.GET.get("subject", "")[:200],
         recording_url=rec_url, duration_sec=duration, transcript=text,
         transcript_source=source,
     )
+    if call and call.status in ("", "ringing", "in-progress"):
+        call.status = "completed"
+        call.save(update_fields=["status"])
     if call and rec_url and not call.recording_url:
         call.recording_url = rec_url
         call.duration_sec = call.duration_sec or duration

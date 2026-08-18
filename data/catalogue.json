@@ -1,5 +1,5 @@
 {
-  "note": "Shared research-compound catalogue for all SmashFat-family peptide sites. Prices in CAD per vial. 'was' is the pre-discount reference price; 'price' is the current sell price (30% network-wide reduction applied 2026-07-27). 'cost' is the PLACEHOLDER landed cost (35% of the pre-discount price) and must be replaced with the real per-vial supplier cost before margin figures mean anything. purity is the release threshold. Descriptions are research-framed. 'new' and stock ('in'|'low') are display flags. Products carrying `sup` are linked to a supplier catalogue code; their cost and price are maintained by `manage.py reprice` from the supplier price list and the live USD/CAD rate. Products sharing a `family` are strengths of one compound: they render as a single catalogue card with a size selector, but each remains its own SKU with its own price, URL and supplier code. Purity is intentionally blank on every product: no analysis is held that would substantiate a figure, and a stated purity reads as a measured result.",
+  "note": "Shared research-compound catalogue. Prices in CAD per vial. COMPLIANCE TRIAGE APPLIED 2026-08-16 (branch compliance/remediation-2026-08-16). Every product carries `disposition` (DELIST|FIX), `disposition_basis` and `disposition_note`. DELIST rows are set active=false and must not be seeded, rendered or sold; their URLs return 410. `disposition_basis: minimum` = the operator's own non-negotiable delist criteria (GLP-1/GIP class, Canadian Prescription Drug List, reconstitution supplies) - 12 SKUs. `disposition_basis: independent` = recommended additionally by the remediation review - 18 SKUs; these are reversible by counsel, one field each. NO product is marked KEEP. Every remaining SKU is FIX and is NOT sellable today: none has a purity result, a CAS/formula/molecular weight on record, or a certificate of analysis. purity stays blank everywhere - no analysis is held that would substantiate a figure, and a stated purity reads as a measured result. 'was' is the pre-discount reference price; 'cost' is a PLACEHOLDER landed cost and must be replaced with the real per-vial supplier cost before margin figures mean anything.",
   "products": [
     {
       "n": "KLOW",
@@ -14,7 +14,11 @@
       "d": "A novel metabolic research compound under active investigation for lipid and energy regulation.",
       "was": 125.0,
       "cost": 43.75,
-      "sup": "BBKG80"
+      "sup": "BBKG80",
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Undisclosed multi-compound blend: no CAS, formula or MW is possible, so constraint 1 delists it by construction.",
+      "active": false
     },
     {
       "n": "GLOW",
@@ -29,7 +33,11 @@
       "d": "A novel metabolic research compound under investigation for energy regulation and cellular vitality.",
       "was": 120.0,
       "cost": 42.0,
-      "sup": "BBG70"
+      "sup": "BBG70",
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Undisclosed multi-compound blend: no CAS, formula or MW is possible, so constraint 1 delists it by construction.",
+      "active": false
     },
     {
       "n": "Retatrutide",
@@ -48,7 +56,11 @@
       "family": "retatrutide",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "GLP-1/GIP-class agonist.",
+      "active": false
     },
     {
       "n": "MOTS-C",
@@ -67,7 +79,10 @@
       "family": "mots-c",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "BPC-157",
@@ -86,7 +101,10 @@
       "family": "bpc-157",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "GHK-Cu",
@@ -105,7 +123,10 @@
       "family": "ghk-cu",
       "size_label": "50mg",
       "family_order": 5000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "TB-500",
@@ -124,7 +145,10 @@
       "family": "tb-500",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Ipamorelin",
@@ -143,7 +167,10 @@
       "family": "ipamorelin",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Selank",
@@ -162,7 +189,10 @@
       "family": "selank",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Semax",
@@ -181,7 +211,10 @@
       "family": "semax",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Tesamorelin",
@@ -200,7 +233,11 @@
       "family": "tesamorelin",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "Canada Prescription Drug List: 'tesamorelin or its salts or derivatives', eff. 2014-05-12.",
+      "active": false
     },
     {
       "n": "SS-31",
@@ -219,7 +256,10 @@
       "family": "ss-31",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "NAD+",
@@ -238,7 +278,10 @@
       "family": "nad",
       "size_label": "500mg",
       "family_order": 50000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "BPC-157 + TB-500",
@@ -253,7 +296,11 @@
       "d": "A synergistic blend of BPC-157 and TB-500 for advanced tissue-repair and recovery research.",
       "was": 90.0,
       "cost": 31.5,
-      "sup": "BB10"
+      "sup": "BB10",
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Undisclosed multi-compound blend: no CAS, formula or MW is possible, so constraint 1 delists it by construction.",
+      "active": false
     },
     {
       "n": "Epithalon",
@@ -265,14 +312,17 @@
       ],
       "stock": "in",
       "new": true,
-      "d": "A synthetic tetrapeptide analogue of epithalamin studied for telomere elongation, anti-aging, and circadian-rhythm regulation.",
+      "d": "A synthetic tetrapeptide analogue of epithalamin studied in relation to telomere biology and circadian regulation.",
       "was": 55.0,
       "cost": 19.25,
       "sup": "ET10",
       "family": "epithalon",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "KPV",
@@ -287,7 +337,10 @@
       "d": "A C-terminal tripeptide of α-MSH with potent anti-inflammatory and gut-protective properties.",
       "was": 50.0,
       "cost": 17.5,
-      "sup": "KPV10"
+      "sup": "KPV10",
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Melanotan 2",
@@ -302,7 +355,11 @@
       "d": "A synthetic analogue of α-MSH acting as a non-selective melanocortin receptor agonist, studied for pigmentation and energy-regulation research.",
       "was": 55.0,
       "cost": 19.25,
-      "sup": "ML10"
+      "sup": "ML10",
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     },
     {
       "n": "Bacteriostatic Water",
@@ -317,7 +374,11 @@
       "d": "bacteriostatic water for reconstituting lyophilized research compounds.",
       "was": 25.0,
       "cost": 8.75,
-      "sup": "WA10"
+      "sup": "WA10",
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "Reconstitution diluent sold alongside compounds (constraint 4).",
+      "active": false
     },
     {
       "n": "CJC-1295 (no DAC)",
@@ -337,7 +398,10 @@
       "family": "cjc-1295-no-dac",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "CJC-1295 with DAC",
@@ -353,7 +417,10 @@
       "area": "Investigated for binding-affinity and half-life characteristics conferred by the DAC moiety.",
       "cost": 20.96,
       "sup": "CD5",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Sermorelin",
@@ -373,7 +440,11 @@
       "family": "sermorelin",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Active ingredient of an approved drug product. PDL status UNVERIFIED - counsel to confirm.",
+      "active": false
     },
     {
       "n": "Hexarelin",
@@ -393,7 +464,10 @@
       "family": "hexarelin",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "GHRP-2",
@@ -413,7 +487,10 @@
       "family": "ghrp-2",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "GHRP-6",
@@ -433,7 +510,10 @@
       "family": "ghrp-6",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "IGF-1 LR3",
@@ -453,7 +533,11 @@
       "family": "igf-1-lr3",
       "size_label": "1mg",
       "family_order": 100,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     },
     {
       "n": "Thymosin Alpha-1",
@@ -473,7 +557,10 @@
       "family": "thymosin-alpha-1",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Thymalin",
@@ -489,7 +576,10 @@
       "area": "Investigated in laboratory studies of thymic peptide signalling.",
       "cost": 9.04,
       "sup": "TY10",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "PT-141",
@@ -505,7 +595,11 @@
       "area": "Studied for its activity at melanocortin receptors, particularly MC3R and MC4R.",
       "cost": 9.04,
       "sup": "P41",
-      "margin": 75
+      "margin": 75,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Active ingredient of an approved drug product. PDL status UNVERIFIED - counsel to confirm.",
+      "active": false
     },
     {
       "n": "Kisspeptin-10",
@@ -525,7 +619,10 @@
       "family": "kisspeptin-10",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "DSIP",
@@ -545,7 +642,10 @@
       "family": "dsip",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Oxytocin Acetate",
@@ -565,7 +665,11 @@
       "family": "oxytocin-acetate",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Active ingredient of an approved drug product. PDL status UNVERIFIED - counsel to confirm.",
+      "active": false
     },
     {
       "n": "AOD9604",
@@ -585,7 +689,10 @@
       "family": "aod9604",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "5-amino-1MQ",
@@ -605,7 +712,10 @@
       "family": "5-amino-1mq",
       "size_label": "50mg",
       "family_order": 5000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "AICAR",
@@ -621,7 +731,10 @@
       "area": "A widely used AMPK activator in cellular metabolism research.",
       "cost": 8.77,
       "sup": "AR50",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "SLU-PP-332",
@@ -637,7 +750,10 @@
       "area": "Studied for its agonism of estrogen-related receptors in metabolic research.",
       "cost": 12.19,
       "sup": "322",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "LL-37",
@@ -653,7 +769,10 @@
       "area": "A reference antimicrobial peptide in innate-immunity and membrane-interaction studies.",
       "cost": 11.92,
       "sup": "375",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Pinealon",
@@ -673,7 +792,10 @@
       "family": "pinealon",
       "size_label": "20mg",
       "family_order": 2000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Dihexa",
@@ -689,7 +811,11 @@
       "area": "Studied for its interaction with hepatocyte growth factor and the c-Met receptor in vitro.",
       "cost": 16.17,
       "sup": "DH10",
-      "margin": 75
+      "margin": 75,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     },
     {
       "n": "Cartalax",
@@ -705,7 +831,10 @@
       "area": "Used in research on short peptides and connective-tissue cell cultures.",
       "cost": 12.88,
       "sup": "CTL20",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Adamax",
@@ -721,7 +850,10 @@
       "area": "Supplied as a reference compound for neuropeptide research.",
       "cost": 16.17,
       "sup": "ADA10",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "VIP",
@@ -741,7 +873,10 @@
       "family": "vip",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Ara-290",
@@ -757,7 +892,10 @@
       "area": "Studied for its interaction with the innate repair receptor, without erythropoietic activity.",
       "cost": 10.0,
       "sup": "RA10",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "SNAP-8",
@@ -773,7 +911,10 @@
       "area": "Used in laboratory research on SNARE complex formation.",
       "cost": 5.75,
       "sup": "NP810",
-      "margin": 75
+      "margin": 75,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "AHK-Cu",
@@ -793,7 +934,10 @@
       "family": "ahk-cu",
       "size_label": "50mg",
       "family_order": 5000,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "MGF",
@@ -809,7 +953,11 @@
       "area": "Studied in laboratory models of mechanical loading and myogenic signalling.",
       "cost": 5.21,
       "sup": "FM2",
-      "margin": 75
+      "margin": 75,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     },
     {
       "n": "PEG-MGF",
@@ -825,7 +973,11 @@
       "area": "Investigated for the stability conferred by pegylation relative to native MGF.",
       "cost": 11.23,
       "sup": "FMP2",
-      "margin": 75
+      "margin": 75,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     },
     {
       "n": "FOXO4-DRI",
@@ -841,7 +993,11 @@
       "area": "A research tool compound in cellular senescence studies.",
       "cost": 45.07,
       "sup": "F410",
-      "margin": 75
+      "margin": 75,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     },
     {
       "n": "Adipotide",
@@ -861,7 +1017,11 @@
       "family": "adipotide",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": true
+      "is_family_default": true,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     },
     {
       "n": "Retatrutide",
@@ -882,7 +1042,11 @@
       "family": "retatrutide",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "GLP-1/GIP-class agonist.",
+      "active": false
     },
     {
       "n": "Retatrutide",
@@ -903,7 +1067,11 @@
       "family": "retatrutide",
       "size_label": "15mg",
       "family_order": 1500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "GLP-1/GIP-class agonist.",
+      "active": false
     },
     {
       "n": "Retatrutide",
@@ -924,7 +1092,11 @@
       "family": "retatrutide",
       "size_label": "20mg",
       "family_order": 2000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "GLP-1/GIP-class agonist.",
+      "active": false
     },
     {
       "n": "Retatrutide",
@@ -945,7 +1117,11 @@
       "family": "retatrutide",
       "size_label": "30mg",
       "family_order": 3000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "GLP-1/GIP-class agonist.",
+      "active": false
     },
     {
       "n": "Retatrutide",
@@ -966,7 +1142,11 @@
       "family": "retatrutide",
       "size_label": "40mg",
       "family_order": 4000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "GLP-1/GIP-class agonist.",
+      "active": false
     },
     {
       "n": "Retatrutide",
@@ -987,7 +1167,11 @@
       "family": "retatrutide",
       "size_label": "50mg",
       "family_order": 5000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "GLP-1/GIP-class agonist.",
+      "active": false
     },
     {
       "n": "Retatrutide",
@@ -1008,7 +1192,11 @@
       "family": "retatrutide",
       "size_label": "60mg",
       "family_order": 6000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "GLP-1/GIP-class agonist.",
+      "active": false
     },
     {
       "n": "MOTS-C",
@@ -1029,7 +1217,10 @@
       "family": "mots-c",
       "size_label": "40mg",
       "family_order": 4000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "BPC-157",
@@ -1050,7 +1241,10 @@
       "family": "bpc-157",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "GHK-Cu",
@@ -1071,7 +1265,10 @@
       "family": "ghk-cu",
       "size_label": "100mg",
       "family_order": 10000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "TB-500",
@@ -1092,7 +1289,10 @@
       "family": "tb-500",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Ipamorelin",
@@ -1113,7 +1313,10 @@
       "family": "ipamorelin",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Selank",
@@ -1134,7 +1337,10 @@
       "family": "selank",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Semax",
@@ -1155,7 +1361,10 @@
       "family": "semax",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Tesamorelin",
@@ -1176,7 +1385,11 @@
       "family": "tesamorelin",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "Canada Prescription Drug List: 'tesamorelin or its salts or derivatives', eff. 2014-05-12.",
+      "active": false
     },
     {
       "n": "Tesamorelin",
@@ -1197,7 +1410,11 @@
       "family": "tesamorelin",
       "size_label": "20mg",
       "family_order": 2000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "minimum",
+      "disposition_note": "Canada Prescription Drug List: 'tesamorelin or its salts or derivatives', eff. 2014-05-12.",
+      "active": false
     },
     {
       "n": "SS-31",
@@ -1218,7 +1435,10 @@
       "family": "ss-31",
       "size_label": "50mg",
       "family_order": 5000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "NAD+",
@@ -1239,7 +1459,10 @@
       "family": "nad",
       "size_label": "100mg",
       "family_order": 10000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "NAD+",
@@ -1260,7 +1483,10 @@
       "family": "nad",
       "size_label": "1000mg",
       "family_order": 100000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Epithalon",
@@ -1273,7 +1499,7 @@
       ],
       "stock": "in",
       "new": false,
-      "d": "A synthetic tetrapeptide analogue of epithalamin studied for telomere elongation, anti-aging, and circadian-rhythm regulation.",
+      "d": "A synthetic tetrapeptide analogue of epithalamin studied in relation to telomere biology and circadian regulation.",
       "area": "",
       "cost": 18.62,
       "sup": "ET50",
@@ -1281,7 +1507,10 @@
       "family": "epithalon",
       "size_label": "50mg",
       "family_order": 5000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "CJC-1295 (no DAC)",
@@ -1302,7 +1531,10 @@
       "family": "cjc-1295-no-dac",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Sermorelin",
@@ -1323,7 +1555,11 @@
       "family": "sermorelin",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Active ingredient of an approved drug product. PDL status UNVERIFIED - counsel to confirm.",
+      "active": false
     },
     {
       "n": "Hexarelin",
@@ -1344,7 +1580,10 @@
       "family": "hexarelin",
       "size_label": "2mg",
       "family_order": 200,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Hexarelin",
@@ -1365,7 +1604,10 @@
       "family": "hexarelin",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "GHRP-2",
@@ -1386,7 +1628,10 @@
       "family": "ghrp-2",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "GHRP-2",
@@ -1407,7 +1652,10 @@
       "family": "ghrp-2",
       "size_label": "15mg",
       "family_order": 1500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "GHRP-6",
@@ -1428,7 +1676,10 @@
       "family": "ghrp-6",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "IGF-1 LR3",
@@ -1449,7 +1700,11 @@
       "family": "igf-1-lr3",
       "size_label": "0.1mg",
       "family_order": 10,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     },
     {
       "n": "Thymosin Alpha-1",
@@ -1470,7 +1725,10 @@
       "family": "thymosin-alpha-1",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Kisspeptin-10",
@@ -1491,7 +1749,10 @@
       "family": "kisspeptin-10",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "DSIP",
@@ -1512,7 +1773,10 @@
       "family": "dsip",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Oxytocin Acetate",
@@ -1533,7 +1797,11 @@
       "family": "oxytocin-acetate",
       "size_label": "2mg",
       "family_order": 200,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Active ingredient of an approved drug product. PDL status UNVERIFIED - counsel to confirm.",
+      "active": false
     },
     {
       "n": "Oxytocin Acetate",
@@ -1554,7 +1822,11 @@
       "family": "oxytocin-acetate",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "Active ingredient of an approved drug product. PDL status UNVERIFIED - counsel to confirm.",
+      "active": false
     },
     {
       "n": "AOD9604",
@@ -1575,7 +1847,10 @@
       "family": "aod9604",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "5-amino-1MQ",
@@ -1596,7 +1871,10 @@
       "family": "5-amino-1mq",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Pinealon",
@@ -1617,7 +1895,10 @@
       "family": "pinealon",
       "size_label": "10mg",
       "family_order": 1000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "VIP",
@@ -1638,7 +1919,10 @@
       "family": "vip",
       "size_label": "5mg",
       "family_order": 500,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "AHK-Cu",
@@ -1659,7 +1943,10 @@
       "family": "ahk-cu",
       "size_label": "100mg",
       "family_order": 10000,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "FIX",
+      "disposition_basis": "",
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
     },
     {
       "n": "Adipotide",
@@ -1680,7 +1967,11 @@
       "family": "adipotide",
       "size_label": "2mg",
       "family_order": 200,
-      "is_family_default": false
+      "is_family_default": false,
+      "disposition": "DELIST",
+      "disposition_basis": "independent",
+      "disposition_note": "No plausible laboratory demand at this strength and price; buyer channel is consumer. JUDGEMENT CALL - reversible.",
+      "active": false
     }
   ]
 }

@@ -3,16 +3,19 @@
    under dropship — goods ship direct from the manufacturing partner on a
    10–15 day window. It now leads with the price cut and states the real
    delivery time. {% endcomment %}
+{% comment %} Compliance remediation 2026-08-16: the blanket "30% off the entire
+   catalogue" and the promo-code slot were retail discount urgency applied to
+   unapproved compounds. The lead slot now carries the statement that actually
+   distinguishes a reagent supplier - who it will sell to. {% endcomment %}
 <div class="announcement">
   <div class="ann-track">
     {% for i in "12" %}
-    <span><b>30% off</b> the entire catalogue</span>
+    <span><b>We do not sell to patients or to individuals for personal use</b></span>
     <span>{{ site.shipping_window|default:"10–15 days" }} delivery</span>
     {# Stated up front rather than discovered at checkout. #}
     <span>Sold in 10-vial packs</span>
     <span>Plain, tracked packaging</span>
     <span>Research use only</span>
-    {% if site.promo_code %}<span>Use code <b>{{ site.promo_code }}</b> for 10% off</span>{% endif %}
     {% endfor %}
   </div>
 </div>

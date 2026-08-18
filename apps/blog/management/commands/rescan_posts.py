@@ -33,6 +33,10 @@ from apps.blog.guardrails import scan
 from apps.blog.models import BlogPost
 
 
+def _ascii(text):
+    return str(text).encode("ascii", "replace").decode("ascii")
+
+
 def _scannable(post):
     """Everything that reaches a reader, not just the body.
 
@@ -83,7 +87,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(
                 f"[{post.status}] https://{post.site.domain}/blog/{post.slug}/"))
             for label, snippets in sorted(by_label.items()):
-                self.stdout.write(f"    {label}: {', '.join(sorted(snippets))[:160]}")
+                joined = ", ".join(sorted(snippets))[:160]
+                self.stdout.write(f"    {label}: {_ascii(joined)}")
 
             if opts["unpublish"] and post.status == "published":
                 notes = [
@@ -97,7 +102,7 @@ class Command(BaseCommand):
                 post.compliance_notes = "\n".join(notes)
                 post.save(update_fields=["status", "compliance_status", "compliance_notes"])
                 pulled += 1
-                self.stdout.write(self.style.ERROR("    → unpublished"))
+                self.stdout.write(self.style.ERROR("    -> unpublished"))
 
         still_live = BlogPost.objects.filter(status="published").count()
         summary = (f"checked={checked} failing={failing} unpublished={pulled} "

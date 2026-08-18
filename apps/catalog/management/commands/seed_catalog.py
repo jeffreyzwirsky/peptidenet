@@ -78,6 +78,12 @@ class Command(BaseCommand):
                 # BEFORE the claim, burden on the advertiser); the seeder was
                 # quietly overriding it on every run. Set "pur" on a compound
                 # only once its analysis is actually in hand.
+                # Compliance triage 2026-08-16. A DELIST row is seeded inactive
+                # so it cannot render, be added to a cart, or be ordered. The
+                # row is kept rather than deleted so the disposition and its
+                # basis stay auditable, and so a reversal by counsel is one
+                # field rather than an archaeology exercise.
+                "is_active": p.get("active", True) and p.get("disposition") != "DELIST",
                 "purity": p.get("pur", ""),
                 "sizes": p.get("sizes", []),
                 "stock": p.get("stock", "in"),

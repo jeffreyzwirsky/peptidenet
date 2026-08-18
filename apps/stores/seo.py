@@ -197,12 +197,11 @@ def blog_post(site, post):
 
 
 def generic(site, heading, blurb=""):
-    """Policy, calculator, rewards, order status — anything with a plain heading.
+    """Policy, order status, and other pages with a plain heading.
 
     The brand is appended rather than assumed: these blurbs are written once and
     rendered on all eight domains, so without it every storefront ships an
-    identical description for its calculator, its rewards page and each of its
-    four policies.
+    identical description for each policy and operational page.
     """
     blurb = _clean(blurb) or _clean(site.meta_description)
     brand = _clean(site.brand_name)

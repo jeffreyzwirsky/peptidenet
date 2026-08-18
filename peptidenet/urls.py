@@ -36,8 +36,12 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("category/<slug:slug>/", views.home, name="category"),
     path("product/<slug:slug>/", views.product_detail, name="product_detail"),
-    path("calculator/", views.calculator, name="calculator"),
-    path("rewards/", views.rewards, name="rewards"),
+    # Removed 2026-08-16 (compliance remediation). /calculator/ published
+    # reconstitution volumes and insulin-syringe fill lines; /rewards/ ran a
+    # referral-credit and volume-discount programme. Both are gone rather than
+    # reworded, and both return 410 so the URLs are not quietly reused.
+    path("calculator/", views.gone, name="calculator_gone"),
+    path("rewards/", views.gone, name="rewards_gone"),
     # Regional landing pages. A site only serves its own market's regions.
     path("research-peptides/<slug:slug>/", views.region_page, name="region"),
     # Policy pages. Clean top-level paths because these are the URLs a payment

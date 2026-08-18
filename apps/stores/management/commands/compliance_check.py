@@ -108,21 +108,21 @@ class Command(BaseCommand):
                 # than no check at all.
                 self.failures.append((surface, "EMPTY SURFACE", []))
                 self.stdout.write(self.style.ERROR(
-                    f"  ✗ {surface}: scanned 0 items — this surface is empty or "
-                    "mis-wired. Pass --allow-empty only if you know why."))
+                    f"  FAIL {surface}: scanned 0 items - this surface is empty "
+                    "or mis-wired. Pass --allow-empty only if you know why."))
         if opts["rendered"]:
             self._check_rendered()
 
         self.stdout.write("")
         if self.failures:
-            breakdown = " · ".join(f"{k}={v}" for k, v in self.counts.items())
+            breakdown = " | ".join(f"{k}={v}" for k, v in self.counts.items())
             self.stdout.write(self.style.ERROR(
                 f"compliance_check: {len(self.failures)} failure(s) "
                 f"across {self.checked} text surfaces ({breakdown})"))
             raise SystemExit(1)
         # State the pattern set with the count, always — a bare total invites
         # exactly the misreading that produced this rule.
-        breakdown = " · ".join(f"{k}={v}" for k, v in self.counts.items())
+        breakdown = " | ".join(f"{k}={v}" for k, v in self.counts.items())
         self.stdout.write(self.style.SUCCESS(
             f"compliance_check: {self.checked} text surfaces, 0 failures "
             f"({breakdown})"))
@@ -137,9 +137,9 @@ class Command(BaseCommand):
         if not hard:
             return
         self.failures.append((where, label, hard))
-        self.stdout.write(self.style.ERROR(f"  ✗ {where} · {label}"))
+        self.stdout.write(self.style.ERROR(f"  FAIL {where} | {label}"))
         for rule, snippet in hard[:6]:
-            self.stdout.write(f"      {rule}: “{snippet}”")
+            self.stdout.write(f'      {rule}: "{snippet}"')
 
     def _heading(self, name):
         if not self.quiet:

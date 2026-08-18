@@ -58,7 +58,7 @@ def stub_answer(question, site):
                 f"identity or purity, run your own analysis before use. {DISCLAIMER}")
     if any(w in q for w in ["pay", "checkout", "order", "return", "refund", "code", "discount"]):
         promo = getattr(site, "promo_code", "") if site else ""
-        extra = f" Use code {promo} for 10% off." if promo else ""
+        extra = ""
         return (f"Add items to your cart and check out on-site.{extra} Questions about an order? "
                 f"Reach our team from the Contact section. {DISCLAIMER}")
     cats = sorted({p.category.name for p in products})

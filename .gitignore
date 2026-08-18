@@ -7,3 +7,4 @@ venv/
 dj_*.png
 smoke.py
 .venv/
+_to_delete/

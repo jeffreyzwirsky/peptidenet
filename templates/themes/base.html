@@ -62,7 +62,6 @@
     <a href="/" class="brand">{% block brandmark %}<span class="brand-name">{{ site.brand_name }}</span>{% endblock %}</a>
     <nav class="nav-links">{% block navlinks %}
       <a href="/#catalogue">Compounds</a>
-      <a href="/calculator/">Calculator</a>
       <a href="/#quality">Quality</a>
       <a href="/blog/">Blog</a>
       <a href="/#contact">Contact</a>
@@ -198,15 +197,16 @@
         <li><a href="/returns/">Returns &amp; Refunds</a></li>
         <li><a href="/privacy/">Privacy</a></li>
         <li><a href="/terms/">Terms</a></li>
-        <li><a href="/rewards/">Bulk pricing &amp; referrals</a></li>
-        <li><a href="/calculator/">Reconstitution calculator</a></li>
         <li><a href="/blog/">Research notes</a></li>
       </ul>
     </div>
   </div>
   {% comment %} No origin claim here. Orders ship direct from the manufacturing partner, so
      stating a ships-from country would be a false representation. {% endcomment %}
-  <div class="wrap foot-bottom">© 2026 {{ site.brand_name }}. {{ site.shipping_window }} delivery. Age 21+.</div>
+  <div class="wrap foot-bottom">© 2026 {{ site.brand_name }}. {{ site.shipping_window }} delivery.
+    <br><strong>We do not sell to patients or to individuals for personal use.</strong>
+    Laboratory research materials supplied to institutions and businesses. Not for human or
+    veterinary use, not for diagnostic or therapeutic use, and not a food, supplement or cosmetic.</div>
 </footer>
 {% endblock %}
 

@@ -117,9 +117,9 @@ class Command(BaseCommand):
         if moves:
             self.stdout.write("\nCost changes:")
             for cat, name, old, new, pct in sorted(moves, key=lambda m: -abs(m[4])):
-                arrow = self.style.ERROR("↑") if new > old else self.style.SUCCESS("↓")
+                arrow = self.style.ERROR("up") if new > old else self.style.SUCCESS("down")
                 self.stdout.write(f"  {arrow} {cat:<8} {name[:34]:<34} "
-                                  f"{old} → {new} ({pct:+.0f}%)")
+                                  f"{old} -> {new} ({pct:+.0f}%)")
 
         self.stdout.write(self.style.SUCCESS(
             f"\n{created} created, {updated} repriced, {unchanged} unchanged."))
@@ -133,7 +133,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(
                 f"{flagged.count()} SKU(s) need legal review ({by_risk}). They are in "
                 f"the cost list but must not be listed for sale without a deliberate "
-                f"decision — see /manage/pricing/."))
+                f"decision - see /manage/pricing/."))
             # Say plainly whether any of them reached a storefront. The old
             # warning gave a count and left the reader to guess, which is how
             # "31 flagged SKUs" got read as "31 products are live" — it was
@@ -148,7 +148,7 @@ class Command(BaseCommand):
                     + ", ".join(live.values_list("slug", flat=True)[:20])))
             else:
                 self.stdout.write(
-                    "  None of them are listed for sale — no active product "
+                    "  None of them are listed for sale - no active product "
                     "carries one of these catalogue codes.")
         if o["dry_run"]:
             raise CommandError("--dry-run: rolled back, nothing written.")

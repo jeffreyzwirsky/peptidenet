@@ -784,21 +784,8 @@ section{padding:var(--sp-section) 0}
   font-variant-numeric:tabular-nums;white-space:nowrap}
 .bulk-vials{color:var(--muted);font-weight:600;white-space:nowrap}
 .pdp-add{margin:var(--sp-3) 0 0;width:100%;font-size:var(--fs-md);min-height:54px;padding:15px 22px}
-/* border-collapse:separate + no overflow clip: `overflow:hidden` on a table
-   also clips the <caption>, which shaved the first glyph off "Buy more, save
-   more…" against the rounded corner. */
-.pdp-bulk{width:100%;border-collapse:separate;border-spacing:0;margin:var(--sp-4) 0 0;
-  font-size:var(--fs-2xs);border:1px solid var(--hairline);
-  border-radius:calc(var(--radius) - 2px);font-variant-numeric:tabular-nums}
-.pdp-bulk caption{caption-side:top;text-align:left;font-size:var(--fs-3xs);color:var(--muted);
-  padding:0 0 8px;font-weight:700;letter-spacing:var(--track-label);text-transform:uppercase}
-.pdp-bulk th,.pdp-bulk td{padding:9px var(--sp-2);text-align:left;border-bottom:1px solid var(--hairline-soft)}
-.pdp-bulk thead th{background:var(--tint-1);font-size:var(--fs-3xs);text-transform:uppercase;
-  letter-spacing:.1em;color:var(--muted)}
-.pdp-bulk thead th:first-child{border-top-left-radius:calc(var(--radius) - 3px)}
-.pdp-bulk thead th:last-child{border-top-right-radius:calc(var(--radius) - 3px)}
-.pdp-bulk tbody tr:last-child td{border-bottom:0}
-.pdp-bulk tbody tr:nth-child(n+2) td:nth-child(2){color:var(--accent);font-weight:700}
+.pdp-volume{margin:var(--sp-4) 0 0;color:var(--muted);font-size:var(--fs-xs);line-height:1.6}
+.pdp-volume a{font-weight:800;color:var(--accent)}
 .pdp-trust{list-style:none;padding:var(--sp-4) 0 0;margin:var(--sp-4) 0 0;
   border-top:1px solid var(--hairline);display:grid;grid-template-columns:minmax(0,1fr);gap:11px var(--sp-4)}
 @media (min-width:36rem){.pdp-trust{grid-template-columns:repeat(2,minmax(0,1fr))}}

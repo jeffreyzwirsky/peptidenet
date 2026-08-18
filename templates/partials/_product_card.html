@@ -29,8 +29,7 @@
     {% endcomment %}
     <div class="pcard-price">
       ${{ product.pack_price }} <span>/ {{ product.pack_label }}</span>
-      {% if product.is_discounted %}<s class="price-was">${{ product.pack_list_price }}</s>
-      <span class="price-save">Save {{ product.discount_pct }}%</span>{% endif %}
+      {% if product.is_discounted %}<s class="price-was">${{ product.pack_list_price }}</s>{% endif %}
     </div>
     {% if product.sells_in_packs %}
     <p class="pcard-unit">${{ product.price }} per vial · {{ product.vials_per_pack }}-vial minimum</p>

@@ -9,15 +9,10 @@ from django.utils.text import slugify
 # holds the vials per sellable unit (10 for compounds, 1 for supplies).
 DEFAULT_PACK_SIZE = 10
 
-# Network-wide "buy more, save more" tiers: (minimum PACKS, % off).
-#
-# These count packs, not vials. That matters: when the minimum order became one
-# 10-vial pack, tiers keyed to vials meant every order cleared the top tier on
-# its first item — a permanent extra 15% off dressed up as a volume reward, and
-# 15% straight off the margin of the smallest possible order. Counting packs
-# restores the intent: the minimum order pays full freight, and a real volume
-# commitment (3 packs = 30 vials) is what earns the discount.
-BULK_DISCOUNT_TIERS = [(3, 5), (5, 10), (10, 15)]
+# Automatic "buy more, save more" tiers were withdrawn in the 2026-08-16
+# compliance pass. Institutional volume pricing belongs in a quote after buyer
+# qualification, not in a public cart incentive.
+BULK_DISCOUNT_TIERS = []
 
 
 class Category(models.Model):
@@ -426,14 +421,9 @@ class Product(models.Model):
         v = self.review_qs.aggregate(a=Avg("rating"))["a"]
         return round(v, 1) if v else None
 
-    # --- bulk / tiered pricing ---
+    # --- volume quote compatibility ---
     def bulk_tiers(self):
-        """Rows for the buy-more-save table.
-
-        `min_qty` counts PACKS. `vials` spells that out for the customer, because
-        "3+" next to a per-vial price is the kind of ambiguity that turns into a
-        chargeback. Every price here is per pack.
-        """
+        """No public automatic tiers; retained for older templates/imports."""
         rows = []
         for min_qty, pct in BULK_DISCOUNT_TIERS:
             unit = (self.pack_price * (Decimal(100 - pct) / Decimal(100))).quantize(Decimal("0.01"))

@@ -163,24 +163,24 @@ class Command(BaseCommand):
                         break
                     flagged += 1
                     self.stdout.write(self.style.WARNING(
-                        f"  {site.domain}: “{candidate.title}” FLAGGED "
-                        f"(keyword “{kw}”) — held in needs_review."))
+                        f"  {site.domain}: \"{candidate.title}\" FLAGGED "
+                        f"(keyword \"{kw}\") - held in needs_review."))
                 if post is None:
                     self.stdout.write(self.style.ERROR(
                         f"  {site.domain}: nothing publishable after {tries} "
-                        "attempts — the lane needs a human."))
+                        "attempts - the lane needs a human."))
                     continue
             elif opts["dry_run"]:
                 self.stdout.write(f"  {site.domain}: would publish backlog draft "
-                                  f"“{post.title}”")
+                                  f"\"{post.title}\"")
                 continue
 
             ensure_hero_image(post)
             post.publish()
             published += 1
             self.stdout.write(self.style.SUCCESS(
-                f"  {site.domain}: published ({source}) “{post.title}” "
-                f"→ /blog/{post.slug}/"))
+                f"  {site.domain}: published ({source}) \"{post.title}\" "
+                f"-> /blog/{post.slug}/"))
 
         self.stdout.write(self.style.SUCCESS(
             f"blog_tick: {published} published, {generated} generated, "

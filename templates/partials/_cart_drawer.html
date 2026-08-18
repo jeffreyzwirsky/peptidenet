@@ -40,9 +40,30 @@
       </fieldset>
       {% endif %}
 
+      {% comment %} Compliance remediation 2026-08-16. Three separately-affirmed
+         statements rather than one combined box: who the buyer is, what the
+         material will not be used for, and that it will not be passed on. A
+         single "I agree" checkbox is the formality this was previously
+         described as not being.
+
+         STILL OUTSTANDING: none of this is verified. There is no account, no
+         purchaser qualification and no business-address requirement, so these
+         remain self-certifications on an anonymous checkout. {% endcomment %}
+      <p class="cart-gate"><strong>We do not sell to patients or to individuals
+        for personal use.</strong> These materials are supplied to institutions and
+        businesses for laboratory research.</p>
+      <label class="cart-ruo">
+        <input type="checkbox" name="buyer_ack" value="1" required>
+        I am ordering on behalf of an institution or business, not as an individual for personal use.
+      </label>
       <label class="cart-ruo">
         <input type="checkbox" name="ruo_ack" value="1" required>
-        I confirm these compounds are for laboratory research use only, and not for human or veterinary use.
+        These materials are for in-vitro or preclinical laboratory research only, and will not be
+        administered to any human or animal subject by any route.
+      </label>
+      <label class="cart-ruo">
+        <input type="checkbox" name="resale_ack" value="1" required>
+        These materials will not be resold, redistributed or transferred to any third party.
       </label>
       <button type="submit" class="btn btn-primary btn-checkout">Place order</button>
     </form>

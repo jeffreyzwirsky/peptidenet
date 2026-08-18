@@ -1,3 +1,22 @@
+# ---------------------------------------------------------------------------
+# COMPLIANCE REMEDIATION 2026-08-16
+#
+# Removed from this module: every passage that cross-sold bacteriostatic water
+# alongside a compound ("whether you already hold bacteriostatic water or need
+# it in the same order", the "Reconstitution supplies" sections, the
+# "Do you sell bacteriostatic water?" FAQs). Bundling a lyophilised compound
+# with a diluent has been used directly as evidence of intended injection, and
+# editorial cross-sell is the same evidence as a bundle SKU. Bacteriostatic
+# water is itself delisted from the catalogue.
+#
+# STILL OPEN, and larger than these strings: there is no such thing as regional
+# demand for a laboratory reagent. These 25 pages explain transit times, customs
+# handling and what to confirm before ordering, addressed in the second person
+# to someone receiving a parcel. Several reference rural civic addresses and
+# mailroom delivery. The recommendation on file is to delete all 25 pages and
+# this module with them; only the constraint-4 bundling strings have been
+# removed here.
+# ---------------------------------------------------------------------------
 """
 Regional landing-page content for the storefront network.
 
@@ -327,10 +346,8 @@ REGIONS = [
                 "body": (
                     "Four things are worth checking. First, the compound name "
                     "and vial size, since several items ship in more than one "
-                    "size. Second, whether you already hold bacteriostatic "
-                    "water for reconstitution or need it in the same order. "
-                    "Third, the delivery address and a reachable phone number. "
-                    "Fourth, that you are permitted to receive and hold the "
+                    "size. Second, the delivery address and a reachable phone "
+                    "number. Third, that you are permitted to receive and hold the "
                     "material where you are. That last one is on the buyer."
                 ),
             },
@@ -341,13 +358,6 @@ REGIONS = [
                 "a": (
                     "Orders move on a 10 to 15 day window. A rural address is "
                     "more likely to land at the later end of it."
-                ),
-            },
-            {
-                "q": "Can I add bacteriostatic water to an order?",
-                "a": (
-                    "Yes. Bacteriostatic water is listed in the "
-                    "catalogue as a supply item and ships in the same parcel."
                 ),
             },
             {
@@ -877,17 +887,6 @@ REGIONS = [
                     "is used rather than a route description."
                 ),
             },
-            {
-                "h2": "Reconstitution supplies",
-                "body": (
-                    "Compounds ship as dry lyophilised powder.  "
-                    "bacteriostatic water is listed separately in the catalogue "
-                    "as a supply item, in a 30 ml size, for reconstituting that "
-                    "powder in laboratory work. If you do not already hold it, "
-                    "adding it to the same order avoids a second parcel and a "
-                    "second window."
-                ),
-            },
         ],
         "faqs": [
             {
@@ -902,13 +901,6 @@ REGIONS = [
                 "a": (
                     "The same 10 to 15 day window that applies everywhere. "
                     "Customs inspection can extend it."
-                ),
-            },
-            {
-                "q": "Do you sell bacteriostatic water?",
-                "a": (
-                    "Yes, as a supply item in a 30 ml size, for "
-                    "reconstituting lyophilised research compounds."
                 ),
             },
             {
@@ -1161,8 +1153,7 @@ REGIONS = [
                     "Northern buyers get more out of one larger order than "
                     "several small ones. Each parcel is its own window, its own "
                     "customs step and its own final leg. Grouping compounds "
-                    "together, and adding reconstitution supplies in the same "
-                    "order, removes repeated waiting. Confirm vial sizes before "
+                    "into one order removes repeated waiting. Confirm vial sizes before "
                     "you combine, since sizes differ by compound."
                 ),
             },
@@ -3010,8 +3001,7 @@ REGIONS = [
                 "body": (
                     "Confirm the compound name and the vial size, since several "
                     "items ship in more than one size and the price is per "
-                    "vial. Confirm whether you need bacteriostatic water in the "
-                    "same order. Confirm the delivery address, unit number and "
+                    "vial. Confirm the delivery address, unit number and "
                     "phone. Then confirm that you may lawfully receive and hold "
                     "the material where you are, which is the buyer's "
                     "responsibility."
@@ -3028,8 +3018,8 @@ REGIONS = [
             {
                 "q": "What form do compounds arrive in?",
                 "a": (
-                    "Lyophilised powder in a sealed vial. Bacteriostatic water "
-                    "for reconstitution is listed separately as a supply item."
+                    "Lyophilised powder in a sealed vial. We do not supply "
+                    "diluents or administration guidance."
                 ),
             },
             {
@@ -3438,16 +3428,6 @@ REGIONS = [
                 ),
             },
             {
-                "h2": "Reconstitution supplies in the same order",
-                "body": (
-                    "Nothing in the compound range arrives wet. If your protocol "
-                    "calls for reconstituting the powder at the bench, the "
-                    "Bacteriostatic water listed under supplies "
-                    "covers that, and ordering it alongside the compounds saves "
-                    "waiting out a whole second window for one bottle."
-                ),
-            },
-            {
                 "h2": "Eastern Time and the order queue",
                 "body": (
                     "Ohio keeps Eastern Time. Our order queue is processed "
@@ -3462,14 +3442,6 @@ REGIONS = [
                 "a": (
                     "Dry lyophilised material handles cold transit. Let a cold "
                     "sealed vial reach room temperature before opening it."
-                ),
-            },
-            {
-                "q": "Do I need bacteriostatic water?",
-                "a": (
-                    "Only if you intend to reconstitute the powder in "
-                    "laboratory work and do not already hold a  "
-                    "supply. It is listed as a separate catalogue item."
                 ),
             },
             {

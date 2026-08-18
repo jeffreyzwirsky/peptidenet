@@ -14,48 +14,70 @@ from apps.stores.models import Site
 #  * No origin claims. Orders ship direct from the manufacturing partner, so
 #    no tagline or meta description may say or imply where goods ship from.
 #    `ships_from` is deliberately left empty everywhere.
+# ---------------------------------------------------------------------------
+# COMPLIANCE REMEDIATION 2026-08-16 - READ BEFORE ADDING A SITE
+#
+# Six of these eight domains are, on their face, representations of consumer
+# intent and cannot be cured by copy:
+#
+#   smashfat.ca / smash-fat.ca / smash-fat.com / smashfatbiolabs.ca /
+#   smashfatbiolabs.com  - the brand is a weight-loss claim. Under 21 CFR
+#   201.128 intended use is inferred from the totality of the circumstances,
+#   and a domain name is the top-level circumstance: it is what appears in
+#   every search result, link, email header and browser tab.
+#
+#   where-do-i-get-peptides.ca / .com - built to capture individual-consumer
+#   search intent, addressed in their own copy to "Canadian buyers".
+#
+# Taglines and promo codes that stated or implied a body-composition outcome
+# ("Smash fat. Research-grade.", BURN10) have been blanked here. That is a
+# holding action, not a fix. THE DOMAINS THEMSELVES ARE THE FINDING and the
+# remediation is to retire or rename them, and to consolidate eight
+# same-catalogue storefronts down to one supplier on one domain.
+#
+# Promo codes are blanked network-wide: discount urgency on an unapproved
+# compound is a retail device, and BURN10 was a fat-loss promise in a coupon.
+# ---------------------------------------------------------------------------
 SITES = [
     # ---------------- Canada (.ca) ----------------
     {"domain": "smashfatbiolabs.ca", "brand_name": "SmashFat BioLabs", "theme": "biolabs",
      "country": "CA", "currency": "CAD", "brand_key": "smashfatbiolabs",
-     "tagline": "We only claim what we can show.", "promo_code": "SMASH10",
+     "tagline": "We only claim what we can show.", "promo_code": "",
      "meta_description": "Research compounds for Canadian laboratories. Sold uncharacterised — "
                          "we hold no analysis and say so. 10–15 day delivery."},
     {"domain": "smashfat.ca", "brand_name": "SmashFat", "theme": "neon",
      "country": "CA", "currency": "CAD", "brand_key": "smashfat",
-     "tagline": "Smash fat. Research-grade.", "promo_code": "BURN10",
-     "meta_description": "Metabolic research compounds for Canadian "
-                         "researchers — GLP-1, GIP and mitochondrial targets."},
+     "tagline": "", "promo_code": "",
+     "meta_description": ""},
     {"domain": "smash-fat.ca", "brand_name": "Smash Fat", "theme": "apothecary",
      "country": "CA", "currency": "CAD", "brand_key": "smash-fat",
-     "tagline": "A small formulary, plainly described.", "promo_code": "CALM10",
+     "tagline": "A small formulary, plainly described.", "promo_code": "",
      "meta_description": "A boutique research peptide source for Canada — lyophilised, "
                          "carefully handled, and sold uncharacterised."},
     {"domain": "peptidesalberta.ca", "brand_name": "Peptides Alberta", "theme": "prairie",
      "country": "CA", "currency": "CAD", "brand_key": "peptidesalberta",
-     "tagline": "Research peptides for Alberta labs.", "promo_code": "ALBERTA10",
+     "tagline": "Research peptides for Alberta labs.", "promo_code": "",
      "meta_description": "Research compounds for laboratories in Calgary, Edmonton "
                          "and across Alberta. Sold uncharacterised — we hold no analysis."},
     {"domain": "where-do-i-get-peptides.ca", "brand_name": "Where Do I Get Peptides?", "theme": "guide",
      "country": "CA", "currency": "CAD", "brand_key": "where-do-i-get-peptides",
-     "tagline": "Where do I get peptides? Right here.", "promo_code": "START10",
-     "meta_description": "Straight answers for Canadian buyers, a working catalogue, "
-                         "and an honest account of what we don't hold."},
+     "tagline": "", "promo_code": "",
+     "meta_description": ""},
 
     # ---------------- United States (.com) ----------------
     {"domain": "smashfatbiolabs.com", "brand_name": "SmashFat BioLabs", "theme": "clinical",
      "country": "US", "currency": "USD", "brand_key": "smashfatbiolabs",
-     "tagline": "Plainly described compounds for precision research.", "promo_code": "LAB10",
+     "tagline": "Plainly described compounds for precision research.", "promo_code": "",
      "meta_description": "Research peptides for US laboratories, sold uncharacterised, "
                          "with no analysis claimed."},
     {"domain": "smash-fat.com", "brand_name": "Smash Fat", "theme": "editorial",
      "country": "US", "currency": "USD", "brand_key": "smash-fat",
-     "tagline": "Peptides, with a loud signature.", "promo_code": "NOISE10",
+     "tagline": "", "promo_code": "",
      "meta_description": "A design-forward reference library of research peptides, "
                          "with published structural data for every compound."},
     {"domain": "where-do-i-get-peptides.com", "brand_name": "Where Do I Get Peptides?", "theme": "directory",
      "country": "US", "currency": "USD", "brand_key": "where-do-i-get-peptides",
-     "tagline": "The answer is here.", "promo_code": "GUIDE10",
+     "tagline": "", "promo_code": "",
      "meta_description": "How to vet a research peptide supplier — and an honest "
                          "source that tells you plainly where it falls short."},
 ]

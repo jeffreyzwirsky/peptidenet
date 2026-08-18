@@ -22,6 +22,22 @@ and are deliberately conservative, but nobody with a law licence has read them.
 The project's own notes have had "compliance/legal review — not done" open since
 2026-07-19. Have a lawyer read these before relying on them.
 
+NOTE - compliance remediation 2026-08-16
+----------------------------------------
+"Who we sell to" is now the first section, and states plainly that we do not
+sell to patients or to individuals for personal use. That sentence is
+load-bearing: under 21 CFR 201.128 and the Canadian equivalent, who a supplier
+will sell to is the fact that distinguishes a research-reagent supplier from a
+consumer drug storefront, and a research-use-only line does not do that work on
+its own.
+
+STILL OUTSTANDING. The statement above is currently not enforced by anything.
+There is no account, no purchaser qualification, no affiliation check and no
+business-address requirement - checkout takes an anonymous order to any address
+with a single acknowledgement checkbox. Until the account-level attestation gate
+is built, this section describes a policy the checkout does not implement, and
+that gap is itself a finding.
+
 Two rules the copy must hold, same as the rest of the storefront:
   * No shipping-origin claim. Goods ship direct from the manufacturing partner.
   * No medical, dosing or human-use language anywhere.
@@ -76,8 +92,8 @@ def _shipping(site):
                 "packs from there.",
                 "Every product page shows the price of a full pack alongside the "
                 "per-vial figure, and your cart shows the total number of vials "
-                "before you pay. Consumables such as bacteriostatic water are not "
-                "vials and can be bought singly.",
+                "before you pay. Approved single-unit supplies are not vials "
+                "and can be bought singly.",
             ]),
             ("How your order ships", [
                 f"{brand} does not hold stock. When your payment is confirmed we "
@@ -279,11 +295,56 @@ def _terms(site):
     return {
         "title": "Terms of Sale",
         "summary": (
-            "Everything sold here is a laboratory reference material for research "
-            "use only. It is not for human or veterinary use. You must be 21 or "
-            "over to order."
+            "We supply laboratory research materials to institutions and "
+            "businesses. We do not sell to patients, or to individuals for "
+            "personal use. Nothing here is for human or veterinary use."
         ),
         "sections": [
+            ("Who we sell to", [
+                "**We do not sell to patients or to individuals for personal "
+                "use.** This site supplies laboratory research materials to "
+                "qualified institutions and businesses conducting in-vitro and "
+                "preclinical research.",
+                "The products listed are not medicines. They have not been "
+                "approved by Health Canada or the US Food and Drug "
+                "Administration for any use, they have not been evaluated for "
+                "safety or efficacy in humans, and they must not be "
+                "administered to any person. If you are looking for a treatment "
+                "for a medical condition, this site cannot help you \u2014 speak to "
+                "a physician or a licensed pharmacy.",
+                "We may refuse or cancel any order, and suspend or close any "
+                "account, at our discretion and without stating a reason.",
+            ]),
+            ("No resale or redistribution", [
+                "Materials are supplied for the purchaser's own research use. "
+                "The purchaser will not resell, redistribute, gift, repackage, "
+                "relabel or otherwise transfer any material to a third party, "
+                "and will not incorporate any material into a preparation "
+                "supplied to a third party.",
+            ]),
+            ("Analytical documentation", [
+                "Where a lot-linked certificate of analysis has been supplied "
+                "to us, we publish it on the product page for the lot it "
+                "covers. Where no certificate is published, none is held, and "
+                "the material is supplied uncharacterised.",
+                "**We make no representation as to the identity, purity, "
+                "content or composition of any material for which no "
+                "certificate is published.** Any purchaser whose work depends "
+                "on established identity or purity must arrange their own "
+                "analysis before use.",
+            ]),
+            ("No guidance on use", [
+                "We do not supply, and cannot supply on request, any "
+                "information on preparation for administration, dosage, dosing "
+                "schedule, route of administration, or use in a living subject. "
+                "Requests for such information will be declined.",
+            ]),
+            ("Records", [
+                "We retain purchaser records, order records and shipment "
+                "records, and may produce them to a regulator on lawful "
+                "request. By ordering, the purchaser consents to that retention "
+                "and production.",
+            ]),
             ("Research use only", [
                 "Every compound in this catalogue is supplied strictly as a "
                 "laboratory reference material for in-vitro research and "
@@ -307,9 +368,8 @@ def _terms(site):
                 "human or veterinary use, or represent them as suitable for it.",
             ]),
             ("Orders and payment", [
-                f"All prices are in {currency}. Prices, promotions and bulk tiers "
-                f"can change at any time; the price that applies is the one shown "
-                f"when you order.",
+                f"All prices are in {currency}. Listed prices can change at any "
+                f"time; the price that applies is the one shown when you order.",
                 "We accept Interac e-Transfer, cryptocurrency, Alipay and Western "
                 "Union. Every payment is confirmed by a person before an order "
                 "proceeds, so there is a short gap between ordering and "

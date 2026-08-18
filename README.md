@@ -13,7 +13,7 @@ site is one command.
 | **Site registry** | `apps/stores` (`Site` model) | domain → brand + theme. The whole "add a site" surface. |
 | **Host routing** | `apps/stores/middleware.py` | resolves `request.site` + `request.theme` from the host (with a tiny cache; www + aliases supported). |
 | **Shared catalogue** | `apps/catalog` (`Product`, `Category`) | one product list for the network — edit once, updates everywhere. |
-| **Cart + checkout** | `apps/stores/cart.py`, `apps/orders` | session cart; checkout creates an `Order` in the dropship flow (see below). Requires a shipping address and a research-use-only acknowledgement. |
+| **Cart + checkout** | `apps/stores/cart.py`, `apps/orders` | session cart; checkout creates an `Order` in the dropship flow (see below). Requires a shipping address, buyer qualification, research-use-only and no-resale acknowledgements. |
 | **Dropship supply chain** | `apps/suppliers` | `Supplier` + `PurchaseOrder`. One PO per paid customer order, rendered as text for email/WhatsApp and sent by a human. |
 | **Leads** | `apps/leads` | central contact/feedback capture across every site. |
 | **Themes** | `templates/themes/<t>/home.html` + `static/themes/<t>/theme.css` | 8 distinct looks, all extending one `base.html` that owns the catalogue grid, cart drawer, age gate, cookie banner and JS. |
@@ -49,7 +49,7 @@ In production the `Host` header selects the store automatically.
 ```bash
 python manage.py add_site peptideswinnipeg.ca \
     --brand "Peptides Winnipeg" --theme prairie \
-    --tagline "Research peptides, shipped from Winnipeg." --promo WPG10
+    --tagline "Research peptides for Winnipeg labs."
 
 python manage.py emit_hosts     # copy into PEPTIDENET_HOSTS (ALLOWED_HOSTS)
 python manage.py emit_nginx > deploy/nginx.conf   # regenerate nginx blocks
@@ -169,6 +169,11 @@ data for the panel: `python manage.py seed_demo`.
 
 Admin → Products (or edit `data/catalogue.json` and re-run `seed_catalog`).
 Every site that renders that category updates instantly — no per-site edits.
+
+Products marked `disposition: DELIST` in `data/catalogue.json` are seeded
+inactive and must not render or sell. Products marked `FIX` remain live only as
+plain research-material listings: no purity figure is shown unless a lot-linked
+COA is actually held, and public automatic bulk discounts are withdrawn.
 
 ## Deploy (mirrors the lead system)
 

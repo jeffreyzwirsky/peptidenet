@@ -7,25 +7,21 @@ break one, so a pack is the smallest thing a customer can buy. `qty` counts
 packs; `vials` is derived for display. Supplies have `pack_size = 1`, so for
 them a pack *is* a unit and nothing below changes behaviour.
 
-Getting this wrong in either direction is expensive — treat qty as vials and a
+Getting this wrong in either direction is expensive - treat qty as vials and a
 customer pays 1/10th of what they should; treat a supply as a 10-pack and they
-get billed for ten bottles of bacteriostatic water they didn't order. Hence the
+get billed for ten single-unit supplies they didn't order. Hence the
 derivation lives here, once, rather than in each template.
 """
 from decimal import Decimal
 
-from apps.catalog.models import BULK_DISCOUNT_TIERS, Product
+from apps.catalog.models import Product
 
 CART_SESSION_KEY = "cart"
 
 
 def bulk_pct_for_qty(qty):
-    """Highest bulk-discount % a line qualifies for. `qty` is PACKS."""
-    pct = 0
-    for min_qty, tier_pct in BULK_DISCOUNT_TIERS:
-        if qty >= min_qty:
-            pct = tier_pct
-    return pct
+    """Automatic line discounts were withdrawn; keep the API shape stable."""
+    return 0
 
 
 class Cart:
@@ -118,7 +114,7 @@ class Cart:
         return out
 
     def count(self):
-        """Packs in the cart — this is what the header badge shows."""
+        """Packs in the cart - this is what the header badge shows."""
         return sum(self.cart.values())
 
     def vial_count(self):
@@ -126,7 +122,7 @@ class Cart:
         return sum(i["vials"] for i in self.items())
 
     def subtotal(self):
-        """Gross subtotal before bulk discounts."""
+        """Subtotal at listed pack prices."""
         return sum((i["line_gross"] for i in self.items()), Decimal("0"))
 
     def savings(self):

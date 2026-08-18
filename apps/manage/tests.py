@@ -90,7 +90,7 @@ class ControlPanelTests(TestCase):
         """Post a valid checkout. The dropship flow requires a shipping address
         (the partner ships direct) and the research-use-only acknowledgement."""
         payload = {"name": "L", "email": "a@b.ca", "shipping_address": "1 Bench Rd",
-                   "payment_method": "interac", "ruo_ack": "1"}
+                   "payment_method": "interac", "ruo_ack": "1", "buyer_ack": "1", "resale_ack": "1"}
         payload.update(extra)
         return self.client.post("/checkout/", payload,
                                 content_type="application/json", HTTP_HOST=host)

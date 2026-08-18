@@ -3,7 +3,7 @@ import math
 
 from django.conf import settings
 from django.db.models import Q
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseGone, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
@@ -205,6 +205,27 @@ def policy(request, slug):
     })
 
 
+
+def gone(request):
+    """410 for pages withdrawn in the 2026-08-16 compliance remediation.
+
+    /calculator/ converted a vial mass and a diluent volume into a fill line on
+    a U-100 insulin syringe, and reported doses per vial. There is no in-vitro
+    use for either number; both are administration guidance, and the
+    research-use-only paragraph underneath them did not change what the page
+    did. /rewards/ paid referral credit for introducing new buyers and gamified
+    volume discounts.
+
+    410 rather than 404: both URLs were indexed, linked from the global footer
+    and deep-linked from every product page. Gone tells a crawler the removal
+    is deliberate and permanent.
+    """
+    return HttpResponseGone(
+        "This page has been permanently withdrawn. Products on this site are "
+        "supplied for laboratory research only, and no guidance on preparation "
+        "for administration, dosage or route of administration is available."
+    )
+
 def region_page(request, slug):
     """
     Regional landing page — /research-peptides/<region>/.
@@ -270,24 +291,6 @@ def region_page(request, slug):
     })
 
 
-def calculator(request):
-    _require_site(request)
-    return render(request, _theme_template(request, "calculator.html"), {
-        "seo": seo.generic(
-            request.site, "Peptide Reconstitution Calculator",
-            "Work out concentration, volume to draw and doses per vial for a "
-            "lyophilised research peptide. For laboratory use only."),
-    })
-
-
-def rewards(request):
-    _require_site(request)
-    return render(request, _theme_template(request, "rewards.html"), {
-        "seo": seo.generic(
-            request.site, "Bulk Pricing & Referrals",
-            f"Automatic volume pricing, first-order discount and referral "
-            f"options at {request.site.brand_name}. For research use only."),
-    })
 
 
 def _cart_payload(cart):
@@ -382,14 +385,28 @@ def checkout(request):
         return JsonResponse({"ok": False, "error": "Your cart is empty."}, status=400)
     data = _body(request)
 
-    # Research-use-only acknowledgement is a hard gate, not a nicety — it's the
-    # record that the buyer was told what they were buying.
-    if not data.get("ruo_ack"):
-        return JsonResponse(
-            {"ok": False,
-             "error": "Please confirm these compounds are for research use only."},
-            status=400,
-        )
+    # Three separately-affirmed acknowledgements, each its own record of what
+    # the buyer was told: who they are, what the material will not be used for,
+    # and that it will not be passed on. Compliance remediation 2026-08-16.
+    #
+    # These are self-certifications on an anonymous checkout and nothing here
+    # verifies any of them. The account-level purchaser qualification that would
+    # (institutional affiliation, named responsible individual, business
+    # delivery address, human review before a first order) is NOT BUILT. Until
+    # it is, the storefront states a policy it does not enforce.
+    for field, message in (
+        ("buyer_ack",
+         "Please confirm you are ordering on behalf of an institution or "
+         "business. We do not sell to individuals for personal use."),
+        ("ruo_ack",
+         "Please confirm these materials are for laboratory research only and "
+         "will not be administered to any human or animal subject."),
+        ("resale_ack",
+         "Please confirm these materials will not be resold or transferred to "
+         "a third party."),
+    ):
+        if not data.get(field):
+            return JsonResponse({"ok": False, "error": message}, status=400)
 
     shipping_address = (data.get("shipping_address") or "").strip()
     if not shipping_address:
@@ -620,7 +637,7 @@ def sitemap_xml(request):
     # timestamp behind the page, and an invented lastmod is worse than none:
     # Google stops trusting the field across the whole sitemap once it catches
     # one that does not match. Pages with nothing real behind them (policies,
-    # calculator, rewards, regions) therefore carry no lastmod at all.
+    # regions) therefore carry no lastmod at all.
     cat_lastmod = {}
     for prod in live:
         stamp = prod.price_updated_at
@@ -633,9 +650,7 @@ def sitemap_xml(request):
     latest_any = max([d for d in (latest_post, latest_catalogue) if d],
                      default=None)
     urls = [(base + "/", "daily", "1.0", latest_any),
-            (base + "/blog/", "daily", "0.7", latest_post),
-            (base + "/calculator/", "monthly", "0.6", None),
-            (base + "/rewards/", "monthly", "0.5", None)]
+            (base + "/blog/", "daily", "0.7", latest_post)]
     for c in Category.objects.all():
         urls.append((f"{base}/category/{c.slug}/", "weekly", "0.7",
                      cat_lastmod.get(c.id)))
@@ -683,12 +698,9 @@ def llms_txt(request):
         "",
         "## Key pages",
         f"- [Home]({base}/): storefront and full catalogue",
-        f"- [Reconstitution & dosage calculator]({base}/calculator/): concentration, "
-        "volume-to-draw, units, doses per vial",
-        f"- [Rewards & bulk pricing]({base}/rewards/): automatic bulk tiers, first-order code",
         f"- [Shipping & delivery]({base}/shipping/): delivery window, customs, tracking",
         f"- [Returns & refunds]({base}/returns/): damage, non-delivery, cancellation",
-        f"- [Privacy]({base}/privacy/) · [Terms of sale]({base}/terms/)",
+        f"- [Privacy]({base}/privacy/) · [Terms of Sale]({base}/terms/)",
         f"- [Blog]({base}/blog/): research notes and educational articles",
         f"- [Full LLM map]({base}/llms-full.txt): complete catalogue with specs + FAQs",
         f"- [Sitemap]({base}/sitemap.xml): all indexable URLs",
@@ -774,10 +786,11 @@ def llms_full_txt(request):
     out += [
         "",
         "## Bulk pricing",
-        "- 3+ vials: 5% off. 5+ vials: 10% off. 10+ vials: 15% off. Applied automatically in cart.",
+        "- Volume pricing quoted per order for approved institutional accounts.",
         "",
         "## Compliance",
-        "- Research use only. Not for human or veterinary use. Age 21+.",
+        "- Research use only. Not for human or veterinary use.",
+        "- We do not sell to patients or to individuals for personal use.",
         "- Reference data compiled from public chemical databases and the peer-reviewed literature.",
     ]
     return HttpResponse("\n".join(out), content_type="text/plain; charset=utf-8")

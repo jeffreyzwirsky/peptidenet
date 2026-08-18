@@ -64,7 +64,7 @@ class StorefrontTests(TestCase):
         out = self.client.post(
             "/checkout/",
             {"name": "Lab", "email": "a@b.ca", "shipping_address": "1 Bench Rd",
-             "payment_method": "interac", "ruo_ack": "1"},
+             "payment_method": "interac", "ruo_ack": "1", "buyer_ack": "1", "resale_ack": "1"},
             content_type="application/json", HTTP_HOST="smashfat.ca",
         )
         body = out.json()
@@ -92,7 +92,7 @@ class StorefrontTests(TestCase):
         self.client.post("/cart/add/", {"product_id": 1, "qty": 1},
                          content_type="application/json", HTTP_HOST="smashfat.ca")
         out = self.client.post(
-            "/checkout/", {"name": "Lab", "email": "a@b.ca", "ruo_ack": "1"},
+            "/checkout/", {"name": "Lab", "email": "a@b.ca", "ruo_ack": "1", "buyer_ack": "1", "resale_ack": "1"},
             content_type="application/json", HTTP_HOST="smashfat.ca",
         )
         self.assertEqual(out.status_code, 400)
@@ -173,14 +173,19 @@ class ProductPageTests(TestCase):
     def test_product_page_all_themes(self):
         from apps.stores.models import Site
         for s in Site.objects.all():
-            r = self.client.get("/product/retatrutide/", HTTP_HOST=s.domain, secure=True)
+            r = self.client.get("/product/bpc-157/", HTTP_HOST=s.domain, secure=True)
             self.assertEqual(r.status_code, 200, s.theme)
 
-    def test_calculator_and_rewards_pages(self):
-        for path, needle in (("/calculator/", "data-calc"), ("/rewards/", "SMASH10")):
+    def test_calculator_and_rewards_are_gone(self):
+        """Both withdrawn 2026-08-16 and must stay withdrawn.
+
+        /calculator/ turned a vial mass and a diluent volume into a fill line on
+        a U-100 insulin syringe; /rewards/ paid referral credit for introducing
+        buyers. 410, not 404 — the removal is deliberate and both URLs were
+        indexed and linked from the global footer."""
+        for path in ("/calculator/", "/rewards/"):
             r = self.client.get(path, HTTP_HOST="smashfat.ca", secure=True)
-            self.assertEqual(r.status_code, 200, path)
-            self.assertIn(needle, r.content.decode())
+            self.assertEqual(r.status_code, 410, path)
 
 
 class BulkPricingTests(TestCase):
@@ -191,32 +196,25 @@ class BulkPricingTests(TestCase):
 
     def test_bulk_tiers(self):
         from apps.stores.cart import bulk_pct_for_qty
-        self.assertEqual(bulk_pct_for_qty(1), 0)
-        self.assertEqual(bulk_pct_for_qty(2), 0)
-        self.assertEqual(bulk_pct_for_qty(3), 5)
-        self.assertEqual(bulk_pct_for_qty(5), 10)
-        self.assertEqual(bulk_pct_for_qty(10), 15)
-        self.assertEqual(bulk_pct_for_qty(25), 15)
+        for qty in (1, 2, 3, 5, 10, 25):
+            self.assertEqual(bulk_pct_for_qty(qty), 0, qty)
 
-    def test_bulk_discount_applied_in_cart(self):
+    def test_volume_order_does_not_auto_discount_in_cart(self):
         self.client.get("/", HTTP_HOST="smashfat.ca")
         r = self.client.post(
             "/cart/add/", {"product_id": 1, "qty": 5},
             content_type="application/json", HTTP_HOST="smashfat.ca",
         )
         data = r.json()
-        # 10% off at 5 packs -> savings > 0 and total < subtotal
-        self.assertGreaterEqual(float(data["savings"]), 0.01)
-        self.assertLess(float(data["total"]), float(data["subtotal"]))
-        self.assertEqual(data["items"][0]["bulk_pct"], 10)
+        self.assertEqual(float(data["savings"]), 0.0)
+        self.assertEqual(float(data["total"]), float(data["subtotal"]))
+        self.assertEqual(data["items"][0]["bulk_pct"], 0)
 
     def test_minimum_order_is_one_pack_not_one_vial(self):
         """A single 'add to cart' must buy a whole pack.
 
-        The tiers count packs, so this also pins the thing that made the
-        minimum worth introducing: one pack earns NO bulk discount. When the
-        tiers counted vials, this same cart cleared the top tier on its first
-        click and handed back 15% of the margin.
+        One pack earns no automatic discount. Volume pricing is now quoted
+        against approved institutional accounts instead of applied in-cart.
         """
         self.client.get("/", HTTP_HOST="smashfat.ca")
         r = self.client.post(
@@ -343,7 +341,7 @@ class AgeGateTests(TestCase):
 
     def test_gate_hidden_with_cookie(self):
         self.client.cookies["age_ok"] = "1"
-        for path in ("/", "/product/bpc-157/", "/calculator/"):
+        for path in ("/", "/product/bpc-157/", "/shipping/"):
             r = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca", secure=True)
             self.assertNotContains(r, "data-age-gate", msg_prefix=path)
 
@@ -538,10 +536,22 @@ class SizeFamilyTests(TestCase):
         Renaming it to bpc-157-10mg would 404 every existing link and lose the
         page's ranking — the one thing a catalogue restructure must not do.
         """
-        for slug in ("bpc-157", "tb-500", "ghk-cu", "mots-c", "retatrutide",
-                     "tesamorelin", "epithalon", "nad", "selank", "semax"):
+        for slug in ("bpc-157", "tb-500", "ghk-cu", "mots-c",
+                     "epithalon", "nad", "selank", "semax"):
             r = self.client.get(f"/product/{slug}/", HTTP_HOST="smashfatbiolabs.ca")
             self.assertEqual(r.status_code, 200, slug)
+
+    def test_delisted_families_no_longer_resolve(self):
+        """retatrutide and tesamorelin were in the slug-stability list above
+        until the 2026-08-16 compliance triage delisted them - retatrutide as a
+        GLP-1/GIP-class agonist, tesamorelin as a Canadian Prescription Drug
+        List entry. Keeping an indexed URL alive is the right instinct for a
+        catalogue restructure and the wrong one for a delisting: the page must
+        stop resolving, and it must not be redirected to a surviving product."""
+        for slug in ("retatrutide", "retatrutide-60mg", "tesamorelin",
+                     "tesamorelin-20mg", "bacteriostatic-water", "klow", "glow"):
+            r = self.client.get(f"/product/{slug}/", HTTP_HOST="smashfatbiolabs.ca")
+            self.assertIn(r.status_code, (404, 410), slug)
 
     def test_sibling_strengths_are_their_own_pages(self):
         r = self.client.get("/product/bpc-157-5mg/", HTTP_HOST="smashfatbiolabs.ca")
@@ -785,8 +795,8 @@ class SeoHygieneTests(TestCase):
     exactly one h1, heading levels never skip, canonicals pin to the canonical
     domain, aliases 301, twinned sites emit a full hreflang block."""
 
-    PATHS = ["/", "/product/bpc-157/", "/calculator/", "/rewards/", "/blog/",
-             "/shipping/", "/privacy/"]
+    PATHS = ["/", "/product/bpc-157/", "/blog/",
+             "/shipping/", "/privacy/", "/terms/"]
 
     @classmethod
     def setUpTestData(cls):
@@ -827,9 +837,9 @@ class SeoHygieneTests(TestCase):
         self.assertIn('rel="canonical" href="http://smashfatbiolabs.ca/"', html)
 
     def test_alias_host_redirects_301_to_canonical_domain(self):
-        r = self.client.get("/calculator/?x=1", HTTP_HOST="www.smashfatbiolabs.ca")
+        r = self.client.get("/shipping/?x=1", HTTP_HOST="www.smashfatbiolabs.ca")
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r["Location"], "http://smashfatbiolabs.ca/calculator/?x=1")
+        self.assertEqual(r["Location"], "http://smashfatbiolabs.ca/shipping/?x=1")
 
     def test_hreflang_block_on_twinned_sites(self):
         html = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca").content.decode()

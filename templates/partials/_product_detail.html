@@ -17,7 +17,6 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
          product shows its own render, with a thumbnail gallery. {% endcomment %}
       <div class="pdp-gallery">
         <div class="pdp-media" style="--cap:{{ product.category.color }}">
-          {% if product.is_new %}<span class="pdp-flag">New</span>{% endif %}
           <img class="pdp-photo" data-pdp-photo
                src="{% if product.image %}{{ product.image }}{% else %}/static/hero/hero-vials.jpg{% endif %}"
                alt="{{ product.alt_text }}" width="1000" height="1000" loading="eager" fetchpriority="high">
@@ -53,7 +52,6 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
             <span data-pdp-price>${{ product.pack_price }}</span>
             <span>{{ site.currency|default:"CAD" }} / {{ product.pack_label }}</span>
             <s class="price-was" data-pdp-was{% if not product.is_discounted %} hidden{% endif %}>${{ product.pack_list_price }}</s>
-            {% if product.is_discounted %}<span class="price-save">Save {{ product.discount_pct }}%</span>{% endif %}
           </div>
           <div class="pdp-stock {{ product.stock_state }}" data-pdp-stock><span class="dot"></span>{{ product.stock_state_label }}</div>
         </div>
@@ -117,7 +115,7 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
             {% if product.sells_in_packs %}
             <span class="pdp-vial-count" data-vial-count>{{ product.vials_per_pack }} vials</span>
             {% endif %}
-            <span class="pdp-tier-hint" data-tier-hint>Buy 3+ packs to unlock bulk pricing</span>
+            <span class="pdp-tier-hint" data-tier-hint>Volume pricing on request for approved accounts</span>
           </div>
           <button class="btn btn-primary pdp-add" data-add="{{ product.id }}" data-name="{{ product.name }}"
                   data-pack="{{ product.vials_per_pack }}">
@@ -132,22 +130,12 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
           {{ site.shipping_notice }} {{ site.customs_notice }}
         </p>
 
-        <table class="pdp-bulk">
-          <caption>Buy more, save more — applied automatically at checkout</caption>
-          <thead><tr><th>{% if product.sells_in_packs %}Packs{% else %}Quantity{% endif %}</th><th>Discount</th><th>Per vial</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>1–2{% if product.sells_in_packs %} <span class="bulk-vials">({{ product.vials_per_pack }}–{{ product.vials_per_pack|add:product.vials_per_pack }} vials)</span>{% endif %}</td>
-              <td>—</td><td>${{ product.price }}</td>
-            </tr>
-            {% for t in product.bulk_tiers %}
-            <tr>
-              <td>{{ t.min_qty }}+{% if product.sells_in_packs %} <span class="bulk-vials">({{ t.vials }}+ vials)</span>{% endif %}</td>
-              <td>−{{ t.pct }}%</td><td>${{ t.per_vial }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        {% comment %} The volume-discount ladder here ("Buy more, save more",
+           tiered per-vial pricing, an "unlock" at 3 packs) was retail
+           gamification on an unapproved compound. Institutional volume
+           pricing belongs in a quote against an approved account. {% endcomment %}
+        <p class="pdp-volume">Volume pricing is quoted per order for approved
+          institutional accounts. <a href="/#contact">Request a quote →</a></p>
 
         {% comment %} The two lines that used to head this list named a testing lab and
            claimed HPLC/MS verified identity on every vial. We hold no analysis
@@ -158,10 +146,8 @@ partial themes itself across all 8 sites. Schema JSON-LD is built in the view.{%
         <ul class="pdp-trust">
           <li><b>Research use only</b> — sold as a laboratory reference material</li>
           <li><b>{{ site.shipping_window|default:"10–15 days" }}</b> delivery, stated up front</li>
-          <li><b>Discreet</b> plain, tracked packaging</li>
-          <li><b>{{ payment_methods_label|default:"Interac, crypto, Alipay &amp; Western Union" }}</b></li>
+          <li><b>Tracked</b> shipment with a packing slip</li>
         </ul>
-        <p class="pdp-calc-link"><a href="/calculator/"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v6.5L4.4 18a2 2 0 0 0 1.7 3h11.8a2 2 0 0 0 1.7-3L15 9.5V3"/><path d="M7.5 3h9M7 14h10"/></svg> Reconstitution &amp; dosage calculator →</a></p>
       </div>
     </div>
 

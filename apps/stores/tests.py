@@ -790,7 +790,7 @@ class DiscoveryFileTests(TestCase):
             self.assertIn('type="application/rss+xml"', html, host)
 
 
-class SeoHygieneTests(TestCase):
+class PageStructureSeoTests(TestCase):
     """On-page SEO invariants Jeff asked for (2026-08-12): every page has
     exactly one h1, heading levels never skip, canonicals pin to the canonical
     domain, aliases 301, twinned sites emit a full hreflang block."""
@@ -832,6 +832,25 @@ class SeoHygieneTests(TestCase):
                         f"{s.domain}{path}: heading skip h{prev}->h{lvl}")
                     prev = lvl
 
+    def test_every_homepage_has_search_snippet_and_named_h1(self):
+        """Blanking a risky tagline must not blank the search result or h1.
+
+        The compliance cleanup removed two taglines/meta descriptions and the
+        old structure test counted an empty <h1> as present, so both regressions
+        passed until the full-network audit rendered the pages.
+        """
+        from apps.stores.management.commands.seo_audit import PageParser
+
+        for site in Site.objects.filter(is_active=True):
+            page = PageParser()
+            page.feed(self.client.get("/", HTTP_HOST=site.domain).content.decode())
+            self.assertTrue(page.title.strip(), f"{site.domain}: empty title")
+            self.assertTrue(page.meta.get("description", "").strip(),
+                            f"{site.domain}: empty meta description")
+            h1s = [text for level, text in page.headings if level == 1]
+            self.assertEqual(len(h1s), 1, f"{site.domain}: h1 count {len(h1s)}")
+            self.assertTrue(h1s[0].strip(), f"{site.domain}: empty h1")
+
     def test_canonical_pins_to_canonical_domain_even_on_alias(self):
         html = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
         self.assertIn('rel="canonical" href="http://smashfatbiolabs.ca/"', html)
@@ -842,13 +861,45 @@ class SeoHygieneTests(TestCase):
         self.assertEqual(r["Location"], "http://smashfatbiolabs.ca/shipping/?x=1")
 
     def test_hreflang_block_on_twinned_sites(self):
-        html = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
-        self.assertIn('hreflang="en-ca" href="http://smashfatbiolabs.ca/"', html)
-        self.assertIn('hreflang="en-us" href="http://smashfatbiolabs.com/"', html)
-        self.assertIn('hreflang="x-default"', html)
+        ca = self.client.get("/", HTTP_HOST="smashfatbiolabs.ca").content.decode()
+        us = self.client.get("/", HTTP_HOST="smashfatbiolabs.com").content.decode()
+        expected = (
+            'hreflang="en-ca" href="http://smashfatbiolabs.ca/"',
+            'hreflang="en-us" href="http://smashfatbiolabs.com/"',
+            'hreflang="x-default" href="http://smashfatbiolabs.ca/"',
+        )
+        for tag in expected:
+            self.assertIn(tag, ca)
+            self.assertIn(tag, us)
         # standalone site emits none (hreflang pointing at nothing is worse)
         alone = self.client.get("/", HTTP_HOST="peptidesalberta.ca").content.decode()
         self.assertNotIn("hreflang", alone)
+
+    def test_only_equivalent_pages_emit_hreflang(self):
+        """A twin domain is not automatically an alternate for every URL.
+
+        Products, categories and policies exist on both members of a brand
+        pair. Blog posts and region pages are owned by one Site row; emitting
+        the same path on the twin points crawlers at a 404 or unrelated page.
+        """
+        shared = (
+            "/product/bpc-157/",
+            "/category/repair-recovery/",
+            "/shipping/",
+        )
+        for path in shared:
+            html = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca").content.decode()
+            self.assertIn('hreflang="en-us"', html, path)
+
+        unique = (
+            "/blog/",
+            "/blog/seo-post/",
+            "/research-peptides/vancouver/",
+        )
+        for path in unique:
+            response = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca")
+            self.assertEqual(response.status_code, 200, path)
+            self.assertNotIn('hreflang=', response.content.decode(), path)
 
     def test_blog_detail_title_not_duplicated_from_markdown(self):
         html = self.client.get("/blog/seo-post/",
@@ -1005,6 +1056,39 @@ class SeoHygieneTests(TestCase):
             self.assertEqual(len(canon), 1, f"{r['slug']} has {len(canon)} canonicals")
             self.assertTrue(canon[0].endswith(f"/research-peptides/{r['slug']}/"),
                             f"{r['slug']} canonical points at {canon[0]}")
+
+
+class SeoAuditHreflangTests(TestCase):
+    """The audit must validate alternate URLs, not just their language labels."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog")
+        call_command("seed_sites")
+
+    def test_a_hreflang_target_that_404s_is_an_error(self):
+        from django.test import Client
+
+        from apps.stores.management.commands.seo_audit import Command, PageParser
+
+        site = Site.objects.get(domain="smashfatbiolabs.ca")
+        page = PageParser()
+        page.hreflang = [
+            ("en-ca", "https://smashfatbiolabs.ca/research-peptides/vancouver/"),
+            ("en-us", "https://smashfatbiolabs.com/research-peptides/vancouver/"),
+            ("x-default", "https://smashfatbiolabs.ca/research-peptides/vancouver/"),
+        ]
+        command = Command()
+        command.client = Client()
+        command.findings = []
+        command.sites_by_domain = {
+            s.domain: s for s in Site.objects.filter(is_active=True)
+        }
+
+        command._check_hreflang_targets(site, "/research-peptides/vancouver/", page)
+
+        errors = [f for f in command.findings if f["level"] == "ERROR"]
+        self.assertTrue(any("returns 404" in f["message"] for f in errors), errors)
 
 
 class RegionAnalyticalClaimTests(TestCase):

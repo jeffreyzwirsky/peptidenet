@@ -12,13 +12,12 @@
 <meta name="description" content="{% block meta_description %}{{ seo.description|default:site.meta_description }}{% endblock %}">
 <link rel="canonical" href="{{ request.scheme }}://{{ site.domain|default:request.get_host }}{{ request.path }}">
 <link rel="alternate" type="application/rss+xml" title="{{ site.brand_name }} — Research Notes" href="{{ request.scheme }}://{{ request.get_host }}/blog/feed/">
-{% comment %} hreflang — the fix for our biggest SEO problem. Three brands each run a .ca
-   and a .com serving the same catalogue; without these tags Google reads them
-   as duplicates and suppresses one of every pair. Only emitted when a genuine
-   alternate exists (see Site.alternates), because hreflang pointing at nothing
-   is worse than none. {% endcomment %}
-{% for alt in site.alternates %}<link rel="alternate" hreflang="{{ alt.hreflang }}" href="{{ request.scheme }}://{{ alt.domain }}{{ request.path }}">
-{% endfor %}{% if site.alternates %}<link rel="alternate" hreflang="x-default" href="{{ request.scheme }}://{{ site.domain }}{{ request.path }}">
+{% comment %} Hreflang is emitted only for equivalent, shared routes. A twin domain does
+   not make a site-owned blog post or region page an alternate: the same path
+   there is different content or a 404. The context processor also supplies one
+   stable x-default so every version emits the same set. {% endcomment %}
+{% for alt in hreflang_alternates %}<link rel="alternate" hreflang="{{ alt.hreflang }}" href="{{ request.scheme }}://{{ alt.domain }}{{ request.path }}">
+{% endfor %}{% if hreflang_default %}<link rel="alternate" hreflang="x-default" href="{{ request.scheme }}://{{ hreflang_default.domain }}{{ request.path }}">
 {% endif %}<meta name="theme-color" content="{{ site.theme_color|default:'#0a0f1c' }}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{{ site.brand_name }}">

@@ -47,8 +47,9 @@ SITES = [
                          "we hold no analysis and say so. 10–15 day delivery."},
     {"domain": "smashfat.ca", "brand_name": "SmashFat", "theme": "neon",
      "country": "CA", "currency": "CAD", "brand_key": "smashfat",
-     "tagline": "", "promo_code": "",
-     "meta_description": ""},
+     "tagline": "For qualified laboratory research only.", "promo_code": "",
+     "meta_description": "Uncharacterised research compounds for qualified Canadian institutions "
+                         "and businesses. No analytical documentation is held or claimed."},
     {"domain": "smash-fat.ca", "brand_name": "Smash Fat", "theme": "apothecary",
      "country": "CA", "currency": "CAD", "brand_key": "smash-fat",
      "tagline": "A small formulary, plainly described.", "promo_code": "",
@@ -61,8 +62,9 @@ SITES = [
                          "and across Alberta. Sold uncharacterised — we hold no analysis."},
     {"domain": "where-do-i-get-peptides.ca", "brand_name": "Where Do I Get Peptides?", "theme": "guide",
      "country": "CA", "currency": "CAD", "brand_key": "where-do-i-get-peptides",
-     "tagline": "", "promo_code": "",
-     "meta_description": ""},
+     "tagline": "A buyer's guide to uncharacterised research compounds.", "promo_code": "",
+     "meta_description": "A Canadian laboratory buyer's guide to research-compound documentation, "
+                         "supplier questions and handling terms. Materials are sold uncharacterised."},
 
     # ---------------- United States (.com) ----------------
     {"domain": "smashfatbiolabs.com", "brand_name": "SmashFat BioLabs", "theme": "clinical",

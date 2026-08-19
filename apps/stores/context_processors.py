@@ -15,6 +15,21 @@ THEME_HERO = {
 }
 DEFAULT_HERO = "/static/hero/hero-vial-macro.jpg"
 
+# Hreflang is a relationship between equivalent localized pages, not between
+# every URL that happens to live on a twinned domain. These routes are backed
+# by the same catalogue/policy content in both markets. Blog posts, blog
+# indexes and region pages are Site-owned and deliberately excluded: the same
+# path on the twin is either different content or a 404.
+HREFLANG_SHARED_VIEWS = frozenset({
+    "home",
+    "category",
+    "product_detail",
+    "policy_shipping",
+    "policy_returns",
+    "policy_privacy",
+    "policy_terms",
+})
+
 PAYMENT_METHOD_LABELS = {
     "interac": "Interac e-Transfer",
     "crypto": "Cryptocurrency",
@@ -52,6 +67,20 @@ def storefront(request):
     theme = getattr(request, "theme", "biolabs")
     cart = Cart(request)
     methods = _payment_methods()
+    match = getattr(request, "resolver_match", None)
+    view_name = getattr(match, "view_name", "")
+    hreflang_alternates = (
+        site.alternates()
+        if site is not None and view_name in HREFLANG_SHARED_VIEWS
+        else []
+    )
+    # Every localized version must emit the same hreflang set. Use the
+    # Canadian storefront as the stable fallback for unmatched locales rather
+    # than making x-default point to whichever version is currently rendering.
+    hreflang_default = next(
+        (alt for alt in hreflang_alternates if alt.country == "CA"),
+        hreflang_alternates[0] if hreflang_alternates else None,
+    )
     return {
         "site": site,
         "theme": theme,
@@ -71,6 +100,8 @@ def storefront(request):
         # links are how crawl priority and link equity actually reach a page,
         # and a location page nobody links to is a location page nobody ranks.
         "footer_regions": _footer_regions(site),
+        "hreflang_alternates": hreflang_alternates,
+        "hreflang_default": hreflang_default,
         "cart_count": cart.count(),
         "cart_total": cart.total(),
         "cart_items": cart.items(),

@@ -25,6 +25,7 @@ import re
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from html.parser import HTMLParser
+from urllib.parse import urlsplit
 
 from django.core.management.base import BaseCommand
 from django.test import Client
@@ -134,9 +135,14 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         self.findings = []
         self.client = Client()
-        sites = Site.objects.filter(is_active=True).order_by("domain")
+        all_sites = list(Site.objects.filter(is_active=True).order_by("domain"))
+        sites = all_sites
         if opts["site"]:
-            sites = sites.filter(domain=opts["site"])
+            sites = [site for site in all_sites if site.domain == opts["site"]]
+        # A one-site audit still needs the twin in this map so it can validate
+        # the declared cross-domain alternate instead of falsely reporting it
+        # as inactive merely because --site narrowed the pages being audited.
+        self.sites_by_domain = {site.domain: site for site in all_sites}
 
         # Network-wide duplicate detection needs every page seen first.
         seen_titles = defaultdict(list)
@@ -420,6 +426,7 @@ class Command(BaseCommand):
             add("WARN", "hreflang set has no x-default")
         if len(langs) != len(set(langs)):
             add("ERROR", f"duplicate hreflang values: {langs}")
+        self._check_hreflang_targets(site, url, p)
 
         # --- social / structured data --------------------------------
         for key in ("og:title", "og:description", "og:url", "og:image"):
@@ -453,6 +460,74 @@ class Command(BaseCommand):
             add("WARN", f"thin content — {words} words")
 
         return p
+
+    def _check_hreflang_targets(self, site, url, page):
+        """Prove every declared localized variant exists and links back.
+
+        A syntactically valid hreflang tag that points to a 404 is worse than
+        no tag, and Google ignores one-way clusters. The old audit only checked
+        duplicate language labels, so both defects could report clean.
+        """
+        if not page.hreflang:
+            return
+
+        source_set = {
+            (lang.lower(), href.rstrip("/"))
+            for lang, href in page.hreflang
+        }
+        source_url = f"https://{site.domain}{url}".rstrip("/")
+        checked = set()
+        for _, href in page.hreflang:
+            parsed = urlsplit(href)
+            if parsed.scheme not in ("http", "https") or not parsed.hostname:
+                self._add("ERROR", site.domain, url,
+                          f"hreflang target is not an absolute HTTP URL: {href}")
+                continue
+            target_domain = parsed.hostname.lower()
+            target_site = self.sites_by_domain.get(target_domain)
+            if target_site is None:
+                self._add("ERROR", site.domain, url,
+                          f"hreflang target is not an active storefront: {href}")
+                continue
+            target_path = parsed.path or "/"
+            key = (target_domain, target_path)
+            if key in checked:
+                continue
+            checked.add(key)
+
+            if target_domain == site.domain and target_path == url:
+                target_page = page
+            else:
+                response = self._get(target_site, target_path)
+                if response is None or response.status_code != 200:
+                    status = "no response" if response is None else response.status_code
+                    self._add("ERROR", site.domain, url,
+                              f"hreflang target returns {status}: {href}")
+                    continue
+                target_page = PageParser()
+                try:
+                    target_page.feed(response.content.decode("utf-8", "replace"))
+                except Exception as exc:
+                    self._add("ERROR", site.domain, url,
+                              f"could not parse hreflang target {href}: {exc}")
+                    continue
+
+            target_set = {
+                (lang.lower(), target_href.rstrip("/"))
+                for lang, target_href in target_page.hreflang
+            }
+            if target_set != source_set:
+                self._add("ERROR", site.domain, url,
+                          f"hreflang set differs on {href}; localized versions "
+                          "must publish the same reciprocal set")
+            reciprocal = {
+                target_href.rstrip("/")
+                for lang, target_href in target_page.hreflang
+                if lang.lower() == site.hreflang.lower()
+            }
+            if source_url not in reciprocal:
+                self._add("ERROR", site.domain, url,
+                          f"hreflang target does not link back: {href}")
 
     # -----------------------------------------------------------------
     def _add(self, level, domain, url, message):

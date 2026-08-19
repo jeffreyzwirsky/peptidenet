@@ -118,9 +118,21 @@ class Command(BaseCommand):
             detail += "  ← scanned NOTHING; treat as a failure until explained"
         self._add(command, ok, detail)
         if not ok:
-            for line in out[-25:]:
+            for line in self._failure_excerpt(out):
                 self.stdout.write(f"      {line}")
-        self.results[-1]["output"] = "\n".join(out[-40:])
+        self.results[-1]["output"] = "\n".join(
+            self._failure_excerpt(out, tail=40, limit=60))
+
+    @staticmethod
+    def _failure_excerpt(lines, tail=25, limit=40):
+        """Preserve root-cause lines even when a noisy check ends in warnings."""
+        priority = [line for line in lines if re.search(r"\[ERROR\]|\bERROR\b", line)]
+        excerpt = priority + list(lines[-tail:])
+        deduplicated = []
+        for line in excerpt:
+            if line not in deduplicated:
+                deduplicated.append(line)
+        return deduplicated[:limit]
 
     # -----------------------------------------------------------------
     def _report(self, failed):

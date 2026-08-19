@@ -28,6 +28,7 @@ generator when available, else the stock lab-photo pool.
 import zlib
 
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.utils import timezone
 
 from apps.blog import generator, guardrails, keywords
@@ -67,6 +68,24 @@ def publishable(post):
     return True
 
 
+def has_published_title_conflict(post):
+    """Keep one site's search results from competing with themselves.
+
+    Slugs are unique, but the generator can revisit a keyword after its rotation
+    wraps and produce a second post with the same browser/search title.  Holding
+    that draft is safer than publishing a duplicate and trying to repair it
+    after crawlers have seen both URLs.
+    """
+    title = (post.seo_title or post.title or "").strip()
+    if not title:
+        return False
+    return (BlogPost.objects
+            .filter(site=post.site, status="published")
+            .exclude(pk=post.pk)
+            .filter(Q(seo_title=title) | Q(title=title))
+            .exists())
+
+
 def ensure_hero_image(post):
     """A published post must carry a real hero image. Prefer the AI generator
     (when live), fall back to the stock lab-photo pool. Never leaves it blank."""
@@ -103,7 +122,7 @@ class Command(BaseCommand):
         if opts["site"]:
             sites = sites.filter(domain=opts["site"])
 
-        published = generated = flagged = skipped = 0
+        published = generated = flagged = skipped = duplicate = 0
         for site in sites:
             days = posting_days(site.domain)
             if not opts["force"] and wd not in days:
@@ -122,9 +141,19 @@ class Command(BaseCommand):
                               .filter(site=site, status="needs_review",
                                       compliance_status="pass")
                               .order_by("created_at")):
-                if publishable(candidate):
+                if publishable(candidate) and not has_published_title_conflict(candidate):
                     post = candidate
                     break
+                if publishable(candidate):
+                    duplicate += 1
+                    if not opts["dry_run"]:
+                        note = ("· held at publish time because its search title "
+                                "duplicates an already-published post")
+                        if note not in candidate.compliance_notes:
+                            candidate.compliance_notes = "\n".join(filter(None, [
+                                candidate.compliance_notes, note]))
+                            candidate.save(update_fields=["compliance_notes", "updated_at"])
+                    continue
                 # The rules moved under it since it was written. Demote it so
                 # the queue tells the truth and repair_posts can pick it up.
                 stale += 1
@@ -158,9 +187,24 @@ class Command(BaseCommand):
                     kw = kws[(start + offset) % len(kws)]
                     candidate = generator.generate(site, kw)
                     generated += 1
-                    if candidate.compliance_status == "pass" and publishable(candidate):
+                    if (candidate.compliance_status == "pass"
+                            and publishable(candidate)
+                            and not has_published_title_conflict(candidate)):
                         post = candidate
                         break
+                    if (candidate.compliance_status == "pass"
+                            and publishable(candidate)):
+                        duplicate += 1
+                        candidate.compliance_notes = "\n".join(filter(None, [
+                            candidate.compliance_notes,
+                            "· held at publish time because its search title "
+                            "duplicates an already-published post",
+                        ]))
+                        candidate.save(update_fields=["compliance_notes", "updated_at"])
+                        self.stdout.write(self.style.WARNING(
+                            f"  {site.domain}: \"{candidate.title}\" DUPLICATES "
+                            "an existing search title - held in needs_review."))
+                        continue
                     flagged += 1
                     self.stdout.write(self.style.WARNING(
                         f"  {site.domain}: \"{candidate.title}\" FLAGGED "
@@ -184,4 +228,5 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(
             f"blog_tick: {published} published, {generated} generated, "
-            f"{flagged} flagged (held for review), {skipped} skipped."))
+            f"{flagged} flagged, {duplicate} duplicate-title draft(s) held, "
+            f"{skipped} skipped."))

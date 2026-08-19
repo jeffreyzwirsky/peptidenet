@@ -937,6 +937,30 @@ class PublishTimeRescanTests(TestCase):
         clean.refresh_from_db()
         self.assertEqual(clean.status, "published")
 
+    def test_blog_tick_holds_duplicate_title_and_publishes_unique_draft(self):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        BlogPost.objects.create(
+            site=self.site, slug="already-live", title="A repeated search title",
+            seo_title="A repeated search title", body="# Existing\n\nClean prose.",
+            status="published", compliance_status="pass",
+            published_at=timezone.now() - timedelta(days=1))
+        duplicate = self._draft(slug="duplicate", title="A repeated search title",
+                                seo_title="A repeated search title")
+        unique = self._draft(slug="unique", title="A unique search title",
+                             seo_title="A unique search title")
+
+        call_command("blog_tick", "--force", "--site", self.site.domain, verbosity=0)
+
+        duplicate.refresh_from_db()
+        unique.refresh_from_db()
+        self.assertEqual(duplicate.status, "needs_review")
+        self.assertEqual(duplicate.compliance_status, "pass")
+        self.assertIn("duplicates an already-published post", duplicate.compliance_notes)
+        self.assertEqual(unique.status, "published")
+
 
 class AttributionCueTests(TestCase):
     """The escape has to be able to see its own cue.

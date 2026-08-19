@@ -1506,6 +1506,13 @@ class HealthcheckHarnessTests(TestCase):
         self.assertIn("HEALTHCHECK", buf.getvalue())
         self.assertIn("alert email failed", buf.getvalue())
 
+    def test_failure_excerpt_keeps_an_early_error_ahead_of_many_warnings(self):
+        from apps.stores.management.commands.healthcheck import Command
+        lines = ["[ERROR] duplicate title is the root cause"]
+        lines += [f"[WARN ] noisy warning {i}" for i in range(80)]
+        excerpt = Command._failure_excerpt(lines)
+        self.assertIn("[ERROR] duplicate title is the root cause", excerpt)
+
 
 class MinifyCssTests(TestCase):
     """`minify_css` rewrites STATIC_ROOT in place. The failure modes that matter

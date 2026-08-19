@@ -246,21 +246,18 @@ COMMS_MAX_CALLS_PER_HOUR = int(env("PEPTIDENET_MAX_CALLS_PER_HOUR", "20") or "20
 # one (that lands as SECURE_CSP in 6.0) and django-csp is not installed, so a
 # setting here would be silently ignored — an operator could "tighten the CSP",
 # redeploy, and change nothing. Edit the middleware constants instead.
-# In-process cache backs the rate limiter (fine for dev/single worker). Use Redis
-# in production so limits are shared across gunicorn workers.
-# FileBased, not LocMem (backported from the 2026-08-10 prod audit): gunicorn
-# runs 3 workers, and LocMemCache is per-process, so per-IP rate limits were
-# effectively 3x the intended ceiling and reset on every restart. A shared
-# file cache makes them real. Falls back to LocMem where /var/tmp doesn't
-# exist (Windows dev) unless PEPTIDENET_CACHE_DIR points somewhere explicit.
+# FileBased, not LocMem: the voice-call hourly cap must be shared across all
+# gunicorn workers. Security rate limits use their own atomic database table.
+# Falls back to LocMem where /var/cache does not exist (Windows dev) unless
+# PEPTIDENET_CACHE_DIR points somewhere explicit.
 # Deploy note: the directory must exist and be writable by www-data:
-#   mkdir -p /var/tmp/peptidenet-cache && chown www-data:www-data /var/tmp/peptidenet-cache
+#   mkdir -p /var/cache/peptidenet && chown www-data:www-data /var/cache/peptidenet
 import sys as _sys
 
 _TESTING = "test" in _sys.argv
 CACHE_DIR = "" if _TESTING else os.environ.get(
     "PEPTIDENET_CACHE_DIR",
-    "/var/tmp/peptidenet-cache" if os.path.isdir("/var/tmp") else "",
+    "/var/cache/peptidenet" if os.path.isdir("/var/cache") else "",
 )
 # Tests always get LocMem: a file cache would persist rate-limit counters
 # between runs and 429 the suite on the second run.

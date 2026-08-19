@@ -177,7 +177,8 @@ COA is actually held, and public automatic bulk discounts are withdrawn.
 
 ## Deploy (mirrors the lead system)
 
-1. Clone to `/var/www/peptidenet`, make a venv, `pip install -r requirements.txt`.
+1. Clone to `/var/www/peptidenet`, make a venv, upgrade to the pip version used
+   by `scripts/deploy.sh`, then `pip install --require-hashes -r requirements.txt`.
 2. Copy `.env.example` → `.env`; set `PEPTIDENET_DEBUG=0`, a real
    `PEPTIDENET_SECRET_KEY`, `PEPTIDENET_HOSTS` (from `emit_hosts`), and the
    managed-Postgres vars.
@@ -186,6 +187,12 @@ COA is actually held, and public automatic bulk discounts are withdrawn.
    (gunicorn on `127.0.0.1:8001`). `emit_nginx > /etc/nginx/sites-available/peptidenet`.
 5. `systemctl enable --now peptidenet` · `nginx -t && systemctl reload nginx`.
 6. TLS: `certbot --nginx -d <each domain>` (or put it behind Cloudflare like SMASH).
+
+The owner and staff consoles require a TOTP authenticator after password
+verification. The first successful password step displays a manual setup key.
+If a device is lost, a root operator can run
+`python manage.py reset_console_mfa <username>`; the user must then pass the
+password step before a new key is issued.
 
 ## The dropship order flow
 
@@ -216,7 +223,9 @@ restore the old owned-inventory behaviour.
 
 **Delivery window** (`PEPTIDENET_SHIPPING_MIN_DAYS` / `MAX`, default 10–15). It
 is stated on the product page under the buy button, in the cart above checkout,
-in the confirmation email, and on the customer's `/order/<number>/` status page.
+in the confirmation email, and on the customer's private
+`/order/<public-token>/` status page. The human-readable order number is never
+accepted as authorization for that page.
 
 ### Two rules the copy must keep
 

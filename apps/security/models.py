@@ -33,3 +33,31 @@ class SecurityEvent(models.Model):
 
     def __str__(self):
         return f"{self.get_kind_display()} {self.ip or ''} {self.path}"
+
+
+class RateLimitBucket(models.Model):
+    """Database-backed fixed-window counter shared by every gunicorn worker."""
+
+    key = models.CharField(max_length=96, primary_key=True)
+    window_started_at = models.DateTimeField()
+    count = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class ConsoleMfaDevice(models.Model):
+    """One TOTP authenticator per console user.
+
+    The secret must be retrievable to verify codes, like every ordinary TOTP
+    implementation. Database and backup permissions therefore protect it.
+    ``last_counter`` makes an accepted code one-time even inside its 30-second
+    validity window.
+    """
+
+    user = models.OneToOneField(
+        "auth.User", on_delete=models.CASCADE, related_name="console_mfa_device"
+    )
+    secret = models.CharField(max_length=64)
+    confirmed = models.BooleanField(default=False)
+    last_counter = models.BigIntegerField(default=-1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(null=True, blank=True)

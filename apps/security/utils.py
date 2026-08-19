@@ -1,14 +1,17 @@
 """Security helpers: spoof-resistant client IP, honeypot, rate limiting, audit."""
 import functools
+import hashlib
 import json
 import logging
-import time
+import secrets
+from datetime import timedelta
 
 from django.conf import settings
-from django.core.cache import cache
+from django.db import IntegrityError, transaction
 from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
 
-from .models import SecurityEvent
+from .models import RateLimitBucket, SecurityEvent
 
 log = logging.getLogger("security")
 
@@ -85,8 +88,52 @@ def is_bot_honeypot(request):
     return False
 
 
-def _rate_key(request, scope):
-    return f"rl:{scope}:{client_ip(request)}"
+def _rate_key(scope, identity):
+    digest = hashlib.sha256(str(identity or "unknown").encode("utf-8")).hexdigest()
+    return f"{scope[:30]}:{digest}"
+
+
+def rate_limit_exceeded(scope, identity, limit=20, window=60):
+    """Atomically consume one fixed-window allowance.
+
+    The previous cache get/increment/set sequence lost increments under
+    concurrency. A locked database row is shared by every gunicorn worker and
+    survives restarts. Identities are hashed so usernames and IPs are not kept
+    in this operational table.
+    """
+    now = timezone.now()
+    key = _rate_key(scope, identity)
+    with transaction.atomic():
+        try:
+            bucket = RateLimitBucket.objects.select_for_update().get(pk=key)
+        except RateLimitBucket.DoesNotExist:
+            try:
+                with transaction.atomic():
+                    bucket = RateLimitBucket.objects.create(
+                        key=key, window_started_at=now, count=1
+                    )
+                exceeded = False
+            except IntegrityError:  # another worker created it first
+                bucket = RateLimitBucket.objects.select_for_update().get(pk=key)
+                exceeded = None
+        else:
+            exceeded = None
+
+        if exceeded is None:
+            if now - bucket.window_started_at >= timedelta(seconds=window):
+                bucket.window_started_at = now
+                bucket.count = 1
+            else:
+                bucket.count += 1
+            bucket.save(update_fields=["window_started_at", "count", "updated_at"])
+            exceeded = bucket.count > limit
+
+    # Bound stale-row growth without putting a cleanup query on every request.
+    if secrets.randbelow(256) == 0:
+        RateLimitBucket.objects.filter(
+            updated_at__lt=now - timedelta(days=2)
+        ).delete()
+    return exceeded
 
 
 def rate_limit(scope, limit=20, window=60):
@@ -96,14 +143,7 @@ def rate_limit(scope, limit=20, window=60):
     def deco(view):
         @functools.wraps(view)
         def wrapped(request, *a, **kw):
-            key = _rate_key(request, scope)
-            now = time.time()
-            bucket = cache.get(key)
-            if not bucket or now - bucket["start"] >= window:
-                bucket = {"start": now, "count": 0}
-            bucket["count"] += 1
-            cache.set(key, bucket, timeout=window)
-            if bucket["count"] > limit:
+            if rate_limit_exceeded(scope, client_ip(request), limit, window):
                 log_event(request, "ratelimit", detail=f"{scope} > {limit}/{window}s")
                 if request.headers.get("Content-Type", "").startswith("application/json") \
                         or request.headers.get("X-Requested-With") == "XMLHttpRequest":

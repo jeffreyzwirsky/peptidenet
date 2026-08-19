@@ -1,0 +1,14 @@
+# Runtime dependency policy. Compile with:
+#   python -m piptools compile --strip-extras --generate-hashes --resolver=backtracking \
+#     --output-file=requirements.txt requirements.in
+Django>=5.2,<5.3
+gunicorn>=23
+psycopg[binary]>=3.1
+openai>=1
+rcssmin>=1.1
+
+# Live provider adapters are part of the production feature set and must be in
+# the reproducible build, not installed manually on one droplet.
+twilio>=9
+anthropic>=0.40
+requests>=2.31

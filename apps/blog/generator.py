@@ -4,6 +4,7 @@ import re
 import zlib
 
 from django.conf import settings
+from django.utils.html import escape
 from django.utils.text import slugify
 
 from apps.ai import images, llm
@@ -410,8 +411,11 @@ def generate(site, keyword):
 def banner_svg(site, title):
     """Self-contained SVG blog hero — themed molecular banner with the title."""
     accent = (site.palette or {}).get("accent", "#4f8ff7")
+    if not re.fullmatch(r"#[0-9a-fA-F]{6}", str(accent)):
+        accent = "#4f8ff7"
     words = (title or "Research").split()
-    head = " ".join(words[:6])
+    head = escape(" ".join(words[:6]))
+    brand = escape(site.brand_name)
     return f"""<svg viewBox="0 0 1200 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{head}">
 <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
 <stop offset="0" stop-color="#0a0f1c"/><stop offset="1" stop-color="#111a2b"/></linearGradient></defs>
@@ -423,5 +427,5 @@ def banner_svg(site, title):
 <polygon points="150,300 205,332 205,396 150,428 95,396 95,332"/></g>
 <text x="70" y="150" fill="{accent}" font-family="IBM Plex Sans,Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" letter-spacing="3">RESEARCH NOTES</text>
 <text x="70" y="250" fill="#eaf0fb" font-family="IBM Plex Sans,Segoe UI,Arial,sans-serif" font-size="52" font-weight="800">{head[:34]}</text>
-<text x="70" y="410" fill="#93a2bd" font-family="IBM Plex Sans,Segoe UI,Arial,sans-serif" font-size="18">{site.brand_name} · For research use only</text>
+<text x="70" y="410" fill="#93a2bd" font-family="IBM Plex Sans,Segoe UI,Arial,sans-serif" font-size="18">{brand} · For research use only</text>
 </svg>"""

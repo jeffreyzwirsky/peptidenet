@@ -26,12 +26,27 @@
     <p class="sub">{% if is_admin_console %}Owner control panel. Superuser access only.{% else %}Staff console — messages, calls, orders &amp; more.{% endif %}</p>
     {% if error %}<div class="err">{{ error }}</div>{% endif %}
     <input type="hidden" name="next" value="{{ next }}">
-    <label for="id_username">Username</label>
-    <input id="id_username" name="username" autocomplete="username" autofocus required>
-    <label for="id_password">Password</label>
-    <input id="id_password" name="password" type="password" autocomplete="current-password" required>
-    <button type="submit">Sign in</button>
-    <p style="margin-top:14px;font-size:12.5px"><a href="/account/password/reset/" style="color:#8fb6ff;text-decoration:none">Forgot password?</a></p>
+    {% if stage == "password" %}
+      <label for="id_username">Username</label>
+      <input id="id_username" name="username" autocomplete="username" autofocus required>
+      <label for="id_password">Password</label>
+      <input id="id_password" name="password" type="password" autocomplete="current-password" required>
+      <button type="submit">Continue</button>
+      <p style="margin-top:14px;font-size:12.5px"><a href="/account/password/reset/" style="color:#8fb6ff;text-decoration:none">Forgot password?</a></p>
+    {% else %}
+      <input type="hidden" name="stage" value="otp">
+      {% if stage == "setup" %}
+        <p class="sub">Add this account to Microsoft Authenticator, Google Authenticator, 1Password, or another TOTP app. Enter the setup key manually, then type the six-digit code.</p>
+        <label for="mfa-secret">Authenticator setup key</label>
+        <input id="mfa-secret" value="{{ mfa_secret }}" readonly autocomplete="off" style="font-family:monospace;letter-spacing:.08em">
+        <details style="margin-top:10px;font-size:12px;color:#9aa4b2"><summary>Authenticator URI</summary><div style="overflow-wrap:anywhere;margin-top:6px">{{ mfa_uri }}</div></details>
+      {% else %}
+        <p class="sub">Enter the six-digit code from your authenticator app.</p>
+      {% endif %}
+      <label for="id_code">Verification code</label>
+      <input id="id_code" name="code" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" autofocus required maxlength="6">
+      <button type="submit">Verify and sign in</button>
+    {% endif %}
   </form>
 </div>
 </body>

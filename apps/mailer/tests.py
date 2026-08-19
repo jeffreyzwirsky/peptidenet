@@ -29,3 +29,20 @@ class PasswordResetPageTests(TestCase):
         r = self.client.get("/account/password/reset/")
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, "Reset your password")
+
+    def test_reset_email_is_capped_per_account_without_enumerating(self):
+        from django.contrib.auth import get_user_model
+        from django.core import mail
+        get_user_model().objects.create_user(
+            "reset-user", email="reset@example.com", password="pw-Strong-123!"
+        )
+        for _ in range(4):
+            r = self.client.post("/account/password/reset/", {"email": "reset@example.com"})
+            self.assertEqual(r.status_code, 302)
+        self.assertEqual(len(mail.outbox), 3)
+
+    def test_reset_endpoint_has_ip_cap(self):
+        codes = [self.client.post(
+            "/account/password/reset/", {"email": f"nobody{i}@example.com"}
+        ).status_code for i in range(6)]
+        self.assertIn(429, codes)

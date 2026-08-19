@@ -19,7 +19,8 @@ APP=/var/www/peptidenet
 cd "$APP"
 
 echo "==> Python deps"
-./venv/bin/pip install -r requirements.txt -q
+./venv/bin/python -m pip install --upgrade "pip==26.2.1" -q
+./venv/bin/pip install --require-hashes -r requirements.txt -q
 
 echo "==> Load env + migrate + static"
 set -a; source "$APP/.env"; set +a
@@ -38,6 +39,17 @@ set -a; source "$APP/.env"; set +a
 # Re-pointing products that ALREADY have an image is a judgement call (it can
 # undo a manual choice), so that stays a deliberate `--all` by hand.
 ./venv/bin/python manage.py assign_product_images
+
+echo "==> Re-apply service and file hardening"
+# update.sh is the production path, so it must enforce the same boundary as a
+# fresh deploy. The worker owns only runtime data; source and .env stay root-owned.
+cp "$APP/deploy/gunicorn.service" /etc/systemd/system/peptidenet.service
+chown -R root:root "$APP"
+chmod 600 "$APP/.env"
+install -d -o www-data -g www-data -m 0700 /var/cache/peptidenet
+install -d -o www-data -g www-data -m 0750 "$APP/static/blog"
+chown -R www-data:www-data "$APP/static/blog"
+systemctl daemon-reload
 
 echo "==> Regenerate nginx + ensure default-deny catch-all + re-apply TLS"
 ./venv/bin/python manage.py emit_nginx > /etc/nginx/sites-available/peptidenet

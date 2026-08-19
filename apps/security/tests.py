@@ -6,8 +6,8 @@ from django.test import TestCase
 
 from apps.stores.models import Site
 
-from .models import SecurityEvent
-from .utils import client_ip
+from .models import ConsoleMfaDevice, RateLimitBucket, SecurityEvent
+from .utils import client_ip, rate_limit_exceeded
 
 
 class SecurityHeaderTests(TestCase):
@@ -22,6 +22,11 @@ class SecurityHeaderTests(TestCase):
         self.assertEqual(r["X-Frame-Options"], "DENY")
         self.assertIn("Content-Security-Policy", r)
         self.assertIn("Referrer-Policy", r)
+
+    def test_private_routes_are_never_cached(self):
+        for path in ("/manage/login/", "/portal/login/", "/account/password/reset/"):
+            r = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca")
+            self.assertEqual(r["Cache-Control"], "private, no-store")
 
     def test_bot_trap_logs_event(self):
         self.client.get("/wp-login.php", HTTP_HOST="smashfat.ca")
@@ -129,6 +134,88 @@ class LoginHardeningTests(TestCase):
         self.client.post("/manage/login/", {"username": "clerk2", "password": "pw12345!"})
         self.assertTrue(
             SecurityEvent.objects.filter(kind="login_failed", detail__contains="clerk2").exists())
+
+
+class ConsoleMfaTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.user = get_user_model().objects.create_superuser(
+            "owner", "owner@example.com", "Strong-pass-123!"
+        )
+
+    def _password_step(self):
+        return self.client.post("/manage/login/", {
+            "username": "owner", "password": "Strong-pass-123!",
+        })
+
+    def test_password_alone_never_creates_authenticated_session(self):
+        r = self._password_step()
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Authenticator setup key")
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertTrue(ConsoleMfaDevice.objects.filter(user=self.user).exists())
+
+    def test_valid_totp_enrolls_and_signs_in(self):
+        from apps.security.mfa import code_for
+        self._password_step()
+        device = ConsoleMfaDevice.objects.get(user=self.user)
+        r = self.client.post("/manage/login/", {
+            "stage": "otp", "code": code_for(device.secret),
+        })
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(str(self.client.session["_auth_user_id"]), str(self.user.pk))
+        device.refresh_from_db()
+        self.assertTrue(device.confirmed)
+
+    def test_totp_code_cannot_be_replayed(self):
+        from apps.security.mfa import code_for
+        self._password_step()
+        device = ConsoleMfaDevice.objects.get(user=self.user)
+        code = code_for(device.secret)
+        self.client.post("/manage/login/", {"stage": "otp", "code": code})
+        self.client.logout()
+        self._password_step()
+        r = self.client.post("/manage/login/", {"stage": "otp", "code": code})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "not valid")
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_logout_clears_browser_site_data(self):
+        self.client.force_login(self.user)
+        r = self.client.get("/manage/logout/")
+        self.assertIn("cookies", r["Clear-Site-Data"])
+
+
+class DatabaseRateLimitTests(TestCase):
+    def test_counter_is_shared_in_database_and_enforces_limit(self):
+        self.assertFalse(rate_limit_exceeded("probe", "same-user", limit=2, window=60))
+        self.assertFalse(rate_limit_exceeded("probe", "same-user", limit=2, window=60))
+        self.assertTrue(rate_limit_exceeded("probe", "same-user", limit=2, window=60))
+        self.assertEqual(RateLimitBucket.objects.get().count, 3)
+
+    def test_identity_is_hashed_not_stored(self):
+        rate_limit_exceeded("probe", "customer@example.com", limit=2, window=60)
+        self.assertNotIn("customer@example.com", RateLimitBucket.objects.get().key)
+
+
+class SafeRenderingTests(TestCase):
+    def test_svg_banner_escapes_database_text_and_rejects_bad_colour(self):
+        from types import SimpleNamespace
+        from apps.blog.generator import banner_svg
+        site = SimpleNamespace(
+            brand_name='Lab</text><script>alert(1)</script>',
+            palette={"accent": '" onload="alert(2)'},
+        )
+        svg = banner_svg(site, 'Research" onload="alert(3)')
+        self.assertNotIn("<script>", svg)
+        self.assertNotIn('onload="alert', svg)
+        self.assertIn("#4f8ff7", svg)
+
+    def test_jsonld_escapes_script_terminators(self):
+        from apps.stores.views import _json_for_html
+        out = _json_for_html({"name": "</script><script>alert(1)</script>"})
+        self.assertNotIn("</script>", out)
+        self.assertIn("\\u003c", out)
 
 
 class WebhookForgeryAuditTests(TestCase):

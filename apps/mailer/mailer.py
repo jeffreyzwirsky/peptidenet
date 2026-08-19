@@ -43,7 +43,7 @@ def _portal(path=""):
 def _order_url(order):
     """Customer-facing status page, on the domain they actually bought from —
     not the portal host."""
-    return f"https://{order.site.domain}/order/{order.number}/"
+    return f"https://{order.site.domain}/order/{order.public_token}/"
 
 
 # ---- Transactional -------------------------------------------------------

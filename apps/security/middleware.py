@@ -75,4 +75,16 @@ class SecurityHeadersMiddleware:
         csp = CSP_RELAXED if relaxed else CSP_STRICT.format(nonce=nonce)
         # Always set (override any inherited value) so the nonce matches this response.
         response["Content-Security-Policy"] = csp
+
+        # Customer orders, password flows and staff consoles contain private
+        # data. HTTPS protects transit; these headers keep browsers, shared
+        # proxies and Cloudflare from retaining the response afterward.
+        sensitive = (
+            p.startswith("/manage") or p.startswith("/portal")
+            or p.startswith("/account") or p.startswith("/order/")
+            or p.startswith(admin_path)
+        )
+        if sensitive:
+            response["Cache-Control"] = "private, no-store"
+            response["Pragma"] = "no-cache"
         return response

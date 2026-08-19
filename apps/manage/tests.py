@@ -324,11 +324,27 @@ class PurchasingTests(TestCase):
                                  status="paid", shipping_address="1 Rd")
         o.items.create(product_name="BPC-157", unit_price=42, unit_cost=21, qty=1,
                        line_total=42)
-        r = self.client.get(f"/order/{o.number}/", HTTP_HOST="smashfat.ca")
+        r = self.client.get(f"/order/{o.public_token}/", HTTP_HOST="smashfat.ca")
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, "SFB-4")
         self.assertContains(r, "10–15 days")
         self.assertContains(r, "noindex")
+        self.assertEqual(r["Cache-Control"], "private, no-store")
+
+    def test_public_order_number_is_not_an_authorization_token(self):
+        from apps.stores.models import Site
+        site = Site.objects.get(domain="smashfat.ca")
+        o = Order.objects.create(number="SFB-12345678", site=site, total=42)
+        r = self.client.get(f"/order/{o.number}/", HTTP_HOST="smashfat.ca")
+        self.assertEqual(r.status_code, 404)
+
+    def test_order_token_is_high_entropy_and_unique(self):
+        from apps.stores.models import Site
+        site = Site.objects.get(domain="smashfat.ca")
+        first = Order.objects.create(number="SFB-10000001", site=site, total=1)
+        second = Order.objects.create(number="SFB-10000002", site=site, total=1)
+        self.assertGreaterEqual(len(first.public_token), 32)
+        self.assertNotEqual(first.public_token, second.public_token)
 
 
 class RecordingProxyTests(TestCase):

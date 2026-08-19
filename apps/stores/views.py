@@ -17,6 +17,12 @@ from . import seo
 from .cart import Cart
 
 
+def _json_for_html(value):
+    """JSON safe inside an HTML script element, even for database text."""
+    return (json.dumps(value, ensure_ascii=False)
+            .replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e"))
+
+
 def _theme_template(request, name):
     return f"themes/{getattr(request, 'theme', 'biolabs')}/{name}"
 
@@ -72,7 +78,7 @@ def category_page(request, slug):
         "category_products": products,
         "sibling_categories": siblings,
         "active_category": slug,
-        "jsonld": json.dumps(ld),
+        "jsonld": _json_for_html(ld),
         "seo": seo.category(request.site, cat, products.count()),
     })
 
@@ -180,7 +186,7 @@ def product_detail(request, slug):
             "related": related,
             "reviews": product.review_qs[:6],
             "faqs": faqs,
-            "jsonld": json.dumps(ld),
+            "jsonld": _json_for_html(ld),
             "preload_hero": True,
             "seo": seo.product(request.site, product),
         },
@@ -286,7 +292,7 @@ def region_page(request, slug):
         "children": children,
         "featured": Product.objects.filter(is_active=True)
                            .select_related("category")[:4],
-        "jsonld": json.dumps(ld),
+        "jsonld": _json_for_html(ld),
         "seo": seo.region(request.site, r),
     })
 
@@ -440,26 +446,26 @@ def checkout(request):
         "ok": True,
         "order_number": order.number,
         "status": order.status,
-        "status_url": f"/order/{order.number}/",
+        "status_url": f"/order/{order.public_token}/",
         "message": order.confirmation_message,
     })
 
 
 @rate_limit("order_status", limit=30, window=60)
-def order_status(request, number):
+def order_status(request, token):
     """
     Customer-facing order status.
 
-    Rate-limited: the only thing protecting one customer's name, address and
-    order contents from another is an 8-digit order number, which is well
-    inside brute-force range for an unthrottled endpoint.
+    The URL contains an independent high-entropy capability token. The public
+    order number is deliberately never accepted here; rate limiting remains a
+    secondary abuse control, not the authorization boundary.
 
     Before this, the entire post-purchase experience was a toast that
     auto-dismissed after 2.6 seconds — on a 10–15 day delivery that is the
     single biggest driver of "where is my order" support calls.
     """
     _require_site(request)
-    order = get_object_or_404(Order, number=number, site=request.site)
+    order = get_object_or_404(Order, public_token=token, site=request.site)
     steps = [
         ("payment_review", "Payment received", "We're confirming your payment."),
         ("paid", "Payment confirmed", "Your order is being placed with our manufacturing partner."),

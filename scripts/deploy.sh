@@ -47,9 +47,8 @@ sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" |
 echo "==> Python venv + deps"
 cd "$APP"
 python3 -m venv venv
-./venv/bin/pip install --upgrade pip
-./venv/bin/pip install -r requirements.txt
-./venv/bin/pip install "psycopg[binary]" gunicorn
+./venv/bin/pip install --upgrade "pip==26.2.1"
+./venv/bin/pip install --require-hashes -r requirements.txt
 
 echo "==> .env"
 # ALLOWED_HOSTS is filled from the Site table after seeding (below).
@@ -92,7 +91,15 @@ set -a; source "$APP/.env"; set +a
 
 echo "==> gunicorn service"
 cp "$APP/deploy/gunicorn.service" /etc/systemd/system/peptidenet.service
-chown -R www-data:www-data "$APP"
+# Source and secrets are deployer-owned. The web worker can write only the two
+# runtime locations it actually needs: the shared rate/cache directory and AI
+# blog images. Recursive www-data ownership previously made an app compromise
+# persistent by allowing it to rewrite both source and .env.
+chown -R root:root "$APP"
+chmod 600 "$APP/.env"
+install -d -o www-data -g www-data -m 0700 /var/cache/peptidenet
+install -d -o www-data -g www-data -m 0750 "$APP/static/blog"
+chown -R www-data:www-data "$APP/static/blog"
 systemctl daemon-reload
 systemctl enable --now peptidenet
 systemctl restart peptidenet
@@ -110,6 +117,8 @@ nginx -t && systemctl reload nginx
 
 echo "==> firewall"
 ufw allow OpenSSH || true
+ufw default deny incoming
+ufw default allow outgoing
 # 80/443 are opened to Cloudflare's published ranges only, never to the world.
 # Rebuilding with `ufw allow 'Nginx Full'` is what silently reopened the
 # Host-header bypass: the origin answers a request that carries a real Host
@@ -138,9 +147,11 @@ if [ "$(grep -c . "$CF_IPS" 2>/dev/null || echo 0)" -ge 20 ]; then
     sed 's/^/set_real_ip_from /; s/$/;/' "$CF_IPS"
     echo "real_ip_header CF-Connecting-IP;"; } > /etc/nginx/conf.d/01-cloudflare-realip.conf
 else
-  ufw allow 'Nginx Full' || true
-  echo "!! Could not fetch Cloudflare ranges (got $(grep -c . "$CF_IPS" 2>/dev/null || echo 0), need >=20)."
-  echo "!! 80/443 are OPEN TO THE WORLD and real_ip is NOT configured. Re-run deploy.sh when network is back."
+  echo "!! Could not fetch Cloudflare ranges (got $(grep -c . "$CF_IPS" 2>/dev/null || echo 0), need >=20)." >&2
+  echo "!! Refusing to open the origin to the world. Re-run deploy.sh when Cloudflare's list is reachable." >&2
+  rm -f "$CF_IPS"
+  yes | ufw enable || true
+  exit 1
 fi
 rm -f "$CF_IPS"
 yes | ufw enable || true

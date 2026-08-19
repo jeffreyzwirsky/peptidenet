@@ -5,6 +5,13 @@ from django.db import models
 from django.utils.crypto import get_random_string
 
 
+def new_order_public_token():
+    """Unpredictable capability token used by the customer tracking URL."""
+    return get_random_string(
+        32, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    )
+
+
 class Order(models.Model):
     """
     A customer order in the dropship flow.
@@ -46,6 +53,9 @@ class Order(models.Model):
     ]
 
     number = models.CharField(max_length=20, unique=True, editable=False)
+    public_token = models.CharField(
+        max_length=48, unique=True, editable=False, default=new_order_public_token
+    )
     site = models.ForeignKey(
         "stores.Site", on_delete=models.PROTECT, related_name="orders"
     )

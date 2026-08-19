@@ -13,6 +13,17 @@ EnvironmentFile=/var/www/peptidenet/.env
 ExecStart=/var/www/peptidenet/venv/bin/gunicorn peptidenet.wsgi:application \
     --bind 127.0.0.1:8001 --workers 3 --timeout 60
 Restart=always
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+RestrictSUIDSGID=true
+ReadWritePaths=/var/cache/peptidenet /var/www/peptidenet/static/blog
 
 [Install]
 WantedBy=multi-user.target

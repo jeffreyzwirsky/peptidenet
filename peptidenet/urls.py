@@ -56,7 +56,7 @@ urlpatterns = [
     path("cart/update/", views.cart_update, name="cart_update"),
     path("checkout/", views.checkout, name="checkout"),
     # Customer order tracking — a 10–15 day delivery needs somewhere to look.
-    path("order/<str:number>/", views.order_status, name="order_status"),
+    path("order/<str:token>/", views.order_status, name="order_status"),
     path("contact/", views.contact, name="contact"),
     path("coa/<slug:slug>/", views.coa, name="coa"),
     path("healthz/", views.healthz, name="healthz"),

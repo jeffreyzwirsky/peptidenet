@@ -61,29 +61,42 @@
     $("[data-cart-total]") && ($("[data-cart-total]").textContent = money(state.total));
     const bodyEl = $("[data-cart-body]");
     if (!bodyEl) return;
+    bodyEl.replaceChildren();
     if (!state.items.length) {
-      bodyEl.innerHTML = '<p class="cart-empty">Your cart is empty.</p>';
+      const empty = document.createElement("p");
+      empty.className = "cart-empty";
+      empty.textContent = "Your cart is empty.";
+      bodyEl.appendChild(empty);
       return;
     }
     // `qty` is packs; `vials` is what ships. Both are shown, because the number
     // beside the +/− buttons is the one people sanity-check against their
     // receipt, and "2" meaning twenty vials is not self-evident.
-    bodyEl.innerHTML = state.items.map((i) => `
-      <div class="cart-item">
-        <div class="ci-info">
-          <div class="ci-name">${i.name}</div>
-          <div class="ci-meta">${money(i.unit_price || i.pack_price || i.price)} / ${
-            i.pack_label || "unit"}${
-            +i.bulk_pct ? ` <span class="ci-save">${i.bulk_pct}% adjusted</span>` : ""}</div>
-          <div class="ci-qty">
-            <button data-dec="${i.id}" aria-label="Remove one pack">−</button>
-            <span>${i.qty}</span>
-            <button data-inc="${i.id}" aria-label="Add one pack">+</button>
-            ${i.sells_in_packs ? `<span class="ci-vials">${i.vials} vials</span>` : ""}
-            <span class="ci-line">${money(i.line_total)}</span>
-          </div>
-        </div>
-      </div>`).join("");
+    state.items.forEach((i) => {
+      const item = document.createElement("div"); item.className = "cart-item";
+      const info = document.createElement("div"); info.className = "ci-info";
+      const name = document.createElement("div"); name.className = "ci-name"; name.textContent = i.name;
+      const meta = document.createElement("div"); meta.className = "ci-meta";
+      meta.append(document.createTextNode(`${money(i.unit_price || i.pack_price || i.price)} / ${i.pack_label || "unit"}`));
+      if (+i.bulk_pct) {
+        const save = document.createElement("span"); save.className = "ci-save";
+        save.textContent = `${i.bulk_pct}% adjusted`; meta.append(" ", save);
+      }
+      const qty = document.createElement("div"); qty.className = "ci-qty";
+      const dec = document.createElement("button"); dec.dataset.dec = i.id;
+      dec.setAttribute("aria-label", "Remove one pack"); dec.textContent = "−";
+      const amount = document.createElement("span"); amount.textContent = i.qty;
+      const inc = document.createElement("button"); inc.dataset.inc = i.id;
+      inc.setAttribute("aria-label", "Add one pack"); inc.textContent = "+";
+      qty.append(dec, amount, inc);
+      if (i.sells_in_packs) {
+        const vials = document.createElement("span"); vials.className = "ci-vials";
+        vials.textContent = `${i.vials} vials`; qty.appendChild(vials);
+      }
+      const line = document.createElement("span"); line.className = "ci-line";
+      line.textContent = money(i.line_total); qty.appendChild(line);
+      info.append(name, meta, qty); item.appendChild(info); bodyEl.appendChild(item);
+    });
     const sv = $("[data-cart-savings]");
     if (sv) {
       const s = parseFloat(state.savings || 0);
@@ -254,7 +267,9 @@
       }
       if (stockEl) {
         stockEl.className = "pdp-stock " + d.sizeStock;
-        stockEl.innerHTML = '<span class="dot"></span>' + d.sizeStockLabel;
+        stockEl.replaceChildren();
+        const dot = document.createElement("span"); dot.className = "dot";
+        stockEl.append(dot, document.createTextNode(d.sizeStockLabel));
       }
       if (addBtn) {
         addBtn.dataset.add = d.sizeId;

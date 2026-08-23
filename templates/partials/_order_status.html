@@ -55,7 +55,7 @@
         {% endif %}
 
         <p class="ostatus-help">
-          Questions? Email <a href="mailto:{{ site.contact_email_or_default }}">{{ site.contact_email_or_default }}</a>{% if site.phone %} or call <a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% endif %}.
+          Questions? Email {% include "partials/_contact_email.html" %}{% if site.phone %} or call <a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% endif %}.
         </p>
       </aside>
     </div>

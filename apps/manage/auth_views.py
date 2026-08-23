@@ -51,10 +51,12 @@ def _render_login(request, *, error="", nxt="", device=None):
         stage = "otp" if device.confirmed else "setup"
         secret = device.secret if not device.confirmed else ""
         uri = mfa.provisioning_uri(device.user, device.secret) if secret else ""
-    return render(request, "manage/login.html", {
+    response = render(request, "manage/login.html", {
         "error": error, "next": nxt, "stage": stage,
         "mfa_secret": secret, "mfa_uri": uri,
     })
+    response["X-Robots-Tag"] = "noindex, nofollow"
+    return response
 
 
 def _preauth_user(request):

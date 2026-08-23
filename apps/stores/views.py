@@ -139,6 +139,12 @@ def product_detail(request, slug):
             },
         },
     }
+    if product.image:
+        product_ld["image"] = (
+            product.image
+            if product.image.startswith(("http://", "https://"))
+            else f"{base}{product.image}"
+        )
     if product.is_discounted:
         product_ld["offers"]["priceSpecification"] = {
             "@type": "UnitPriceSpecification",

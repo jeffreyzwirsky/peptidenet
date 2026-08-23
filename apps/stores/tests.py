@@ -170,6 +170,15 @@ class ProductPageTests(TestCase):
         self.assertIn("FAQPage", body)
         self.assertIn("BreadcrumbList", body)
 
+    def test_product_schema_includes_absolute_primary_image(self):
+        r = self.client.get(
+            "/product/bpc-157/", HTTP_HOST="smashfatbiolabs.ca", secure=True
+        )
+        self.assertContains(
+            r,
+            '"image": "https://smashfatbiolabs.ca/static/products/bpc-157.png"',
+        )
+
     def test_product_page_all_themes(self):
         from apps.stores.models import Site
         for s in Site.objects.all():
@@ -389,6 +398,17 @@ class PolicyPageTests(TestCase):
         sm = self.client.get("/sitemap.xml", HTTP_HOST="smashfat.ca").content.decode()
         for slug in ("shipping", "returns", "privacy", "terms"):
             self.assertIn(f"/{slug}/", sm)
+
+    def test_public_contact_email_opts_out_of_cloudflare_rewriting(self):
+        for path in ("/", "/shipping/"):
+            html = self.client.get(
+                path, HTTP_HOST="smashfatbiolabs.ca", secure=True
+            ).content.decode()
+            self.assertIn("<!--email_off-->", html, path)
+            self.assertIn(
+                'href="mailto:info@smashfatbiolabs.ca"', html, path
+            )
+            self.assertIn("<!--/email_off-->", html, path)
 
 
 class RegionPageTests(TestCase):

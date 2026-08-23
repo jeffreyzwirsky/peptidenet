@@ -28,6 +28,14 @@ class SecurityHeaderTests(TestCase):
             r = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca")
             self.assertEqual(r["Cache-Control"], "private, no-store")
 
+    def test_console_login_pages_are_noindex(self):
+        for path in ("/manage/login/", "/portal/login/"):
+            r = self.client.get(path, HTTP_HOST="smashfatbiolabs.ca")
+            self.assertContains(
+                r, '<meta name="robots" content="noindex,nofollow">'
+            )
+            self.assertEqual(r["X-Robots-Tag"], "noindex, nofollow")
+
     def test_bot_trap_logs_event(self):
         self.client.get("/wp-login.php", HTTP_HOST="smashfat.ca")
         self.assertTrue(SecurityEvent.objects.filter(kind="bot_trap").exists())

@@ -36,7 +36,7 @@ template serves all 8 storefronts in their own theme.{% endcomment %}
 
         <div class="policy-contact">
           <h3>Questions</h3>
-          <p><a href="mailto:{{ site.contact_email_or_default }}">{{ site.contact_email_or_default }}</a></p>
+          <p>{% include "partials/_contact_email.html" %}</p>
           {% if site.phone %}<p><a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a></p>{% endif %}
         </div>
 

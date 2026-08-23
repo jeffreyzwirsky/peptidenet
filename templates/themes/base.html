@@ -167,7 +167,7 @@
     <div class="foot-fruo">
       <strong>For Research Use Only.</strong> Not for human or veterinary use. All products
       are intended for laboratory and in-vitro research.
-      <div class="foot-contact">{{ site.contact_email_or_default }}</div>
+      <div class="foot-contact">{% include "partials/_contact_email.html" %}</div>
       {% if site.phone %}<div class="foot-contact"><a href="tel:{{ site.phone_tel_or_derived }}">{{ site.phone }}</a>{% if site.phone_alt %} · <a href="tel:{{ site.phone_alt_tel_or_derived }}">{{ site.phone_alt }}</a>{% endif %}</div>{% endif %}
     </div>
     <div class="foot-shipping">

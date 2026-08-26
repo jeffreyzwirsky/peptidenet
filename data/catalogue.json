@@ -1,5 +1,5 @@
 {
-  "note": "Shared research-compound catalogue. Prices in CAD per vial. COMPLIANCE TRIAGE APPLIED 2026-08-16 (branch compliance/remediation-2026-08-16). Every product carries `disposition` (DELIST|FIX), `disposition_basis` and `disposition_note`. DELIST rows are set active=false and must not be seeded, rendered or sold; their URLs return 410. `disposition_basis: minimum` = the operator's own non-negotiable delist criteria (GLP-1/GIP class, Canadian Prescription Drug List, reconstitution supplies) - 12 SKUs. `disposition_basis: independent` = recommended additionally by the remediation review - 18 SKUs; these are reversible by counsel, one field each. NO product is marked KEEP. Every remaining SKU is FIX and is NOT sellable today: none has a purity result, a CAS/formula/molecular weight on record, or a certificate of analysis. purity stays blank everywhere - no analysis is held that would substantiate a figure, and a stated purity reads as a measured result. 'was' is the pre-discount reference price; 'cost' is a PLACEHOLDER landed cost and must be replaced with the real per-vial supplier cost before margin figures mean anything.",
+  "note": "Shared research-compound catalogue. Prices in CAD per vial. COMPLIANCE TRIAGE APPLIED 2026-08-16 (branch compliance/remediation-2026-08-16). Every product carries `disposition` (DELIST|FIX), `disposition_basis` and `disposition_note`. DELIST rows are set active=false and must not be seeded, rendered or sold; their URLs return 410. `disposition_basis: minimum` = the operator's own non-negotiable delist criteria (GLP-1/GIP class, Canadian Prescription Drug List, reconstitution supplies) - 12 SKUs. `disposition_basis: independent` = recommended additionally by the remediation review - 18 SKUs; these are reversible by counsel, one field each. NO product is marked KEEP. Every remaining SKU is FIX and is NOT sellable today: none has a purity result, a CAS/formula/molecular weight on record, or a certificate of analysis. purity stays blank everywhere - no analysis is held that would substantiate a figure, and a stated purity reads as a measured result. 'was' is the pre-discount reference price; 'cost' is a PLACEHOLDER landed cost and must be replaced with the real per-vial supplier cost before margin figures mean anything. SECOND PRICE CUT APPLIED 2026-08-24: every ACTIVE SKU repriced to 80% of its previous price, snapped to the $0.50 step `reprice` uses; effective book cut 20.06% (per-SKU 18.92-20.93%). 'was'/list_price deliberately untouched, so the 11 SKUs that carry a comparison price now display 44% off - a permanent sitewide 44% against a reference price nothing has recently sold at is the Competition Act ordinary-selling-price exposure, flagged and accepted by the operator. Each active row now carries an explicit `margin` calibrated on 2026-08-26 to production's live supplier-cost table at the then-current USD/CAD rate, so the nightly `reprice` timer holds the requested selling price instead of snapping it back to the old 75% default. The separate catalogue `cost` field remains a PLACEHOLDER and is not the source for these target margins. DELIST rows untouched.",
   "products": [
     {
       "n": "KLOW",
@@ -65,7 +65,7 @@
     {
       "n": "MOTS-C",
       "cat": "Mitochondrial",
-      "price": 42.0,
+      "price": 33.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -82,12 +82,13 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 75.58
     },
     {
       "n": "BPC-157",
       "cat": "Repair & Recovery",
-      "price": 42.0,
+      "price": 33.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -104,12 +105,13 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 73.52
     },
     {
       "n": "GHK-Cu",
       "cat": "Growth Factors",
-      "price": 35.0,
+      "price": 28,
       "pur": "",
       "sizes": [
         "50mg"
@@ -126,12 +128,13 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 88.10
     },
     {
       "n": "TB-500",
       "cat": "Repair & Recovery",
-      "price": 45.5,
+      "price": 36.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -148,12 +151,13 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 49.86
     },
     {
       "n": "Ipamorelin",
       "cat": "Growth Factors",
-      "price": 28.0,
+      "price": 22.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -170,12 +174,13 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 56.26
     },
     {
       "n": "Selank",
       "cat": "Neuropeptides",
-      "price": 35.0,
+      "price": 28,
       "pur": "",
       "sizes": [
         "10mg"
@@ -192,12 +197,13 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 59.39
     },
     {
       "n": "Semax",
       "cat": "Neuropeptides",
-      "price": 37.1,
+      "price": 29.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -214,7 +220,8 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 60.06
     },
     {
       "n": "Tesamorelin",
@@ -242,7 +249,7 @@
     {
       "n": "SS-31",
       "cat": "Mitochondrial",
-      "price": 49.0,
+      "price": 39,
       "pur": "",
       "sizes": [
         "10mg"
@@ -259,12 +266,13 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 69.07
     },
     {
       "n": "NAD+",
       "cat": "Mitochondrial",
-      "price": 42.0,
+      "price": 33.5,
       "pur": "",
       "sizes": [
         "500mg"
@@ -281,7 +289,8 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 75.58
     },
     {
       "n": "BPC-157 + TB-500",
@@ -305,7 +314,7 @@
     {
       "n": "Epithalon",
       "cat": "Repair & Recovery",
-      "price": 38.5,
+      "price": 31,
       "pur": "",
       "sizes": [
         "10mg"
@@ -322,12 +331,13 @@
       "is_family_default": true,
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 81.22
     },
     {
       "n": "KPV",
       "cat": "Repair & Recovery",
-      "price": 35.0,
+      "price": 28,
       "pur": "",
       "sizes": [
         "10mg"
@@ -340,7 +350,8 @@
       "sup": "KPV10",
       "disposition": "FIX",
       "disposition_basis": "",
-      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
+      "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured.",
+      "margin": 66.35
     },
     {
       "n": "Melanotan 2",
@@ -383,7 +394,7 @@
     {
       "n": "CJC-1295 (no DAC)",
       "cat": "Growth Factors",
-      "price": 74.5,
+      "price": 59.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -394,7 +405,7 @@
       "area": "Studied in laboratory models for its interaction with the GHRH receptor and its short plasma half-life relative to DAC-conjugated analogues.",
       "cost": 18.63,
       "sup": "CND10",
-      "margin": 75,
+      "margin": 68.31,
       "family": "cjc-1295-no-dac",
       "size_label": "10mg",
       "family_order": 1000,
@@ -406,7 +417,7 @@
     {
       "n": "CJC-1295 with DAC",
       "cat": "Growth Factors",
-      "price": 84.0,
+      "price": 67,
       "pur": "",
       "sizes": [
         "5mg"
@@ -417,7 +428,7 @@
       "area": "Investigated for binding-affinity and half-life characteristics conferred by the DAC moiety.",
       "cost": 20.96,
       "sup": "CD5",
-      "margin": 75,
+      "margin": 68.34,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -449,7 +460,7 @@
     {
       "n": "Hexarelin",
       "cat": "Growth Factors",
-      "price": 81.0,
+      "price": 65,
       "pur": "",
       "sizes": [
         "10mg"
@@ -460,7 +471,7 @@
       "area": "Studied for its interaction with the GHS-R1a receptor and CD36 in laboratory models.",
       "cost": 20.28,
       "sup": "HX10",
-      "margin": 75,
+      "margin": 68.44,
       "family": "hexarelin",
       "size_label": "10mg",
       "family_order": 1000,
@@ -472,7 +483,7 @@
     {
       "n": "GHRP-2",
       "cat": "Growth Factors",
-      "price": 27.0,
+      "price": 21.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -483,7 +494,7 @@
       "area": "Investigated in receptor-binding studies of the ghrelin/GHS-R axis.",
       "cost": 6.71,
       "sup": "G210",
-      "margin": 75,
+      "margin": 68.41,
       "family": "ghrp-2",
       "size_label": "10mg",
       "family_order": 1000,
@@ -495,7 +506,7 @@
     {
       "n": "GHRP-6",
       "cat": "Growth Factors",
-      "price": 27.0,
+      "price": 21.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -506,7 +517,7 @@
       "area": "A common reference compound in growth-hormone secretagogue receptor research.",
       "cost": 6.71,
       "sup": "G610",
-      "margin": 75,
+      "margin": 68.41,
       "family": "ghrp-6",
       "size_label": "10mg",
       "family_order": 1000,
@@ -542,7 +553,7 @@
     {
       "n": "Thymosin Alpha-1",
       "cat": "Repair & Recovery",
-      "price": 84.0,
+      "price": 67,
       "pur": "",
       "sizes": [
         "10mg"
@@ -553,7 +564,7 @@
       "area": "Studied in immunological research for its interaction with toll-like receptor signalling.",
       "cost": 20.96,
       "sup": "TA10",
-      "margin": 75,
+      "margin": 68.34,
       "family": "thymosin-alpha-1",
       "size_label": "10mg",
       "family_order": 1000,
@@ -565,7 +576,7 @@
     {
       "n": "Thymalin",
       "cat": "Repair & Recovery",
-      "price": 36.0,
+      "price": 29,
       "pur": "",
       "sizes": [
         "10mg"
@@ -576,7 +587,7 @@
       "area": "Investigated in laboratory studies of thymic peptide signalling.",
       "cost": 9.04,
       "sup": "TY10",
-      "margin": 75,
+      "margin": 68.44,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -604,7 +615,7 @@
     {
       "n": "Kisspeptin-10",
       "cat": "Neuropeptides",
-      "price": 49.0,
+      "price": 39,
       "pur": "",
       "sizes": [
         "10mg"
@@ -615,7 +626,7 @@
       "area": "A reference ligand in research on the kisspeptin/GPR54 signalling axis.",
       "cost": 12.19,
       "sup": "KS10",
-      "margin": 75,
+      "margin": 68.35,
       "family": "kisspeptin-10",
       "size_label": "10mg",
       "family_order": 1000,
@@ -627,7 +638,7 @@
     {
       "n": "DSIP",
       "cat": "Neuropeptides",
-      "price": 45.0,
+      "price": 36,
       "pur": "",
       "sizes": [
         "10mg"
@@ -638,7 +649,7 @@
       "area": "Studied in neuropeptide research for its distribution and receptor interactions.",
       "cost": 11.23,
       "sup": "DS10",
-      "margin": 75,
+      "margin": 68.41,
       "family": "dsip",
       "size_label": "10mg",
       "family_order": 1000,
@@ -674,7 +685,7 @@
     {
       "n": "AOD9604",
       "cat": "Metabolic",
-      "price": 96.5,
+      "price": 77,
       "pur": "",
       "sizes": [
         "10mg"
@@ -685,7 +696,7 @@
       "area": "Investigated in laboratory models of lipid metabolism as a growth-hormone fragment analogue.",
       "cost": 24.11,
       "sup": "10AD",
-      "margin": 75,
+      "margin": 68.32,
       "family": "aod9604",
       "size_label": "10mg",
       "family_order": 1000,
@@ -697,7 +708,7 @@
     {
       "n": "5-amino-1MQ",
       "cat": "Metabolic",
-      "price": 58.0,
+      "price": 46.5,
       "pur": "",
       "sizes": [
         "50mg"
@@ -708,7 +719,7 @@
       "area": "Used in research on nicotinamide N-methyltransferase and cellular NAD+ handling.",
       "cost": 14.52,
       "sup": "50AM",
-      "margin": 75,
+      "margin": 68.40,
       "family": "5-amino-1mq",
       "size_label": "50mg",
       "family_order": 5000,
@@ -720,7 +731,7 @@
     {
       "n": "AICAR",
       "cat": "Metabolic",
-      "price": 35.0,
+      "price": 28,
       "pur": "",
       "sizes": [
         "50mg"
@@ -731,7 +742,7 @@
       "area": "A widely used AMPK activator in cellular metabolism research.",
       "cost": 8.77,
       "sup": "AR50",
-      "margin": 75,
+      "margin": 68.32,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -739,7 +750,7 @@
     {
       "n": "SLU-PP-332",
       "cat": "Metabolic",
-      "price": 49.0,
+      "price": 39,
       "pur": "",
       "sizes": [
         "5mg"
@@ -750,7 +761,7 @@
       "area": "Studied for its agonism of estrogen-related receptors in metabolic research.",
       "cost": 12.19,
       "sup": "322",
-      "margin": 75,
+      "margin": 68.35,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -758,7 +769,7 @@
     {
       "n": "LL-37",
       "cat": "Repair & Recovery",
-      "price": 47.5,
+      "price": 38,
       "pur": "",
       "sizes": [
         "5mg"
@@ -769,7 +780,7 @@
       "area": "A reference antimicrobial peptide in innate-immunity and membrane-interaction studies.",
       "cost": 11.92,
       "sup": "375",
-      "margin": 75,
+      "margin": 68.26,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -777,7 +788,7 @@
     {
       "n": "Pinealon",
       "cat": "Neuropeptides",
-      "price": 47.5,
+      "price": 38,
       "pur": "",
       "sizes": [
         "20mg"
@@ -788,7 +799,7 @@
       "area": "Investigated in laboratory studies of short-peptide interaction with nucleic acids.",
       "cost": 11.92,
       "sup": "PI20",
-      "margin": 75,
+      "margin": 68.26,
       "family": "pinealon",
       "size_label": "20mg",
       "family_order": 2000,
@@ -820,7 +831,7 @@
     {
       "n": "Cartalax",
       "cat": "Repair & Recovery",
-      "price": 51.5,
+      "price": 41,
       "pur": "",
       "sizes": [
         "20mg"
@@ -831,7 +842,7 @@
       "area": "Used in research on short peptides and connective-tissue cell cultures.",
       "cost": 12.88,
       "sup": "CTL20",
-      "margin": 75,
+      "margin": 68.21,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -839,7 +850,7 @@
     {
       "n": "Adamax",
       "cat": "Neuropeptides",
-      "price": 64.5,
+      "price": 51.5,
       "pur": "",
       "sizes": [
         "10mg"
@@ -850,7 +861,7 @@
       "area": "Supplied as a reference compound for neuropeptide research.",
       "cost": 16.17,
       "sup": "ADA10",
-      "margin": 75,
+      "margin": 68.25,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -858,7 +869,7 @@
     {
       "n": "VIP",
       "cat": "Neuropeptides",
-      "price": 84.0,
+      "price": 67,
       "pur": "",
       "sizes": [
         "10mg"
@@ -869,7 +880,7 @@
       "area": "A standard ligand in VPAC1/VPAC2 receptor research.",
       "cost": 20.96,
       "sup": "VIP10",
-      "margin": 75,
+      "margin": 68.34,
       "family": "vip",
       "size_label": "10mg",
       "family_order": 1000,
@@ -881,7 +892,7 @@
     {
       "n": "Ara-290",
       "cat": "Repair & Recovery",
-      "price": 40.0,
+      "price": 32,
       "pur": "",
       "sizes": [
         "10mg"
@@ -892,7 +903,7 @@
       "area": "Studied for its interaction with the innate repair receptor, without erythropoietic activity.",
       "cost": 10.0,
       "sup": "RA10",
-      "margin": 75,
+      "margin": 68.37,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -900,7 +911,7 @@
     {
       "n": "SNAP-8",
       "cat": "Repair & Recovery",
-      "price": 23.0,
+      "price": 18.5,
       "pur": "",
       "sizes": [
         "2mg"
@@ -911,7 +922,7 @@
       "area": "Used in laboratory research on SNARE complex formation.",
       "cost": 5.75,
       "sup": "NP810",
-      "margin": 75,
+      "margin": 68.54,
       "disposition": "FIX",
       "disposition_basis": "",
       "disposition_note": "No purity, no CAS/formula/MW on record, no COA. Not sellable until cured."
@@ -919,7 +930,7 @@
     {
       "n": "AHK-Cu",
       "cat": "Repair & Recovery",
-      "price": 26.0,
+      "price": 21,
       "pur": "",
       "sizes": [
         "50mg"
@@ -930,7 +941,7 @@
       "area": "A copper-peptide reference compound in fibroblast and matrix research.",
       "cost": 6.44,
       "sup": "ACU50",
-      "margin": 75,
+      "margin": 69.00,
       "family": "ahk-cu",
       "size_label": "50mg",
       "family_order": 5000,
@@ -1202,7 +1213,7 @@
       "n": "MOTS-C",
       "slug": "mots-c-40mg",
       "cat": "Mitochondrial",
-      "price": 126.5,
+      "price": 101,
       "pur": "",
       "sizes": [
         "40mg"
@@ -1213,7 +1224,7 @@
       "area": "",
       "cost": 31.6,
       "sup": "MS40",
-      "margin": 75,
+      "margin": 69.25,
       "family": "mots-c",
       "size_label": "40mg",
       "family_order": 4000,
@@ -1226,7 +1237,7 @@
       "n": "BPC-157",
       "slug": "bpc-157-5mg",
       "cat": "Repair & Recovery",
-      "price": 22.5,
+      "price": 18,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1237,7 +1248,7 @@
       "area": "",
       "cost": 5.64,
       "sup": "BC5",
-      "margin": 75,
+      "margin": 69.22,
       "family": "bpc-157",
       "size_label": "5mg",
       "family_order": 500,
@@ -1250,7 +1261,7 @@
       "n": "GHK-Cu",
       "slug": "ghk-cu-100mg",
       "cat": "Growth Factors",
-      "price": 22.5,
+      "price": 18,
       "pur": "",
       "sizes": [
         "100mg"
@@ -1261,7 +1272,7 @@
       "area": "",
       "cost": 5.64,
       "sup": "CU100",
-      "margin": 75,
+      "margin": 69.22,
       "family": "ghk-cu",
       "size_label": "100mg",
       "family_order": 10000,
@@ -1274,7 +1285,7 @@
       "n": "TB-500",
       "slug": "tb-500-5mg",
       "cat": "Repair & Recovery",
-      "price": 40.0,
+      "price": 32,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1285,7 +1296,7 @@
       "area": "",
       "cost": 10.02,
       "sup": "BT5",
-      "margin": 75,
+      "margin": 69.25,
       "family": "tb-500",
       "size_label": "5mg",
       "family_order": 500,
@@ -1298,7 +1309,7 @@
       "n": "Ipamorelin",
       "slug": "ipamorelin-5mg",
       "cat": "Growth Factors",
-      "price": 22.5,
+      "price": 18,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1309,7 +1320,7 @@
       "area": "",
       "cost": 5.64,
       "sup": "IP5",
-      "margin": 75,
+      "margin": 69.22,
       "family": "ipamorelin",
       "size_label": "5mg",
       "family_order": 500,
@@ -1322,7 +1333,7 @@
       "n": "Selank",
       "slug": "selank-5mg",
       "cat": "Neuropeptides",
-      "price": 26.5,
+      "price": 21,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1333,7 +1344,7 @@
       "area": "",
       "cost": 6.63,
       "sup": "SK5",
-      "margin": 75,
+      "margin": 69.00,
       "family": "selank",
       "size_label": "5mg",
       "family_order": 500,
@@ -1346,7 +1357,7 @@
       "n": "Semax",
       "slug": "semax-5mg",
       "cat": "Neuropeptides",
-      "price": 30.5,
+      "price": 24.5,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1357,7 +1368,7 @@
       "area": "",
       "cost": 7.62,
       "sup": "XA5",
-      "margin": 75,
+      "margin": 69.46,
       "family": "semax",
       "size_label": "5mg",
       "family_order": 500,
@@ -1420,7 +1431,7 @@
       "n": "SS-31",
       "slug": "ss-31-50mg",
       "cat": "Mitochondrial",
-      "price": 225.5,
+      "price": 180.5,
       "pur": "",
       "sizes": [
         "50mg"
@@ -1431,7 +1442,7 @@
       "area": "",
       "cost": 56.43,
       "sup": "2S50",
-      "margin": 75,
+      "margin": 69.28,
       "family": "ss-31",
       "size_label": "50mg",
       "family_order": 5000,
@@ -1444,7 +1455,7 @@
       "n": "NAD+",
       "slug": "nad-100mg",
       "cat": "Mitochondrial",
-      "price": 18.5,
+      "price": 15,
       "pur": "",
       "sizes": [
         "100mg"
@@ -1455,7 +1466,7 @@
       "area": "",
       "cost": 4.66,
       "sup": "NJ100",
-      "margin": 75,
+      "margin": 69.53,
       "family": "nad",
       "size_label": "100mg",
       "family_order": 10000,
@@ -1468,7 +1479,7 @@
       "n": "NAD+",
       "slug": "nad-1000mg",
       "cat": "Mitochondrial",
-      "price": 73.0,
+      "price": 58.5,
       "pur": "",
       "sizes": [
         "1000mg"
@@ -1479,7 +1490,7 @@
       "area": "",
       "cost": 18.2,
       "sup": "NJ1000",
-      "margin": 75,
+      "margin": 69.43,
       "family": "nad",
       "size_label": "1000mg",
       "family_order": 100000,
@@ -1492,7 +1503,7 @@
       "n": "Epithalon",
       "slug": "epithalon-50mg",
       "cat": "Repair & Recovery",
-      "price": 74.5,
+      "price": 59.5,
       "pur": "",
       "sizes": [
         "50mg"
@@ -1503,7 +1514,7 @@
       "area": "",
       "cost": 18.62,
       "sup": "ET50",
-      "margin": 75,
+      "margin": 69.24,
       "family": "epithalon",
       "size_label": "50mg",
       "family_order": 5000,
@@ -1516,7 +1527,7 @@
       "n": "CJC-1295 (no DAC)",
       "slug": "cjc-1295-no-dac-5mg",
       "cat": "Growth Factors",
-      "price": 48.0,
+      "price": 38.5,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1527,7 +1538,7 @@
       "area": "Studied in laboratory models for its interaction with the GHRH receptor and its short plasma half-life relative to DAC-conjugated analogues.",
       "cost": 11.99,
       "sup": "CND5",
-      "margin": 75,
+      "margin": 69.40,
       "family": "cjc-1295-no-dac",
       "size_label": "5mg",
       "family_order": 500,
@@ -1565,7 +1576,7 @@
       "n": "Hexarelin",
       "slug": "hexarelin-2mg",
       "cat": "Growth Factors",
-      "price": 29.5,
+      "price": 23.5,
       "pur": "",
       "sizes": [
         "2mg"
@@ -1576,7 +1587,7 @@
       "area": "Studied for its interaction with the GHS-R1a receptor and CD36 in laboratory models.",
       "cost": 7.34,
       "sup": "HX2",
-      "margin": 75,
+      "margin": 69.31,
       "family": "hexarelin",
       "size_label": "2mg",
       "family_order": 200,
@@ -1589,7 +1600,7 @@
       "n": "Hexarelin",
       "slug": "hexarelin-5mg",
       "cat": "Growth Factors",
-      "price": 46.5,
+      "price": 37,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1600,7 +1611,7 @@
       "area": "Studied for its interaction with the GHS-R1a receptor and CD36 in laboratory models.",
       "cost": 11.57,
       "sup": "HX5",
-      "margin": 75,
+      "margin": 69.27,
       "family": "hexarelin",
       "size_label": "5mg",
       "family_order": 500,
@@ -1613,7 +1624,7 @@
       "n": "GHRP-2",
       "slug": "ghrp-2-5mg",
       "cat": "Growth Factors",
-      "price": 17.5,
+      "price": 14,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1624,7 +1635,7 @@
       "area": "Investigated in receptor-binding studies of the ghrelin/GHS-R axis.",
       "cost": 4.37,
       "sup": "G25",
-      "margin": 75,
+      "margin": 69.28,
       "family": "ghrp-2",
       "size_label": "5mg",
       "family_order": 500,
@@ -1637,7 +1648,7 @@
       "n": "GHRP-2",
       "slug": "ghrp-2-15mg",
       "cat": "Growth Factors",
-      "price": 38.5,
+      "price": 31,
       "pur": "",
       "sizes": [
         "15mg"
@@ -1648,7 +1659,7 @@
       "area": "Investigated in receptor-binding studies of the ghrelin/GHS-R axis.",
       "cost": 9.59,
       "sup": "G215",
-      "margin": 75,
+      "margin": 69.61,
       "family": "ghrp-2",
       "size_label": "15mg",
       "family_order": 1500,
@@ -1661,7 +1672,7 @@
       "n": "GHRP-6",
       "slug": "ghrp-6-5mg",
       "cat": "Growth Factors",
-      "price": 17.5,
+      "price": 14,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1672,7 +1683,7 @@
       "area": "A common reference compound in growth-hormone secretagogue receptor research.",
       "cost": 4.37,
       "sup": "G65",
-      "margin": 75,
+      "margin": 69.28,
       "family": "ghrp-6",
       "size_label": "5mg",
       "family_order": 500,
@@ -1710,7 +1721,7 @@
       "n": "Thymosin Alpha-1",
       "slug": "thymosin-alpha-1-5mg",
       "cat": "Repair & Recovery",
-      "price": 53.0,
+      "price": 42.5,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1721,7 +1732,7 @@
       "area": "Studied in immunological research for its interaction with toll-like receptor signalling.",
       "cost": 13.26,
       "sup": "TA5",
-      "margin": 75,
+      "margin": 69.34,
       "family": "thymosin-alpha-1",
       "size_label": "5mg",
       "family_order": 500,
@@ -1734,7 +1745,7 @@
       "n": "Kisspeptin-10",
       "slug": "kisspeptin-10-5mg",
       "cat": "Neuropeptides",
-      "price": 29.5,
+      "price": 23.5,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1745,7 +1756,7 @@
       "area": "A reference ligand in research on the kisspeptin/GPR54 signalling axis.",
       "cost": 7.34,
       "sup": "KS5",
-      "margin": 75,
+      "margin": 69.31,
       "family": "kisspeptin-10",
       "size_label": "5mg",
       "family_order": 500,
@@ -1758,7 +1769,7 @@
       "n": "DSIP",
       "slug": "dsip-5mg",
       "cat": "Neuropeptides",
-      "price": 21.5,
+      "price": 17,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1769,7 +1780,7 @@
       "area": "Studied in neuropeptide research for its distribution and receptor interactions.",
       "cost": 5.36,
       "sup": "DS5",
-      "margin": 75,
+      "margin": 69.00,
       "family": "dsip",
       "size_label": "5mg",
       "family_order": 500,
@@ -1832,7 +1843,7 @@
       "n": "AOD9604",
       "slug": "aod9604-5mg",
       "cat": "Metabolic",
-      "price": 53.0,
+      "price": 42.5,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1843,7 +1854,7 @@
       "area": "Investigated in laboratory models of lipid metabolism as a growth-hormone fragment analogue.",
       "cost": 13.26,
       "sup": "5AD",
-      "margin": 75,
+      "margin": 69.34,
       "family": "aod9604",
       "size_label": "5mg",
       "family_order": 500,
@@ -1856,7 +1867,7 @@
       "n": "5-amino-1MQ",
       "slug": "5-amino-1mq-5mg",
       "cat": "Metabolic",
-      "price": 26.5,
+      "price": 21,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1867,7 +1878,7 @@
       "area": "Used in research on nicotinamide N-methyltransferase and cellular NAD+ handling.",
       "cost": 6.63,
       "sup": "5AM",
-      "margin": 75,
+      "margin": 69.00,
       "family": "5-amino-1mq",
       "size_label": "5mg",
       "family_order": 500,
@@ -1880,7 +1891,7 @@
       "n": "Pinealon",
       "slug": "pinealon-10mg",
       "cat": "Neuropeptides",
-      "price": 33.5,
+      "price": 27,
       "pur": "",
       "sizes": [
         "10mg"
@@ -1891,7 +1902,7 @@
       "area": "Investigated in laboratory studies of short-peptide interaction with nucleic acids.",
       "cost": 8.32,
       "sup": "PI10",
-      "margin": 75,
+      "margin": 69.70,
       "family": "pinealon",
       "size_label": "10mg",
       "family_order": 1000,
@@ -1904,7 +1915,7 @@
       "n": "VIP",
       "slug": "vip-5mg",
       "cat": "Neuropeptides",
-      "price": 44.0,
+      "price": 35,
       "pur": "",
       "sizes": [
         "5mg"
@@ -1915,7 +1926,7 @@
       "area": "A standard ligand in VPAC1/VPAC2 receptor research.",
       "cost": 11.0,
       "sup": "VIP5",
-      "margin": 75,
+      "margin": 69.11,
       "family": "vip",
       "size_label": "5mg",
       "family_order": 500,
@@ -1928,7 +1939,7 @@
       "n": "AHK-Cu",
       "slug": "ahk-cu-100mg",
       "cat": "Repair & Recovery",
-      "price": 50.0,
+      "price": 40,
       "pur": "",
       "sizes": [
         "100mg"
@@ -1939,7 +1950,7 @@
       "area": "A copper-peptide reference compound in fibroblast and matrix research.",
       "cost": 12.56,
       "sup": "ACU100",
-      "margin": 75,
+      "margin": 69.15,
       "family": "ahk-cu",
       "size_label": "100mg",
       "family_order": 10000,

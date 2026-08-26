@@ -143,7 +143,7 @@ class ControlPanelTests(TestCase):
         self.assertEqual(p.stock_qty, start + 50)
 
     def test_order_captures_cost_and_profit(self):
-        p = Product.objects.get(slug="tesamorelin")  # price 90, cost ~31.50
+        p = Product.objects.get(slug="bpc-157")
         self.client.get("/", HTTP_HOST="smashfat.ca")
         self.client.post("/cart/add/", {"product_id": p.id, "qty": 2},
                          content_type="application/json", HTTP_HOST="smashfat.ca")

@@ -74,7 +74,20 @@ class Cart:
                 ids.append(int(k))
             except (TypeError, ValueError):
                 continue
-        return {p.id: p for p in Product.objects.filter(id__in=ids)}
+        products = {
+            p.id: p for p in Product.objects.filter(id__in=ids, is_active=True)
+        }
+        # A product can be retired after a visitor put it in their session, and
+        # cart endpoints are public enough that an ID can also be submitted by
+        # hand.  In either case, remove anything that is no longer sellable so
+        # it cannot survive into checkout (and so the badge matches the lines).
+        stale = [key for key in self.cart if not str(key).isdigit()
+                 or int(key) not in products]
+        if stale:
+            for key in stale:
+                self.cart.pop(key, None)
+            self.save()
+        return products
 
     def items(self):
         products = self._products()
@@ -115,6 +128,7 @@ class Cart:
 
     def count(self):
         """Packs in the cart - this is what the header badge shows."""
+        self._products()  # Prune products retired since the session was saved.
         return sum(self.cart.values())
 
     def vial_count(self):

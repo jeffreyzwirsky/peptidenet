@@ -18,6 +18,7 @@ class StorefrontTests(TestCase):
     def setUpTestData(cls):
         call_command("seed_catalog")
         call_command("seed_sites")
+        cls.cart_product = Product.objects.get(slug="bpc-157")
 
     def test_host_routing_selects_theme(self):
         cases = {
@@ -57,7 +58,7 @@ class StorefrontTests(TestCase):
     def test_cart_and_checkout_flow(self):
         self.client.get("/", HTTP_HOST="smashfat.ca")  # set csrf cookie
         add = self.client.post(
-            "/cart/add/", {"product_id": 1, "qty": 2},
+            "/cart/add/", {"product_id": self.cart_product.id, "qty": 2},
             content_type="application/json", HTTP_HOST="smashfat.ca",
         )
         self.assertEqual(add.json()["count"], 2)
@@ -71,11 +72,49 @@ class StorefrontTests(TestCase):
         self.assertTrue(body["ok"])
         self.assertEqual(body["status"], "pending_payment")
 
+    def test_inactive_product_cannot_be_added_to_cart(self):
+        product = Product.objects.filter(is_active=True).first()
+        product.is_active = False
+        product.save(update_fields=["is_active"])
+
+        add = self.client.post(
+            "/cart/add/", {"product_id": product.id, "qty": 1},
+            content_type="application/json", HTTP_HOST="smashfat.ca",
+        )
+
+        self.assertEqual(add.status_code, 200)
+        self.assertEqual(add.json()["count"], 0)
+        self.assertEqual(add.json()["items"], [])
+
+    def test_cart_prunes_product_deactivated_after_add(self):
+        product = Product.objects.filter(is_active=True).first()
+        add = self.client.post(
+            "/cart/add/", {"product_id": product.id, "qty": 1},
+            content_type="application/json", HTTP_HOST="smashfat.ca",
+        )
+        self.assertEqual(add.json()["count"], 1)
+
+        product.is_active = False
+        product.save(update_fields=["is_active"])
+        state = self.client.get("/cart/", HTTP_HOST="smashfat.ca")
+
+        self.assertEqual(state.json()["count"], 0)
+        self.assertEqual(state.json()["items"], [])
+        checkout = self.client.post(
+            "/checkout/",
+            {"name": "Lab", "email": "a@b.ca", "shipping_address": "1 Bench Rd",
+             "payment_method": "interac", "ruo_ack": "1", "buyer_ack": "1",
+             "resale_ack": "1"},
+            content_type="application/json", HTTP_HOST="smashfat.ca",
+        )
+        self.assertEqual(checkout.status_code, 400)
+        self.assertEqual(checkout.json()["error"], "Your cart is empty.")
+
     def test_checkout_requires_ruo_acknowledgement(self):
         """The research-use-only tick is the record that the buyer was told what
         they were buying. Without it the order must not be created."""
         self.client.get("/", HTTP_HOST="smashfat.ca")
-        self.client.post("/cart/add/", {"product_id": 1, "qty": 1},
+        self.client.post("/cart/add/", {"product_id": self.cart_product.id, "qty": 1},
                          content_type="application/json", HTTP_HOST="smashfat.ca")
         out = self.client.post(
             "/checkout/",
@@ -89,7 +128,7 @@ class StorefrontTests(TestCase):
         """The manufacturing partner ships direct, so there is no order without
         somewhere to send it."""
         self.client.get("/", HTTP_HOST="smashfat.ca")
-        self.client.post("/cart/add/", {"product_id": 1, "qty": 1},
+        self.client.post("/cart/add/", {"product_id": self.cart_product.id, "qty": 1},
                          content_type="application/json", HTTP_HOST="smashfat.ca")
         out = self.client.post(
             "/checkout/", {"name": "Lab", "email": "a@b.ca", "ruo_ack": "1", "buyer_ack": "1", "resale_ack": "1"},
@@ -202,6 +241,7 @@ class BulkPricingTests(TestCase):
     def setUpTestData(cls):
         call_command("seed_catalog")
         call_command("seed_sites")
+        cls.cart_product = Product.objects.get(slug="bpc-157")
 
     def test_bulk_tiers(self):
         from apps.stores.cart import bulk_pct_for_qty
@@ -211,7 +251,7 @@ class BulkPricingTests(TestCase):
     def test_volume_order_does_not_auto_discount_in_cart(self):
         self.client.get("/", HTTP_HOST="smashfat.ca")
         r = self.client.post(
-            "/cart/add/", {"product_id": 1, "qty": 5},
+            "/cart/add/", {"product_id": self.cart_product.id, "qty": 5},
             content_type="application/json", HTTP_HOST="smashfat.ca",
         )
         data = r.json()
@@ -227,7 +267,7 @@ class BulkPricingTests(TestCase):
         """
         self.client.get("/", HTTP_HOST="smashfat.ca")
         r = self.client.post(
-            "/cart/add/", {"product_id": 1},
+            "/cart/add/", {"product_id": self.cart_product.id},
             content_type="application/json", HTTP_HOST="smashfat.ca",
         )
         data = r.json()
@@ -240,8 +280,7 @@ class BulkPricingTests(TestCase):
         self.assertEqual(float(data["savings"]), 0.0)
 
     def test_pack_price_is_ten_times_the_vial_price(self):
-        from apps.catalog.models import Product
-        p = Product.objects.get(id=1)
+        p = self.cart_product
         self.assertEqual(p.pack_price, p.price * 10)
         self.assertEqual(p.pack_list_price, p.list_price * 10)
 
@@ -257,10 +296,10 @@ class BulkPricingTests(TestCase):
     def test_sub_pack_quantity_cannot_be_forced_by_a_crafted_request(self):
         """The server does not trust the client to have enforced the minimum."""
         self.client.get("/", HTTP_HOST="smashfat.ca")
-        self.client.post("/cart/add/", {"product_id": 1},
+        self.client.post("/cart/add/", {"product_id": self.cart_product.id},
                          content_type="application/json", HTTP_HOST="smashfat.ca")
         r = self.client.post(
-            "/cart/update/", {"product_id": 1, "qty": 0.4},
+            "/cart/update/", {"product_id": self.cart_product.id, "qty": 0.4},
             content_type="application/json", HTTP_HOST="smashfat.ca",
         )
         item = r.json()["items"][0]
@@ -280,13 +319,14 @@ class PackOrderMathTests(TestCase):
     def setUpTestData(cls):
         call_command("seed_catalog")
         call_command("seed_sites")
+        cls.cart_product = Product.objects.get(slug="bpc-157")
 
     def _order(self, qty=2):
         from apps.orders.models import Order
         from apps.stores.models import Site
         site = Site.objects.get(domain="smashfat.ca")
         self.client.get("/", HTTP_HOST="smashfat.ca")
-        self.client.post("/cart/add/", {"product_id": 1, "qty": qty},
+        self.client.post("/cart/add/", {"product_id": self.cart_product.id, "qty": qty},
                          content_type="application/json", HTTP_HOST="smashfat.ca")
         from apps.stores.cart import Cart
 

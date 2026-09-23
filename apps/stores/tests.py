@@ -458,7 +458,7 @@ class PolicyPageTests(TestCase):
             self.assertIn(f"/{slug}/", sm)
 
     def test_public_contact_email_opts_out_of_cloudflare_rewriting(self):
-        for path in ("/", "/shipping/"):
+        for path in ("/", "/shipping/", "/returns/", "/privacy/", "/terms/"):
             html = self.client.get(
                 path, HTTP_HOST="smashfatbiolabs.ca", secure=True
             ).content.decode()
@@ -467,6 +467,20 @@ class PolicyPageTests(TestCase):
                 'href="mailto:info@smashfatbiolabs.ca"', html, path
             )
             self.assertIn("<!--/email_off-->", html, path)
+            self.assertNotIn("/cdn-cgi/l/email-protection", html, path)
+
+    def test_policy_paragraph_email_is_excluded_from_edge_obfuscation(self):
+        for host in ("smashfatbiolabs.ca", "smashfatbiolabs.com"):
+            html = self.client.get(
+                "/returns/", HTTP_HOST=host, secure=True
+            ).content.decode()
+            self.assertIn(
+                f"<!--email_off-->Email info@{host} with your order number",
+                html,
+            )
+            self.assertIn(
+                "photographs where relevant.<!--/email_off-->", html
+            )
 
 
 class RegionPageTests(TestCase):

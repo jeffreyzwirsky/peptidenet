@@ -19,7 +19,7 @@ template serves all 8 storefronts in their own theme.{% endcomment %}
         {% for section in policy.sections %}
         <section class="policy-block">
           <h2>{{ section.heading }}</h2>
-          {% for p in section.paragraphs %}<p>{{ p }}</p>{% endfor %}
+          {% for p in section.paragraphs %}<p><!--email_off-->{{ p }}<!--/email_off--></p>{% endfor %}
         </section>
         {% endfor %}
 

@@ -147,15 +147,36 @@ def _shipping(site):
 
 # ----------------------------------------------------------------- returns ---
 def _returns(site):
-    brand, window = _brand(site), _window(site)
+    window = _window(site)
+    if _is_ca(site):
+        market = "Canada"
+        customs_agency = "Canada Border Services Agency (CBSA)"
+        order_context = (
+            "This page covers orders placed on our Canadian storefront. Use the order "
+            "number and tracking link from your Canadian order confirmation "
+            "when contacting us. Prices on this storefront are shown in "
+            "Canadian dollars (CAD)."
+        )
+    else:
+        market = "United States"
+        customs_agency = "U.S. Customs and Border Protection (CBP)"
+        order_context = (
+            "This page covers orders placed on our U.S. storefront. Use the order "
+            "number and tracking link from your U.S. order confirmation "
+            "when contacting us. Prices on this storefront are shown in "
+            "U.S. dollars (USD)."
+        )
     return {
-        "title": "Returns & Refunds",
+        "title": f"Returns & Refunds — {market}",
+        "updated": "23 September 2026",
         "summary": (
-            "We replace or refund anything that arrives damaged, incorrect, or "
-            "does not arrive at all. We cannot accept returns of opened or "
+            f"Returns and refund requests for {market} research orders. We replace "
+            "or refund anything that arrives damaged, incorrect, or does not "
+            "arrive at all. We cannot accept returns of opened or "
             "temperature-sensitive materials."
         ),
         "sections": [
+            (f"Orders placed on the {market} storefront", [order_context]),
             ("What we will always put right", [
                 "**Damaged on arrival.** A cracked vial, a compromised seal or a "
                 "broken stopper. Photograph it before opening anything else and "
@@ -179,7 +200,8 @@ def _returns(site):
                 "unannounced return cannot be credited.",
             ]),
             ("Customs seizures", [
-                "If a shipment is seized or refused entry, contact us with any "
+                f"If {customs_agency} or the carrier holds, seizes, or refuses "
+                "your shipment, contact us with the tracking number and any "
                 "notice you received. We will review it with you.",
                 "Because you are the importer of record and import rules vary by "
                 "jurisdiction, a seizure is not automatically refundable. We look at "

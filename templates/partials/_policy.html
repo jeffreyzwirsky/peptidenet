@@ -23,7 +23,7 @@ template serves all 8 storefronts in their own theme.{% endcomment %}
         </section>
         {% endfor %}
 
-        <p class="policy-updated">Last updated 28 July 2026.</p>
+        <p class="policy-updated">Last updated {{ policy.updated|default:"28 July 2026" }}.</p>
       </div>
 
       <aside class="policy-aside">

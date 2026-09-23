@@ -426,6 +426,24 @@ class PolicyPageTests(TestCase):
         self.assertNotIn("PIPEDA", us)
         self.assertIn("California", us)
 
+    def test_returns_country_pair_has_distinct_content_and_indexing_signals(self):
+        for host, market, customs, currency, other_host in (
+            ("smashfatbiolabs.ca", "Canada", "Canada Border Services Agency", "CAD", "smashfatbiolabs.com"),
+            ("smashfatbiolabs.com", "United States", "U.S. Customs and Border Protection", "USD", "smashfatbiolabs.ca"),
+        ):
+            response = self.client.get("/returns/", HTTP_HOST=host, secure=True)
+            self.assertEqual(response.status_code, 200)
+            html = response.content.decode()
+            self.assertIn(f"Returns &amp; Refunds — {market}", html)
+            self.assertIn("Last updated 23 September 2026.", html)
+            self.assertIn(customs, html)
+            self.assertIn(f"({currency})", html)
+            self.assertNotIn("noindex", html.lower())
+            self.assertIn(f'<link rel="canonical" href="https://{host}/returns/">', html)
+            self.assertIn(f'href="https://{other_host}/returns/"', html)
+            sitemap = self.client.get("/sitemap.xml", HTTP_HOST=host, secure=True)
+            self.assertContains(sitemap, f"https://{host}/returns/")
+
     def test_terms_carry_the_research_use_only_gate(self):
         html = self.client.get("/terms/", HTTP_HOST="smashfat.ca").content.decode()
         self.assertIn("research use only", html.lower())
